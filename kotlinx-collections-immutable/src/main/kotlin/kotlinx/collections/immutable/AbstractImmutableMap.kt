@@ -17,6 +17,7 @@ public abstract class AbstractImmutableMap<K, out V> protected constructor(prote
     override fun toString(): String = impl.toString()
 
 
+    // should it be immutable set/collection or just read-only?
     private var keysWrapped: ImmutableSet<K>? = null
     override val keys: ImmutableSet<K> get() = keysWrapped ?: ImmutableSetWrapper(impl.keys).apply { keysWrapped = this }
 

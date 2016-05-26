@@ -18,6 +18,31 @@ inline operator fun <E> ImmutableList<E>.plus(element: E): ImmutableList<E> = ad
 inline operator fun <E> ImmutableList<E>.minus(element: E): ImmutableList<E> = removed(element)
 
 
+operator fun <E> ImmutableList<E>.plus(elements: Iterable<E>): ImmutableList<E>
+        = if (elements is Collection) addedAll(elements) else mutate { it.addAll(elements) }
+
+operator fun <E> ImmutableList<E>.minus(elements: Iterable<E>): ImmutableList<E>
+        = if (elements is Collection) removedAll(elements) else mutate { it.removeAll(elements) }
+
+
+inline operator fun <E> ImmutableSet<E>.plus(element: E): ImmutableSet<E> = added(element)
+inline operator fun <E> ImmutableSet<E>.minus(element: E): ImmutableSet<E> = removed(element)
+
+
+operator fun <E> ImmutableSet<E>.plus(elements: Iterable<E>): ImmutableSet<E>
+        = if (elements is Collection) addedAll(elements) else mutate { it.addAll(elements) }
+
+operator fun <E> ImmutableSet<E>.minus(elements: Iterable<E>): ImmutableSet<E>
+        = if (elements is Collection) removedAll(elements) else mutate { it.removeAll(elements) }
+
+
+inline operator fun <K, V> ImmutableMap<K, V>.plus(pair: Pair<K, V>): ImmutableMap<K, V> = added(pair.first, pair.second)
+
+operator fun <K, V> ImmutableMap<K, V>.plus(pairs: Iterable<Pair<K, V>>): ImmutableMap<K, V>
+        = mutate { it.putAll(pairs) }
+
+// ImmutableMap.minus ?
+
 
 fun <E> immutableListOf(vararg elements: E): ImmutableList<E> = ImmutableVectorList.emptyOf<E>().addedAll(elements.asList())
 fun <E> immutableListOf(): ImmutableList<E> = ImmutableVectorList.emptyOf<E>()

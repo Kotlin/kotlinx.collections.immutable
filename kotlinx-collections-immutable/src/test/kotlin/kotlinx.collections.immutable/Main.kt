@@ -2,11 +2,12 @@ package kotlinx.collections.immutable
 
 fun main(args: Array<String>) {
 
-    val set = immutableHashSetOf("d", "b", "c") + null
-//
-//    val builder = set.builder()
-//    builder.removeAll { it > "b" }
-//    println(builder)
+    val set = immutableHashSetOf("d", "b", "c") + null as String?
+    set.run {
+        val builder = set.builder()
+        builder.removeAll { it.orEmpty() > "b" }
+        println(builder)
+    }
 
     val map = immutableHashMapOf(1 to "a", 2 to "b", -1 to "d", 3 to "c", null to "z")
     println(map.entries)
