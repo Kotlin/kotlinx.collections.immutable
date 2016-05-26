@@ -1,3 +1,4 @@
 /.idea
 *.iml
 target
+/kotlinx-collections-immutable/dependency-reduced-pom.xml
