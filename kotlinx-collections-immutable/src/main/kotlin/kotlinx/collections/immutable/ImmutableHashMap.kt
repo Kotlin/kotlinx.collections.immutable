@@ -7,6 +7,8 @@ public class ImmutableHashMap<K, out V> private constructor(impl: PMap<K, V>) : 
     override fun wrap(impl: PMap<K, @UnsafeVariance V>): ImmutableHashMap<K, V>
             = if (this.impl === impl) this else ImmutableHashMap(impl)
 
+    override fun cleared(): ImmutableMap<K, V> = emptyOf()
+
     override fun builder(): Builder<K, @UnsafeVariance V> = Builder(this, impl)
 
     class Builder<K, V> internal constructor(value: ImmutableHashMap<K, V>, impl: PMap<K, V>) : AbstractImmutableMap.Builder<K, V>(value, impl) {

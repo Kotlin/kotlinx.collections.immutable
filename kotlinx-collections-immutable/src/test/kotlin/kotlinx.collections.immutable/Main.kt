@@ -2,7 +2,7 @@ package kotlinx.collections.immutable
 
 fun main(args: Array<String>) {
 
-    val set = immutableHashSetOf("d", "b", "c", null)
+    val set = immutableHashSetOf("d", "b", "c") + null
 //
 //    val builder = set.builder()
 //    builder.removeAll { it > "b" }
@@ -33,7 +33,7 @@ fun foo() {
     var list: ImmutableList<String> = ImmutableVectorList.emptyOf()
 
     list = list.mutate { it.removeAll { it.length > 2 } }
-    list = list.withoutAll { it.length >  2}
+    list = list.removedAll { it.length >  2}
 
     (list as List<String>) + 2
 

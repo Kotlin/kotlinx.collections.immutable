@@ -24,30 +24,30 @@ class ImmutableVectorList<out E> private constructor(private val impl: PVector<E
 
 
 
-    override fun with(element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.plus(element))
+    override fun added(element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.plus(element))
 
-    override fun withAt(index: Int, element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.plus(index, element))
+    override fun added(index: Int, element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.plus(index, element))
 
-    override fun withAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> = wrap(impl.plusAll(elements))
+    override fun addedAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> = wrap(impl.plusAll(elements))
 
-    override fun withAllAt(index: Int, c: Collection<@UnsafeVariance E>): ImmutableList<E> = wrap(impl.plusAll(index, c))
+    override fun addedAll(index: Int, c: Collection<@UnsafeVariance E>): ImmutableList<E> = wrap(impl.plusAll(index, c))
 
-    override fun without(element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.minus(element))
+    override fun removed(element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.minus(element))
 
     // not minusAll
-    override fun withoutAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> = mutate { it.removeAll(elements) }
+    override fun removedAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> = mutate { it.removeAll(elements) }
 
-    override fun withoutAll(predicate: (E) -> Boolean): ImmutableList<E> = mutate { it.removeAll(predicate) }
+    override fun removedAll(predicate: (E) -> Boolean): ImmutableList<E> = mutate { it.removeAll(predicate) }
 
     //    override fun retainAll(c: Collection<@UnsafeVariance E>): ImmutableList<E> = builder().apply { retainAll(c) }.build()
 
     override fun setAt(index: Int, element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.with(index, element))
 
-    override fun withoutAt(index: Int): ImmutableList<E> = wrap(impl.minus(index))
+    override fun removedAt(index: Int): ImmutableList<E> = wrap(impl.minus(index))
 
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = wrap(impl.subList(fromIndex, toIndex))
 
-//    override fun clear(): ImmutableList<E> = EMPTY
+    override fun cleared(): ImmutableList<E> = EMPTY
 
     override fun builder(): Builder<@UnsafeVariance E> = Builder(this, impl)
 

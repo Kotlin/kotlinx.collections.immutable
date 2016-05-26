@@ -26,9 +26,9 @@ public abstract class AbstractImmutableMap<K, out V> protected constructor(prote
     private var entriesWrapped: ImmutableSet<Map.Entry<K, V>>? = null
     override val entries: ImmutableSet<Map.Entry<K, V>> get() = entriesWrapped ?: ImmutableSetWrapper(impl.entries).apply { entriesWrapped = this }
 
-    override fun with(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value))
-    override fun withAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> = wrap(impl.plusAll(m))
-    override fun without(key: K): ImmutableMap<K, V> = wrap(impl.minus(key))
+    override fun added(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value))
+    override fun addedAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> = wrap(impl.plusAll(m))
+    override fun removed(key: K): ImmutableMap<K, V> = wrap(impl.minus(key))
 
     override abstract fun builder(): Builder<K, @UnsafeVariance V>
 
@@ -156,21 +156,22 @@ private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<
 
     override fun builder(): ImmutableCollection.Builder<E> = ImmutableVectorList.emptyOf<E>().builder().apply { addAll(impl) }
 
-    override fun with(element: E): ImmutableCollection<E> = builder().apply { add(element) }.build()
-    override fun withAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { addAll(elements) }.build()
-    override fun without(element: E): ImmutableCollection<E> = builder().apply { remove(element) }.build()
-    override fun withoutAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { removeAll(elements) }.build()
-    override fun withoutAll(predicate: (E) -> Boolean): ImmutableCollection<E> = builder().apply { removeAll(predicate) }.build()
-
+    override fun added(element: E): ImmutableCollection<E> = builder().apply { add(element) }.build()
+    override fun addedAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { addAll(elements) }.build()
+    override fun removed(element: E): ImmutableCollection<E> = builder().apply { remove(element) }.build()
+    override fun removedAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { removeAll(elements) }.build()
+    override fun removedAll(predicate: (E) -> Boolean): ImmutableCollection<E> = builder().apply { removeAll(predicate) }.build()
+    override fun cleared(): ImmutableCollection<E> = immutableListOf()
 }
 
 private class ImmutableSetWrapper<E>(impl: Set<E>) : ImmutableSet<E>, ImmutableCollectionWrapper<E>(impl) {
 
     override fun builder(): ImmutableSet.Builder<E> = ImmutableOrderedSet.emptyOf<E>().builder().apply { addAll(impl) }
 
-    override fun with(element: E): ImmutableSet<E> = super.with(element) as ImmutableSet
-    override fun withAll(elements: Collection<E>): ImmutableSet<E> = super.withAll(elements) as ImmutableSet
-    override fun without(element: E): ImmutableSet<E> = super.without(element) as ImmutableSet
-    override fun withoutAll(elements: Collection<E>): ImmutableSet<E> = super.withoutAll(elements) as ImmutableSet
-    override fun withoutAll(predicate: (E) -> Boolean): ImmutableSet<E> = super.withoutAll(predicate) as ImmutableSet
+    override fun added(element: E): ImmutableSet<E> = super.added(element) as ImmutableSet
+    override fun addedAll(elements: Collection<E>): ImmutableSet<E> = super.addedAll(elements) as ImmutableSet
+    override fun removed(element: E): ImmutableSet<E> = super.removed(element) as ImmutableSet
+    override fun removedAll(elements: Collection<E>): ImmutableSet<E> = super.removedAll(elements) as ImmutableSet
+    override fun removedAll(predicate: (E) -> Boolean): ImmutableSet<E> = super.removedAll(predicate) as ImmutableSet
+    override fun cleared(): ImmutableSet<E> = immutableSetOf()
 }
