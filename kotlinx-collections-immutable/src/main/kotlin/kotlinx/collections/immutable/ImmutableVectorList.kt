@@ -3,8 +3,6 @@ package kotlinx.collections.immutable
 import org.pcollections.*
 import java.util.*
 
-fun <E: E1, E1> ImmutableVectorList<E>.builder(): ImmutableVectorList.Builder<E1> = (this as ImmutableVectorList<E1>).builder()
-
 class ImmutableVectorList<out E> private constructor(private val impl: PVector<E>) : ImmutableList<E> {
 
     // delegating to impl

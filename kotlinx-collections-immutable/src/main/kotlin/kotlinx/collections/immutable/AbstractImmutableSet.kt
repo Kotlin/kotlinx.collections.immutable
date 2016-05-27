@@ -40,10 +40,10 @@ public abstract class AbstractImmutableSet<out E> protected constructor(protecte
         override fun containsAll(elements: Collection<@UnsafeVariance E>): Boolean = impl.containsAll(elements)
 
         override fun iterator(): MutableIterator<E> = object : MutableIterator<E> {
-            var snapshot = impl
-            val iterator = impl.iterator()
-            var nextCalled: Boolean = false
-            var current: E? = null
+            private var snapshot = impl
+            private val iterator = impl.iterator()
+            private var nextCalled: Boolean = false
+            private var current: E? = null
 
             override fun hasNext(): Boolean = iterator.hasNext()
 

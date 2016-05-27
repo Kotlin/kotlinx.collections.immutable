@@ -75,9 +75,10 @@ public abstract class AbstractImmutableMap<K, out V> protected constructor(prote
                 }
 
                 override fun iterator() = object : MutableIterator<MutableMap.MutableEntry<K, V>> {
-                    var snapshot = impl
-                    val iterator = impl.entries.iterator()
-                    var entry: MutableMap.MutableEntry<K,V>? = null
+                    @JvmField
+                    protected var snapshot = impl
+                    private val iterator = impl.entries.iterator()
+                    private var entry: MutableMap.MutableEntry<K,V>? = null
 
                     override fun hasNext(): Boolean = iterator.hasNext()
                     override fun next(): MutableMap.MutableEntry<K, V> {
