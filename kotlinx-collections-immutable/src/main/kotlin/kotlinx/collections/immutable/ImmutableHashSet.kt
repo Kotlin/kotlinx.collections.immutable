@@ -7,7 +7,7 @@ public class ImmutableHashSet<out E> private constructor(impl: PSet<E>) : Abstra
     override fun wrap(impl: PSet<@UnsafeVariance E>): ImmutableHashSet<E>
         = if (impl === this.impl) this else ImmutableHashSet(impl)
 
-    override fun cleared(): AbstractImmutableSet<E> = EMPTY
+    override fun clear(): AbstractImmutableSet<E> = EMPTY
 
     override fun builder(): Builder<@UnsafeVariance E> = Builder(this, impl)
 

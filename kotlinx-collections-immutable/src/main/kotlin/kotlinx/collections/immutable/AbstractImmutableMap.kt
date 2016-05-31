@@ -27,9 +27,11 @@ public abstract class AbstractImmutableMap<K, out V> protected constructor(prote
     private var entriesWrapped: ImmutableSet<Map.Entry<K, V>>? = null
     override val entries: ImmutableSet<Map.Entry<K, V>> get() = entriesWrapped ?: ImmutableSetWrapper(impl.entries).apply { entriesWrapped = this }
 
-    override fun added(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value))
-    override fun addedAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> = wrap(impl.plusAll(m))
-    override fun removed(key: K): ImmutableMap<K, V> = wrap(impl.minus(key))
+    override fun add(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value))
+    override fun addAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> = wrap(impl.plusAll(m))
+    override fun remove(key: K): ImmutableMap<K, V> = wrap(impl.minus(key))
+    override fun remove(key: K, value: @UnsafeVariance V): ImmutableMap<K, V>
+            = if (!impl.contains(key, value)) this else wrap(impl.minus(key))
 
     override abstract fun builder(): Builder<K, @UnsafeVariance V>
 
@@ -56,14 +58,8 @@ public abstract class AbstractImmutableMap<K, out V> protected constructor(prote
                 override val size: Int get() = impl.size
                 override fun isEmpty(): Boolean = impl.isEmpty()
                 override fun clear() = this@Builder.clear()
-                override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean {
-                    val (key, value) = element
-                    val candidate = impl.get(key)
-                    return if (candidate != null)
-                        candidate == value
-                    else
-                        impl.contains(key) && value == null
-                }
+                override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean
+                    = impl.contains(element.key, element.value)
 
                 override fun remove(element: MutableMap.MutableEntry<K, V>): Boolean {
                     if (contains(element)) {
@@ -143,6 +139,9 @@ public abstract class AbstractImmutableMap<K, out V> protected constructor(prote
     }
 }
 
+private fun <K, V> PMap<K, V>.contains(key: K, value: @UnsafeVariance V): Boolean
+    = this[key]?.let { candidate -> candidate == value } ?: (containsKey(key) && value == null)
+
 
 
 private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<E>) : ImmutableCollection<E> {
@@ -158,22 +157,22 @@ private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<
 
     override fun builder(): ImmutableCollection.Builder<E> = ImmutableVectorList.emptyOf<E>().builder().apply { addAll(impl) }
 
-    override fun added(element: E): ImmutableCollection<E> = builder().apply { add(element) }.build()
-    override fun addedAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { addAll(elements) }.build()
-    override fun removed(element: E): ImmutableCollection<E> = builder().apply { remove(element) }.build()
-    override fun removedAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { removeAll(elements) }.build()
-    override fun removedAll(predicate: (E) -> Boolean): ImmutableCollection<E> = builder().apply { removeAll(predicate) }.build()
-    override fun cleared(): ImmutableCollection<E> = immutableListOf()
+    override fun add(element: E): ImmutableCollection<E> = builder().apply { add(element) }.build()
+    override fun addAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { addAll(elements) }.build()
+    override fun remove(element: E): ImmutableCollection<E> = builder().apply { remove(element) }.build()
+    override fun removeAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { removeAll(elements) }.build()
+    override fun removeAll(predicate: (E) -> Boolean): ImmutableCollection<E> = builder().apply { removeAll(predicate) }.build()
+    override fun clear(): ImmutableCollection<E> = immutableListOf()
 }
 
 private class ImmutableSetWrapper<E>(impl: Set<E>) : ImmutableSet<E>, ImmutableCollectionWrapper<E>(impl) {
 
     override fun builder(): ImmutableSet.Builder<E> = ImmutableOrderedSet.emptyOf<E>().builder().apply { addAll(impl) }
 
-    override fun added(element: E): ImmutableSet<E> = super.added(element) as ImmutableSet
-    override fun addedAll(elements: Collection<E>): ImmutableSet<E> = super.addedAll(elements) as ImmutableSet
-    override fun removed(element: E): ImmutableSet<E> = super.removed(element) as ImmutableSet
-    override fun removedAll(elements: Collection<E>): ImmutableSet<E> = super.removedAll(elements) as ImmutableSet
-    override fun removedAll(predicate: (E) -> Boolean): ImmutableSet<E> = super.removedAll(predicate) as ImmutableSet
-    override fun cleared(): ImmutableSet<E> = immutableSetOf()
+    override fun add(element: E): ImmutableSet<E> = super.add(element) as ImmutableSet
+    override fun addAll(elements: Collection<E>): ImmutableSet<E> = super.addAll(elements) as ImmutableSet
+    override fun remove(element: E): ImmutableSet<E> = super.remove(element) as ImmutableSet
+    override fun removeAll(elements: Collection<E>): ImmutableSet<E> = super.removeAll(elements) as ImmutableSet
+    override fun removeAll(predicate: (E) -> Boolean): ImmutableSet<E> = super.removeAll(predicate) as ImmutableSet
+    override fun clear(): ImmutableSet<E> = immutableSetOf()
 }

@@ -15,17 +15,17 @@ public abstract class AbstractImmutableSet<out E> protected constructor(protecte
     override fun hashCode(): Int = impl.hashCode()
     override fun toString(): String = impl.toString()
 
-    override fun added(element: @UnsafeVariance E): ImmutableSet<E> = wrap(impl.plus(element))
+    override fun add(element: @UnsafeVariance E): ImmutableSet<E> = wrap(impl.plus(element))
 
-    override fun addedAll(elements: Collection<@UnsafeVariance E>): ImmutableSet<E> = wrap(impl.plusAll(elements))
+    override fun addAll(elements: Collection<@UnsafeVariance E>): ImmutableSet<E> = wrap(impl.plusAll(elements))
 
-    override fun removed(element: @UnsafeVariance E): ImmutableSet<E> = wrap(impl.minus(element))
+    override fun remove(element: @UnsafeVariance E): ImmutableSet<E> = wrap(impl.minus(element))
 
-    override fun removedAll(elements: Collection<@UnsafeVariance E>): ImmutableSet<E> = mutate { it.removeAll(elements) }
+    override fun removeAll(elements: Collection<@UnsafeVariance E>): ImmutableSet<E> = mutate { it.removeAll(elements) }
 
-    override fun removedAll(predicate: (E) -> Boolean): ImmutableSet<E> = mutate { it.removeAll(predicate) }
+    override fun removeAll(predicate: (E) -> Boolean): ImmutableSet<E> = mutate { it.removeAll(predicate) }
 
-    override abstract fun cleared(): AbstractImmutableSet<E>
+    override abstract fun clear(): AbstractImmutableSet<E>
 
     override abstract fun builder(): Builder<@UnsafeVariance E>
 

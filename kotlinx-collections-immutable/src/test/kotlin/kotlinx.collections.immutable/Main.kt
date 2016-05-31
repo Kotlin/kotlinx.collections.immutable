@@ -34,7 +34,7 @@ fun foo() {
     var list: ImmutableList<String> = ImmutableVectorList.emptyOf()
 
     list = list.mutate { it.removeAll { it.length > 2 } }
-    list = list.removedAll { it.length >  2}
+    list = list.removeAll { it.length >  2}
 
     (list as List<String>) + 2
 
