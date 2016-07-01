@@ -27,8 +27,8 @@ public abstract class AbstractImmutableMap<K, out V> protected constructor(prote
     private var entriesWrapped: ImmutableSet<Map.Entry<K, V>>? = null
     override val entries: ImmutableSet<Map.Entry<K, V>> get() = entriesWrapped ?: ImmutableSetWrapper(impl.entries).apply { entriesWrapped = this }
 
-    override fun add(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value))
-    override fun addAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> = wrap(impl.plusAll(m))
+    override fun put(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value))
+    override fun putAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> = wrap(impl.plusAll(m))
     override fun remove(key: K): ImmutableMap<K, V> = wrap(impl.minus(key))
     override fun remove(key: K, value: @UnsafeVariance V): ImmutableMap<K, V>
             = if (!impl.contains(key, value)) this else wrap(impl.minus(key))

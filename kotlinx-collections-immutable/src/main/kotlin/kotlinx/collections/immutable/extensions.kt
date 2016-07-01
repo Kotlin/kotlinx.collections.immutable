@@ -36,7 +36,7 @@ operator fun <E> ImmutableSet<E>.minus(elements: Iterable<E>): ImmutableSet<E>
         = if (elements is Collection) removeAll(elements) else mutate { it.removeAll(elements) }
 
 
-inline operator fun <K, V> ImmutableMap<K, V>.plus(pair: Pair<K, V>): ImmutableMap<K, V> = add(pair.first, pair.second)
+inline operator fun <K, V> ImmutableMap<K, V>.plus(pair: Pair<K, V>): ImmutableMap<K, V> = put(pair.first, pair.second)
 
 operator fun <K, V> ImmutableMap<K, V>.plus(pairs: Iterable<Pair<K, V>>): ImmutableMap<K, V>
         = mutate { it.putAll(pairs) }

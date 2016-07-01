@@ -2,6 +2,7 @@ package kotlinx.collections.immutable
 
 fun main(args: Array<String>) {
 
+    mapOfMap()
     val set = immutableHashSetOf("d", "b", "c") + null as String?
     set.run {
         val builder = set.builder()
@@ -9,7 +10,8 @@ fun main(args: Array<String>) {
         println(builder)
     }
 
-    val map = immutableHashMapOf(1 to "a", 2 to "b", -1 to "d", 3 to "c", null to "z")
+    var map = immutableHashMapOf(1 to "a", 2 to "b", -1 to "d", 3 to "c", null to "z")
+
     println(map.entries)
 
     val builder = map.builder()
@@ -27,8 +29,16 @@ fun main(args: Array<String>) {
     builder.keys.removeAll { it?:0 > 1 }
     println(builder)
 
-
+    map = builder.build()
 }
+
+
+fun mapOfMap() {
+    var map = immutableHashMapOf(1 to immutableHashMapOf("x" to 2 as Any)).put(1, immutableHashMapOf())
+
+    println(map)
+}
+
 
 fun foo() {
     var list: ImmutableList<String> = ImmutableVectorList.emptyOf()
