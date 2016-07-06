@@ -111,6 +111,7 @@ internal class ImmutableVectorList<out E> private constructor(private val impl: 
 
         override fun set(index: Int, element: E): E = get(index).apply { mutate { it.with(index, element) } }
 
+        // TODO: make subList a view of this builder, rather than builder of the view
         override fun subList(fromIndex: Int, toIndex: Int): Builder<E> = Builder(value, impl.subList(fromIndex, toIndex))
     }
 

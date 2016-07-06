@@ -53,3 +53,18 @@ fun <E> immutableSetOf(): ImmutableSet<E> = ImmutableOrderedSet.emptyOf<E>()
 fun <E> immutableHashSetOf(vararg elements: E): ImmutableSet<E> = ImmutableHashSet.emptyOf<E>().addAll(elements.asList())
 
 fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = ImmutableHashMap.emptyOf<K,V>().mutate { it += pairs }
+
+fun <T> List<T>.toImmutable(): ImmutableList<T>
+    = this as? ImmutableList
+        ?: (this as? ImmutableList.Builder)?.build()
+        ?: ImmutableVectorList.emptyOf<T>().addAll(this)
+
+fun <T> Set<T>.toImmutable(): ImmutableSet<T>
+    = this as? ImmutableSet<T>
+        ?: (this as? ImmutableSet.Builder)?.build()
+        ?: ImmutableOrderedSet.emptyOf<T>().addAll(this)
+
+fun <T> Set<T>.toImmutableHashSet(): ImmutableSet<T>
+    = this as? ImmutableHashSet
+        ?: (this as? ImmutableHashSet.Builder)?.build()
+        ?: ImmutableHashSet.emptyOf<T>().addAll(this)
