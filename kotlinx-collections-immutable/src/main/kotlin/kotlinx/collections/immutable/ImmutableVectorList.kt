@@ -3,7 +3,7 @@ package kotlinx.collections.immutable
 import org.pcollections.*
 import java.util.*
 
-class ImmutableVectorList<out E> private constructor(private val impl: PVector<E>) : ImmutableList<E> {
+internal class ImmutableVectorList<out E> private constructor(private val impl: PVector<E>) : ImmutableList<E> {
 
     // delegating to impl
     override val size: Int get() = impl.size

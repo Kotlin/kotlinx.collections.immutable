@@ -3,7 +3,7 @@ package kotlinx.collections.immutable
 import org.pcollections.PMap
 import java.util.*
 
-public abstract class AbstractImmutableMap<K, out V> protected constructor(protected val impl: PMap<K, @UnsafeVariance V>) : ImmutableMap<K, V> {
+internal abstract class AbstractImmutableMap<K, out V> protected constructor(protected val impl: PMap<K, @UnsafeVariance V>) : ImmutableMap<K, V> {
 
     override val size: Int get() = impl.size
     override fun isEmpty(): Boolean = impl.isEmpty()

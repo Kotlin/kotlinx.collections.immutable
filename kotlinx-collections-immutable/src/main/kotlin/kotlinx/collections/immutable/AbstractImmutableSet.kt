@@ -3,7 +3,7 @@ package kotlinx.collections.immutable
 import org.pcollections.PSet
 import java.util.*
 
-public abstract class AbstractImmutableSet<out E> protected constructor(protected val impl: PSet<@UnsafeVariance E>) : ImmutableSet<E> {
+internal abstract class AbstractImmutableSet<out E> protected constructor(protected val impl: PSet<@UnsafeVariance E>) : ImmutableSet<E> {
 
     override val size: Int get() = impl.size
     override fun isEmpty(): Boolean = impl.isEmpty()

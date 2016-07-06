@@ -3,7 +3,7 @@ package kotlinx.collections.immutable
 import org.pcollections.HashTreePMap
 import org.pcollections.PMap
 
-public class ImmutableHashMap<K, out V> private constructor(impl: PMap<K, V>) : AbstractImmutableMap<K, V>(impl) {
+internal class ImmutableHashMap<K, out V> private constructor(impl: PMap<K, V>) : AbstractImmutableMap<K, V>(impl) {
     override fun wrap(impl: PMap<K, @UnsafeVariance V>): ImmutableHashMap<K, V>
             = if (this.impl === impl) this else ImmutableHashMap(impl)
 
