@@ -129,6 +129,32 @@ class ImmutableListTest {
         assertEquals<List<*>>(mutable, builder.build())
     }
 
+    @Test fun noOperation() {
+        immutableListOf<Int>().testNoOperation({ clear() }, { clear() })
 
+        val list = "abcxaxyz12".toList().toImmutable()
+        with(list) {
+            testNoOperation({ remove('d') }, { remove('d') })
+            testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
+            testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
+        }
+    }
 
+    fun <T> ImmutableList<T>.testNoOperation(persistent: ImmutableList<T>.() -> ImmutableList<T>, mutating: MutableList<T>.() -> Unit) {
+        val result = this.persistent()
+        val buildResult = this.mutate(mutating)
+        // Ensure non-mutating operations return the same instance
+        assertTrue(this === result)
+        assertTrue(this === buildResult)
+    }
+
+    @Test fun covariantTyping() {
+        val listNothing = immutableListOf<Nothing>()
+
+        val listS: ImmutableList<String> = listNothing + "x"
+        val listSN: ImmutableList<String?> = listS + (null as String?)
+        val listAny: ImmutableList<Any?> = listSN + 1
+
+        assertEquals(listOf("x", null, 1), listAny)
+    }
 }
