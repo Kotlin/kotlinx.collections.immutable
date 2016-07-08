@@ -129,4 +129,14 @@ class ImmutableMapTest {
         assertTrue(this === buildResult)
     }
 
+
+    @Test
+    fun covariantTyping() {
+        val mapNothing = immutableMapOf<Nothing, Nothing>()
+        val mapSI: ImmutableMap<String, Int> = mapNothing + ("x" to 1)
+        val mapSNI: ImmutableMap<String, Int?> = mapSI + mapOf("y" to null)
+        val mapANA: ImmutableMap<Any, Any?> = mapSNI + listOf(1 to "x")
+
+        assertEquals(mapOf(1 to "x", "x" to 1, "y" to null), mapANA)
+    }
 }
