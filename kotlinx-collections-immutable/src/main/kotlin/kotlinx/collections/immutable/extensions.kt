@@ -37,9 +37,20 @@ operator fun <E> ImmutableSet<E>.minus(elements: Iterable<E>): ImmutableSet<E>
 
 
 inline operator fun <K, V> ImmutableMap<K, V>.plus(pair: Pair<K, V>): ImmutableMap<K, V> = put(pair.first, pair.second)
+inline operator fun <K, V> ImmutableMap<K, V>.plus(pairs: Iterable<Pair<K, V>>): ImmutableMap<K, V> = putAll(pairs)
+inline operator fun <K, V> ImmutableMap<K, V>.plus(pairs: Array<out Pair<K, V>>): ImmutableMap<K, V> = putAll(pairs)
+inline operator fun <K, V> ImmutableMap<K, V>.plus(pairs: Sequence<Pair<K, V>>): ImmutableMap<K, V> = putAll(pairs)
+inline operator fun <K, V> ImmutableMap<K, V>.plus(map: Map<out K, V>): ImmutableMap<K, V> = putAll(map)
 
-operator fun <K, V> ImmutableMap<K, V>.plus(pairs: Iterable<Pair<K, V>>): ImmutableMap<K, V>
-        = mutate { it.putAll(pairs) }
+public fun <K, V> ImmutableMap<K, V>.putAll(pairs: Iterable<Pair<K, V>>): ImmutableMap<K, V>
+        = (this as ImmutableMap<K, V>).mutate { it.putAll(pairs) }
+
+public fun <K, V> ImmutableMap<K, V>.putAll(pairs: Array<out Pair<K, V>>): ImmutableMap<K, V>
+        = (this as ImmutableMap<K, V>).mutate { it.putAll(pairs) }
+
+public fun <K, V> ImmutableMap<K, V>.putAll(pairs: Sequence<Pair<K, V>>): ImmutableMap<K, V>
+        = (this as ImmutableMap<K, V>).mutate { it.putAll(pairs) }
+
 
 // ImmutableMap.minus ?
 
@@ -68,3 +79,14 @@ fun <T> Set<T>.toImmutableHashSet(): ImmutableSet<T>
     = this as? ImmutableHashSet
         ?: (this as? ImmutableHashSet.Builder)?.build()
         ?: ImmutableHashSet.emptyOf<T>().addAll(this)
+
+
+fun <K, V> Map<K, V>.toImmutable(): ImmutableMap<K, V>
+    = this as? ImmutableMap
+        ?: (this as? ImmutableMap.Builder)?.build()
+        ?: ImmutableHashMap.emptyOf<K, V>().putAll(this) // TODO: ImmutableOrderedMap.emptyOf
+
+fun <K, V> Map<K, V>.toImmutableHashMap(): ImmutableMap<K, V>
+    = this as? ImmutableMap
+        ?: (this as? ImmutableHashMap.Builder)?.build()
+        ?: ImmutableHashMap.emptyOf<K, V>().putAll(this)
