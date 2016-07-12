@@ -1,6 +1,7 @@
 # kotlinx.collections.immutable
 
-Immutable collection interfaces and implementation prototypes for Kotlin.
+Immutable collection interfaces and implementation prototypes for Kotlin ([proposal](proposal.md))
+
 
 To initialize submodules, use the following commands:
 
