@@ -21,7 +21,7 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     override fun noOperation() {
         // immutableSetOf<Int>().testNoOperation({ clear() }, { clear() })  // fails to implement this property
 
-        val list = "abcxyz12".toSet().toImmutable()
+        val list = "abcxyz12".toList().toImmutableSet()
         with(list) {
             testNoOperation({ add('a') }, { add('a') })
             testNoOperation({ addAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
@@ -57,8 +57,8 @@ abstract class ImmutableSetTestBase {
         val original = setOf("a", "bar", "cat", null)
 
         val set = original.toMutableSet() // copy
-        var immSet = set.toImmutable()
-        val immSet2 = immSet.toImmutable()
+        var immSet = set.toImmutableSet()
+        val immSet2 = immSet.toImmutableSet()
         assertTrue(immSet2 === immSet)
 
         assertEquals<Set<*>>(set, immSet) // problem
@@ -84,7 +84,7 @@ abstract class ImmutableSetTestBase {
 
 
     @Test fun removeElements() {
-        val set = "abcxyz12".toSet().toImmutable()
+        val set = "abcxyz12".toList().toImmutableSet()
         fun expectSet(content: String, set: ImmutableSet<Char>) {
             assertEquals(content.toSet(), set)
         }
@@ -106,7 +106,7 @@ abstract class ImmutableSetTestBase {
         assertEquals<Set<*>>(set, builder)
         assertTrue(set === builder.build(), "Building the same set without modifications")
 
-        val set2 = builder.toImmutable()
+        val set2 = builder.toImmutableSet()
         assertTrue(set2 === set, "toImmutable calls build()")
 
         with(set) {
@@ -137,7 +137,7 @@ abstract class ImmutableSetTestBase {
     @Test open fun noOperation() {
         immutableSetOf<Int>().testNoOperation({ clear() }, { clear() })
 
-        val set = "abcxyz12".toSet().toImmutable()
+        val set = "abcxyz12".asIterable().toImmutableSet()
         with(set) {
             testNoOperation({ add('a') }, { add('a') })
             testNoOperation({ addAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })

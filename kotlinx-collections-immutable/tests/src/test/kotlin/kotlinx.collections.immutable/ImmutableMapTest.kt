@@ -32,8 +32,8 @@ class ImmutableMapTest {
         val original = mapOf("x" to 1, "y" to null, null to 2)
 
         val map = HashMap(original) // copy
-        var immMap = map.toImmutable()
-        val immMap2 = immMap.toImmutable()
+        var immMap = map.toImmutableMap()
+        val immMap2 = immMap.toImmutableMap()
         assertTrue(immMap2 === immMap)
 
         assertEquals<Map<*, *>>(map, immMap) // problem
@@ -85,7 +85,7 @@ class ImmutableMapTest {
         assertEquals<Map<*, *>>(map, builder)
         assertTrue(map === builder.build(), "Building the same list without modifications")
 
-        val map2 = builder.toImmutable()
+        val map2 = builder.toImmutableMap()
         assertTrue(map2 === map, "toImmutable calls build()")
 
         with(map) {

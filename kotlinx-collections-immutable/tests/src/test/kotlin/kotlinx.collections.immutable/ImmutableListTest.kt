@@ -26,8 +26,8 @@ class ImmutableListTest {
         val original = listOf("a", "bar", "cat", null)
 
         val list = original.toMutableList() // copy
-        var immList = list.toImmutable()
-        val immList2 = immList.toImmutable()
+        var immList = list.toImmutableList()
+        val immList2 = immList.toImmutableList()
         assertTrue(immList2 === immList)
 
         assertEquals<List<*>>(list, immList) // problem
@@ -54,7 +54,7 @@ class ImmutableListTest {
     }
 
     @Test fun replaceElements() {
-        var list = "abcxaxab12".toList().toImmutable()
+        var list = "abcxaxab12".toImmutableList()
 
         for (i in list.indices) {
             list = list.set(i, list[i] as Char + i)
@@ -66,7 +66,7 @@ class ImmutableListTest {
     }
 
     @Test fun removeElements() {
-        val list = "abcxaxyz12".toList().toImmutable()
+        val list = "abcxaxyz12".toImmutableList()
         fun expectList(content: String, list: ImmutableList<Char>) {
             assertEquals(content, list.joinToString(""))
         }
@@ -83,7 +83,7 @@ class ImmutableListTest {
     }
 
     @Test fun subList() {
-        val list = "abcxaxyz12".toList().toImmutable()
+        val list = "abcxaxyz12".toImmutableList()
         val subList = list.subList(2, 5) // 2, 3, 4
         assertTrue(subList is ImmutableList)
         assertEquals(listOf('c', 'x', 'a'), subList)
@@ -99,7 +99,7 @@ class ImmutableListTest {
         assertEquals<List<*>>(list, builder)
         assertTrue(list === builder.build(), "Building the same list without modifications")
 
-        val list2 = builder.toImmutable()
+        val list2 = builder.toImmutableList()
         assertTrue(list2 === list, "toImmutable calls build()")
 
         with(list) {
@@ -132,7 +132,7 @@ class ImmutableListTest {
     @Test fun noOperation() {
         immutableListOf<Int>().testNoOperation({ clear() }, { clear() })
 
-        val list = "abcxaxyz12".toList().toImmutable()
+        val list = "abcxaxyz12".toImmutableList()
         with(list) {
             testNoOperation({ remove('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })

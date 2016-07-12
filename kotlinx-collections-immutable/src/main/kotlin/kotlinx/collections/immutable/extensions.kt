@@ -67,23 +67,29 @@ fun <E> immutableHashSetOf(vararg elements: E): ImmutableSet<E> = ImmutableHashS
 
 fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = ImmutableHashMap.emptyOf<K,V>().mutate { it += pairs }
 
-fun <T> List<T>.toImmutable(): ImmutableList<T>
-    = this as? ImmutableList
+fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> =
+        this as? ImmutableList
         ?: (this as? ImmutableList.Builder)?.build()
-        ?: ImmutableVectorList.emptyOf<T>().addAll(this)
+        ?: immutableListOf<T>() + this
 
-fun <T> Set<T>.toImmutable(): ImmutableSet<T>
-    = this as? ImmutableSet<T>
+
+// fun <T> Array<T>.toImmutableList(): ImmutableList<T> = immutableListOf<T>() + this.asList()
+
+fun CharSequence.toImmutableList(): ImmutableList<Char> =
+        immutableListOf<Char>().mutate { this.toCollection(it) }
+
+fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
+        this as? ImmutableSet<T>
         ?: (this as? ImmutableSet.Builder)?.build()
-        ?: ImmutableOrderedSet.emptyOf<T>().addAll(this)
+        ?: immutableSetOf<T>() + this
 
 fun <T> Set<T>.toImmutableHashSet(): ImmutableSet<T>
     = this as? ImmutableHashSet
         ?: (this as? ImmutableHashSet.Builder)?.build()
-        ?: ImmutableHashSet.emptyOf<T>().addAll(this)
+        ?: ImmutableHashSet.emptyOf<T>() + this
 
 
-fun <K, V> Map<K, V>.toImmutable(): ImmutableMap<K, V>
+fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
     = this as? ImmutableMap
         ?: (this as? ImmutableMap.Builder)?.build()
         ?: ImmutableHashMap.emptyOf<K, V>().putAll(this) // TODO: ImmutableOrderedMap.emptyOf
