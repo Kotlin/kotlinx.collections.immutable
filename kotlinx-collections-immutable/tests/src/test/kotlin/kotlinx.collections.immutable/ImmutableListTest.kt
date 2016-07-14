@@ -118,6 +118,16 @@ class ImmutableListTest {
         }
     }
 
+    @Test fun subListOfBuilder() {
+        val list = "abcxaxyz12".toImmutableList()
+        val builder = list.builder()
+        val subList = builder.subList(2, 5)
+        builder[4] = 'b'
+        assertEquals("cxb", subList.joinToString(""))
+        subList.replaceAll { it -> it + 1 }
+        assertEquals("abdycxyz12", builder.joinToString(""))
+    }
+
     fun <T> ImmutableList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
         val mutable = this.toMutableList()
         val builder = this.builder()
