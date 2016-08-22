@@ -22,14 +22,14 @@ Provide implementation of those interfaces.
 There are two families of collection interfaces in the Standard Library:
 
 * read-only interfaces, which only allow to read elements from a collection;
-* mutable interfaces, which additionally allows to modify elements in a collection.
+* mutable interfaces, which additionally allow to modify elements in a collection.
 
 Kotlin mostly doesn't provide its own collection implementations.
 Its collection interfaces are mapped to the standard JDK collection interfaces
 and implemented by the JDK collection implementations, such as `ArrayList`, `HashSet`, `HashMap` and other
 classes from `java.util` package.
 
-It is proposed to provide immutable collection interfaces which extend read-only interfaces
+It is proposed to provide immutable collection interfaces which extend read-only collection interfaces
 and specify by the contract the real immutability of their implementors.
 
 ### Modification operations
@@ -39,20 +39,24 @@ Immutable collections could have same modification operations as their mutable c
 return new immutable collection instance with the modification applied.
 
 In case if no modification is made during the operation, for example, adding an existing element to a set or clearing
-already empty collection, it should return the same instance of the immutable collection.
+already empty collection, the operation should return the same instance of the immutable collection.
 
 ### Builders
 
 Often there is a need to perform several subsequent modification operations on an immutable collection. It can be done by
 - chaining operations together:
+
     ```
     collection = collection.add(element).add(anotherElement)
     ```
+    
 - applying operations one by one:
+
     ```
     collection += element
     collection += anotherElement
     ```
+    
 - using collection builders.
 
 An immutable collection builder is a wrapper around an immutable collection, which exposes its modification operations
@@ -69,6 +73,9 @@ if (builder.isEmpty()) {
 }
 return builder.build()
 ```
+
+When mutating operation is invoked on a builder, it doesn't mutate the original immutable collection it was built from,
+but instead it gradually builds new immutable collection with the requested modifications applied. 
 
 In case if each operation invoked on a builder causes no modifications,
 the collection returned by `build()` method is the same collection the builder was obtained from.
