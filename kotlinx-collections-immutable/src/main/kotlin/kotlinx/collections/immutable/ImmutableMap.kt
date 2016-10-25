@@ -3,11 +3,11 @@ package kotlinx.collections.immutable
 
 public interface ImmutableMap<K, out V>: Map<K, V> {
 
-    override val keys: ImmutableSet<K>
+    override val keys: Set<K>
 
-    override val values: ImmutableCollection<V>
+    override val values: Collection<V>
 
-    override val entries: ImmutableSet<Map.Entry<K, V>>
+    override val entries: Set<Map.Entry<K, V>>
 
     fun put(key: K, value: @UnsafeVariance V): ImmutableMap<K, V>
 

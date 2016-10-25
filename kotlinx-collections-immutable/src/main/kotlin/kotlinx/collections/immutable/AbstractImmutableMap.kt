@@ -18,14 +18,17 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
 
 
     // should it be immutable set/collection or just read-only?
-    private var keysWrapped: ImmutableSet<K>? = null
-    override val keys: ImmutableSet<K> get() = keysWrapped ?: ImmutableSetWrapper(impl.keys).apply { keysWrapped = this }
+    private var _keys: Set<K>? = null
+    final override val keys: Set<K> get() = _keys ?: createKeys().apply { _keys = this }
+    protected open fun createKeys(): Set<K> = impl.keys
 
-    private var valuesWrapped: ImmutableCollection<V>? = null
-    override val values: ImmutableCollection<V> get() = valuesWrapped ?: ImmutableCollectionWrapper(impl.values).apply { valuesWrapped = this }
+    private var _values: Collection<V>? = null
+    final override val values: Collection<V> get() = _values ?: createValues().apply { _values = this }
+    protected open fun createValues(): Collection<V> = impl.values
 
-    private var entriesWrapped: ImmutableSet<Map.Entry<K, V>>? = null
-    override val entries: ImmutableSet<Map.Entry<K, V>> get() = entriesWrapped ?: ImmutableSetWrapper(impl.entries).apply { entriesWrapped = this }
+    private var _entries: Set<Map.Entry<K, V>>? = null
+    final override val entries: Set<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
+    protected open fun createEntries(): Set<Map.Entry<K, V>> = impl.entries
 
     override fun put(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value))
     override fun putAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> = wrap(impl.plusAll(m))
@@ -139,8 +142,8 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
     }
 }
 
-private fun <K, V> PMap<K, V>.contains(key: K, value: @UnsafeVariance V): Boolean
-    = this[key]?.let { candidate -> candidate == value } ?: (containsKey(key) && value == null)
+internal fun <K, V> PMap<K, V>.contains(key: K, value: @UnsafeVariance V): Boolean
+    = this[key]?.let { candidate -> candidate == value } ?: (value == null && containsKey(key))
 
 
 
