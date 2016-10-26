@@ -139,8 +139,8 @@ abstract class ImmutableMapTest {
         with(map) {
             testNoOperation({ remove("y") }, { remove("y") })
             testNoOperation({ remove("x", 2) }, { remove("x", 2) })
-//            testNoOperation({ put("x", 1) }, { put("x", 1) })     // does not hold
-//            testNoOperation({ putAll(this) }, { putAll(this) })   // does not hold
+            testNoOperation({ put("x", 1) }, { put("x", 1) })     // does not hold
+            testNoOperation({ putAll(this) }, { putAll(this) })   // does not hold
             testNoOperation({ putAll(emptyMap()) }, { putAll(emptyMap()) })
         }
     }
