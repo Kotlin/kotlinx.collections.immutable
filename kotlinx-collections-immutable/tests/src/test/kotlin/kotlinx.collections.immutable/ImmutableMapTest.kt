@@ -4,9 +4,30 @@ import org.junit.Test
 import java.util.*
 import kotlin.test.*
 
-class ImmutableMapTest {
+class ImmutableHashMapTest : ImmutableMapTest() {
+    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = kotlinx.collections.immutable.immutableHashMapOf(*pairs)
+}
+class ImmutableOrderedMapTest : ImmutableMapTest() {
+    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = kotlinx.collections.immutable.immutableMapOf(*pairs)
 
-    fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = kotlinx.collections.immutable.immutableHashMapOf(*pairs)
+    @Test fun iterationOrder() {
+        var map = immutableMapOf("x" to null, "y" to 1)
+        assertEquals(listOf("x", "y"), map.keys.toList())
+
+        map += "x" to 1
+        assertEquals(listOf("x", "y"), map.keys.toList())
+
+        map = map.remove("x")
+        map += "x" to 2
+        assertEquals(listOf("y", "x"), map.keys.toList())
+        assertEquals(listOf(1, 2), map.values.toList())
+        assertEquals(listOf("y" to 1, "x" to 2), map.toList())
+    }
+}
+
+abstract class ImmutableMapTest {
+
+    abstract fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V>
 
 
     @Test fun empty() {
@@ -54,11 +75,14 @@ class ImmutableMapTest {
     @Test fun putElements() {
         var map = immutableMapOf<String, Int?>()
         map = map.put("x", 0)
+        map = map.put("x", 1)
         map = map.putAll(arrayOf("x" to null))
         map = map + ("y" to null)
         map += "y" to 1
         map += map
         map += map.map { it.key + "!"  to it.value }
+
+        assertEquals(map.size, map.entries.size)
 
         assertEquals(mapOf("x" to null, "y" to 1, "x!" to null, "y!" to 1), map)
     }
