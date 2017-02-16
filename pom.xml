@@ -20,9 +20,9 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/ilya-g/kotlinx.collections.immutable</url>
-        <connection>scm:git:https://github.com/ilya-g/kotlinx.collections.immutable.git</connection>
-        <developerConnection>scm:git:https://github.com/ilya-g/kotlinx.collections.immutable.git</developerConnection>
+        <url>https://github.com/kotlin/kotlin.collections.immutable</url>
+        <connection>scm:git:https://github.com/kotlin/kotlin.collections.immutable.git</connection>
+        <developerConnection>scm:git:https://github.com/kotlin/kotlin.collections.immutable.git</developerConnection>
     </scm>
 
     <developers>
