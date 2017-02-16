@@ -1,6 +1,8 @@
 package kotlinx.collections.immutable
 
 import org.junit.Test
+import test.collections.behaviors.*
+import test.collections.compare
 import java.util.*
 import kotlin.test.*
 
@@ -9,25 +11,29 @@ class ImmutableHashMapTest : ImmutableMapTest() {
 }
 class ImmutableOrderedMapTest : ImmutableMapTest() {
     override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = kotlinx.collections.immutable.immutableMapOf(*pairs)
+    override fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = true) }
 
     @Test fun iterationOrder() {
         var map = immutableMapOf("x" to null, "y" to 1)
-        assertEquals(listOf("x", "y"), map.keys.toList())
+        compare(setOf("x", "y"), map.keys) { setBehavior(ordered = true) }
 
         map += "x" to 1
-        assertEquals(listOf("x", "y"), map.keys.toList())
+        compare(setOf("x", "y"), map.keys) { setBehavior(ordered = true) }
 
         map = map.remove("x")
         map += "x" to 2
-        assertEquals(listOf("y", "x"), map.keys.toList())
-        assertEquals(listOf(1, 2), map.values.toList())
-        assertEquals(listOf("y" to 1, "x" to 2), map.toList())
+        compare(setOf("y", "x"), map.keys) { setBehavior(ordered = true) }
+        compare(listOf(1, 2), map.values) { collectionBehavior(ordered = true) }
+        compare(mapOf("y" to 1, "x" to 2).entries, map.entries) { setBehavior(ordered = true) }
     }
 }
 
 abstract class ImmutableMapTest {
 
     abstract fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V>
+
+    open fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compareMapsUnordered(expected, actual)
+    fun <K, V> compareMapsUnordered(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = false) }
 
 
     @Test fun empty() {
@@ -36,6 +42,8 @@ abstract class ImmutableMapTest {
         assertEquals<ImmutableMap<*, *>>(empty1, empty2)
         assertEquals(mapOf<Int, String>(), empty1)
         assertTrue(empty1 === empty2)
+
+        compareMaps(emptyMap(), empty1)
     }
 
 
@@ -44,25 +52,24 @@ abstract class ImmutableMapTest {
         val map1 = immutableMapOf("x" to 1, "y" to null, null to 2)
         val map2 = immutableMapOf("x" to 1, "y" to null, null to 2)
 
-        assertEquals(map0, map1)
-        assertEquals(map1, map2)
+        compareMaps(map0, map1)
+        compareMaps(map1, map2)
     }
 
 
     @Test fun toImmutable() {
         val original = mapOf("x" to 1, "y" to null, null to 2)
+        val immOriginal = original.toImmutableMap()
+        compareMaps(original, immOriginal)
+
 
         val map = HashMap(original) // copy
         var immMap = map.toImmutableMap()
         val immMap2 = immMap.toImmutableMap()
         assertTrue(immMap2 === immMap)
 
-        assertEquals<Map<*, *>>(map, immMap) // problem
-//        assertEquals(map.toString(), immMap.toString()) // order sensitive
-        assertEquals(map.hashCode(), immMap.hashCode())
-        assertEquals<Set<*>>(map.keys, immMap.keys)
-        assertEquals<Set<*>>(map.entries, immMap.entries)
-        assertEquals(map.values.toSet(), immMap.values.toSet())
+        compareMapsUnordered(original, immMap)
+        compareMapsUnordered(map, immMap)
 
         map.remove(null)
         assertNotEquals<Map<*, *>>(map, immMap)
@@ -79,8 +86,10 @@ abstract class ImmutableMapTest {
         map = map.putAll(arrayOf("x" to null))
         map = map + ("y" to null)
         map += "y" to 1
+        assertEquals(mapOf("x" to null, "y" to 1), map)
+
         map += map
-        map += map.map { it.key + "!"  to it.value }
+        map += map.map { it.key + "!" to it.value }
 
         assertEquals(map.size, map.entries.size)
 
@@ -128,8 +137,8 @@ abstract class ImmutableMapTest {
         operation(mutable)
         operation(builder)
 
-        assertEquals(mutable, builder)
-        assertEquals<Map<*, *>>(mutable, builder.build())
+        compareMapsUnordered(mutable, builder)
+        compareMapsUnordered(mutable, builder.build())
     }
 
     @Test fun noOperation() {
