@@ -2,23 +2,32 @@ package kotlinx.collections.immutable
 
 import org.pcollections.HashTreePMap
 import org.pcollections.PMap
-import org.pcollections.PVector
-import org.pcollections.TreePVector
-import java.util.*
+import java.util.ConcurrentModificationException
 
 
-internal class ImmutableOrderedMap<K, out V> private constructor(private val impl: PMap<K, V>, private val order: PVector<Map.Entry<K ,V>>) : ImmutableMap<K, V> {
+internal class ImmutableOrderedMap<K, out V> private constructor(private val impl: PMap<K, LinkedEntry<K, V>>) : ImmutableMap<K, V>, AbstractMap<K, V>() {
+    // TODO: Keep reference to first/last entry
+
+    protected class LinkedEntry<out K, out V>(val key: K, val value: @UnsafeVariance V, val prevKey: Any?, val nextKey: Any?) {
+        // has referential equality/hashCode
+
+        fun copy(value: @UnsafeVariance V = this.value, prevKey: Any? = this.prevKey, nextKey: Any? = this.nextKey) =
+            LinkedEntry(key, value, prevKey, nextKey)
+
+        // had to separate map entry implementations because of conflicting equality/hashCode
+        inner class MapEntry : AbstractImmutableMap.AbstractImmutableEntry<K, V>() {
+            override val key: K   get() = this@LinkedEntry.key
+            override val value: V get() = this@LinkedEntry.value
+        }
+        val mapEntry = MapEntry()
+    }
 
     override val size: Int get() = impl.size
     override fun isEmpty(): Boolean = impl.isEmpty()
     override fun containsKey(key: K): Boolean = impl.containsKey(key)
-    override fun containsValue(value: @UnsafeVariance V): Boolean = impl.containsValue(value)
+    override fun containsValue(value: @UnsafeVariance V): Boolean = impl.values.any { it.value == value }
 
-    override fun get(key: K): V? = impl.get(key)
-
-    override fun equals(other: Any?): Boolean = impl.equals(other)
-    override fun hashCode(): Int = impl.hashCode()
-    override fun toString(): String = impl.toString()
+    override fun get(key: K): V? = impl[key]?.value
 
 
     // should it be immutable set/collection or just read-only?
@@ -34,50 +43,43 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
     final override val entries: Set<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
     private fun createEntries(): Set<Map.Entry<K, V>> = OrderedEntrySet()
 
-    override fun put(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value)) { order.addOrReplace(key, value)  }
+    override fun put(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.putEntry(impl[key], key, value))
     override fun putAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> {
         var newImpl = impl
-        var newOrder = order
-        for ((k, v) in m) {
-            newImpl.plus(k, v).let { if (it != newImpl) {
-                newImpl = it
-                newOrder = newOrder.addOrReplace(k, v)
-            }}
-        }
-        return wrap(newImpl) { newOrder }
+        for ((k, v) in m)
+            newImpl = newImpl.putEntry(newImpl[k], k, v)
+
+        return wrap(newImpl)
     }
-    override fun remove(key: K): ImmutableMap<K, V> = wrap(impl.minus(key), { order.minus(order.indexOfFirst { it.key == key })})
+    override fun remove(key: K): ImmutableMap<K, V> = wrap(impl.removeLinked(key))
+
     override fun remove(key: K, value: @UnsafeVariance V): ImmutableMap<K, V>
             = if (!impl.contains(key, value)) this else remove(key)
 
     override fun clear(): ImmutableMap<K, V> = emptyOf()
 
-    override fun builder(): ImmutableMap.Builder<K, @UnsafeVariance V> = Builder(this, impl, order)
+    override fun builder(): ImmutableMap.Builder<K, @UnsafeVariance V> = Builder(this, impl)
 
-    private fun entry(key: K, value: @UnsafeVariance V): Map.Entry<K, V> = AbstractMap.SimpleEntry(key, value)
-
-    protected fun wrap(impl: PMap<K, @UnsafeVariance V>, order: (PVector<Map.Entry<K, @UnsafeVariance V>>) -> PVector<Map.Entry<K, @UnsafeVariance V>>): ImmutableOrderedMap<K, V> {
-        return if (impl === this.impl) this else ImmutableOrderedMap(impl, order(this.order))
+    protected fun wrap(impl: PMap<K, LinkedEntry<K, @UnsafeVariance V>>): ImmutableOrderedMap<K, V> {
+        return if (impl === this.impl) this else ImmutableOrderedMap(impl)
     }
 
 
-    protected class Builder<K, V>(protected var value: ImmutableOrderedMap<K, V>, protected var impl: PMap<K, V>, protected var order: PVector<Map.Entry<K, V>>) : ImmutableMap.Builder<K, V>, AbstractMap<K, V>() {
-        override fun build(): ImmutableMap<K, V> = value.wrap(impl, { order }).apply { value = this }
+    protected class Builder<K, V>(protected var value: ImmutableOrderedMap<K, V>, protected var impl: PMap<K, LinkedEntry<K, V>>) : ImmutableMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+        override fun build(): ImmutableMap<K, V> = value.wrap(impl).apply { value = this }
 
         override val size: Int get() = impl.size
         override fun isEmpty(): Boolean = impl.isEmpty()
         override fun containsKey(key: K): Boolean = impl.containsKey(key)
-        override fun containsValue(value: @UnsafeVariance V): Boolean = impl.containsValue(value)
+        override fun containsValue(value: @UnsafeVariance V): Boolean = impl.values.any { it.value == value }
 
-        override fun get(key: K): V? = impl.get(key)
-
-        override fun equals(other: Any?): Boolean = impl.equals(other)
-        override fun hashCode(): Int = impl.hashCode()
-        override fun toString(): String = impl.toString()
+        override fun get(key: K): V? = impl.get(key)?.value
 
         private var entrySet: MutableSet<MutableMap.MutableEntry<K, V>>? = null
         override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
-            get() = entrySet ?: object : MutableSet<MutableMap.MutableEntry<K, V>>, AbstractSet<MutableMap.MutableEntry<K, V>>() {
+            get() = entrySet ?: object : AbstractMutableSet<MutableMap.MutableEntry<K, V>>() {
+                override fun add(element: MutableMap.MutableEntry<K, V>): Boolean = throw UnsupportedOperationException()
+
                 override val size: Int get() = impl.size
                 override fun isEmpty(): Boolean = impl.isEmpty()
                 override fun clear() = this@Builder.clear()
@@ -95,15 +97,14 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
 
                 override fun iterator() = object : MutableIterator<MutableMap.MutableEntry<K, V>> {
                     private var snapshot = impl
-                    private val iterator = order.iterator()
-                    private var entry: Map.Entry<K,V>? = null
+                    private var entry: LinkedEntry<K,V>? = impl.firstEntry()
 
-                    override fun hasNext(): Boolean = iterator.hasNext()
+                    override fun hasNext(): Boolean = entry != null
                     override fun next(): MutableMap.MutableEntry<K, V> {
                         checkForComodification()
-                        val entry = iterator.next()
-                        this.entry = entry
-                        return object : MutableMap.MutableEntry<K, V>, Map.Entry<K, V> by entry {
+                        val entry = this.entry ?: throw NoSuchElementException()
+                        this.entry = snapshot[entry.nextKey]
+                        return object : MutableMap.MutableEntry<K, V>, Map.Entry<K, V> by entry.mapEntry {
                             override fun setValue(newValue: V): V {
                                 checkForComodification()
                                 val oldValue = put(entry.key, newValue) as V
@@ -127,35 +128,32 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
                 }
             }.apply { entrySet = this }
 
-        // by AbstractMap
-//        override val keys: MutableSet<K>
-//        override val values: MutableCollection<V>
-
-        override val values: MutableCollection<V>
-            get() = super.values
-        override val keys: MutableSet<K>
-            get() = super.keys
 
         override fun clear() {
-            mutate(HashTreePMap.empty(), { TreePVector.empty() })
+            mutate(HashTreePMap.empty())
         }
 
-        override fun put(key: K, value: V): V? =
-                get(key).apply {
-                    mutate(impl.plus(key, value), { order.addOrReplace(key, value) })
-                }
+        override fun put(key: K, value: V): V?  {
+            val entry = impl[key]
+
+            mutate(impl.putEntry(entry, key, value))
+
+            return entry?.value
+        }
 
         override fun putAll(from: Map<out K, V>) {
             for ((k, v) in from) put(k, v)
         }
 
 
-        override fun remove(key: K): V?
-                = get(key).apply { mutate(impl.minus(key), { it.minus(it.indexOfFirst { it.key == key })}) }
+        override fun remove(key: K): V? {
+            val entry = impl[key] ?: return null
+            mutate(impl.removeEntry(entry))
+            return entry.value
+        }
 
-        protected inline fun mutate(newValue: PMap<K, V>, orderOperation: (PVector<Map.Entry<K, V>>) -> (PVector<Map.Entry<K, V>>) ): Boolean {
+        protected inline fun mutate(newValue: PMap<K, LinkedEntry<K, V>>): Boolean {
             if (newValue !== impl) {
-                order = orderOperation(order)
                 impl = newValue
                 return true
             }
@@ -165,46 +163,92 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
     }
 
     companion object {
-        private val EMPTY = ImmutableOrderedMap(HashTreePMap.empty<Any?, Nothing>(), TreePVector.empty())
+        private val EMPTY = ImmutableOrderedMap(HashTreePMap.empty<Any?, LinkedEntry<Any?, Nothing>>())
+
+        private val TERMINATOR = Any()
+
+        private fun <K, V> PMap<K, LinkedEntry<K, V>>.contains(key: K, value: @UnsafeVariance V): Boolean
+                = this[key]?.let { entry -> entry.value == value } ?: false
+
+        private fun <K, V> PMap<K, LinkedEntry<K, V>>.removeLinked(key: K): PMap<K, LinkedEntry<K, V>> {
+            val entry = this[key] ?: return this
+            return removeEntry(entry)
+        }
+
+        private fun <K, V> PMap<K, LinkedEntry<K, V>>.removeEntry(entry: LinkedEntry<K, V>): PMap<K, LinkedEntry<K, V>> {
+            val prevKey = entry.prevKey
+            val nextKey = entry.nextKey
+            var new = this.minus(entry.key)
+
+            if (prevKey !== TERMINATOR) {
+                @Suppress("UNCHECKED_CAST")
+                val prevEntry = this[prevKey as K]!!
+                val newPrevEntry = prevEntry.copy(nextKey = nextKey)
+                new = new.plus(newPrevEntry.key, newPrevEntry)
+            }
+            if (nextKey !== TERMINATOR) {
+                @Suppress("UNCHECKED_CAST")
+                val nextEntry = this[nextKey as K]!!
+                val newNextEntry = nextEntry.copy(prevKey = prevKey)
+                new = new.plus(newNextEntry.key, newNextEntry)
+            }
+            return new
+        }
+
+        private fun <K, V> PMap<K, LinkedEntry<K, V>>.putEntry(entry: LinkedEntry<K, V>?, key: K, value: V): PMap<K, LinkedEntry<K, V>> {
+            if (entry != null) {
+                return if (entry.value == value) this else this.plus(key, entry.copy(value = value))
+            }
+            val lastEntry = this.lastEntry()
+            if (lastEntry == null) {
+                val newEntry = LinkedEntry(key, value, TERMINATOR, TERMINATOR)
+                return this.plus(key, newEntry)
+            } else {
+                val newEntry = LinkedEntry(key, value, lastEntry.key, TERMINATOR)
+                val newLastEntry = lastEntry.copy(nextKey = key)
+                return this.plus(lastEntry.key, newLastEntry).plus(key, newEntry)
+            }
+        }
+
+        private fun <K, V> PMap<K, LinkedEntry<K, V>>.firstEntry() = this.values.firstOrNull { it.prevKey === TERMINATOR }
+        private fun <K, V> PMap<K, LinkedEntry<K, V>>.lastEntry() = this.values.firstOrNull { it.nextKey === TERMINATOR }
+
 
         @Suppress("UNCHECKED_CAST")
         fun <K, V> emptyOf(): ImmutableOrderedMap<K, V> = EMPTY as ImmutableOrderedMap<K, V>
     }
 
+    private val entrySequence = generateSequence(impl.firstEntry()) { e -> impl[e.nextKey] }
 
-    private inner class OrderedEntrySet : Set<Map.Entry<K, V>> {
+    private inner class OrderedEntrySet : AbstractSet<Map.Entry<K, V>>() {
         override val size: Int get() = impl.size
-        override fun contains(element: Map.Entry<K, @UnsafeVariance V>): Boolean = impl.entries.contains(element)
-        override fun containsAll(elements: Collection<Map.Entry<K, @UnsafeVariance V>>): Boolean = impl.entries.containsAll(elements)
+        override fun contains(element: Map.Entry<K, @UnsafeVariance V>): Boolean = impl.contains(element.key, element.value)
+        override fun containsAll(elements: Collection<Map.Entry<K, @UnsafeVariance V>>): Boolean = elements.all { (k, v) -> impl.contains(k, v) }
         override fun isEmpty(): Boolean = impl.isEmpty()
-        override fun iterator(): Iterator<Map.Entry<K, V>> = order.iterator()
+        private val mapped = entrySequence.map { it.mapEntry }
+        override fun iterator(): Iterator<Map.Entry<K, V>> = mapped.iterator()
     }
 
-    private inner class OrderedKeySet : Set<K> {
+    private inner class OrderedKeySet : AbstractSet<K>() {
         override val size: Int get() = impl.size
         override fun contains(element: K): Boolean = impl.containsKey(element)
         override fun containsAll(elements: Collection<K>): Boolean = impl.keys.containsAll(elements)
 
         override fun isEmpty(): Boolean = impl.isEmpty()
 
-        private val mapped = order.asSequence().map { it.key }
+        private val mapped = entrySequence.map { it.key }
         override fun iterator(): Iterator<K> = mapped.iterator()
     }
 
-    private inner class OrderedValueCollection : Collection<V> {
+    private inner class OrderedValueCollection : AbstractCollection<V>() {
         override val size: Int get() = impl.size
-        override fun contains(element: @UnsafeVariance V): Boolean = impl.containsValue(element)
-        override fun containsAll(elements: Collection<@UnsafeVariance V>): Boolean = impl.values.containsAll(elements)
+        override fun contains(element: @UnsafeVariance V): Boolean = containsValue(element)
+        override fun containsAll(elements: Collection<@UnsafeVariance V>): Boolean =  elements.all { v -> containsValue(v) }
         override fun isEmpty(): Boolean = impl.isEmpty()
 
-        private val mapped = order.asSequence().map { it.value }
+        private val mapped = entrySequence.map { it.value }
         override fun iterator(): Iterator<V> = mapped.iterator()
     }
 }
 
-private fun <K, V> PVector<Map.Entry<K, V>>.addOrReplace(key: K, value: V): PVector<Map.Entry<K, V>> {
-    val index = indexOfFirst { it.key == key }
-    val entry = AbstractMap.SimpleEntry(key, value)
-    return if (index >= 0) with(index, entry) else plus(entry)
-}
 

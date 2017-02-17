@@ -5,6 +5,12 @@ import java.util.*
 
 internal abstract class AbstractImmutableMap<K, out V> protected constructor(protected val impl: PMap<K, @UnsafeVariance V>) : ImmutableMap<K, V> {
 
+    abstract class AbstractImmutableEntry<out K, out V> : Map.Entry<K, V> {
+        override fun equals(other: Any?): Boolean = other is Map.Entry<*,*> && other.key == key && other.value == value
+        override fun hashCode(): Int = (key?.hashCode() ?: 0) xor (value?.hashCode() ?: 0)
+        override fun toString(): String = "$key=$value"
+    }
+
     override val size: Int get() = impl.size
     override fun isEmpty(): Boolean = impl.isEmpty()
     override fun containsKey(key: K): Boolean = impl.containsKey(key)
