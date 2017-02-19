@@ -1,7 +1,7 @@
 package kotlinx.collections.immutable
 
 import org.pcollections.PMap
-import java.util.*
+import java.util.ConcurrentModificationException
 
 internal abstract class AbstractImmutableMap<K, out V> protected constructor(protected val impl: PMap<K, @UnsafeVariance V>) : ImmutableMap<K, V> {
 
@@ -47,7 +47,7 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
     protected abstract fun wrap(impl: PMap<K, @UnsafeVariance V>): AbstractImmutableMap<K, V>
 
 
-    abstract class Builder<K, V> protected constructor(protected var value: AbstractImmutableMap<K, V>, protected var impl: PMap<K, V>) : ImmutableMap.Builder<K, V>, AbstractMap<K, V>() {
+    abstract class Builder<K, V> protected constructor(protected var value: AbstractImmutableMap<K, V>, protected var impl: PMap<K, V>) : ImmutableMap.Builder<K, V>, AbstractMutableMap<K, V>() {
         override fun build(): ImmutableMap<K, V> = value.wrap(impl).apply { value = this }
 
         override val size: Int get() = impl.size
@@ -63,7 +63,9 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
 
         private var entrySet: MutableSet<MutableMap.MutableEntry<K, V>>? = null
         override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
-            get() = entrySet ?: object : MutableSet<MutableMap.MutableEntry<K, V>>, AbstractSet<MutableMap.MutableEntry<K, V>>() {
+            get() = entrySet ?: object : AbstractMutableSet<MutableMap.MutableEntry<K, V>>() {
+                override fun add(element: MutableMap.MutableEntry<K, V>): Boolean = throw UnsupportedOperationException()
+
                 override val size: Int get() = impl.size
                 override fun isEmpty(): Boolean = impl.isEmpty()
                 override fun clear() = this@Builder.clear()
@@ -118,11 +120,6 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
 //        override val keys: MutableSet<K>
 //        override val values: MutableCollection<V>
 
-        override val values: MutableCollection<V>
-            get() = super.values
-        override val keys: MutableSet<K>
-            get() = super.keys
-
         override abstract fun clear()
 
         override fun put(key: K, value: V): V?
@@ -152,7 +149,7 @@ internal fun <K, V> PMap<K, V>.contains(key: K, value: @UnsafeVariance V): Boole
     = this[key]?.let { candidate -> candidate == value } ?: (value == null && containsKey(key))
 
 
-
+/*
 private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<E>) : ImmutableCollection<E> {
     override val size: Int get() = impl.size
     override fun isEmpty(): Boolean = impl.isEmpty()
@@ -185,3 +182,4 @@ private class ImmutableSetWrapper<E>(impl: Set<E>) : ImmutableSet<E>, ImmutableC
     override fun removeAll(predicate: (E) -> Boolean): ImmutableSet<E> = super.removeAll(predicate) as ImmutableSet
     override fun clear(): ImmutableSet<E> = immutableSetOf()
 }
+*/

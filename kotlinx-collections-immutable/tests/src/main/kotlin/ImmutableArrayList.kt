@@ -1,11 +1,9 @@
 package kotlinx.collections.immutable
 
 import java.util.*
+import kotlin.collections.AbstractList
 
-public class ImmutableArrayList<out E> private constructor(private val impl: Array<E>): ImmutableList<E> {
-
-    private var _implAsList: List<E>? = null
-    private val implAsList: List<E> get() = _implAsList ?: impl.asList().apply { _implAsList = this }
+public class ImmutableArrayList<out E> private constructor(private val impl: Array<E>): ImmutableList<E>, AbstractList<E>() {
 
     override val size: Int get() = impl.size
     override fun isEmpty(): Boolean = impl.isEmpty()
@@ -17,9 +15,6 @@ public class ImmutableArrayList<out E> private constructor(private val impl: Arr
 
 
     override fun iterator(): Iterator<E> = impl.iterator()
-    override fun listIterator(): ListIterator<E> = implAsList.listIterator()
-
-    override fun listIterator(index: Int): ListIterator<E> = implAsList.listIterator(index)
 
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = ImmutableArrayList(impl.copyOfRange(fromIndex, toIndex))
 
@@ -28,8 +23,8 @@ public class ImmutableArrayList<out E> private constructor(private val impl: Arr
     override fun addAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> = ImmutableArrayList(impl + elements)
 
     override fun remove(element: @UnsafeVariance  E): ImmutableList<E> {
-        val values = implAsList - element
-        return if (values.size < impl.size) ImmutableArrayList(values.toTypedArray<Any?>() as Array<E>) else this
+        val index = indexOf(element).takeUnless { it < 0 } ?: return this
+        return removeAt(index)
     }
 
     override fun removeAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> {
@@ -52,14 +47,9 @@ public class ImmutableArrayList<out E> private constructor(private val impl: Arr
 
     override fun removeAt(index: Int): ImmutableList<E> = mutate { it.removeAt(index) }
 
-    override fun builder(): ImmutableList.Builder<@UnsafeVariance E> = object : ArrayList<E>(implAsList), ImmutableList.Builder<E> {
+    override fun builder(): ImmutableList.Builder<@UnsafeVariance E> = object : ArrayList<E>(impl.asList()), ImmutableList.Builder<E> {
         override fun build(): ImmutableList<E> = if (this.modCount == 0) this@ImmutableArrayList else ImmutableArrayList(this.toArray() as Array<E>)
     }
-
-
-    override fun equals(other: Any?): Boolean = (other as? List<*>)?.equals(implAsList) ?: false
-    override fun hashCode(): Int = Arrays.hashCode(impl)
-    override fun toString(): String = Arrays.toString(impl)
 
     companion object {
         public val EMPTY: ImmutableArrayList<Nothing> = ImmutableArrayList(emptyArray<Any?>()) as ImmutableArrayList<Nothing>

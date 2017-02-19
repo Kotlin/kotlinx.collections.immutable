@@ -1,7 +1,7 @@
 package kotlinx.collections.immutable
 
 import org.pcollections.PSet
-import java.util.*
+import java.util.ConcurrentModificationException
 
 internal abstract class AbstractImmutableSet<out E> protected constructor(protected val impl: PSet<@UnsafeVariance E>) : ImmutableSet<E> {
 
@@ -31,7 +31,7 @@ internal abstract class AbstractImmutableSet<out E> protected constructor(protec
 
     protected abstract fun wrap(impl: PSet<@UnsafeVariance E>): AbstractImmutableSet<E>
 
-    abstract class Builder<E> internal constructor(protected var value: AbstractImmutableSet<E>, protected var impl: PSet<E>) : AbstractSet<E>(), ImmutableSet.Builder<E> {
+    abstract class Builder<E> internal constructor(protected var value: AbstractImmutableSet<E>, protected var impl: PSet<E>) : AbstractMutableSet<E>(), ImmutableSet.Builder<E> {
         override fun build(): AbstractImmutableSet<E> = value.wrap(impl).apply { value = this }
         // delegating to impl
         override val size: Int get() = impl.size
