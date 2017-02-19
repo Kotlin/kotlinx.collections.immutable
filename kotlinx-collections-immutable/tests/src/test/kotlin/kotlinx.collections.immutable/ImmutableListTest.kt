@@ -1,9 +1,14 @@
 package kotlinx.collections.immutable
 
 import org.junit.Test
+import test.collections.behaviors.listBehavior
+import test.collections.compare
 import kotlin.test.*
 
 class ImmutableListTest {
+
+    private fun <T> compareLists(expected: List<T>, actual: List<T>) = compare(expected, actual) { listBehavior() }
+
 
     @Test fun empty() {
         val empty1 = immutableListOf<Int>()
@@ -11,6 +16,11 @@ class ImmutableListTest {
         assertEquals<ImmutableList<Any>>(empty1, empty2)
         assertEquals<List<Any>>(listOf(), empty1)
         assertTrue(empty1 === empty2)
+
+        assertFailsWith<NoSuchElementException> { empty1.iterator().next() }
+
+        compareLists(emptyList(), empty1)
+
     }
 
     @Test fun ofElements() {
@@ -18,7 +28,7 @@ class ImmutableListTest {
         val list1 = immutableListOf("a", "d", 1, null)
         val list2 = immutableListOf("a", "d", 1, null)
 
-        assertEquals(list0, list1)
+        compareLists(list0, list1)
         assertEquals(list1, list2)
     }
 
@@ -30,15 +40,13 @@ class ImmutableListTest {
         val immList2 = immList.toImmutableList()
         assertTrue(immList2 === immList)
 
-        assertEquals<List<*>>(list, immList) // problem
-        assertEquals(list.toString(), immList.toString())
-        assertEquals(list.hashCode(), immList.hashCode())
+        compareLists(original, immList)
 
         list.removeAt(0)
         assertNotEquals<List<*>>(list, immList)
 
         immList = immList.removeAt(0)
-        assertEquals<List<*>>(list, immList) // problem
+        compareLists(list, immList)
     }
 
     @Test fun addElements() {
@@ -50,7 +58,7 @@ class ImmutableListTest {
         list = list + "y"
         list += "z"
         list += arrayOf("1", "2").asIterable()
-        assertEquals("abcxaxyz12".map { it.toString() }, list)
+        compareLists("abcxaxyz12".map { it.toString() }, list)
     }
 
     @Test fun replaceElements() {
@@ -68,7 +76,7 @@ class ImmutableListTest {
     @Test fun removeElements() {
         val list = "abcxaxyz12".toImmutableList()
         fun expectList(content: String, list: ImmutableList<Char>) {
-            assertEquals(content, list.joinToString(""))
+            compareLists(content.toList(), list)
         }
 
         expectList("bcxaxyz12", list.removeAt(0))
@@ -86,7 +94,7 @@ class ImmutableListTest {
         val list = "abcxaxyz12".toImmutableList()
         val subList = list.subList(2, 5) // 2, 3, 4
         assertTrue(subList is ImmutableList)
-        assertEquals(listOf('c', 'x', 'a'), subList)
+        compareLists(listOf('c', 'x', 'a'), subList)
 
         assertFailsWith<IndexOutOfBoundsException> { list.subList(-1, 2) }
         assertFailsWith<IndexOutOfBoundsException> { list.subList(0, list.size + 1) }
@@ -136,8 +144,8 @@ class ImmutableListTest {
         operation(mutable)
         operation(builder)
 
-        assertEquals(mutable, builder)
-        assertEquals<List<*>>(mutable, builder.build())
+        compareLists(mutable, builder)
+        compareLists(mutable, builder.build())
     }
 
     @Test fun noOperation() {

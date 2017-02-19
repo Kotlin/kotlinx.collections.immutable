@@ -31,7 +31,7 @@ public fun <T> CompareContext<List<T>>.listBehavior() {
     for (index in expected.indices)
         propertyEquals { this[index] }
 
-    propertyFails { this[size] }
+    propertyFailsWith<IndexOutOfBoundsException> { this[size] }
 
     propertyEquals { indexOf(elementAtOrNull(0)) }
     propertyEquals { lastIndexOf(elementAtOrNull(0)) }
