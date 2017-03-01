@@ -2,11 +2,12 @@ buildscript {
     ext.kotlin_version = "1.1.0-rc-91"
 
     repositories {
-        mavenCentral()
+        jcenter()
         maven { url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1' }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     }
 }
 
@@ -21,18 +22,63 @@ allprojects {
     }
 
     dependencies {
-        compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
         testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
         testCompile "junit:junit:4.12"
     }
 }
+apply plugin: 'com.github.johnrengelman.shadow'
+
+configurations {
+    shadowed
+    compile.extendsFrom(shadow)
+    compile.extendsFrom(shadowed)
+}
 
 dependencies {
-    compile project(':pcollections')
+    shadow "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    shadowed project(':pcollections')
+
 }
 
 project('tests') {
     dependencies {
-        compile parent
+        compile project(path: ':kotlinx-collections-immutable', configuration: 'shadow')
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jdkHome = JDK_16
+}
+
+
+
+apply plugin: 'maven-publish'
+
+jar {
+//    baseName "${parent.name}-${project.name}"
+}
+
+shadowJar {
+    classifier = null
+    configurations = [project.configurations.shadowed]
+    relocate 'org.pcollections', 'kotlinx.collections.immutable.internal.org.pcollections'
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        mainPublication(MavenPublication) {
+            from components.shadow
+            artifact sourcesJar
+
+            pom.withXml {
+                asNode().dependencies.'*'.each { it.scope*.value = 'compile'}
+            }
+        }
     }
 }
