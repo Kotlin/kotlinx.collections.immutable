@@ -10,6 +10,8 @@ buildscript {
     }
 }
 
+description 'Kotlin experimental immutable collection interfaces and implementations'
+
 allprojects {
     apply plugin: 'kotlin'
     group = 'org.jetbrains.kotlinx'
@@ -35,9 +37,8 @@ configurations {
 
 dependencies {
     shadow "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     shadowed project(':pcollections')
-
 }
 
 project('tests') {
@@ -52,11 +53,12 @@ compileKotlin {
 
 
 
-apply plugin: 'maven-publish'
+apply plugin: 'signing'
+//apply plugin: 'maven-publish'
+apply plugin: 'maven'
 
-jar {
-//    baseName "${parent.name}-${project.name}"
-}
+
+
 
 shadowJar {
     classifier = null
@@ -69,15 +71,145 @@ task sourcesJar(type: Jar) {
     classifier "sources"
 }
 
+task emptyJavadoc(type: Javadoc) {
+    source = sourceSets.main.java
+    failOnError = false
+}
+
+task javadocJar(type: Jar, dependsOn: emptyJavadoc) {
+    classifier = 'javadoc'
+    from emptyJavadoc.destinationDir
+}
+
+artifacts {
+    archives shadowJar
+    archives sourcesJar
+    archives javadocJar
+}
+
+signing {
+    required { signatory != null }
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: "file://${buildDir}/repo")
+//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                authentication(userName: ossrhUsername, password: ossrhPassword)
+//            }
+//
+//            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+//                authentication(userName: ossrhUsername, password: ossrhPassword)
+//            }
+            pom.project {
+                name "${project.group}:${project.name}"
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description project.description
+                url 'https://github.com/Kotlin/kotlinx.collections.immutable'
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    url 'https://github.com/Kotlin/kotlinx.collections.immutable'
+                    connection 'scm:git:https://github.com/Kotlin/kotlinx.collections.immutable'
+                    developerConnection 'scm:git:https://github.com/Kotlin/kotlinx.collections.immutable'
+                }
+                developers {
+                    developer {
+                        name 'Ilya Gorbunov'
+                        email 'ilya.gorbunov@jetbrains.com'
+                        organization 'JetBrains'
+                        organizationUrl 'http://www.jetbrains.com'
+                    }
+                }
+            }
+        }
+    }
+}
+/*
+
+// extract signature file and give them proper name
+def getSignatureFiles = {
+    def allFiles = project.tasks.signArchives.signatureFiles.collect { it }
+    def signedSources = allFiles.find { it.name.contains('-sources') }
+    def signedJavadoc = allFiles.find { it.name.contains('-javadoc') }
+    def signedJar = (allFiles - [signedSources, signedJavadoc])[0]
+    return [
+            [archive: signedSources, classifier: 'sources', extension: 'pom.asc'],
+            [archive: signedJavadoc, classifier: 'javadoc', extension: 'pom.asc'],
+            [archive: signedJar,     classifier: null,      extension: 'pom.asc']
+    ]
+}
+
 publishing {
     publications {
         mainPublication(MavenPublication) {
             from components.shadow
             artifact sourcesJar
+            artifact javadocJar
 
             pom.withXml {
-                asNode().dependencies.'*'.each { it.scope*.value = 'compile'}
+                Node node = asNode()
+
+                node.dependencies.'*'.each { it.scope*.value = 'compile'}
+
+                node.children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    packaging 'jar'
+                    name "${project.group}:${project.name}"
+                    description project.description
+                    url 'https://github.com/Kotlin/kotlinx.collections.immutable'
+                    licenses {
+                        license {
+                            name 'The Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    scm {
+                        url 'https://github.com/Kotlin/kotlinx.collections.immutable'
+                        connection 'scm:git:https://github.com/Kotlin/kotlinx.collections.immutable'
+                        developerConnection 'scm:git:https://github.com/Kotlin/kotlinx.collections.immutable'
+                    }
+                    developers {
+                        developer {
+                            name 'Ilya Gorbunov'
+                            email 'ilya.gorbunov@jetbrains.com'
+                            organization 'JetBrains'
+                            organizationUrl 'http://www.jetbrains.com'
+                        }
+                    }
+                }
+            }
+
+            if (signing.required) {
+                // Sign the pom.xml.
+                def pomFile = project.file("$buildDir/publications/pom-for-signing.xml")
+                pom.withXml {
+                    writeTo(pomFile)
+                    def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+//                    artifact(pomAscFile) {
+//                        classifier = null
+//                        extension = 'pom.asc'
+//                    }
+                    pomFile.delete()
+                }
+
+                // Sign the artifacts.
+                getSignatureFiles().each { signature ->
+                    artifact (signature.archive) {
+                        classifier = signature.classifier
+                        extension  = signature.extension
+                    }
+                }
             }
         }
     }
 }
+*/
