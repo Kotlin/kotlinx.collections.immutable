@@ -15,11 +15,11 @@ description 'Kotlin experimental immutable collection interfaces and implementat
 allprojects {
     apply plugin: 'kotlin'
     group = 'org.jetbrains.kotlinx'
-    version = '0.1-SNAPSHOT'
+    version = project.properties["deployVersion"] ?: '0.1-SNAPSHOT'
 
     repositories {
         mavenCentral()
-        maven { url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1' }
+        jcenter()
     }
 
     dependencies {
@@ -88,22 +88,24 @@ artifacts {
 }
 
 signing {
-    required { signatory != null }
+    required { (project.properties["signingRequired"] ?: false) }
     sign configurations.archives
+}
+
+signArchives {
+    enabled signing.required
 }
 
 uploadArchives {
     repositories {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            repository(url: "file://${buildDir}/repo")
-//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-//                authentication(userName: ossrhUsername, password: ossrhPassword)
-//            }
-//
-//            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-//                authentication(userName: ossrhUsername, password: ossrhPassword)
-//            }
+            repository(url:  project.properties["deployRepoUrl"] ?: "file://${rootProject.buildDir}/repo") {
+                authentication(
+                        userName: project.properties["deployRepoUsername"],
+                        password: project.properties["deployRepoPassword"]
+                )
+            }
             pom.project {
                 name "${project.group}:${project.name}"
                 packaging 'jar'
@@ -133,6 +135,8 @@ uploadArchives {
         }
     }
 }
+
+task publish(dependsOn: uploadArchives)
 /*
 
 // extract signature file and give them proper name
