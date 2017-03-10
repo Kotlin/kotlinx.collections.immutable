@@ -5,6 +5,41 @@ Immutable collection interfaces and implementation prototypes for Kotlin ([propo
 Prototype implementation is based on [pcollections](http://pcollections.org/) (Copyright 2015 The pcollections Authors.)
 
 
+## Basic usage
+
+### Instantiating immutable lists
+
+```kotlin
+
+// create an empty immutable list
+val emptyList = immutableListOf<String>()
+
+// create an immutable list from the given elements:
+val stringList = immutableListOf("foo", "bar")
+
+// convert an existing list to an immutable list
+val someList: List<Int> // = ...
+val immutableList = someList.toImmutableList()
+```
+
+### Instantiating immutable sets
+
+```kotlin
+// create an empty immutable set
+val emptyList = immutableSetOf<String>()
+
+// create an immutable set from the given elements:
+val stringList = immutableSetOf("foo", "bar")
+
+// convert an existing set to an immutable set
+val someSet: Set<Int> // = ...
+val immutableSet = someSet.toImmutableSet()
+```
+
+Note that the `immutableSetOf` creates an ordered set that preserves element insertion order. 
+If you don't care about the element order, you can create an unordered set with the 
+`immutableHashSetOf` function. 
+
 
 ## Using in your projects
 
