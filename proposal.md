@@ -208,20 +208,22 @@ Reference implementation is given in this repository, see the
 
 ## Unresolved questions
 
-1. Should we expose immutable collection implementations to the public API? Current experience shows
+1. Should we distinguish immutable and persistent collection interfaces and implementations?
+2. Should we provide sorted maps and sets?
+3. Should we expose immutable collection implementations to the public API? Current experience shows
 that it's not mandatory.
-2. Immutable map provides `keys`, `entries` sets and `values` collection.
+4. Immutable map provides `keys`, `entries` sets and `values` collection.
 Should these collections be also immutable, or just read-only is enough?
 Note that their implementations are not persistent and most of their
 modification operations require to make a copy of the collection.
-3. `Map - key` operation: we do not support such operation for read-only maps, and for mutable maps we
+5. `Map - key` operation: we do not support such operation for read-only maps, and for mutable maps we
 can do `MutableMap.keys -= key`. What would be the analogous operation for `ImmutableMap`?
-4. `mutate` extension: should the action take `MutableList` as a receiver
+    - *Resolution:* these operators are implemented in the standard library, so it's fine to implement the same for immutable maps. 
+6. `mutate` extension: should the action take `MutableList` as a receiver
 or as a parameter (`this` or `it` inside lambda)?
-5. `immutableMapOf<K,V>().builder()` requires explicit specification of K and V type arguments
+7. `immutableMapOf<K,V>().builder()` requires explicit specification of K and V type arguments
 (until the common type inference system is implemented) and is quite lengthy.
 Should we provide some shortcut to infer types from expected map type?
-
 
 ## Future advancements
 
