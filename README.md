@@ -1,10 +1,66 @@
 # Immutable Collections Library for Kotlin
 
-Immutable collection interfaces and implementation prototypes for Kotlin ([proposal](proposal.md))
+Immutable collection interfaces and implementation prototypes for Kotlin.
+
+For further details see the [proposal](proposal.md).
 
 Prototype implementation is based on [pcollections](http://pcollections.org/) (Copyright 2015 The pcollections Authors.)
 
+## What's in this library
+### Interfaces and implementations
 
+This library provides interfaces for immutable persistent collections:
+    
+| Interface | Bases | Implementations |
+| ----------| ----- | --------------- |
+| `ImmutableCollection` | `Collection`
+| `ImmutableList` | `ImmutableCollection`, `List` | `immutableListOf` |
+| `ImmutableSet` | `ImmutableCollection`, `Set` | `immutableSetOf`, `immutableHashSetOf` |
+| `ImmutableMap` | `Map` | `immutableMapOf`, `immutableHashMapOf` |
+
+The default implementations of `ImmutableSet` and `ImmutableMap`, which are returned by `immutableSetOf` and `immutableMapOf`
+preserve the element insertion order during iteration. This comes at expense of maintaining more complex data structures.
+If the order of elements doesn't matter, more efficient `immutableHashSetOf` and `immutableHashMapOf` could be used.
+
+### Operations
+
+#### toImmutableList/Set/Map
+Converts a read-only or mutable collection to an immutable one.
+If the receiver is already immutable and has the required type, returns itself.
+
+    fun Iterable<T>.toImmutableList(): ImmutableList<T>
+    fun Iterable<T>.toImmutableSet(): ImmutableSet<T>
+
+#### `+` and `-` operators
+
+`plus` and `minus` operators on immutable collections exploit their immutability
+and delegate the implementation to the collections themselves. 
+The operation is performed with persistence in mind: the returned immutable collection may share storage 
+with the original collection.
+
+```kotlin
+val newList = immutableListOf("a", "b") + "c"
+// newList is also ImmutableList
+```
+
+> **Note:** you need to import these operators from `kotlinx.collections.immutable` package
+in order for them to take the precedence over the ones from the 
+standard library.
+
+```
+import kotlinx.collections.immutable.*
+```
+   
+#### Mutate
+
+`mutate` extension function simplifies quite common pattern of immutable collection modification: 
+get a builder, apply some mutating operations on it, transform it back to an immutable collection:
+
+    collection.builder().apply { some_actions_on(this) }.build()
+    
+With `mutate` it transforms to:
+
+    collection.mutate { some_actions_on(it) }
 
 ## Using in your projects
 
