@@ -54,7 +54,17 @@ public fun <K, V> ImmutableMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): Im
         = (this as ImmutableMap<K, V>).mutate { it.putAll(pairs) }
 
 
-// ImmutableMap.minus ?
+public operator fun <K, V> ImmutableMap<out K, V>.minus(key: K): ImmutableMap<K, V>
+        = (this as ImmutableMap<K, V>).remove(key)
+
+public operator fun <K, V> ImmutableMap<out K, V>.minus(keys: Iterable<K>): ImmutableMap<K, V>
+        = (this as ImmutableMap<K, V>).mutate { it.minusAssign(keys) }
+
+public operator fun <K, V> ImmutableMap<out K, V>.minus(keys: Array<out K>): ImmutableMap<K, V>
+        = (this as ImmutableMap<K, V>).mutate { it.minusAssign(keys) }
+
+public operator fun <K, V> ImmutableMap<out K, V>.minus(keys: Sequence<K>): ImmutableMap<K, V>
+        = (this as ImmutableMap<K, V>).mutate { it.minusAssign(keys) }
 
 
 fun <E> immutableListOf(vararg elements: E): ImmutableList<E> = ImmutableVectorList.emptyOf<E>().addAll(elements.asList())
