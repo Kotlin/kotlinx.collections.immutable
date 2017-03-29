@@ -127,7 +127,7 @@ uploadArchives {
                     developer {
                         name 'Ilya Gorbunov'
                         email 'ilya.gorbunov@jetbrains.com'
-                        organization 'JetBrains'
+                        organization = 'JetBrains'
                         organizationUrl 'http://www.jetbrains.com'
                     }
                 }
