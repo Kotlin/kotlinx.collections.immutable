@@ -1,4 +1,5 @@
-/.idea
+/.idea/*
+!/.idea/copyright
 .gradle
 *.iml
 target
