@@ -15,7 +15,7 @@ Provide implementation of those interfaces.
 ## Similar API review
 
 * [.NET immutable collections](https://msdn.microsoft.com/en-us/library/mt452182.aspx)
-* [Scala immutable collections](http://docs.scala-lang.org/overviews/collections/concrete-immutable-collection-classes)
+* [Scala immutable collections](https://docs.scala-lang.org/overviews/collections/concrete-immutable-collection-classes.html)
 
 ## Description
 
