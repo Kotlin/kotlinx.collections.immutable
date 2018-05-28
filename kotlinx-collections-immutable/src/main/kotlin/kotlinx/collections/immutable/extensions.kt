@@ -18,6 +18,8 @@
 
 package kotlinx.collections.immutable
 
+import kotlinx.collections.immutable.implementations.immutableList.persistentVectorOf
+
 //@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 //inline fun <T> @kotlin.internal.Exact ImmutableCollection<T>.mutate(mutator: (MutableCollection<T>) -> Unit): ImmutableCollection<T> = builder().apply(mutator).build()
 // it or this?
