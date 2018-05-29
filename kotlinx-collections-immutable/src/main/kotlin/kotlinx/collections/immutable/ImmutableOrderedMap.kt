@@ -21,7 +21,7 @@ import org.pcollections.PMap
 import java.util.ConcurrentModificationException
 
 
-internal class ImmutableOrderedMap<K, out V> private constructor(private val impl: PMap<K, LinkedEntry<K, V>>) : ImmutableMap<K, V>, AbstractMap<K, V>() {
+internal class ImmutableOrderedMap<K, out V> private constructor(private val impl: PMap<K, LinkedEntry<K, V>>) : PersistentMap<K, V>, AbstractMap<K, V>() {
     // TODO: Keep reference to first/last entry
 
     protected class LinkedEntry<out K, out V>(val key: K, val value: @UnsafeVariance V, val prevKey: Any?, val nextKey: Any?) {
@@ -47,42 +47,42 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
 
 
     // should it be immutable set/collection or just read-only?
-    private var _keys: Set<K>? = null
-    final override val keys: Set<K> get() = _keys ?: createKeys().apply { _keys = this }
-    private fun createKeys(): Set<K> = OrderedKeySet()
+    private var _keys: ImmutableSet<K>? = null
+    final override val keys: ImmutableSet<K> get() = _keys ?: createKeys().apply { _keys = this }
+    private fun createKeys(): ImmutableSet<K> = OrderedKeySet()
 
-    private var _values: Collection<V>? = null
-    final override val values: Collection<V> get() = _values ?: createValues().apply { _values = this }
-    private fun createValues(): Collection<V> = OrderedValueCollection()
+    private var _values: ImmutableCollection<V>? = null
+    final override val values: ImmutableCollection<V> get() = _values ?: createValues().apply { _values = this }
+    private fun createValues(): ImmutableCollection<V> = OrderedValueCollection()
 
-    private var _entries: Set<Map.Entry<K, V>>? = null
-    final override val entries: Set<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
-    private fun createEntries(): Set<Map.Entry<K, V>> = OrderedEntrySet()
+    private var _entries: ImmutableSet<Map.Entry<K, V>>? = null
+    final override val entries: ImmutableSet<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
+    private fun createEntries(): ImmutableSet<Map.Entry<K, V>> = OrderedEntrySet()
 
-    override fun put(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.putEntry(impl[key], key, value))
-    override fun putAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> {
+    override fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = wrap(impl.putEntry(impl[key], key, value))
+    override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
         var newImpl = impl
         for ((k, v) in m)
             newImpl = newImpl.putEntry(newImpl[k], k, v)
 
         return wrap(newImpl)
     }
-    override fun remove(key: K): ImmutableMap<K, V> = wrap(impl.removeLinked(key))
+    override fun remove(key: K): PersistentMap<K, V> = wrap(impl.removeLinked(key))
 
-    override fun remove(key: K, value: @UnsafeVariance V): ImmutableMap<K, V>
+    override fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
             = if (!impl.contains(key, value)) this else remove(key)
 
-    override fun clear(): ImmutableMap<K, V> = emptyOf()
+    override fun clear(): PersistentMap<K, V> = emptyOf()
 
-    override fun builder(): ImmutableMap.Builder<K, @UnsafeVariance V> = Builder(this, impl)
+    override fun builder(): PersistentMap.Builder<K, @UnsafeVariance V> = Builder(this, impl)
 
     protected fun wrap(impl: PMap<K, LinkedEntry<K, @UnsafeVariance V>>): ImmutableOrderedMap<K, V> {
         return if (impl === this.impl) this else ImmutableOrderedMap(impl)
     }
 
 
-    protected class Builder<K, V>(protected var value: ImmutableOrderedMap<K, V>, protected var impl: PMap<K, LinkedEntry<K, V>>) : ImmutableMap.Builder<K, V>, AbstractMutableMap<K, V>() {
-        override fun build(): ImmutableMap<K, V> = value.wrap(impl).apply { value = this }
+    protected class Builder<K, V>(protected var value: ImmutableOrderedMap<K, V>, protected var impl: PMap<K, LinkedEntry<K, V>>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+        override fun build(): PersistentMap<K, V> = value.wrap(impl).apply { value = this }
 
         override val size: Int get() = impl.size
         override fun isEmpty(): Boolean = impl.isEmpty()
@@ -236,16 +236,20 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
 
     private val entrySequence = generateSequence(impl.firstEntry()) { e -> impl[e.nextKey] }
 
-    private inner class OrderedEntrySet : AbstractSet<Map.Entry<K, V>>() {
+    private inner class OrderedEntrySet : AbstractSet<Map.Entry<K, V>>(), ImmutableSet<Map.Entry<K, V>> {
         override val size: Int get() = impl.size
         override fun contains(element: Map.Entry<K, @UnsafeVariance V>): Boolean = impl.contains(element.key, element.value)
         override fun containsAll(elements: Collection<Map.Entry<K, @UnsafeVariance V>>): Boolean = elements.all { (k, v) -> impl.contains(k, v) }
         override fun isEmpty(): Boolean = impl.isEmpty()
         private val mapped = entrySequence.map { it.mapEntry }
         override fun iterator(): Iterator<Map.Entry<K, V>> = mapped.iterator()
+
+        override fun builder(): ImmutableSet.Builder<Map.Entry<K, @UnsafeVariance V>> {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
-    private inner class OrderedKeySet : AbstractSet<K>() {
+    private inner class OrderedKeySet : AbstractSet<K>(), ImmutableSet<K> {
         override val size: Int get() = impl.size
         override fun contains(element: K): Boolean = impl.containsKey(element)
         override fun containsAll(elements: Collection<K>): Boolean = impl.keys.containsAll(elements)
@@ -254,9 +258,13 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
 
         private val mapped = entrySequence.map { it.key }
         override fun iterator(): Iterator<K> = mapped.iterator()
+
+        override fun builder(): ImmutableSet.Builder<K> {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
-    private inner class OrderedValueCollection : AbstractCollection<V>() {
+    private inner class OrderedValueCollection : AbstractCollection<V>(), ImmutableCollection<V> {
         override val size: Int get() = impl.size
         override fun contains(element: @UnsafeVariance V): Boolean = containsValue(element)
         override fun containsAll(elements: Collection<@UnsafeVariance V>): Boolean =  elements.all { v -> containsValue(v) }
@@ -264,6 +272,10 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
 
         private val mapped = entrySequence.map { it.value }
         override fun iterator(): Iterator<V> = mapped.iterator()
+
+        override fun builder(): ImmutableCollection.Builder<@UnsafeVariance V> {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 }
 

@@ -14,7 +14,7 @@ class ImmutableOrderedMapTest : ImmutableMapTest() {
     override fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = true) }
 
     @Test fun iterationOrder() {
-        var map = immutableMapOf("x" to null, "y" to 1)
+        var map = immutableMapOf("x" to null, "y" to 1).toPersistentMap()
         compare(setOf("x", "y"), map.keys) { setBehavior(ordered = true) }
 
         map += "x" to 1
@@ -64,7 +64,7 @@ abstract class ImmutableMapTest {
 
 
         val map = HashMap(original) // copy
-        var immMap = map.toImmutableMap()
+        var immMap = map.toImmutableMap().toPersistentMap()
         val immMap2 = immMap.toImmutableMap()
         assertTrue(immMap2 === immMap)
 
@@ -80,7 +80,7 @@ abstract class ImmutableMapTest {
 
 
     @Test fun putElements() {
-        var map = immutableMapOf<String, Int?>()
+        var map = immutableMapOf<String, Int?>().toPersistentMap()
         map = map.put("x", 0)
         map = map.put("x", 1)
         map = map.putAll(arrayOf("x" to null))
@@ -97,7 +97,7 @@ abstract class ImmutableMapTest {
     }
 
     @Test fun removeElements() {
-        val map = immutableMapOf("x" to 1, null to "x")
+        val map = immutableMapOf("x" to 1, null to "x").toPersistentMap()
 
         fun <K, V> assertEquals(expected: Map<out K, V>, actual: Map<out K, V>) = kotlin.test.assertEquals(expected, actual)
 
@@ -142,9 +142,9 @@ abstract class ImmutableMapTest {
     }
 
     @Test fun noOperation() {
-        immutableMapOf<Int, String>().testNoOperation({ clear() }, { clear() })
+        immutableMapOf<Int, String>().toPersistentMap().testNoOperation({ clear() }, { clear() })
 
-        val map = immutableMapOf("x" to 1, null to "x")
+        val map = immutableMapOf("x" to 1, null to "x").toPersistentMap()
         with(map) {
             testNoOperation({ remove("y") }, { remove("y") })
             testNoOperation({ remove("x", 2) }, { remove("x", 2) })
@@ -154,7 +154,7 @@ abstract class ImmutableMapTest {
         }
     }
 
-    fun <K, V> ImmutableMap<K, V>.testNoOperation(persistent: ImmutableMap<K, V>.() -> ImmutableMap<K, V>, mutating: MutableMap<K, V>.() -> Unit) {
+    fun <K, V> PersistentMap<K, V>.testNoOperation(persistent: PersistentMap<K, V>.() -> PersistentMap<K, V>, mutating: MutableMap<K, V>.() -> Unit) {
         val result = this.persistent()
         val buildResult = this.mutate(mutating)
         // Ensure non-mutating operations return the same instance

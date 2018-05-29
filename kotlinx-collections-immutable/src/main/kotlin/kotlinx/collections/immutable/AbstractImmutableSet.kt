@@ -19,7 +19,7 @@ package kotlinx.collections.immutable
 import org.pcollections.PSet
 import java.util.ConcurrentModificationException
 
-internal abstract class AbstractImmutableSet<out E> protected constructor(protected val impl: PSet<@UnsafeVariance E>) : ImmutableSet<E> {
+internal abstract class AbstractImmutableSet<out E> protected constructor(protected val impl: PSet<@UnsafeVariance E>) : PersistentSet<E> {
 
     override val size: Int get() = impl.size
     override fun isEmpty(): Boolean = impl.isEmpty()
@@ -31,15 +31,15 @@ internal abstract class AbstractImmutableSet<out E> protected constructor(protec
     override fun hashCode(): Int = impl.hashCode()
     override fun toString(): String = impl.toString()
 
-    override fun add(element: @UnsafeVariance E): ImmutableSet<E> = wrap(impl.plus(element))
+    override fun add(element: @UnsafeVariance E): PersistentSet<E> = wrap(impl.plus(element))
 
-    override fun addAll(elements: Collection<@UnsafeVariance E>): ImmutableSet<E> = wrap(impl.plusAll(elements))
+    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = wrap(impl.plusAll(elements))
 
-    override fun remove(element: @UnsafeVariance E): ImmutableSet<E> = wrap(impl.minus(element))
+    override fun remove(element: @UnsafeVariance E): PersistentSet<E> = wrap(impl.minus(element))
 
-    override fun removeAll(elements: Collection<@UnsafeVariance E>): ImmutableSet<E> = mutate { it.removeAll(elements) }
+    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = mutate { it.removeAll(elements) }
 
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableSet<E> = mutate { it.removeAll(predicate) }
+    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> = mutate { it.removeAll(predicate) }
 
     override abstract fun clear(): AbstractImmutableSet<E>
 
@@ -47,7 +47,7 @@ internal abstract class AbstractImmutableSet<out E> protected constructor(protec
 
     protected abstract fun wrap(impl: PSet<@UnsafeVariance E>): AbstractImmutableSet<E>
 
-    abstract class Builder<E> internal constructor(protected var value: AbstractImmutableSet<E>, protected var impl: PSet<E>) : AbstractMutableSet<E>(), ImmutableSet.Builder<E> {
+    abstract class Builder<E> internal constructor(protected var value: AbstractImmutableSet<E>, protected var impl: PSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
         override fun build(): AbstractImmutableSet<E> = value.wrap(impl).apply { value = this }
         // delegating to impl
         override val size: Int get() = impl.size

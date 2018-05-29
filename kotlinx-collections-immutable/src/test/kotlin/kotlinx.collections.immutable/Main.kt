@@ -34,14 +34,14 @@ fun main(args: Array<String>) {
 
 
 fun mapOfMap() {
-    var map = immutableHashMapOf(1 to immutableHashMapOf("x" to 2 as Any)).put(1, immutableHashMapOf())
+    var map = immutableHashMapOf(1 to immutableHashMapOf("x" to 2 as Any)).toPersistentMap().put(1, immutableHashMapOf())
 
     println(map)
 }
 
 
 fun foo() {
-    var list: ImmutableList<String> = ImmutableVectorList.emptyOf()
+    var list: PersistentList<String> = ImmutableVectorList.emptyOf()
 
     list = list.mutate { it.removeAll { it.length > 2 } }
     list = list.removeAll { it.length >  2}
