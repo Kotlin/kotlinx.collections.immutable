@@ -19,7 +19,7 @@ package kotlinx.collections.immutable
 import org.pcollections.PMap
 import java.util.ConcurrentModificationException
 
-internal abstract class AbstractImmutableMap<K, out V> protected constructor(protected val impl: PMap<K, @UnsafeVariance V>) : ImmutableMap<K, V> {
+internal abstract class AbstractImmutableMap<K, out V> protected constructor(protected val impl: PMap<K, @UnsafeVariance V>) : PersistentMap<K, V> {
 
     abstract class AbstractImmutableEntry<out K, out V> : Map.Entry<K, V> {
         override fun equals(other: Any?): Boolean = other is Map.Entry<*,*> && other.key == key && other.value == value
@@ -40,22 +40,22 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
 
 
     // should it be immutable set/collection or just read-only?
-    private var _keys: Set<K>? = null
-    final override val keys: Set<K> get() = _keys ?: createKeys().apply { _keys = this }
-    protected open fun createKeys(): Set<K> = impl.keys
+    private var _keys: ImmutableSet<K>? = null
+    final override val keys: ImmutableSet<K> get() = _keys ?: createKeys().apply { _keys = this }
+    protected open fun createKeys(): ImmutableSet<K> = ImmutableSetWrapper(impl.keys)
 
-    private var _values: Collection<V>? = null
-    final override val values: Collection<V> get() = _values ?: createValues().apply { _values = this }
-    protected open fun createValues(): Collection<V> = impl.values
+    private var _values: ImmutableCollection<V>? = null
+    final override val values: ImmutableCollection<V> get() = _values ?: createValues().apply { _values = this }
+    protected open fun createValues(): ImmutableCollection<V> = ImmutableCollectionWrapper(impl.values)
 
-    private var _entries: Set<Map.Entry<K, V>>? = null
-    final override val entries: Set<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
-    protected open fun createEntries(): Set<Map.Entry<K, V>> = impl.entries
+    private var _entries: ImmutableSet<Map.Entry<K, V>>? = null
+    final override val entries: ImmutableSet<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
+    protected open fun createEntries(): ImmutableSet<Map.Entry<K, V>> = ImmutableSetWrapper(impl.entries)
 
-    override fun put(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> = wrap(impl.plus(key, value))
-    override fun putAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> = wrap(impl.plusAll(m))
-    override fun remove(key: K): ImmutableMap<K, V> = wrap(impl.minus(key))
-    override fun remove(key: K, value: @UnsafeVariance V): ImmutableMap<K, V>
+    override fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = wrap(impl.plus(key, value))
+    override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = wrap(impl.plusAll(m))
+    override fun remove(key: K): PersistentMap<K, V> = wrap(impl.minus(key))
+    override fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
             = if (!impl.contains(key, value)) this else wrap(impl.minus(key))
 
     override abstract fun builder(): Builder<K, @UnsafeVariance V>
@@ -63,8 +63,8 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
     protected abstract fun wrap(impl: PMap<K, @UnsafeVariance V>): AbstractImmutableMap<K, V>
 
 
-    abstract class Builder<K, V> protected constructor(protected var value: AbstractImmutableMap<K, V>, protected var impl: PMap<K, V>) : ImmutableMap.Builder<K, V>, AbstractMutableMap<K, V>() {
-        override fun build(): ImmutableMap<K, V> = value.wrap(impl).apply { value = this }
+    abstract class Builder<K, V> protected constructor(protected var value: AbstractImmutableMap<K, V>, protected var impl: PMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+        override fun build(): AbstractImmutableMap<K, V> = value.wrap(impl).apply { value = this }
 
         override val size: Int get() = impl.size
         override fun isEmpty(): Boolean = impl.isEmpty()
@@ -165,7 +165,6 @@ internal fun <K, V> PMap<K, V>.contains(key: K, value: @UnsafeVariance V): Boole
     = this[key]?.let { candidate -> candidate == value } ?: (value == null && containsKey(key))
 
 
-/*
 private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<E>) : ImmutableCollection<E> {
     override val size: Int get() = impl.size
     override fun isEmpty(): Boolean = impl.isEmpty()
@@ -178,24 +177,8 @@ private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<
     override fun toString(): String = impl.toString()
 
     override fun builder(): ImmutableCollection.Builder<E> = ImmutableVectorList.emptyOf<E>().builder().apply { addAll(impl) }
-
-    override fun add(element: E): ImmutableCollection<E> = builder().apply { add(element) }.build()
-    override fun addAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { addAll(elements) }.build()
-    override fun remove(element: E): ImmutableCollection<E> = builder().apply { remove(element) }.build()
-    override fun removeAll(elements: Collection<E>): ImmutableCollection<E> = builder().apply { removeAll(elements) }.build()
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableCollection<E> = builder().apply { removeAll(predicate) }.build()
-    override fun clear(): ImmutableCollection<E> = immutableListOf()
 }
 
 private class ImmutableSetWrapper<E>(impl: Set<E>) : ImmutableSet<E>, ImmutableCollectionWrapper<E>(impl) {
-
     override fun builder(): ImmutableSet.Builder<E> = ImmutableOrderedSet.emptyOf<E>().builder().apply { addAll(impl) }
-
-    override fun add(element: E): ImmutableSet<E> = super.add(element) as ImmutableSet
-    override fun addAll(elements: Collection<E>): ImmutableSet<E> = super.addAll(elements) as ImmutableSet
-    override fun remove(element: E): ImmutableSet<E> = super.remove(element) as ImmutableSet
-    override fun removeAll(elements: Collection<E>): ImmutableSet<E> = super.removeAll(elements) as ImmutableSet
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableSet<E> = super.removeAll(predicate) as ImmutableSet
-    override fun clear(): ImmutableSet<E> = immutableSetOf()
 }
-*/

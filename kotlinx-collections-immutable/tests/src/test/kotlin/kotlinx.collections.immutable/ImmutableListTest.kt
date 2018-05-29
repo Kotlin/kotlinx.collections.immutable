@@ -45,12 +45,12 @@ class ImmutableListTest {
         list.removeAt(0)
         assertNotEquals<List<*>>(list, immList)
 
-        immList = immList.removeAt(0)
+        immList = immList.toPersistentList().removeAt(0)
         compareLists(list, immList)
     }
 
     @Test fun addElements() {
-        var list = immutableListOf<String>()
+        var list = immutableListOf<String>().toPersistentList()
         list = list.add("x")
         list = list.add(0, "a")
         list = list.addAll(list)
@@ -62,7 +62,7 @@ class ImmutableListTest {
     }
 
     @Test fun replaceElements() {
-        var list = "abcxaxab12".toImmutableList()
+        var list = "abcxaxab12".toImmutableList().toPersistentList()
 
         for (i in list.indices) {
             list = list.set(i, list[i] as Char + i)
@@ -74,7 +74,7 @@ class ImmutableListTest {
     }
 
     @Test fun removeElements() {
-        val list = "abcxaxyz12".toImmutableList()
+        val list = "abcxaxyz12".toImmutableList().toPersistentList()
         fun expectList(content: String, list: ImmutableList<Char>) {
             compareLists(content.toList(), list)
         }
@@ -149,9 +149,9 @@ class ImmutableListTest {
     }
 
     @Test fun noOperation() {
-        immutableListOf<Int>().testNoOperation({ clear() }, { clear() })
+        immutableListOf<Int>().toPersistentList().testNoOperation({ clear() }, { clear() })
 
-        val list = "abcxaxyz12".toImmutableList()
+        val list = "abcxaxyz12".toImmutableList().toPersistentList()
         with(list) {
             testNoOperation({ remove('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
@@ -159,7 +159,7 @@ class ImmutableListTest {
         }
     }
 
-    fun <T> ImmutableList<T>.testNoOperation(persistent: ImmutableList<T>.() -> ImmutableList<T>, mutating: MutableList<T>.() -> Unit) {
+    fun <T> PersistentList<T>.testNoOperation(persistent: PersistentList<T>.() -> PersistentList<T>, mutating: MutableList<T>.() -> Unit) {
         val result = this.persistent()
         val buildResult = this.mutate(mutating)
         // Ensure non-mutating operations return the same instance

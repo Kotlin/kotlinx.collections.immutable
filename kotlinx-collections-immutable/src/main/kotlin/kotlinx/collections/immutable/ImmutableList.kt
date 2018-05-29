@@ -16,36 +16,46 @@
 
 package kotlinx.collections.immutable
 
-public interface ImmutableList<out E>: List<E>, ImmutableCollection<E> {
-    override fun add(element: @UnsafeVariance E): ImmutableList<E>
+public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
 
-    override fun addAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
-
-    override fun remove(element: @UnsafeVariance E): ImmutableList<E>
-
-    override fun removeAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E>
-
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableList<E>
-
-    override fun clear(): ImmutableList<E>
-
-
-    fun addAll(index: Int, c: Collection<@UnsafeVariance E>): ImmutableList<E> // = builder().apply { addAll(index, c.toList()) }.build()
-
-    fun set(index: Int, element: @UnsafeVariance E): ImmutableList<E>
-
-    /**
-     * Inserts an element into the list at the specified [index].
-     */
-    fun add(index: Int, element: @UnsafeVariance E): ImmutableList<E>
-
-    fun removeAt(index: Int): ImmutableList<E>
 
 
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E>
 
     interface Builder<E>: MutableList<E>, ImmutableCollection.Builder<E> {
         override fun build(): ImmutableList<E>
+    }
+
+    override fun builder(): Builder<@UnsafeVariance E>
+}
+
+public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<E> {
+    override fun add(element: @UnsafeVariance E): PersistentList<E>
+
+    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
+
+    override fun remove(element: @UnsafeVariance E): PersistentList<E>
+
+    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+
+    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E>
+
+    override fun clear(): PersistentList<E>
+
+
+    fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
+
+    fun set(index: Int, element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * Inserts an element into the list at the specified [index].
+     */
+    fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
+
+    fun removeAt(index: Int): PersistentList<E>
+
+    interface Builder<E>: ImmutableList.Builder<E>, PersistentCollection.Builder<E> {
+        override fun build(): PersistentList<E>
     }
 
     override fun builder(): Builder<@UnsafeVariance E>

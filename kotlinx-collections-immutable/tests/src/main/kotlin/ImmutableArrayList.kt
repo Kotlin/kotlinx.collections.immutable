@@ -18,6 +18,7 @@ public class ImmutableArrayList<out E> private constructor(private val impl: Arr
 
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = ImmutableArrayList(impl.copyOfRange(fromIndex, toIndex))
 
+ /*
     override fun add(element: @UnsafeVariance E): ImmutableList<E> = ImmutableArrayList(impl + element)
 
     override fun addAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> = ImmutableArrayList(impl + elements)
@@ -46,7 +47,7 @@ public class ImmutableArrayList<out E> private constructor(private val impl: Arr
     override fun add(index: Int, element: @UnsafeVariance E): ImmutableList<E> = mutate { it.add(index, element) }
 
     override fun removeAt(index: Int): ImmutableList<E> = mutate { it.removeAt(index) }
-
+*/
     override fun builder(): ImmutableList.Builder<@UnsafeVariance E> = object : ArrayList<E>(impl.asList()), ImmutableList.Builder<E> {
         override fun build(): ImmutableList<E> = if (this.modCount == 0) this@ImmutableArrayList else ImmutableArrayList(this.toArray() as Array<E>)
     }
