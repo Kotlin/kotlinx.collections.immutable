@@ -20,6 +20,9 @@ package kotlinx.collections.immutable
 
 import kotlinx.collections.immutable.implementations.immutableList.persistentVectorOf
 import kotlinx.collections.immutable.implementations.immutableMap.persistentHashMapOf
+import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
+import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSetBuilder
+import kotlinx.collections.immutable.implementations.immutableSet.persistentHashSetOf
 
 //@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 //inline fun <T> @kotlin.internal.Exact ImmutableCollection<T>.mutate(mutator: (MutableCollection<T>) -> Unit): ImmutableCollection<T> = builder().apply(mutator).build()

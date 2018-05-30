@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.implementations.immutableMap
+package kotlinx.collections.immutable.implementations
 
-class KeyWrapper<K: Comparable<K>>(val key: K, val hashCode: Int) : Comparable<KeyWrapper<K>> {
+class ObjectWrapper<K: Comparable<K>>(val obj: K, val hashCode: Int) : Comparable<ObjectWrapper<K>> {
     override fun hashCode(): Int {
         return hashCode
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is KeyWrapper<*>) {
+        if (other !is ObjectWrapper<*>) {
             return false
         }
-        assert(key != other.key || hashCode == other.hashCode)  // if keys are equal hashCodes must be equal
-        return key == other.key
+        assert(obj != other.obj || hashCode == other.hashCode)  // if elements are equal hashCodes must be equal
+        return obj == other.obj
     }
 
-    override fun compareTo(other: KeyWrapper<K>): Int {
-        return key.compareTo(other.key)
+    override fun compareTo(other: ObjectWrapper<K>): Int {
+        return obj.compareTo(other.obj)
     }
 }

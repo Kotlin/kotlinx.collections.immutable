@@ -16,36 +16,11 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
+import kotlinx.collections.immutable.implementations.ObjectWrapper
+import kotlinx.collections.immutable.implementations.WrapperGenerator
 import org.junit.Test
 import org.junit.Assert.*
 import java.util.*
-
-
-class KeyGenerator<K: Comparable<K>>(private val hashCodeUpperBound: Int) {
-    private val keyMap = hashMapOf<K, KeyWrapper<K>>()
-    private val hashCodeMap = hashMapOf<Int, MutableList<KeyWrapper<K>>>()
-    private val random = Random()
-
-    fun key(key: K): KeyWrapper<K> {
-        val existing = keyMap[key]
-        if (existing != null) {
-            return existing
-        }
-        val hashCode = random.nextInt(hashCodeUpperBound)
-        val wrapper = KeyWrapper(key, hashCode)
-        keyMap[key] = wrapper
-
-        val wrappers = hashCodeMap.getOrDefault(hashCode, mutableListOf())
-        wrappers.add(wrapper)
-        hashCodeMap[hashCode] = wrappers
-
-        return wrapper
-    }
-
-    fun wrappersByHashCode(hashCode: Int): List<KeyWrapper<K>> {
-        return hashCodeMap.getOrDefault(hashCode, mutableListOf())
-    }
-}
 
 
 class PersistentHashMapTest {
@@ -223,14 +198,14 @@ class PersistentHashMapTest {
 
     @Test
     fun collisionTests() {
-        var map = persistentHashMapOf<KeyWrapper<Int>, Int>()
+        var map = persistentHashMapOf<ObjectWrapper<Int>, Int>()
 
-        assertEquals(2, map.put(KeyWrapper(1, 1), 1).put(KeyWrapper(1, 1), 2)[KeyWrapper(1, 1)])
+        assertEquals(2, map.put(ObjectWrapper(1, 1), 1).put(ObjectWrapper(1, 1), 2)[ObjectWrapper(1, 1)])
 
         repeat(times = 2) { removeEntryPredicate ->
-            val keyGen = KeyGenerator<Int>(20000)
-            fun key(key: Int): KeyWrapper<Int> {
-                return keyGen.key(key)
+            val keyGen = WrapperGenerator<Int>(20000)
+            fun key(key: Int): ObjectWrapper<Int> {
+                return keyGen.wrapper(key)
             }
 
             val elementsToAdd = 100000   /// should be more than keyGen.hashCodeUpperBound
@@ -246,7 +221,7 @@ class PersistentHashMapTest {
                 assertTrue(collisions.contains(key(index)))
 
                 for (key in collisions) {
-                    assertEquals(key.key, map[key])
+                    assertEquals(key.obj, map[key])
                 }
             }
             repeat(times = elementsToAdd) { index ->
@@ -259,17 +234,17 @@ class PersistentHashMapTest {
                     }
                 } else {
                     for (key in collisions) {
-                        assertEquals(key.key, map[key])
+                        assertEquals(key.obj, map[key])
                         map = if (removeEntryPredicate == 1) {
                             val sameMap = map.remove(key, Int.MIN_VALUE)
                             assertEquals(map.size, sameMap.size)
-                            assertEquals(key.key, sameMap[key])
+                            assertEquals(key.obj, sameMap[key])
 
-                            map.remove(key, key.key)
+                            map.remove(key, key.obj)
                         } else {
-                            val sameMap = map.remove(KeyWrapper(Int.MIN_VALUE, key.hashCode))
+                            val sameMap = map.remove(ObjectWrapper(Int.MIN_VALUE, key.hashCode))
                             assertEquals(map.size, sameMap.size)
-                            assertEquals(key.key, sameMap[key])
+                            assertEquals(key.obj, sameMap[key])
 
                             map.remove(key)
                         }
@@ -285,8 +260,8 @@ class PersistentHashMapTest {
         repeat(times = 1) {
 
             val random = Random()
-            val mutableMaps = List(10) { mutableMapOf<KeyWrapper<Int>?, Int?>() }
-            val immutableMaps = MutableList(10) { persistentHashMapOf<KeyWrapper<Int>?, Int?>() }
+            val mutableMaps = List(10) { mutableMapOf<ObjectWrapper<Int>?, Int?>() }
+            val immutableMaps = MutableList(10) { persistentHashMapOf<ObjectWrapper<Int>?, Int?>() }
 
             val operationCount = 2000000
             val hashCodes = List(operationCount / 3) { random.nextInt() }
@@ -299,7 +274,7 @@ class PersistentHashMapTest {
                     null
                 } else {
                     val hashCodeIndex = random.nextInt(hashCodes.size)
-                    KeyWrapper(random.nextInt(), hashCodes[hashCodeIndex])
+                    ObjectWrapper(random.nextInt(), hashCodes[hashCodeIndex])
                 }
 
                 val operationType = random.nextDouble()

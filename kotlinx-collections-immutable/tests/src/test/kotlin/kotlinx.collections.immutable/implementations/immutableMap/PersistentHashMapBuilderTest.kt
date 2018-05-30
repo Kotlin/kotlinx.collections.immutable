@@ -16,6 +16,8 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
+import kotlinx.collections.immutable.implementations.ObjectWrapper
+import kotlinx.collections.immutable.implementations.WrapperGenerator
 import org.junit.Test
 import org.junit.Assert.*
 import java.util.*
@@ -189,12 +191,12 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun collisionTests() {
-        val builder = persistentHashMapOf<KeyWrapper<Int>, Int>().builder()
+        val builder = persistentHashMapOf<ObjectWrapper<Int>, Int>().builder()
 
         repeat(times = 2) { removeEntryPredicate ->
-            val keyGen = KeyGenerator<Int>(20000)
-            fun key(key: Int): KeyWrapper<Int> {
-                return keyGen.key(key)
+            val keyGen = WrapperGenerator<Int>(20000)
+            fun key(key: Int): ObjectWrapper<Int> {
+                return keyGen.wrapper(key)
             }
 
             val elementsToAdd = 100000   /// should be more than keyGen.hashCodeUpperBound
@@ -210,7 +212,7 @@ class PersistentHashMapBuilderTest {
                 assertTrue(collisions.contains(key(index)))
 
                 for (key in collisions) {
-                    assertEquals(key.key, builder[key])
+                    assertEquals(key.obj, builder[key])
                 }
             }
             repeat(times = elementsToAdd) { index ->
@@ -223,16 +225,16 @@ class PersistentHashMapBuilderTest {
                     }
                 } else {
                     for (key in collisions) {
-                        assertEquals(key.key, builder[key])
+                        assertEquals(key.obj, builder[key])
                         if (removeEntryPredicate == 1) {
-                            assertNull(builder.remove(KeyWrapper(Int.MIN_VALUE, key.hashCode)))
-                            assertEquals(key.key, builder[key])
-                            assertEquals(true, builder.remove(key, key.key))
+                            assertNull(builder.remove(ObjectWrapper(Int.MIN_VALUE, key.hashCode)))
+                            assertEquals(key.obj, builder[key])
+                            assertEquals(true, builder.remove(key, key.obj))
                             assertNull(builder[key])
                         } else {
-                            assertNull(builder.remove(KeyWrapper(Int.MIN_VALUE, key.hashCode)))
-                            assertEquals(key.key, builder[key])
-                            assertEquals(key.key, builder.remove(key))
+                            assertNull(builder.remove(ObjectWrapper(Int.MIN_VALUE, key.hashCode)))
+                            assertEquals(key.obj, builder[key])
+                            assertEquals(key.obj, builder.remove(key))
                             assertNull(builder[key])
                         }
                     }
@@ -244,8 +246,8 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun randomOperationsTests() {
-        val mapGen = mutableListOf(List(20) { persistentHashMapOf<KeyWrapper<Int>, Int>() })
-        val expected = mutableListOf(List(20) { mapOf<KeyWrapper<Int>, Int>() })
+        val mapGen = mutableListOf(List(20) { persistentHashMapOf<ObjectWrapper<Int>, Int>() })
+        val expected = mutableListOf(List(20) { mapOf<ObjectWrapper<Int>, Int>() })
 
         repeat(times = 10) {
 
@@ -262,7 +264,7 @@ class PersistentHashMapBuilderTest {
 
                 val operationType = random.nextDouble()
                 val hashCodeIndex = random.nextInt(hashCodes.size)
-                val key = KeyWrapper(random.nextInt(), hashCodes[hashCodeIndex])
+                val key = ObjectWrapper(random.nextInt(), hashCodes[hashCodeIndex])
 
                 val shouldRemove = operationType < 0.2
                 val shouldRemoveEntry = !shouldRemove && operationType < 0.4
