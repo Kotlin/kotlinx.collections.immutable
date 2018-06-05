@@ -24,12 +24,6 @@ public interface ImmutableMap<K, out V>: Map<K, V> {
     override val values: ImmutableCollection<V>
 
     override val entries: ImmutableSet<Map.Entry<K, V>>
-
-    interface Builder<K, V>: MutableMap<K, V> {
-        fun build(): ImmutableMap<K, V>
-    }
-
-    fun builder(): Builder<K, @UnsafeVariance V>
 }
 
 
@@ -45,9 +39,9 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
 
     fun clear(): PersistentMap<K, V>
 
-    interface Builder<K, V>: ImmutableMap.Builder<K, V> {
-        override fun build(): PersistentMap<K, V>
+    interface Builder<K, V>: MutableMap<K, V> {
+        fun build(): PersistentMap<K, V>
     }
 
-    override fun builder(): Builder<K, @UnsafeVariance V>
+    fun builder(): Builder<K, @UnsafeVariance V>
 }

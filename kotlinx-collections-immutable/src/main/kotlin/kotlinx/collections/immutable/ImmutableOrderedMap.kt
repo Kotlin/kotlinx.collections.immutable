@@ -21,7 +21,7 @@ import org.pcollections.PMap
 import java.util.ConcurrentModificationException
 
 
-internal class ImmutableOrderedMap<K, out V> private constructor(private val impl: PMap<K, LinkedEntry<K, V>>) : PersistentMap<K, V>, AbstractMap<K, V>() {
+internal class ImmutableOrderedMap<K, out V> private constructor(private val impl: PMap<K, LinkedEntry<K, V>>) : AbstractMap<K, V>(), PersistentMap<K, V> {
     // TODO: Keep reference to first/last entry
 
     protected class LinkedEntry<out K, out V>(val key: K, val value: @UnsafeVariance V, val prevKey: Any?, val nextKey: Any?) {
@@ -58,6 +58,10 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
     private var _entries: ImmutableSet<Map.Entry<K, V>>? = null
     final override val entries: ImmutableSet<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
     private fun createEntries(): ImmutableSet<Map.Entry<K, V>> = OrderedEntrySet()
+
+    // TODO: compiler bug: this bridge should be generated automatically
+    @PublishedApi
+    internal fun getEntries(): Set<Map.Entry<K, V>> = _entries ?: createEntries().apply { _entries = this }
 
     override fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = wrap(impl.putEntry(impl[key], key, value))
     override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
@@ -245,10 +249,6 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
         override fun isEmpty(): Boolean = impl.isEmpty()
         private val mapped = entrySequence.map { it.mapEntry }
         override fun iterator(): Iterator<Map.Entry<K, V>> = mapped.iterator()
-
-        override fun builder(): ImmutableSet.Builder<Map.Entry<K, @UnsafeVariance V>> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
     }
 
     private inner class OrderedKeySet : AbstractSet<K>(), ImmutableSet<K> {
@@ -260,10 +260,6 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
 
         private val mapped = entrySequence.map { it.key }
         override fun iterator(): Iterator<K> = mapped.iterator()
-
-        override fun builder(): ImmutableSet.Builder<K> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
     }
 
     private inner class OrderedValueCollection : AbstractCollection<V>(), ImmutableCollection<V> {
@@ -275,9 +271,6 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
         private val mapped = entrySequence.map { it.value }
         override fun iterator(): Iterator<V> = mapped.iterator()
 
-        override fun builder(): ImmutableCollection.Builder<@UnsafeVariance V> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
     }
 }
 

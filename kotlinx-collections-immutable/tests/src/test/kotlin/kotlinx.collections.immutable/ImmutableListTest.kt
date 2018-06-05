@@ -50,7 +50,7 @@ class ImmutableListTest {
     }
 
     @Test fun addElements() {
-        var list = immutableListOf<String>().toPersistentList()
+        var list = immutableListOf<String>()
         list = list.add("x")
         list = list.add(0, "a")
         list = list.addAll(list)
@@ -127,7 +127,7 @@ class ImmutableListTest {
     }
 
     @Test fun subListOfBuilder() {
-        val list = "abcxaxyz12".toImmutableList()
+        val list = "abcxaxyz12".toImmutableList().toPersistentList()
         val builder = list.builder()
         val subList = builder.subList(2, 5)
         builder[4] = 'b'
@@ -137,7 +137,7 @@ class ImmutableListTest {
         assertEquals("abxbxyz12", builder.joinToString(""))
     }
 
-    fun <T> ImmutableList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
+    fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
         val mutable = this.toMutableList()
         val builder = this.builder()
 
@@ -170,9 +170,9 @@ class ImmutableListTest {
     @Test fun covariantTyping() {
         val listNothing = immutableListOf<Nothing>()
 
-        val listS: ImmutableList<String> = listNothing + "x"
-        val listSN: ImmutableList<String?> = listS + (null as String?)
-        val listAny: ImmutableList<Any?> = listSN + 1
+        val listS: PersistentList<String> = listNothing + "x"
+        val listSN: PersistentList<String?> = listS + (null as String?)
+        val listAny: PersistentList<Any?> = listSN + 1
 
         assertEquals(listOf("x", null, 1), listAny)
     }

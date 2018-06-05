@@ -21,7 +21,7 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     override fun noOperation() {
         // immutableSetOf<Int>().testNoOperation({ clear() }, { clear() })  // fails to implement this property
 
-        val list = "abcxyz12".toList().toImmutableSet()
+        val list = "abcxyz12".toList().toPersistentSet()
         with(list) {
             testNoOperation({ add('a') }, { add('a') })
             testNoOperation({ addAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
@@ -34,7 +34,7 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
 
 abstract class ImmutableSetTestBase {
 
-    abstract fun <T> immutableSetOf(vararg elements: T): ImmutableSet<T>
+    abstract fun <T> immutableSetOf(vararg elements: T): PersistentSet<T>
 
     @Test open fun empty() {
         val empty1 = immutableSetOf<Int>()
@@ -57,7 +57,7 @@ abstract class ImmutableSetTestBase {
         val original = setOf("a", "bar", "cat", null)
 
         val set = original.toMutableSet() // copy
-        var immSet = set.toImmutableSet()
+        var immSet = set.toPersistentSet()
         val immSet2 = immSet.toImmutableSet()
         assertTrue(immSet2 === immSet)
 
@@ -84,7 +84,7 @@ abstract class ImmutableSetTestBase {
 
 
     @Test fun removeElements() {
-        val set = "abcxyz12".toList().toImmutableSet()
+        val set = "abcxyz12".toList().toPersistentSet()
         fun expectSet(content: String, set: ImmutableSet<Char>) {
             assertEquals(content.toSet(), set)
         }
@@ -121,7 +121,7 @@ abstract class ImmutableSetTestBase {
         }
     }
 
-    fun <T> ImmutableSet<T>.testMutation(operation: MutableSet<T>.() -> Unit) {
+    fun <T> PersistentSet<T>.testMutation(operation: MutableSet<T>.() -> Unit) {
         val mutable = this.toMutableSet()
         val builder = this.builder()
 
@@ -137,7 +137,7 @@ abstract class ImmutableSetTestBase {
     @Test open fun noOperation() {
         immutableSetOf<Int>().testNoOperation({ clear() }, { clear() })
 
-        val set = "abcxyz12".asIterable().toImmutableSet()
+        val set = "abcxyz12".asIterable().toPersistentSet()
         with(set) {
             testNoOperation({ add('a') }, { add('a') })
             testNoOperation({ addAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
@@ -147,7 +147,7 @@ abstract class ImmutableSetTestBase {
         }
     }
 
-    fun <T> ImmutableSet<T>.testNoOperation(persistent: ImmutableSet<T>.() -> ImmutableSet<T>, mutating: MutableSet<T>.() -> Unit) {
+    fun <T> PersistentSet<T>.testNoOperation(persistent: PersistentSet<T>.() -> PersistentSet<T>, mutating: MutableSet<T>.() -> Unit) {
         val result = this.persistent()
         val buildResult = this.mutate(mutating)
         // Ensure non-mutating operations return the same instance

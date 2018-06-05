@@ -7,10 +7,10 @@ import java.util.*
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
-    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = kotlinx.collections.immutable.immutableHashMapOf(*pairs)
+    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = kotlinx.collections.immutable.immutableHashMapOf(*pairs)
 }
 class ImmutableOrderedMapTest : ImmutableMapTest() {
-    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = kotlinx.collections.immutable.immutableMapOf(*pairs)
+    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = kotlinx.collections.immutable.immutableMapOf(*pairs)
     override fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = true) }
 
     @Test fun iterationOrder() {
@@ -30,7 +30,7 @@ class ImmutableOrderedMapTest : ImmutableMapTest() {
 
 abstract class ImmutableMapTest {
 
-    abstract fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V>
+    abstract fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V>
 
     open fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compareMapsUnordered(expected, actual)
     fun <K, V> compareMapsUnordered(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = false) }
@@ -64,7 +64,7 @@ abstract class ImmutableMapTest {
 
 
         val map = HashMap(original) // copy
-        var immMap = map.toImmutableMap().toPersistentMap()
+        var immMap = map.toPersistentMap()
         val immMap2 = immMap.toImmutableMap()
         assertTrue(immMap2 === immMap)
 
@@ -144,7 +144,7 @@ abstract class ImmutableMapTest {
         }
     }
 
-    fun <K, V> ImmutableMap<K, V>.testMutation(operation: MutableMap<K, V>.() -> Unit) {
+    fun <K, V> PersistentMap<K, V>.testMutation(operation: MutableMap<K, V>.() -> Unit) {
         val mutable = HashMap(this) as MutableMap<K, V>
         val builder = this.builder()
 
@@ -180,9 +180,9 @@ abstract class ImmutableMapTest {
     @Test
     fun covariantTyping() {
         val mapNothing = immutableMapOf<Nothing, Nothing>()
-        val mapSI: ImmutableMap<String, Int> = mapNothing + ("x" to 1)
-        val mapSNI: ImmutableMap<String, Int?> = mapSI + mapOf("y" to null)
-        val mapANA: ImmutableMap<Any, Any?> = mapSNI + listOf(1 to "x")
+        val mapSI: PersistentMap<String, Int> = mapNothing + ("x" to 1)
+        val mapSNI: PersistentMap<String, Int?> = mapSI + mapOf("y" to null)
+        val mapANA: PersistentMap<Any, Any?> = mapSNI + listOf(1 to "x")
 
         assertEquals(mapOf(1 to "x", "x" to 1, "y" to null), mapANA)
     }

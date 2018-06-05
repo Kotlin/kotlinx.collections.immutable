@@ -18,15 +18,7 @@ package kotlinx.collections.immutable
 
 public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
 
-
-
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E>
-
-    interface Builder<E>: MutableList<E>, ImmutableCollection.Builder<E> {
-        override fun build(): ImmutableList<E>
-    }
-
-    override fun builder(): Builder<@UnsafeVariance E>
 }
 
 public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<E> {
@@ -54,7 +46,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
 
     fun removeAt(index: Int): PersistentList<E>
 
-    interface Builder<E>: ImmutableList.Builder<E>, PersistentCollection.Builder<E> {
+    interface Builder<E>: MutableList<E>, PersistentCollection.Builder<E> {
         override fun build(): PersistentList<E>
     }
 

@@ -16,15 +16,7 @@
 
 package kotlinx.collections.immutable
 
-public interface ImmutableSet<out E>: Set<E>, ImmutableCollection<E> {
-
-
-    interface Builder<E>: MutableSet<E>, ImmutableCollection.Builder<E> {
-        override fun build(): ImmutableSet<E>
-    }
-
-    override fun builder(): Builder<@UnsafeVariance E>
-}
+public interface ImmutableSet<out E>: Set<E>, ImmutableCollection<E>
 
 public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E> {
     override fun add(element: @UnsafeVariance E): PersistentSet<E>
@@ -40,7 +32,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     override fun clear(): PersistentSet<E>
 
 
-    interface Builder<E>: ImmutableSet.Builder<E>, PersistentCollection.Builder<E> {
+    interface Builder<E>: MutableSet<E>, PersistentCollection.Builder<E> {
         override fun build(): PersistentSet<E>
     }
 

@@ -11,7 +11,7 @@ public class ImmutableListJavaTest {
 
     @Test
     public void immutableList() {
-        ImmutableList<String> list = immutableListOf("x");
+        PersistentList<String> list = immutableListOf("x");
 
         Assert.assertEquals(listOf("x"), list);
 

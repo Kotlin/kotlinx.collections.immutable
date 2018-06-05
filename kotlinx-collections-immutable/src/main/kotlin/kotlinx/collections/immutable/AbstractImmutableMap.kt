@@ -165,20 +165,11 @@ internal fun <K, V> PMap<K, V>.contains(key: K, value: @UnsafeVariance V): Boole
     = this[key]?.let { candidate -> candidate == value } ?: (value == null && containsKey(key))
 
 
-private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<E>) : ImmutableCollection<E> {
-    override val size: Int get() = impl.size
-    override fun isEmpty(): Boolean = impl.isEmpty()
-    override fun contains(element: @UnsafeVariance E): Boolean = impl.contains(element)
-    override fun containsAll(elements: Collection<@UnsafeVariance E>): Boolean = impl.containsAll(elements)
-    override fun iterator(): Iterator<E> = impl.iterator()
-
+private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<E>) : ImmutableCollection<E>, Collection<E> by impl {
     override fun equals(other: Any?): Boolean = impl.equals(other)
     override fun hashCode(): Int = impl.hashCode()
     override fun toString(): String = impl.toString()
-
-    override fun builder(): ImmutableCollection.Builder<E> = ImmutableVectorList.emptyOf<E>().builder().apply { addAll(impl) }
 }
 
 private class ImmutableSetWrapper<E>(impl: Set<E>) : ImmutableSet<E>, ImmutableCollectionWrapper<E>(impl) {
-    override fun builder(): ImmutableSet.Builder<E> = ImmutableOrderedSet.emptyOf<E>().builder().apply { addAll(impl) }
 }
