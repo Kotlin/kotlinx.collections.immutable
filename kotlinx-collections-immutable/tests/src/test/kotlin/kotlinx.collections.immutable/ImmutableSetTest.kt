@@ -4,11 +4,11 @@ import org.junit.Test
 import kotlin.test.*
 
 class ImmutableSetTest : ImmutableSetTestBase() {
-    override fun <T> immutableSetOf(vararg elements: T) = kotlinx.collections.immutable.immutableSetOf(*elements)
+    override fun <T> immutableSetOf(vararg elements: T) = kotlinx.collections.immutable.persistentSetOf(*elements)
 }
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {
-    override fun <T> immutableSetOf(vararg elements: T) = kotlinx.collections.immutable.immutableHashSetOf(*elements)
+    override fun <T> immutableSetOf(vararg elements: T) = kotlinx.collections.immutable.persistentHashSetOf(*elements)
 
     override fun empty() {
         val empty1 = immutableSetOf<Int>()

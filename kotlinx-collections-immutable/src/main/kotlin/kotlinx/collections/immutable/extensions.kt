@@ -120,21 +120,41 @@ public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): Per
         = mutate { it.minusAssign(keys) }
 
 
-fun <E> immutableListOf(vararg elements: E): PersistentList<E> = ImmutableVectorList.emptyOf<E>().addAll(elements.asList())
-fun <E> immutableListOf(): PersistentList<E> = ImmutableVectorList.emptyOf<E>()
+fun <E> persistentListOf(vararg elements: E): PersistentList<E> = ImmutableVectorList.emptyOf<E>().addAll(elements.asList())
+fun <E> persistentListOf(): PersistentList<E> = ImmutableVectorList.emptyOf<E>()
 
-fun <E> immutableSetOf(vararg elements: E): PersistentSet<E> = ImmutableOrderedSet.emptyOf<E>().addAll(elements.asList())
-fun <E> immutableSetOf(): PersistentSet<E> = ImmutableOrderedSet.emptyOf<E>()
+fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = ImmutableOrderedSet.emptyOf<E>().addAll(elements.asList())
+fun <E> persistentSetOf(): PersistentSet<E> = ImmutableOrderedSet.emptyOf<E>()
 
-fun <E> immutableHashSetOf(vararg elements: E): PersistentSet<E> = ImmutableHashSet.emptyOf<E>().addAll(elements.asList())
+fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = ImmutableHashSet.emptyOf<E>().addAll(elements.asList())
 
-fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = ImmutableOrderedMap.emptyOf<K,V>().mutate { it += pairs }
-fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = ImmutableHashMap.emptyOf<K,V>().mutate { it += pairs }
+fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = ImmutableOrderedMap.emptyOf<K,V>().mutate { it += pairs }
+fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = ImmutableHashMap.emptyOf<K,V>().mutate { it += pairs }
+
+@Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf(*elements)"))
+fun <E> immutableListOf(vararg elements: E): PersistentList<E> = persistentListOf(*elements)
+@Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf()"))
+fun <E> immutableListOf(): PersistentList<E> = persistentListOf()
+
+@Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf(*elements)"))
+fun <E> immutableSetOf(vararg elements: E): PersistentSet<E> = persistentSetOf(*elements)
+@Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf()"))
+fun <E> immutableSetOf(): PersistentSet<E> = persistentSetOf()
+
+@Deprecated("Use persistentHashSetOf instead.", ReplaceWith("persistentHashSetOf(*elements)"))
+fun <E> immutableHashSetOf(vararg elements: E): PersistentSet<E> = persistentHashSetOf(*elements)
+
+@Deprecated("Use persistentMapOf instead.", ReplaceWith("persistentMapOf(*pairs)"))
+fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
+@Deprecated("Use persistentHashMapOf instead.", ReplaceWith("persistentHashMapOf(*pairs)"))
+fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentHashMapOf(*pairs)
+
+
 
 fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> =
         this as? ImmutableList
         ?: (this as? PersistentList.Builder)?.build()
-        ?: immutableListOf<T>() + this
+        ?: persistentListOf<T>() + this
 
 fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
         this as? PersistentList
@@ -147,21 +167,21 @@ fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
 fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentList()
 
 fun CharSequence.toPersistentList(): PersistentList<Char> =
-    immutableListOf<Char>().mutate { this.toCollection(it) }
+    persistentListOf<Char>().mutate { this.toCollection(it) }
 
 fun CharSequence.toPersistentSet(): PersistentSet<Char> =
-    immutableSetOf<Char>().mutate { this.toCollection(it) }
+    persistentSetOf<Char>().mutate { this.toCollection(it) }
 
 
 fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
         this as? ImmutableSet<T>
         ?: (this as? PersistentSet.Builder)?.build()
-        ?: immutableSetOf<T>() + this
+        ?: persistentSetOf<T>() + this
 
 fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
         this as? PersistentSet<T>
         ?: (this as? PersistentSet.Builder)?.build()
-        ?: immutableSetOf<T>() + this
+        ?: persistentSetOf<T>() + this
 
 fun <T> Set<T>.toPersistentHashSet(): PersistentSet<T>
     = this as? ImmutableHashSet

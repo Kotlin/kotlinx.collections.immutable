@@ -11,8 +11,8 @@ class ImmutableListTest {
 
 
     @Test fun empty() {
-        val empty1 = immutableListOf<Int>()
-        val empty2 = immutableListOf<String>()
+        val empty1 = persistentListOf<Int>()
+        val empty2 = persistentListOf<String>()
         assertEquals<ImmutableList<Any>>(empty1, empty2)
         assertEquals<List<Any>>(listOf(), empty1)
         assertTrue(empty1 === empty2)
@@ -25,8 +25,8 @@ class ImmutableListTest {
 
     @Test fun ofElements() {
         val list0 = listOf("a", "d", 1, null)
-        val list1 = immutableListOf("a", "d", 1, null)
-        val list2 = immutableListOf("a", "d", 1, null)
+        val list1 = persistentListOf("a", "d", 1, null)
+        val list2 = persistentListOf("a", "d", 1, null)
 
         compareLists(list0, list1)
         assertEquals(list1, list2)
@@ -50,7 +50,7 @@ class ImmutableListTest {
     }
 
     @Test fun addElements() {
-        var list = immutableListOf<String>()
+        var list = persistentListOf<String>()
         list = list.add("x")
         list = list.add(0, "a")
         list = list.addAll(list)
@@ -101,7 +101,7 @@ class ImmutableListTest {
     }
 
     @Test fun builder() {
-        val builder = immutableListOf<Char>().builder()
+        val builder = persistentListOf<Char>().builder()
         "abcxaxyz12".toCollection(builder)
         val list = builder.build()
         assertEquals<List<*>>(list, builder)
@@ -149,9 +149,9 @@ class ImmutableListTest {
     }
 
     @Test fun noOperation() {
-        immutableListOf<Int>().toPersistentList().testNoOperation({ clear() }, { clear() })
+        persistentListOf<Int>().testNoOperation({ clear() }, { clear() })
 
-        val list = "abcxaxyz12".toImmutableList().toPersistentList()
+        val list = "abcxaxyz12".toPersistentList()
         with(list) {
             testNoOperation({ remove('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
@@ -168,7 +168,7 @@ class ImmutableListTest {
     }
 
     @Test fun covariantTyping() {
-        val listNothing = immutableListOf<Nothing>()
+        val listNothing = persistentListOf<Nothing>()
 
         val listS: PersistentList<String> = listNothing + "x"
         val listSN: PersistentList<String?> = listS + (null as String?)
