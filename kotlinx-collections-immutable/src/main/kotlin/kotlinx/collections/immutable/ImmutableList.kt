@@ -16,9 +16,34 @@
 
 package kotlinx.collections.immutable
 
+import kotlinx.collections.immutable.internal.ListImplementation
+
 public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
 
-    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E>
+    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = SubList(this, fromIndex, toIndex)
+
+    public class SubList<E>(private val source: ImmutableList<E>, private val fromIndex: Int, private val toIndex: Int) : ImmutableList<E>, AbstractList<E>() {
+        private var _size: Int = 0
+
+        init {
+            ListImplementation.checkRangeIndexes(fromIndex, toIndex, source.size)
+            this._size = toIndex - fromIndex
+        }
+
+        override fun get(index: Int): E {
+            ListImplementation.checkElementIndex(index, _size)
+
+            return source[fromIndex + index]
+        }
+
+        override val size: Int get() = _size
+
+        override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> {
+            ListImplementation.checkRangeIndexes(fromIndex, toIndex, this._size)
+            return SubList(source, this.fromIndex + fromIndex, this.fromIndex + toIndex)
+        }
+
+    }
 }
 
 public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<E> {

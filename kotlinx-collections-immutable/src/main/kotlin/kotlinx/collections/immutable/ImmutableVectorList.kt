@@ -58,9 +58,6 @@ internal class ImmutableVectorList<out E> private constructor(private val impl: 
 
     override fun removeAt(index: Int): PersistentList<E> = wrap(impl.minus(index))
 
-    // TODO: Make a view, not a copy
-    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = wrap(impl.subList(fromIndex, toIndex))
-
     override fun clear(): PersistentList<E> = EMPTY
 
     override fun builder(): Builder<@UnsafeVariance E> = Builder(this, impl)

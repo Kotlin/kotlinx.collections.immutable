@@ -18,7 +18,7 @@ public class ImmutableArrayList<out E> internal constructor(private val impl: Ar
 
     override fun iterator(): Iterator<E> = impl.iterator()
 
-    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = ImmutableArrayList(impl.copyOfRange(fromIndex, toIndex))
+    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = super<PersistentList>.subList(fromIndex, toIndex)
 
     override fun add(element: @UnsafeVariance E): PersistentList<E> = ImmutableArrayList(impl + element)
 
