@@ -109,6 +109,20 @@ abstract class ImmutableMapTest {
         assertEquals(emptyMap(), map.remove("x").remove(null))
     }
 
+    @Test
+    fun removeCollection() {
+        val map = immutableMapOf(0 to "a", 1 to "B", 2 to "c")
+
+        val newMap = map - setOf(2) - sequenceOf(1)
+        assertEquals(mapOf(0 to "a"), newMap)
+    }
+
+    @Test fun removeMatching() {
+        val map = immutableMapOf(0 to "a", 1 to "B", 2 to "c")
+        val newMap = map.mutate { it.entries.removeAll { it.key % 2 == 0 } }
+        assertEquals(mapOf(1 to "B"), newMap)
+    }
+
 
     @Test fun builder() {
 

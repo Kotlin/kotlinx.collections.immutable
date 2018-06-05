@@ -113,13 +113,15 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
 
                 override fun iterator() = object : MutableIterator<MutableMap.MutableEntry<K, V>> {
                     private var snapshot = impl
-                    private var entry: LinkedEntry<K,V>? = impl.firstEntry()
+                    private var nextEntry: LinkedEntry<K, V>? = impl.firstEntry()
+                    private var currentEntry: LinkedEntry<K, V>? = null
 
-                    override fun hasNext(): Boolean = entry != null
+                    override fun hasNext(): Boolean = nextEntry != null
                     override fun next(): MutableMap.MutableEntry<K, V> {
                         checkForComodification()
-                        val entry = this.entry ?: throw NoSuchElementException()
-                        this.entry = snapshot[entry.nextKey]
+                        val entry = this.nextEntry ?: throw NoSuchElementException()
+                        this.nextEntry = snapshot[entry.nextKey]
+                        this.currentEntry = entry
                         return object : MutableMap.MutableEntry<K, V>, Map.Entry<K, V> by entry.mapEntry {
                             override fun setValue(newValue: V): V {
                                 checkForComodification()
@@ -131,10 +133,10 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
                     }
 
                     override fun remove() {
-                        checkNotNull(entry)
+                        val currentEntry = checkNotNull(currentEntry)
                         checkForComodification()
-                        this@Builder.remove(entry!!.key)
-                        entry = null
+                        this@Builder.remove(currentEntry.key)
+                        this.currentEntry = null
                         snapshot = impl
                     }
 
