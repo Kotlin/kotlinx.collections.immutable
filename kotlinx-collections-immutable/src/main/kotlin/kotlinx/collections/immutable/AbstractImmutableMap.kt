@@ -16,6 +16,8 @@
 
 package kotlinx.collections.immutable
 
+import kotlinx.collections.immutable.adapters.ImmutableCollectionAdapter
+import kotlinx.collections.immutable.adapters.ImmutableSetAdapter
 import org.pcollections.PMap
 import java.util.ConcurrentModificationException
 
@@ -42,15 +44,15 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
     // should it be immutable set/collection or just read-only?
     private var _keys: ImmutableSet<K>? = null
     final override val keys: ImmutableSet<K> get() = _keys ?: createKeys().apply { _keys = this }
-    protected open fun createKeys(): ImmutableSet<K> = ImmutableSetWrapper(impl.keys)
+    protected open fun createKeys(): ImmutableSet<K> = ImmutableSetAdapter(impl.keys)
 
     private var _values: ImmutableCollection<V>? = null
     final override val values: ImmutableCollection<V> get() = _values ?: createValues().apply { _values = this }
-    protected open fun createValues(): ImmutableCollection<V> = ImmutableCollectionWrapper(impl.values)
+    protected open fun createValues(): ImmutableCollection<V> = ImmutableCollectionAdapter(impl.values)
 
     private var _entries: ImmutableSet<Map.Entry<K, V>>? = null
     final override val entries: ImmutableSet<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
-    protected open fun createEntries(): ImmutableSet<Map.Entry<K, V>> = ImmutableSetWrapper(impl.entries)
+    protected open fun createEntries(): ImmutableSet<Map.Entry<K, V>> = ImmutableSetAdapter(impl.entries)
 
     override fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = wrap(impl.plus(key, value))
     override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = wrap(impl.plusAll(m))
@@ -164,12 +166,3 @@ internal abstract class AbstractImmutableMap<K, out V> protected constructor(pro
 internal fun <K, V> PMap<K, V>.contains(key: K, value: @UnsafeVariance V): Boolean
     = this[key]?.let { candidate -> candidate == value } ?: (value == null && containsKey(key))
 
-
-private open class ImmutableCollectionWrapper<E>(protected val impl: Collection<E>) : ImmutableCollection<E>, Collection<E> by impl {
-    override fun equals(other: Any?): Boolean = impl.equals(other)
-    override fun hashCode(): Int = impl.hashCode()
-    override fun toString(): String = impl.toString()
-}
-
-private class ImmutableSetWrapper<E>(impl: Set<E>) : ImmutableSet<E>, ImmutableCollectionWrapper<E>(impl) {
-}
