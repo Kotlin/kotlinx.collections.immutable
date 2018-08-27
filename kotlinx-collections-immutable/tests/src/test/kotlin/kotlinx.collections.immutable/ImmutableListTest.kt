@@ -5,9 +5,18 @@ import test.collections.behaviors.listBehavior
 import test.collections.compare
 import kotlin.test.*
 
-class ImmutableListTest {
+import kotlinx.collections.immutable.toPersistentList as toPersistentVectorList
+import kotlinx.collections.immutable.toImmutableList as toImmutableVectorList
+
+
+open class ImmutableListTest {
 
     private fun <T> compareLists(expected: List<T>, actual: List<T>) = compare(expected, actual) { listBehavior() }
+
+    open fun <T> persistentListOf() = kotlinx.collections.immutable.persistentListOf<T>()
+    open fun <T> persistentListOf(vararg elements: T) = kotlinx.collections.immutable.persistentListOf<T>(*elements)
+    open fun <T> Iterable<T>.toPersistentList(): PersistentList<T> = toPersistentVectorList()
+    open fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> = toImmutableVectorList()
 
 
     @Test fun empty() {
@@ -62,7 +71,7 @@ class ImmutableListTest {
     }
 
     @Test fun replaceElements() {
-        var list = "abcxaxab12".toImmutableList().toPersistentList()
+        var list = "abcxaxab12".toList().toImmutableList().toPersistentList()
 
         for (i in list.indices) {
             list = list.set(i, list[i] as Char + i)
@@ -74,7 +83,7 @@ class ImmutableListTest {
     }
 
     @Test fun removeElements() {
-        val list = "abcxaxyz12".toImmutableList().toPersistentList()
+        val list = "abcxaxyz12".toList().toImmutableList().toPersistentList()
         fun expectList(content: String, list: ImmutableList<Char>) {
             compareLists(content.toList(), list)
         }
@@ -91,7 +100,7 @@ class ImmutableListTest {
     }
 
     @Test fun subList() {
-        val list = "abcxaxyz12".toImmutableList()
+        val list = "abcxaxyz12".toList().toImmutableList()
         val subList = list.subList(2, 5) // 2, 3, 4
         assertTrue(subList is ImmutableList)
         compareLists(listOf('c', 'x', 'a'), subList)
@@ -127,7 +136,7 @@ class ImmutableListTest {
     }
 
     @Test fun subListOfBuilder() {
-        val list = "abcxaxyz12".toImmutableList().toPersistentList()
+        val list = "abcxaxyz12".toList().toImmutableList().toPersistentList()
         val builder = list.builder()
         val subList = builder.subList(2, 5)
         builder[4] = 'b'
@@ -151,7 +160,7 @@ class ImmutableListTest {
     @Test fun noOperation() {
         persistentListOf<Int>().testNoOperation({ clear() }, { clear() })
 
-        val list = "abcxaxyz12".toPersistentList()
+        val list = "abcxaxyz12".toList().toPersistentList()
         with(list) {
             testNoOperation({ remove('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
@@ -176,4 +185,11 @@ class ImmutableListTest {
 
         assertEquals(listOf("x", null, 1), listAny)
     }
+}
+
+class ImmutableArrayListTest : ImmutableListTest() {
+    override fun <T> persistentListOf(): PersistentList<T> = immutableArrayListOf()
+    override fun <T> persistentListOf(vararg elements: T): PersistentList<T> = immutableArrayListOf(*elements)
+    override fun <T> Iterable<T>.toPersistentList(): PersistentList<T> = toImmutableArrayList()
+    override fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> = toImmutableArrayList()
 }
