@@ -16,35 +16,17 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
-import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.PersistentMap
 
-class Marker
+internal class Marker
 
 internal class PersistentHashMapBuilder<K, V>(private var node: TrieNode<K, V>,
-                                              override var size: Int) : ImmutableMap.Builder<K, V> {
+                                              override var size: Int) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
     internal var marker = Marker()
 
-    override fun build(): ImmutableMap<K, V> {
+    override fun build(): PersistentMap<K, V> {
         marker = Marker()
         return PersistentHashMap(node, size)
-    }
-
-    override fun containsKey(key: K): Boolean {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        return node.containsKey(keyHash, key, 0)
-    }
-
-    override fun containsValue(value: V): Boolean {
-        return values.contains(value)
-    }
-
-    override fun get(key: K): V? {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        return node.get(keyHash, key, 0)
-    }
-
-    override fun isEmpty(): Boolean {
-        return size == 0
     }
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
@@ -78,9 +60,14 @@ internal class PersistentHashMapBuilder<K, V>(private var node: TrieNode<K, V>,
             return values
         }
 
-    override fun clear() {
-        node = TrieNode.EMPTY as TrieNode<K, V>
-        size = 0
+    override fun containsKey(key: K): Boolean {
+        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
+        return node.containsKey(keyHash, key, 0)
+    }
+
+    override fun get(key: K): V? {
+        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
+        return node.get(keyHash, key, 0)
     }
 
     override fun put(key: K, value: @UnsafeVariance V): V? {
@@ -89,13 +76,14 @@ internal class PersistentHashMapBuilder<K, V>(private var node: TrieNode<K, V>,
         return node.mutablePut(keyHash, key, value, 0, this)
     }
 
-    override fun putAll(from: Map<out K, V>) {
-        from.forEach { key, value -> put(key, value) }
-    }
-
     override fun remove(key: K): V? {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         node = node.makeMutableFor(this)
         return node.mutableRemove(keyHash, key, 0, this)
+    }
+
+    override fun clear() {
+        node = TrieNode.EMPTY as TrieNode<K, V>
+        size = 0
     }
 }

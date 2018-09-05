@@ -16,36 +16,28 @@
 
 package kotlinx.collections.immutable.implementations.immutableSet
 
-import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.mutate
 
 internal class PersistentHashSet<E>(private val node: TrieNode<E>,
-                                    override val size: Int): ImmutableSet<E> {
-    override fun isEmpty(): Boolean {
-        return size == 0
-    }
-
+                                    override val size: Int): AbstractSet<E>(), PersistentSet<E> {
     override fun contains(element: E): Boolean {
         val hashCode = element?.hashCode() ?: NULL_HASH_CODE
         return node.contains(hashCode, element, 0)
     }
 
-    override fun containsAll(elements: Collection<E>): Boolean {
-        return elements.all { contains(it) }
-    }
-
-    override fun add(element: E): ImmutableSet<E> {
+    override fun add(element: E): PersistentSet<E> {
         val hashCode = element?.hashCode() ?: NULL_HASH_CODE
         val newNode = node.add(hashCode, element, 0)
         if (node === newNode) { return this }
         return PersistentHashSet(newNode, size + 1)
     }
 
-    override fun addAll(elements: Collection<E>): ImmutableSet<E> {
+    override fun addAll(elements: Collection<E>): PersistentSet<E> {
         return this.mutate { it.addAll(elements) }
     }
 
-    override fun remove(element: E): ImmutableSet<E> {
+    override fun remove(element: E): PersistentSet<E> {
         val hashCode = element?.hashCode() ?: NULL_HASH_CODE
         val newNode = node.remove(hashCode, element, 0)
         if (node === newNode) { return this }
@@ -53,15 +45,15 @@ internal class PersistentHashSet<E>(private val node: TrieNode<E>,
         return PersistentHashSet(newNode, size - 1)
     }
 
-    override fun removeAll(elements: Collection<E>): ImmutableSet<E> {
+    override fun removeAll(elements: Collection<E>): PersistentSet<E> {
         return mutate { it.removeAll(elements) }
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableSet<E> {
+    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> {
         return mutate { it.removeAll(predicate) }
     }
 
-    override fun clear(): ImmutableSet<E> {
+    override fun clear(): PersistentSet<E> {
         return persistentHashSetOf()
     }
 
@@ -69,7 +61,7 @@ internal class PersistentHashSet<E>(private val node: TrieNode<E>,
         return PersistentHashSetIterator(node)
     }
 
-    override fun builder(): ImmutableSet.Builder<E> {
+    override fun builder(): PersistentSet.Builder<E> {
         return PersistentHashSetBuilder(node, size)
     }
 
@@ -78,6 +70,6 @@ internal class PersistentHashSet<E>(private val node: TrieNode<E>,
     }
 }
 
-fun <E> persistentHashSetOf(): ImmutableSet<E> {
+fun <E> persistentHashSetOf(): PersistentSet<E> {
     return PersistentHashSet.EMPTY
 }

@@ -20,33 +20,34 @@ internal class PersistentVectorIterator<out T>(root: Array<Any?>,
                                                private val tail: Array<T>,
                                                index: Int,
                                                size: Int,
-                                               restHeight: Int) : AbstractListIterator<T>(index, size) {
-    private val rootIterator: TrieIterator<T>
+                                               trieHeight: Int) : AbstractListIterator<T>(index, size) {
+    private val trieIterator: TrieIterator<T>
 
     init {
-        val rootSize = ((size - 1) shr LOG_MAX_BUFFER_SIZE) shl LOG_MAX_BUFFER_SIZE
-        rootIterator = TrieIterator(root, if (rootSize < index) rootSize else index, rootSize, restHeight)
+        val trieSize = ((size - 1) shr LOG_MAX_BUFFER_SIZE) shl LOG_MAX_BUFFER_SIZE
+        val trieIndex = if (trieSize < index) trieSize else index
+        trieIterator = TrieIterator(root, trieIndex, trieSize, trieHeight)
     }
 
     override fun next(): T {
         if (!hasNext()) {
             throw NoSuchElementException()
         }
-        if (rootIterator.hasNext()) {
+        if (trieIterator.hasNext()) {
             index++
-            return rootIterator.next()
+            return trieIterator.next()
         }
-        return tail[index++ - rootIterator.size]
+        return tail[index++ - trieIterator.size]
     }
 
     override fun previous(): T {
         if (!hasPrevious()) {
             throw NoSuchElementException()
         }
-        if (index > rootIterator.size) {
-            return tail[--index - rootIterator.size]
+        if (index > trieIterator.size) {
+            return tail[--index - trieIterator.size]
         }
         index--
-        return rootIterator.previous()
+        return trieIterator.previous()
     }
 }

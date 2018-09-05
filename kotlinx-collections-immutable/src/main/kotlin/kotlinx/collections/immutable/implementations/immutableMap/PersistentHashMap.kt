@@ -16,50 +16,45 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.*
 
-const val NO_MODIFICATION = 0
-const val UPDATE_VALUE = 1
-const val PUT_KEY_VALUE = 2
+internal const val NO_MODIFICATION = 0
+internal const val UPDATE_VALUE = 1
+internal const val PUT_KEY_VALUE = 2
 internal class ModificationWrapper(var value: Int = NO_MODIFICATION)
 
 
 internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
-                                           override val size: Int): ImmutableMap<K, V> {
+                                           override val size: Int): AbstractMap<K, V>(), PersistentMap<K, V> {
 
-    override fun isEmpty(): Boolean {
-        return size == 0
-    }
-
-    override val keys: Set<K>
+    override val keys: ImmutableSet<K>
         get() {
             val iterator = PersistentHashMapIterator(node)
             val keys = mutableSetOf<K>()
             while (iterator.hasNext()) {
                 keys.add(iterator.nextKey())
             }
-            return keys
+            return keys.toImmutableSet()
         }
 
-    override val values: Collection<V>
+    override val values: ImmutableCollection<V>
         get() {
             val iterator = PersistentHashMapIterator(node)
             val values = mutableListOf<V>()
             while (iterator.hasNext()) {
                 values.add(iterator.nextValue())
             }
-            return values
+            return values.toImmutableList()
         }
 
-    override val entries: Set<Map.Entry<K, V>>
+    override val entries: ImmutableSet<Map.Entry<K, V>>
         get() {
             val iterator = PersistentHashMapIterator(node)
             val entries = mutableSetOf<Map.Entry<K, V>>()
             while (iterator.hasNext()) {
                 entries.add(iterator.nextEntry())
             }
-            return entries
+            return entries.toImmutableSet()
         }
 
     override fun containsKey(key: K): Boolean {
@@ -67,16 +62,12 @@ internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
         return node.containsKey(keyHash, key, 0)
     }
 
-    override fun containsValue(value: @UnsafeVariance V): Boolean {
-        return values.contains(value)
-    }
-
     override fun get(key: K): V? {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         return node.get(keyHash, key, 0)
     }
 
-    override fun put(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> {
+    override fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         val modification = ModificationWrapper()
         val newNode = node.put(keyHash, key, value, 0, modification)
@@ -85,7 +76,7 @@ internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
         return PersistentHashMap(newNode, size + sizeDelta)
     }
 
-    override fun remove(key: K): ImmutableMap<K, V> {
+    override fun remove(key: K): PersistentMap<K, V> {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         val newNode = node.remove(keyHash, key, 0)
         if (node === newNode) { return this }
@@ -93,7 +84,7 @@ internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
         return PersistentHashMap(newNode, size - 1)
     }
 
-    override fun remove(key: K, value: @UnsafeVariance V): ImmutableMap<K, V> {
+    override fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V> {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         val newNode = node.remove(keyHash, key, value, 0)
         if (node === newNode) { return this }
@@ -101,15 +92,15 @@ internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
         return PersistentHashMap(newNode, size - 1)
     }
 
-    override fun putAll(m: Map<out K, @UnsafeVariance V>): ImmutableMap<K, V> {
+    override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
         return this.mutate { it.putAll(m) }
     }
 
-    override fun clear(): ImmutableMap<K, V> {
+    override fun clear(): PersistentMap<K, V> {
         return persistentHashMapOf()
     }
 
-    override fun builder(): ImmutableMap.Builder<K, @UnsafeVariance V> {
+    override fun builder(): PersistentMap.Builder<K, @UnsafeVariance V> {
         return PersistentHashMapBuilder(node, size)
     }
 
@@ -118,6 +109,6 @@ internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
     }
 }
 
-fun <K, V> persistentHashMapOf(): ImmutableMap<K, V> {
+fun <K, V> persistentHashMapOf(): PersistentMap<K, V> {
     return PersistentHashMap.EMPTY as PersistentHashMap<K, V>
 }

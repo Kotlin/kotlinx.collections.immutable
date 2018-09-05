@@ -17,9 +17,10 @@
 package kotlinx.collections.immutable.implementations.immutableList
 
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 
-internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : ImmutableList<E>, AbstractImmutableList<E>() {
+internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : ImmutableList<E>, AbstractPersistentList<E>() {
     override val size: Int
         get() = buffer.size
 
@@ -32,7 +33,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return newBuffer
     }
 
-    override fun add(element: E): ImmutableList<E> {
+    override fun add(element: E): PersistentList<E> {
         if (size < MAX_BUFFER_SIZE) {
             val newBuffer = copyBufferTo(bufferOfSize(size + 1))
             newBuffer[size] = element
@@ -43,7 +44,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return PersistentVector(buffer, tail, size + 1, 0)
     }
 
-    override fun addAll(elements: Collection<E>): ImmutableList<E> {
+    override fun addAll(elements: Collection<E>): PersistentList<E> {
         if (size + elements.size <= MAX_BUFFER_SIZE) {
             val newBuffer = copyBufferTo(bufferOfSize(size + elements.size))
             var index = size
@@ -55,7 +56,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return mutate { it.addAll(elements) }
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableList<E> {
+    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
         val newBuffer = buffer.copyOf()
         var newSize = 0
         for (element in buffer) {
@@ -69,7 +70,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return SmallPersistentVector(newBuffer.copyOfRange(0, newSize))
     }
 
-    override fun addAll(index: Int, c: Collection<E>): ImmutableList<E> {
+    override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
         if (index < 0 || index > size) {
             throw IndexOutOfBoundsException()
         }
@@ -86,7 +87,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return mutate { it.addAll(index, c) }
     }
 
-    override fun add(index: Int, element: E): ImmutableList<E> {
+    override fun add(index: Int, element: E): PersistentList<E> {
         if (index < 0 || index > size) {
             throw IndexOutOfBoundsException()
         }
@@ -110,7 +111,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return PersistentVector(root, tail, size + 1, 0)
     }
 
-    override fun removeAt(index: Int): ImmutableList<E> {
+    override fun removeAt(index: Int): PersistentList<E> {
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException()
         }
@@ -123,17 +124,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return SmallPersistentVector(newBuffer)
     }
 
-    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> {
-        if (fromIndex > toIndex) {
-            throw IllegalArgumentException()
-        }
-        if (fromIndex < 0 || toIndex > size) {
-            throw IndexOutOfBoundsException()
-        }
-        return SmallPersistentVector(buffer.copyOfRange(fromIndex, toIndex))
-    }
-
-    override fun builder(): ImmutableList.Builder<E> {
+    override fun builder(): PersistentList.Builder<E> {
         return PersistentVectorBuilder(null, buffer, size, 0)
     }
 
@@ -159,7 +150,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return buffer[index] as E
     }
 
-    override fun set(index: Int, element: E): ImmutableList<E> {
+    override fun set(index: Int, element: E): PersistentList<E> {
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException()
         }

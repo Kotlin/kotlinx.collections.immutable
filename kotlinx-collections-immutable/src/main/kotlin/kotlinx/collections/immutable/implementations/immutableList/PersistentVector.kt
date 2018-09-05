@@ -16,13 +16,12 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.PersistentList
 
 internal class PersistentVector<E>(private val root: Array<Any?>,
                                    private val tail: Array<Any?>,
                                    override val size: Int,
-                                   private val shiftStart: Int) : ImmutableList<E>, AbstractImmutableList<E>() {
+                                   private val shiftStart: Int) : PersistentList<E>, AbstractPersistentList<E>() {
     private fun rootSize(): Int {
         return ((size - 1) shr LOG_MAX_BUFFER_SIZE) shl LOG_MAX_BUFFER_SIZE
     }
@@ -33,7 +32,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return buffer
     }
 
-    override fun add(element: E): ImmutableList<E> {
+    override fun add(element: E): PersistentList<E> {
         val tailSize = size - rootSize()
         if (tailSize < MAX_BUFFER_SIZE) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)
@@ -56,15 +55,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return PersistentVector(newRoot, newTail, size + 1, shiftStart)
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableList<E> {
-        return mutate { it.removeAll(predicate) }
-    }
-
-    override fun addAll(index: Int, c: Collection<E>): ImmutableList<E> {
-        return mutate { it.addAll(index, c) }
-    }
-
-    override fun add(index: Int, element: E): ImmutableList<E> {
+    override fun add(index: Int, element: E): PersistentList<E> {
         if (index < 0 || index > size) {
             throw IndexOutOfBoundsException()
         }
@@ -120,7 +111,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    override fun removeAt(index: Int): ImmutableList<E> {
+    override fun removeAt(index: Int): PersistentList<E> {
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException()
         }
@@ -133,7 +124,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return removeFromTail(newRoot, rootSize, shiftStart, 0)
     }
 
-    private fun pullLastBufferFromRoot(root: Array<Any?>, rootSize: Int, shift: Int): ImmutableList<E> {
+    private fun pullLastBufferFromRoot(root: Array<Any?>, rootSize: Int, shift: Int): PersistentList<E> {
         if (shift == 0) {
             return SmallPersistentVector(root)
         }
@@ -168,7 +159,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    private fun removeFromTail(root: Array<Any?>, rootSize: Int, shift: Int, index: Int): ImmutableList<E> {
+    private fun removeFromTail(root: Array<Any?>, rootSize: Int, shift: Int, index: Int): PersistentList<E> {
         val tailFilledSize = size - rootSize
         assert(index < tailFilledSize)
 
@@ -209,47 +200,8 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> {
-        if (fromIndex > toIndex) {
-            throw IllegalArgumentException()
-        }
-        if (fromIndex < 0 || toIndex > size) {
-            throw IndexOutOfBoundsException()
-        }
-        val iterator = listIterator(fromIndex)
-        val builder = persistentVectorOf<E>().builder()
-        repeat(toIndex - fromIndex) {
-            builder.add(iterator.next())
-        }
-        return builder.build()
-    }
-
-    override fun builder(): ImmutableList.Builder<E> {
+    override fun builder(): PersistentList.Builder<E> {
         return PersistentVectorBuilder(root, tail, size, shiftStart)
-    }
-
-    override fun indexOf(element: E): Int {
-        val listIterator = listIterator()
-        while (listIterator.hasNext()) {
-            val nextIndex = listIterator.nextIndex()
-            val next = listIterator.next()
-            if ((next == null && element == null) || next?.equals(element) == true) {
-                return nextIndex
-            }
-        }
-        return -1
-    }
-
-    override fun lastIndexOf(element: E): Int {
-        val listIterator = listIterator(size)
-        while (listIterator.hasPrevious()) {
-            val previousIndex = listIterator.previousIndex()
-            val previous = listIterator.previous()
-            if ((previous == null && element == null) || previous?.equals(element) == true) {
-                return previousIndex
-            }
-        }
-        return -1
     }
 
     override fun listIterator(index: Int): ListIterator<E> {
@@ -277,7 +229,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         }
         var buffer = root
         var shift = shiftStart
-        while (shift > 1) {
+        while (shift > 0) {
             buffer = buffer[(index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE] as Array<Any?>
             shift -= LOG_MAX_BUFFER_SIZE
         }
@@ -292,7 +244,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
-    override fun set(index: Int, element: E): ImmutableList<E> {
+    override fun set(index: Int, element: E): PersistentList<E> {
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException()
         }

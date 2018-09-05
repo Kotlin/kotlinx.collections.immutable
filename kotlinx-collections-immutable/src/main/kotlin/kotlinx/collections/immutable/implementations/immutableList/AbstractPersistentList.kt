@@ -17,17 +17,23 @@
 package kotlinx.collections.immutable.implementations.immutableList
 
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
 
-abstract class AbstractImmutableList<E> : ImmutableList<E> {
-    override fun add(element: E): ImmutableList<E> {
-        return this.add(this.size, element)
+abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractList<E>() {
+    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> {
+        return super<PersistentList>.subList(fromIndex, toIndex)
     }
 
-    override fun addAll(elements: Collection<E>): ImmutableList<E> {
-        return this.addAll(this.size, elements)
+    override fun addAll(elements: Collection<E>): PersistentList<E> {
+        return mutate { it.addAll(elements) }
     }
 
-    override fun remove(element: E): ImmutableList<E> {
+    override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
+        return mutate { it.addAll(index, c) }
+    }
+
+    override fun remove(element: E): PersistentList<E> {
         val index = this.indexOf(element)
         if (index != -1) {
             return this.removeAt(index)
@@ -35,11 +41,15 @@ abstract class AbstractImmutableList<E> : ImmutableList<E> {
         return this
     }
 
-    override fun removeAll(elements: Collection<E>): ImmutableList<E> {
-        return this.removeAll { elements.contains(it) }
+    override fun removeAll(elements: Collection<E>): PersistentList<E> {
+        return mutate { it.removeAll(elements) }
     }
 
-    override fun clear(): ImmutableList<E> {
+    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
+        return mutate { it.removeAll(predicate) }
+    }
+
+    override fun clear(): PersistentList<E> {
         return persistentVectorOf()
     }
 
@@ -51,26 +61,11 @@ abstract class AbstractImmutableList<E> : ImmutableList<E> {
         return elements.all { this.contains(it) }
     }
 
-    override fun isEmpty(): Boolean {
-        return this.size == 0
-    }
-
     override fun iterator(): Iterator<E> {
         return this.listIterator()
     }
 
     override fun listIterator(): ListIterator<E> {
         return this.listIterator(0)
-    }
-
-    override fun toString(): String {
-        return this.toList().toString()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is List<*>) {
-            return false
-        }
-        return this.toList() == other
     }
 }

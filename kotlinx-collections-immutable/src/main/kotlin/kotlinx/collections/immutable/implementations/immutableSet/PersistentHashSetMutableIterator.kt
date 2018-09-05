@@ -30,7 +30,7 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
 
     override fun remove() {
         if (!nextWasInvoked) {
-            throw IllegalStateException()
+            throw NoSuchElementException()
         }
         if (hasNext()) {
             val currentElement = currentElement()

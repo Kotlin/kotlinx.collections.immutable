@@ -16,17 +16,17 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentList
 
 private class Marker
 
 class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
                                  private var tail: Array<Any?>?,
                                  override var size: Int,
-                                 private var shiftStart: Int) : AbstractMutableList<E>(), ImmutableList.Builder<E> {
+                                 private var shiftStart: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
     private var marker = Marker()
 
-    override fun build(): ImmutableList<E> {
+    override fun build(): PersistentList<E> {
         marker = Marker()
         if (root == null) {
             if (tail == null) {
@@ -82,26 +82,26 @@ class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
         return true
     }
 
-    private fun pushFullTail(root: Array<Any?>?, fullTail: Array<Any?>, newLast: Array<Any?>) {
-        if (size shr LOG_MAX_BUFFER_SIZE > 1 shl shiftStart) {
+    private fun pushFullTail(root: Array<Any?>?, fullTail: Array<Any?>, newLast: Array<Any?>) = when {
+        size shr LOG_MAX_BUFFER_SIZE > 1 shl shiftStart -> {
             var mutableRest = mutableBufferWith(root)
             mutableRest = pushTail(mutableRest, fullTail, shiftStart + LOG_MAX_BUFFER_SIZE)
             this.root = mutableRest
             this.tail = newLast
             this.shiftStart += LOG_MAX_BUFFER_SIZE
             this.size += 1
-            return
-        } else if (root == null) {
+        }
+        root == null -> {
             this.root = fullTail
             this.tail = newLast
             this.size += 1
-            return
         }
-
-        val newRest = pushTail(root, fullTail, shiftStart)
-        this.root = newRest
-        this.tail = newLast
-        this.size += 1
+        else -> {
+            val newRest = pushTail(root, fullTail, shiftStart)
+            this.root = newRest
+            this.tail = newLast
+            this.size += 1
+        }
     }
 
     private fun pushTail(root: Array<Any?>?, tail: Array<Any?>, shift: Int): Array<Any?> {
@@ -194,7 +194,7 @@ class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
         }
         var buffer = root!!
         var shift = shiftStart
-        while (shift > 1) {
+        while (shift > 0) {
             buffer = buffer[(index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE] as Array<Any?>
             shift -= LOG_MAX_BUFFER_SIZE
         }

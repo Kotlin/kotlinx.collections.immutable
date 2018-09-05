@@ -16,15 +16,15 @@
 
 package kotlinx.collections.immutable.implementations.immutableSet
 
-import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.PersistentSet
 
 class Marker
 
 internal class PersistentHashSetBuilder<E>(var node: TrieNode<E>,
-                                           override var size: Int) : AbstractMutableSet<E>(), ImmutableSet.Builder<E> {
+                                           override var size: Int) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
     internal var marker = Marker()
 
-    override fun build(): ImmutableSet<E> {
+    override fun build(): PersistentSet<E> {
         marker = Marker()
         return PersistentHashSet(node, size)
     }
@@ -34,31 +34,10 @@ internal class PersistentHashSetBuilder<E>(var node: TrieNode<E>,
         return node.contains(hashCode, element, 0)
     }
 
-    override fun containsAll(elements: Collection<E>): Boolean {
-        return elements.all { contains(it) }
-    }
-
-    override fun isEmpty(): Boolean {
-        return size == 0
-    }
-
-    override fun clear() {
-        node = TrieNode.EMPTY as TrieNode<E>
-        size = 0
-    }
-
     override fun add(element: E): Boolean {
         val hashCode = element?.hashCode() ?: NULL_HASH_CODE
         node = node.makeMutableFor(this)
         return node.mutableAdd(hashCode, element, 0, this)
-    }
-
-    override fun addAll(elements: Collection<E>): Boolean {
-        var isModified = false
-        for (element in elements) {
-            isModified = isModified || add(element)
-        }
-        return isModified
     }
 
     override fun remove(element: E): Boolean {
@@ -67,24 +46,9 @@ internal class PersistentHashSetBuilder<E>(var node: TrieNode<E>,
         return node.mutableRemove(hashCode, element, 0, this)
     }
 
-    override fun removeAll(elements: Collection<E>): Boolean {
-        var isModified = false
-        for (element in elements) {
-            isModified = isModified || remove(element)
-        }
-        return isModified
-    }
-
-    override fun retainAll(elements: Collection<E>): Boolean {
-        var isModified = false
-        val iterator = iterator()
-        while (iterator.hasNext()) {
-            if (elements.contains(iterator.next())) {
-                iterator.remove()
-                isModified = true
-            }
-        }
-        return isModified
+    override fun clear() {
+        node = TrieNode.EMPTY as TrieNode<E>
+        size = 0
     }
 
     override fun iterator(): MutableIterator<E> {

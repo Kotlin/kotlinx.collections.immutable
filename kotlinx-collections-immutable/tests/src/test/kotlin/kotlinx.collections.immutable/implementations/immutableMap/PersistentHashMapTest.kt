@@ -200,7 +200,10 @@ class PersistentHashMapTest {
     fun collisionTests() {
         var map = persistentHashMapOf<ObjectWrapper<Int>, Int>()
 
-        assertEquals(2, map.put(ObjectWrapper(1, 1), 1).put(ObjectWrapper(1, 1), 2)[ObjectWrapper(1, 1)])
+        val oneWrapper = ObjectWrapper(1, 1)
+        val twoWrapper = ObjectWrapper(2, 1)
+        assertEquals(1, map.put(oneWrapper, 1).put(twoWrapper, 2)[oneWrapper])
+        assertEquals(2, map.put(oneWrapper, 1).put(twoWrapper, 2)[twoWrapper])
 
         repeat(times = 2) { removeEntryPredicate ->
             val keyGen = WrapperGenerator<Int>(20000)
