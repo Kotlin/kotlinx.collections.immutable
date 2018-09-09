@@ -18,6 +18,7 @@ package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.implementations.ObjectWrapper
 import kotlinx.collections.immutable.implementations.WrapperGenerator
+import kotlinx.collections.immutable.persistentHashMapOf
 import org.junit.Test
 import org.junit.Assert.*
 import java.util.*

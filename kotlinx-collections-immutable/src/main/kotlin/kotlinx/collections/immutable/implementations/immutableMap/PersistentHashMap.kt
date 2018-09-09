@@ -47,15 +47,24 @@ internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
             return values.toImmutableList()
         }
 
-    override val entries: ImmutableSet<Map.Entry<K, V>>
-        get() {
-            val iterator = PersistentHashMapIterator(node)
-            val entries = mutableSetOf<Map.Entry<K, V>>()
-            while (iterator.hasNext()) {
-                entries.add(iterator.nextEntry())
-            }
-            return entries.toImmutableSet()
+    override val entries: ImmutableSet<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
+
+    private var _entries: ImmutableSet<Map.Entry<K, V>>? = null
+
+    private fun createEntries(): ImmutableSet<Map.Entry<K, V>> {
+        val iterator = PersistentHashMapIterator(node)
+        val entries = mutableSetOf<Map.Entry<K, V>>()
+        while (iterator.hasNext()) {
+            entries.add(iterator.nextEntry())
         }
+        return entries.toImmutableSet()
+    }
+
+
+
+    // TODO: compiler bug: this bridge should be generated automatically
+    @PublishedApi
+    internal fun getEntries(): Set<Map.Entry<K, V>> = _entries ?: createEntries().apply { _entries = this }
 
     override fun containsKey(key: K): Boolean {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
@@ -105,10 +114,7 @@ internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
     }
 
     internal companion object {
-        internal val EMPTY = PersistentHashMap(TrieNode.EMPTY, 0)
+        private val EMPTY = PersistentHashMap(TrieNode.EMPTY, 0)
+        internal fun <K, V> emptyOf(): PersistentMap<K, V> = EMPTY as PersistentMap<K, V>
     }
-}
-
-fun <K, V> persistentHashMapOf(): PersistentMap<K, V> {
-    return PersistentHashMap.EMPTY as PersistentHashMap<K, V>
 }

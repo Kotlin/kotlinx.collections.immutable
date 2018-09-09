@@ -19,10 +19,10 @@
 package kotlinx.collections.immutable
 
 import kotlinx.collections.immutable.implementations.immutableList.persistentVectorOf
-import kotlinx.collections.immutable.implementations.immutableMap.persistentHashMapOf
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSetBuilder
-import kotlinx.collections.immutable.implementations.immutableSet.persistentHashSetOf
 
 //@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 //inline fun <T> @kotlin.internal.Exact ImmutableCollection<T>.mutate(mutator: (MutableCollection<T>) -> Unit): ImmutableCollection<T> = builder().apply(mutator).build()
@@ -126,16 +126,16 @@ public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): Per
         = mutate { it.minusAssign(keys) }
 
 
-fun <E> persistentListOf(vararg elements: E): PersistentList<E> = ImmutableVectorList.emptyOf<E>().addAll(elements.asList())
-fun <E> persistentListOf(): PersistentList<E> = ImmutableVectorList.emptyOf<E>()
+fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persistentVectorOf<E>().addAll(elements.asList())
+fun <E> persistentListOf(): PersistentList<E> = persistentVectorOf()
 
 fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = ImmutableOrderedSet.emptyOf<E>().addAll(elements.asList())
 fun <E> persistentSetOf(): PersistentSet<E> = ImmutableOrderedSet.emptyOf<E>()
 
-fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = ImmutableHashSet.emptyOf<E>().addAll(elements.asList())
+fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHashSet.emptyOf<E>().addAll(elements.asList())
 
 fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = ImmutableOrderedMap.emptyOf<K,V>().mutate { it += pairs }
-fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = ImmutableHashMap.emptyOf<K,V>().mutate { it += pairs }
+fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = PersistentHashMap.emptyOf<K,V>().mutate { it += pairs }
 
 @Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf(*elements)"))
 fun <E> immutableListOf(vararg elements: E): PersistentList<E> = persistentListOf(*elements)
@@ -159,13 +159,12 @@ fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = p
 
 fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> =
         this as? ImmutableList
-        ?: (this as? PersistentList.Builder)?.build()
-        ?: persistentListOf<T>() + this
+        ?: this.toPersistentList()
 
 fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
         this as? PersistentList
         ?: (this as? PersistentList.Builder)?.build()
-        ?: ImmutableVectorList.emptyOf<T>() + this
+        ?: persistentListOf<T>() + this
 
 
 // fun <T> Array<T>.toImmutableList(): ImmutableList<T> = immutableListOf<T>() + this.asList()
@@ -191,8 +190,8 @@ fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
 
 fun <T> Set<T>.toPersistentHashSet(): PersistentSet<T>
     = this as? ImmutableHashSet
-        ?: (this as? ImmutableHashSet.Builder)?.build()
-        ?: ImmutableHashSet.emptyOf<T>() + this
+        ?: (this as? PersistentHashSetBuilder<T>)?.build()
+        ?: PersistentHashSet.emptyOf<T>() + this
 
 
 fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
@@ -208,5 +207,5 @@ fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
 
 fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
         = this as? PersistentMap
-        ?: (this as? ImmutableHashMap.Builder)?.build()
-        ?: ImmutableHashMap.emptyOf<K, V>().putAll(this)
+        ?: (this as? PersistentHashMapBuilder<K, V>)?.build()
+        ?: PersistentHashMap.emptyOf<K, V>().putAll(this)

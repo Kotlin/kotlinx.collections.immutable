@@ -18,6 +18,7 @@ package kotlinx.collections.immutable.implementations.immutableSet
 
 import kotlinx.collections.immutable.implementations.ObjectWrapper
 import kotlinx.collections.immutable.implementations.WrapperGenerator
+import kotlinx.collections.immutable.persistentHashSetOf
 import org.junit.Test
 import org.junit.Assert.*
 import java.util.*
