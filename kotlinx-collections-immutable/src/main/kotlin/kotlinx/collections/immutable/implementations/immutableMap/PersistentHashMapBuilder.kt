@@ -20,7 +20,7 @@ import kotlinx.collections.immutable.PersistentMap
 
 internal class Marker
 
-internal class PersistentHashMapBuilder<K, V>(private var node: TrieNode<K, V>,
+internal class PersistentHashMapBuilder<K, V>(internal var node: TrieNode<K, V>,
                                               override var size: Int) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
     internal var marker = Marker()
 
@@ -31,33 +31,17 @@ internal class PersistentHashMapBuilder<K, V>(private var node: TrieNode<K, V>,
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
         get() {
-            val iterator = PersistentHashMapIterator(node)
-            val entries = mutableSetOf<MutableMap.MutableEntry<K, V>>()
-            while (iterator.hasNext()) {
-                val entry = iterator.nextEntry().toMutable()
-                entries.add(entry)
-            }
-            return entries
+            return PersistentHashMapBuilderEntries(this)
         }
 
     override val keys: MutableSet<K>
         get() {
-            val iterator = PersistentHashMapIterator(node)
-            val keys = mutableSetOf<K>()
-            while (iterator.hasNext()) {
-                keys.add(iterator.nextKey())
-            }
-            return keys
+            return PersistentHashMapBuilderKeys(this)
         }
 
     override val values: MutableCollection<V>
         get() {
-            val iterator = PersistentHashMapIterator(node)
-            val values = mutableListOf<V>()
-            while (iterator.hasNext()) {
-                values.add(iterator.nextValue())
-            }
-            return values
+            return PersistentHashMapBuilderValues(this)
         }
 
     override fun containsKey(key: K): Boolean {
