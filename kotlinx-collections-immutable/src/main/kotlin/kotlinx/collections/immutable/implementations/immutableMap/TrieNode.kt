@@ -27,23 +27,23 @@ internal class TrieNode<K, V>(var dataMap: Int,
         }
     }
 
-    private fun hasDataAt(position: Int): Boolean {
+    internal fun hasDataAt(position: Int): Boolean {
         return dataMap and position != 0
     }
 
-    private fun hasNodeAt(position: Int): Boolean {
+    internal fun hasNodeAt(position: Int): Boolean {
         return nodeMap and position != 0
     }
 
-    private fun keyDataIndex(position: Int): Int {
+    internal fun keyDataIndex(position: Int): Int {
         return ENTRY_SIZE * Integer.bitCount(dataMap and (position - 1))
     }
 
-    private fun keyNodeIndex(position: Int): Int {
+    internal fun keyNodeIndex(position: Int): Int {
         return buffer.size - 1 - Integer.bitCount(nodeMap and (position - 1))
     }
 
-    private fun keyAtIndex(keyIndex: Int): K {
+    internal fun keyAtIndex(keyIndex: Int): K {
         return buffer[keyIndex] as K
     }
 
@@ -51,7 +51,7 @@ internal class TrieNode<K, V>(var dataMap: Int,
         return buffer[keyIndex + 1] as V
     }
 
-    private fun nodeAtIndex(nodeIndex: Int): TrieNode<K, V> {
+    internal fun nodeAtIndex(nodeIndex: Int): TrieNode<K, V> {
         return buffer[nodeIndex] as TrieNode<K, V>
     }
 

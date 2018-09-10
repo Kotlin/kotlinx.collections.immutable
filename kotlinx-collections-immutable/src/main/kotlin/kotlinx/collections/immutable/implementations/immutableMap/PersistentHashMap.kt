@@ -24,47 +24,33 @@ internal const val PUT_KEY_VALUE = 2
 internal class ModificationWrapper(var value: Int = NO_MODIFICATION)
 
 
-internal class PersistentHashMap<K, out V>(private val node: TrieNode<K, V>,
+internal class PersistentHashMap<K, V>(val node: TrieNode<K, V>,
                                            override val size: Int): AbstractMap<K, V>(), PersistentMap<K, V> {
 
     override val keys: ImmutableSet<K>
         get() {
-            val iterator = PersistentHashMapIterator(node)
-            val keys = mutableSetOf<K>()
-            while (iterator.hasNext()) {
-                keys.add(iterator.nextKey())
-            }
-            return keys.toImmutableSet()
+            return PersistentHashMapKeys(this)
         }
 
     override val values: ImmutableCollection<V>
         get() {
-            val iterator = PersistentHashMapIterator(node)
-            val values = mutableListOf<V>()
-            while (iterator.hasNext()) {
-                values.add(iterator.nextValue())
-            }
-            return values.toImmutableList()
+            return PersistentHashMapValues(this)
         }
 
-    override val entries: ImmutableSet<Map.Entry<K, V>> get() = _entries ?: createEntries().apply { _entries = this }
-
-    private var _entries: ImmutableSet<Map.Entry<K, V>>? = null
+    override val entries: ImmutableSet<Map.Entry<K, V>>
+        get() {
+            return createEntries()
+        }
 
     private fun createEntries(): ImmutableSet<Map.Entry<K, V>> {
-        val iterator = PersistentHashMapIterator(node)
-        val entries = mutableSetOf<Map.Entry<K, V>>()
-        while (iterator.hasNext()) {
-            entries.add(iterator.nextEntry())
-        }
-        return entries.toImmutableSet()
+        return PersistentHashMapEntries(this)
     }
-
-
 
     // TODO: compiler bug: this bridge should be generated automatically
     @PublishedApi
-    internal fun getEntries(): Set<Map.Entry<K, V>> = _entries ?: createEntries().apply { _entries = this }
+    internal fun getEntries(): Set<Map.Entry<K, V>> {
+        return createEntries()
+    }
 
     override fun containsKey(key: K): Boolean {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
