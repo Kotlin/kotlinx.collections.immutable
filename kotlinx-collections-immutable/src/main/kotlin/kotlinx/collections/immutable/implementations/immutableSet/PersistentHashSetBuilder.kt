@@ -20,13 +20,19 @@ import kotlinx.collections.immutable.PersistentSet
 
 class Marker
 
-internal class PersistentHashSetBuilder<E>(var node: TrieNode<E>,
-                                           override var size: Int) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
+internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
     internal var marker = Marker()
+    internal var node = set.node
+    override var size = set.size
 
     override fun build(): PersistentSet<E> {
-        marker = Marker()
-        return PersistentHashSet(node, size)
+        set = if (node === set.node) {
+            set
+        } else {
+            marker = Marker()
+            PersistentHashSet(node, size)
+        }
+        return set
     }
 
     override fun contains(element: E): Boolean {

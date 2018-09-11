@@ -24,8 +24,8 @@ internal const val PUT_KEY_VALUE = 2
 internal class ModificationWrapper(var value: Int = NO_MODIFICATION)
 
 
-internal class PersistentHashMap<K, V>(val node: TrieNode<K, V>,
-                                           override val size: Int): AbstractMap<K, V>(), PersistentMap<K, V> {
+internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
+                                       override val size: Int): AbstractMap<K, V>(), PersistentMap<K, V> {
 
     override val keys: ImmutableSet<K>
         get() {
@@ -96,7 +96,7 @@ internal class PersistentHashMap<K, V>(val node: TrieNode<K, V>,
     }
 
     override fun builder(): PersistentMap.Builder<K, @UnsafeVariance V> {
-        return PersistentHashMapBuilder(node, size)
+        return PersistentHashMapBuilder(this)
     }
 
     internal companion object {

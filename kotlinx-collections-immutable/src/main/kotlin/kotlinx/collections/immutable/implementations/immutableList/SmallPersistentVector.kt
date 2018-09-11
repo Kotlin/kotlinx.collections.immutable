@@ -125,7 +125,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
     }
 
     override fun builder(): PersistentList.Builder<E> {
-        return PersistentVectorBuilder(null, buffer, size, 0)
+        return PersistentVectorBuilder(this, null, buffer, 0)
     }
 
     override fun indexOf(element: E): Int {

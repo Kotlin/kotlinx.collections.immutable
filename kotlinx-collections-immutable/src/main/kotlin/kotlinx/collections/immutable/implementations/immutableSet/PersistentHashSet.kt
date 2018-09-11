@@ -19,7 +19,7 @@ package kotlinx.collections.immutable.implementations.immutableSet
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.mutate
 
-internal class PersistentHashSet<E>(private val node: TrieNode<E>,
+internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
                                     override val size: Int): AbstractSet<E>(), PersistentSet<E> {
     override fun contains(element: E): Boolean {
         val hashCode = element?.hashCode() ?: NULL_HASH_CODE
@@ -62,7 +62,7 @@ internal class PersistentHashSet<E>(private val node: TrieNode<E>,
     }
 
     override fun builder(): PersistentSet.Builder<E> {
-        return PersistentHashSetBuilder(node, size)
+        return PersistentHashSetBuilder(this)
     }
 
     internal companion object {

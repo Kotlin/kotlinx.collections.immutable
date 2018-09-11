@@ -20,21 +20,33 @@ import kotlinx.collections.immutable.PersistentList
 
 private class Marker
 
-class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
-                                 private var tail: Array<Any?>?,
-                                 override var size: Int,
+class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
+                                 private var vectorRoot: Array<Any?>?,
+                                 private var vectorTail: Array<Any?>,
                                  private var shiftStart: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
     private var marker = Marker()
+    private var root = vectorRoot
+    private var tail = vectorTail
+    override var size = vector.size
 
     override fun build(): PersistentList<E> {
-        marker = Marker()
-        if (root == null) {
-            if (tail == null) {
-                return persistentVectorOf()
+        vector = if (root === vectorRoot && tail === vectorTail) {
+            vector
+        } else {
+            marker = Marker()
+            vectorRoot = root
+            vectorTail = tail
+            if (root == null) {
+                if (tail.isEmpty()) {
+                    persistentVectorOf()
+                } else {
+                    SmallPersistentVector(tail.copyOf(size))
+                }
+            } else {
+                PersistentVector(root!!, tail, size, shiftStart)
             }
-            return SmallPersistentVector(tail!!.copyOf(size))
         }
-        return PersistentVector(root!!, tail!!, size, shiftStart)
+        return vector
     }
 
     private fun rootSize(): Int {
@@ -71,13 +83,13 @@ class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
 
         val tailSize = size - rootSize()
         if (tailSize < MAX_BUFFER_SIZE) {
-            val mutableLast = makeMutable(tail)
-            mutableLast[tailSize] = element
-            this.tail = mutableLast
+            val mutableTail = makeMutable(tail)
+            mutableTail[tailSize] = element
+            this.tail = mutableTail
             this.size += 1
         } else {
             val newTail = mutableBufferWith(element)
-            this.pushFullTail(root, tail!!, newTail)
+            this.pushFullTail(root, tail, newTail)
         }
         return true
     }
@@ -149,7 +161,7 @@ class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
             this.tail = mutableTail
             this.size += 1
         } else {
-            val lastElement = tail!![MAX_BUFFER_SIZE_MINUS_ONE]
+            val lastElement = tail[MAX_BUFFER_SIZE_MINUS_ONE]
             System.arraycopy(tail, index, mutableTail, index + 1, MAX_BUFFER_SIZE_MINUS_ONE - index)
             mutableTail[index] = element
             pushFullTail(root, mutableTail, mutableBufferWith(lastElement))
@@ -190,7 +202,7 @@ class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
 
     private fun bufferFor(index: Int): Array<Any?> {
         if (rootSize() <= index) {
-            return tail!!
+            return tail
         }
         var buffer = root!!
         var shift = shiftStart
@@ -211,28 +223,28 @@ class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
         if (index >= rootSize) {
             return removeFromTail(root, rootSize, shiftStart, index - rootSize) as E
         }
-        val lastElementWrapper = ObjectWrapper(tail!![0])
+        val lastElementWrapper = ObjectWrapper(tail[0])
         val newRoot = removeFromRoot(root!!, shiftStart, index, lastElementWrapper)
         removeFromTail(newRoot, rootSize, shiftStart, 0)
         return lastElementWrapper.value as E
     }
 
     private fun removeFromTail(root: Array<Any?>?, rootSize: Int, shift: Int, index: Int): Any? {
-        val lastFilledSize = size - rootSize
-        assert(index < lastFilledSize)
+        val tailFilledSize = size - rootSize
+        assert(index < tailFilledSize)
 
         val removedElement: Any?
-        if (lastFilledSize == 1) {
-            removedElement = tail!![0]
+        if (tailFilledSize == 1) {
+            removedElement = tail[0]
             pullLastBufferFromRoot(root, rootSize, shift)
         } else {
-            removedElement = tail!![index]
-            val mutableLast = makeMutable(tail)
-            System.arraycopy(tail, index + 1, mutableLast, index, lastFilledSize - index - 1)
-            mutableLast[lastFilledSize - 1] = null as E
+            removedElement = tail[index]
+            val mutableTail = makeMutable(tail)
+            System.arraycopy(tail, index + 1, mutableTail, index, tailFilledSize - index - 1)
+            mutableTail[tailFilledSize - 1] = null as E
             this.root = root
-            this.tail = mutableLast
-            this.size = rootSize + lastFilledSize - 1
+            this.tail = mutableTail
+            this.size = rootSize + tailFilledSize - 1
             this.shiftStart = shift
         }
         return removedElement
@@ -268,7 +280,7 @@ class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
     private fun pullLastBufferFromRoot(root: Array<Any?>?, rootSize: Int, shift: Int) {
         if (shift == 0) {
             this.root = null
-            this.tail = root
+            this.tail = root ?: emptyArray()
             this.size = rootSize
             this.shiftStart = shift
             return
@@ -313,10 +325,10 @@ class PersistentVectorBuilder<E>(private var root: Array<Any?>?,
             throw IndexOutOfBoundsException()
         }
         if (rootSize() <= index) {
-            val mutableLast = makeMutable(tail)
-            val oldElement = mutableLast[index and MAX_BUFFER_SIZE_MINUS_ONE]
-            mutableLast[index and MAX_BUFFER_SIZE_MINUS_ONE] = element
-            this.tail = mutableLast
+            val mutableTail = makeMutable(tail)
+            val oldElement = mutableTail[index and MAX_BUFFER_SIZE_MINUS_ONE]
+            mutableTail[index and MAX_BUFFER_SIZE_MINUS_ONE] = element
+            this.tail = mutableTail
             return oldElement as E
         }
 

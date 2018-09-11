@@ -201,7 +201,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
     }
 
     override fun builder(): PersistentList.Builder<E> {
-        return PersistentVectorBuilder(root, tail, size, shiftStart)
+        return PersistentVectorBuilder(this, root, tail, shiftStart)
     }
 
     override fun listIterator(index: Int): ListIterator<E> {
