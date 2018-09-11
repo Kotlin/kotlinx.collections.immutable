@@ -20,13 +20,19 @@ import kotlinx.collections.immutable.PersistentMap
 
 internal class Marker
 
-internal class PersistentHashMapBuilder<K, V>(internal var node: TrieNode<K, V>,
-                                              override var size: Int) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
     internal var marker = Marker()
+    internal var node = map.node
+    override var size = map.size
 
     override fun build(): PersistentMap<K, V> {
-        marker = Marker()
-        return PersistentHashMap(node, size)
+        map = if (node === map.node) {
+            map
+        } else {
+            marker = Marker()
+            PersistentHashMap(node, size)
+        }
+        return map
     }
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
