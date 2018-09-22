@@ -31,17 +31,6 @@ internal class TrieNode<E>(var bitmap: Int,
 
     constructor(bitmap: Int, buffer: Array<Any?>) : this(bitmap, buffer, null)
 
-    fun makeMutableFor(mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
-        if (marker === mutator.marker) { return this }
-        return TrieNode(bitmap, buffer.copyOf(), mutator.marker)
-    }
-
-    private fun ensureMutableBy(mutator: PersistentHashSetBuilder<*>) {
-        if (marker !== mutator.marker) {
-            throw IllegalStateException("Markers expected to be same")
-        }
-    }
-
     private fun isNullCellAt(position: Int): Boolean {
         return bitmap and position == 0
     }
@@ -74,12 +63,17 @@ internal class TrieNode<E>(var bitmap: Int,
         return TrieNode(bitmap or position, newBuffer)
     }
 
-    private fun mutableAddElementAt(position: Int, element: E) {
+    private fun mutableAddElementAt(position: Int, element: E, mutatorMarker: Marker): TrieNode<E> {
 //        assert(isNullCellAt(position))
 
         val index = indexOfCellAt(position)
-        buffer = bufferAddElementAtIndex(index, element)
-        bitmap = bitmap or position
+        if (marker === mutatorMarker) {
+            buffer = bufferAddElementAtIndex(index, element)
+            bitmap = bitmap or position
+            return this
+        }
+        val newBuffer = bufferAddElementAtIndex(index, element)
+        return TrieNode(bitmap or position, newBuffer, mutatorMarker)
     }
 
     private fun updateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>): TrieNode<E> {
@@ -90,8 +84,16 @@ internal class TrieNode<E>(var bitmap: Int,
         return TrieNode(bitmap, newBuffer)
     }
 
-    private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>) {
-        buffer[nodeIndex] = newNode
+    private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>, mutatorMarker: Marker): TrieNode<E> {
+//        assert(buffer[nodeIndex] !== newNode)
+
+        if (marker === mutatorMarker) {
+            buffer[nodeIndex] = newNode
+            return this
+        }
+        val newBuffer = buffer.copyOf()
+        newBuffer[nodeIndex] = newNode
+        return TrieNode(bitmap, newBuffer, mutatorMarker)
     }
 
     private fun makeNodeAtIndex(elementIndex: Int, newElementHash: Int, newElement: E,
@@ -112,10 +114,16 @@ internal class TrieNode<E>(var bitmap: Int,
     }
 
     private fun mutableMoveElementToNode(elementIndex: Int, newElementHash: Int, newElement: E,
-                                         shift: Int, mutator: PersistentHashSetBuilder<*>) {
+                                         shift: Int, mutatorMarker: Marker): TrieNode<E> {
 //        assert(!isNullCellAt(position))
 
-        buffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, mutator.marker)
+        if (marker === mutatorMarker) {
+            buffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, mutatorMarker)
+            return this
+        }
+        val newBuffer = buffer.copyOf()
+        newBuffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, mutatorMarker)
+        return TrieNode(bitmap, newBuffer, mutatorMarker)
     }
 
     private fun makeNode(elementHash1: Int, element1: E, elementHash2: Int, element2: E,
@@ -155,10 +163,17 @@ internal class TrieNode<E>(var bitmap: Int,
         return TrieNode(bitmap xor position, newBuffer)
     }
 
-    private fun mutableRemoveCellAtIndex(cellIndex: Int, position: Int) {
+    private fun mutableRemoveCellAtIndex(cellIndex: Int, position: Int, mutatorMarker: Marker): TrieNode<E>? {
 //        assert(!isNullCellAt(position))
-        buffer = bufferRemoveCellAtIndex(cellIndex)
-        bitmap = bitmap xor position
+        if (buffer.size == 1) { return null }
+
+        if (marker === mutatorMarker) {
+            buffer = bufferRemoveCellAtIndex(cellIndex)
+            bitmap = bitmap xor position
+            return this
+        }
+        val newBuffer = bufferRemoveCellAtIndex(cellIndex)
+        return TrieNode(bitmap xor position, newBuffer, mutatorMarker)
     }
 
     private fun collisionRemoveElementAtIndex(i: Int): TrieNode<E>? {
@@ -168,8 +183,15 @@ internal class TrieNode<E>(var bitmap: Int,
         return TrieNode(0, newBuffer)
     }
 
-    private fun mutableCollisionRemoveElementAtIndex(i: Int) {
-        buffer = bufferRemoveCellAtIndex(i)
+    private fun mutableCollisionRemoveElementAtIndex(i: Int, mutatorMarker: Marker): TrieNode<E>? {
+        if (buffer.size == 1) { return null }
+
+        if (marker === mutatorMarker) {
+            buffer = bufferRemoveCellAtIndex(i)
+            return this
+        }
+        val newBuffer = bufferRemoveCellAtIndex(i)
+        return TrieNode(0, newBuffer, mutatorMarker)
     }
 
     private fun collisionContainsElement(element: E): Boolean {
@@ -182,11 +204,15 @@ internal class TrieNode<E>(var bitmap: Int,
         return TrieNode(0, newBuffer)
     }
 
-    private fun mutableCollisionAdd(element: E, mutator: PersistentHashSetBuilder<*>): Boolean {
-        if (collisionContainsElement(element)) { return false }
+    private fun mutableCollisionAdd(element: E, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
+        if (collisionContainsElement(element)) { return this }
         mutator.size++
-        buffer = bufferAddElementAtIndex(0, element)
-        return true
+        if (marker === mutator.marker) {
+            buffer = bufferAddElementAtIndex(0, element)
+            return this
+        }
+        val newBuffer = bufferAddElementAtIndex(0, element)
+        return TrieNode(0, newBuffer, mutator.marker)
     }
 
     private fun collisionRemove(element: E): TrieNode<E>? {
@@ -197,14 +223,13 @@ internal class TrieNode<E>(var bitmap: Int,
         return this
     }
 
-    private fun mutableCollisionRemove(element: E, mutator: PersistentHashSetBuilder<*>): Boolean {
+    private fun mutableCollisionRemove(element: E, mutator: PersistentHashSetBuilder<*>): TrieNode<E>? {
         val index = buffer.indexOf(element)
         if (index != -1) {
             mutator.size--
-            mutableCollisionRemoveElementAtIndex(index)
-            return true
+            return mutableCollisionRemoveElementAtIndex(index, mutator.marker)
         }
-        return false
+        return this
     }
 
     fun contains(elementHash: Int, element: E, shift: Int): Boolean {
@@ -249,31 +274,29 @@ internal class TrieNode<E>(var bitmap: Int,
         return moveElementToNode(cellIndex, elementHash, element, shift)
     }
 
-    fun mutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): Boolean {
-        ensureMutableBy(mutator)
+    fun mutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
         val cellPosition = 1 shl ((elementHash shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE)
 
         if (isNullCellAt(cellPosition)) { // element is absent
             mutator.size++
-            mutableAddElementAt(cellPosition, element)
-            return true
+            return mutableAddElementAt(cellPosition, element, mutator.marker)
         }
 
         val cellIndex = indexOfCellAt(cellPosition)
         if (buffer[cellIndex] is TrieNode<*>) { // element may be in node
-            val targetNode = nodeAtIndex(cellIndex).makeMutableFor(mutator)
-            mutableUpdateNodeAtIndex(cellIndex, targetNode)
-            return if (shift == MAX_SHIFT) {
+            val targetNode = nodeAtIndex(cellIndex)
+            val newNode = if (shift == MAX_SHIFT) {
                 targetNode.mutableCollisionAdd(element, mutator)
             } else {
                 targetNode.mutableAdd(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
+            if (targetNode === newNode) { return this }
+            return mutableUpdateNodeAtIndex(cellIndex, newNode, mutator.marker)
         }
         // element is directly in buffer
-        if (element == buffer[cellIndex]) { return false }
+        if (element == buffer[cellIndex]) { return this }
         mutator.size++
-        mutableMoveElementToNode(cellIndex, elementHash, element, shift, mutator)
-        return true
+        return mutableMoveElementToNode(cellIndex, elementHash, element, shift, mutator.marker)
     }
 
     fun remove(elementHash: Int, element: E, shift: Int): TrieNode<E>? {
@@ -302,33 +325,31 @@ internal class TrieNode<E>(var bitmap: Int,
         return this
     }
 
-    fun mutableRemove(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): Boolean {
-        ensureMutableBy(mutator)
+    fun mutableRemove(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E>? {
         val cellPosition = 1 shl ((elementHash shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE)
 
         if (isNullCellAt(cellPosition)) { // element is absent
-            return false
+            return this
         }
 
         val cellIndex = indexOfCellAt(cellPosition)
         if (buffer[cellIndex] is TrieNode<*>) { // element may be in node
-            val targetNode = nodeAtIndex(cellIndex).makeMutableFor(mutator)
-            mutableUpdateNodeAtIndex(cellIndex, targetNode)
-            val result = if (shift == MAX_SHIFT) {
+            val targetNode = nodeAtIndex(cellIndex)
+            val newNode = if (shift == MAX_SHIFT) {
                 targetNode.mutableCollisionRemove(element, mutator)
             } else {
                 targetNode.mutableRemove(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
-            if (targetNode.buffer.isEmpty()) { mutableRemoveCellAtIndex(cellIndex, cellPosition) }
-            return result
+            if (targetNode === newNode) { return this }
+            if (newNode == null) { return mutableRemoveCellAtIndex(cellIndex, cellPosition, mutator.marker) }
+            return mutableUpdateNodeAtIndex(cellIndex, newNode, mutator.marker)
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
             mutator.size--
-            mutableRemoveCellAtIndex(cellIndex, cellPosition)   // check is empty
-            return true
+            return mutableRemoveCellAtIndex(cellIndex, cellPosition, mutator.marker)   // check is empty
         }
-        return false
+        return this
     }
 
     internal companion object {
