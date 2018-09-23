@@ -23,6 +23,7 @@ internal class Marker
 internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
     internal var marker = Marker()
     internal var node = map.node
+    internal var operationResult: V? = null
     override var size = map.size
 
     override fun build(): PersistentMap<K, V> {
@@ -61,15 +62,17 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
     }
 
     override fun put(key: K, value: @UnsafeVariance V): V? {
+        operationResult = null
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        node = node.makeMutableFor(this)
-        return node.mutablePut(keyHash, key, value, 0, this)
+        node = node.mutablePut(keyHash, key, value, 0, this)
+        return operationResult
     }
 
     override fun remove(key: K): V? {
+        operationResult = null
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        node = node.makeMutableFor(this)
-        return node.mutableRemove(keyHash, key, 0, this)
+        node = node.mutableRemove(keyHash, key, 0, this) ?: TrieNode.EMPTY as TrieNode<K, V>
+        return operationResult
     }
 
     override fun clear() {
