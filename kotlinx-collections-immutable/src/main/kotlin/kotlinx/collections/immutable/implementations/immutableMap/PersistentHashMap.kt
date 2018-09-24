@@ -62,7 +62,7 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return node.get(keyHash, key, 0)
     }
 
-    override fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> {
+    override fun put(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         val modification = ModificationWrapper()
         val newNode = node.put(keyHash, key, value, 0, modification)
@@ -71,7 +71,7 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return PersistentHashMap(newNode, size + sizeDelta)
     }
 
-    override fun remove(key: K): PersistentMap<K, V> {
+    override fun remove(key: K): PersistentHashMap<K, V> {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         val newNode = node.remove(keyHash, key, 0)
         if (node === newNode) { return this }
@@ -79,7 +79,7 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return PersistentHashMap(newNode, size - 1)
     }
 
-    override fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V> {
+    override fun remove(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         val newNode = node.remove(keyHash, key, value, 0)
         if (node === newNode) { return this }
@@ -95,12 +95,12 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return PersistentHashMap.emptyOf()
     }
 
-    override fun builder(): PersistentMap.Builder<K, @UnsafeVariance V> {
+    override fun builder(): PersistentHashMapBuilder<K, V> {
         return PersistentHashMapBuilder(this)
     }
 
     internal companion object {
         private val EMPTY = PersistentHashMap(TrieNode.EMPTY, 0)
-        internal fun <K, V> emptyOf(): PersistentMap<K, V> = EMPTY as PersistentMap<K, V>
+        internal fun <K, V> emptyOf(): PersistentHashMap<K, V> = EMPTY as PersistentHashMap<K, V>
     }
 }

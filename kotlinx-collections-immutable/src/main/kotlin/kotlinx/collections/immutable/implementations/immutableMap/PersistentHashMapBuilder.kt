@@ -26,7 +26,7 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
     internal var operationResult: V? = null
     override var size = map.size
 
-    override fun build(): PersistentMap<K, V> {
+    override fun build(): PersistentHashMap<K, V> {
         map = if (node === map.node) {
             map
         } else {
