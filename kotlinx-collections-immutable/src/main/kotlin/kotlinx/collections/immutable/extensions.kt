@@ -23,6 +23,7 @@ import kotlinx.collections.immutable.implementations.immutableMap.PersistentHash
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSetBuilder
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
 import kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSet
 
 //@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
@@ -135,7 +136,7 @@ fun <E> persistentSetOf(): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>()
 
 fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHashSet.emptyOf<E>().addAll(elements.asList())
 
-fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = ImmutableOrderedMap.emptyOf<K,V>().mutate { it += pairs }
+fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = PersistentOrderedMap.emptyOf<K,V>().mutate { it += pairs }
 fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = PersistentHashMap.emptyOf<K,V>().mutate { it += pairs }
 
 @Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf(*elements)"))
@@ -190,7 +191,7 @@ fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
         ?: persistentSetOf<T>() + this
 
 fun <T> Set<T>.toPersistentHashSet(): PersistentSet<T>
-    = this as? ImmutableHashSet
+    = this as? PersistentHashSet
         ?: (this as? PersistentHashSetBuilder<T>)?.build()
         ?: PersistentHashSet.emptyOf<T>() + this
 
@@ -198,13 +199,13 @@ fun <T> Set<T>.toPersistentHashSet(): PersistentSet<T>
 fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
     = this as? ImmutableMap
         ?: (this as? PersistentMap.Builder)?.build()
-        ?: ImmutableOrderedMap.emptyOf<K, V>().putAll(this)
+        ?: PersistentOrderedMap.emptyOf<K, V>().putAll(this)
 
 
 fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
     = this as? PersistentMap<K, V>
         ?: (this as? PersistentMap.Builder<K, V>)?.build()
-        ?: ImmutableOrderedMap.emptyOf<K, V>().putAll(this)
+        ?: PersistentOrderedMap.emptyOf<K, V>().putAll(this)
 
 fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
         = this as? PersistentMap

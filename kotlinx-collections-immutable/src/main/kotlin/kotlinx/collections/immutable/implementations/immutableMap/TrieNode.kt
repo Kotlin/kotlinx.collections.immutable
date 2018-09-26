@@ -412,6 +412,7 @@ internal class TrieNode<K, V>(var dataMap: Int,
             val keyIndex = keyDataIndex(keyPosition)
 
             if (key == keyAtIndex(keyIndex)) {
+                if (valueAtKeyIndex(keyIndex) === value) { return this }
                 return mutableUpdateValueAtIndex(keyIndex, value, mutator)
             }
             mutator.size++
