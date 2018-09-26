@@ -41,7 +41,7 @@ fun mapOfMap() {
 
 
 fun foo() {
-    var list: PersistentList<String> = ImmutableVectorList.emptyOf()
+    var list = persistentListOf<String>()
 
     list = list.mutate { it.removeAll { it.length > 2 } }
     list = list.removeAll { it.length >  2}
