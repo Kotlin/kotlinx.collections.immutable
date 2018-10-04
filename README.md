@@ -30,8 +30,10 @@ If the order of elements doesn't matter, more efficient `immutableHashSetOf` and
 Converts a read-only or mutable collection to an immutable one.
 If the receiver is already immutable and has the required type, returns itself.
 
-    fun Iterable<T>.toImmutableList(): ImmutableList<T>
-    fun Iterable<T>.toImmutableSet(): ImmutableSet<T>
+```kotlin
+fun Iterable<T>.toImmutableList(): ImmutableList<T>
+fun Iterable<T>.toImmutableSet(): ImmutableSet<T>
+```
 
 #### `+` and `-` operators
 
@@ -49,7 +51,7 @@ val newList = immutableListOf("a", "b") + "c"
 in order for them to take the precedence over the ones from the 
 standard library.
 
-```
+```kotlin
 import kotlinx.collections.immutable.*
 ```
    
@@ -58,11 +60,15 @@ import kotlinx.collections.immutable.*
 `mutate` extension function simplifies quite common pattern of immutable collection modification: 
 get a builder, apply some mutating operations on it, transform it back to an immutable collection:
 
-    collection.builder().apply { some_actions_on(this) }.build()
+```kotlin
+collection.builder().apply { some_actions_on(this) }.build()
+```
     
 With `mutate` it transforms to:
 
-    collection.mutate { some_actions_on(it) }
+```kotlin
+collection.mutate { some_actions_on(it) }
+```
 
 ## Using in your projects
 
