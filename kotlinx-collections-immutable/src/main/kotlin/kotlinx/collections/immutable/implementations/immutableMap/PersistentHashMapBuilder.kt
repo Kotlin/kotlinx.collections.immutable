@@ -75,6 +75,13 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
         return operationResult
     }
 
+    fun remove(key: K, value: V): Boolean {
+        val oldSize = size
+        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
+        node = node.mutableRemove(keyHash, key, value, 0, this) ?: TrieNode.EMPTY as TrieNode<K, V>
+        return oldSize != size
+    }
+
     override fun clear() {
         node = TrieNode.EMPTY as TrieNode<K, V>
         size = 0

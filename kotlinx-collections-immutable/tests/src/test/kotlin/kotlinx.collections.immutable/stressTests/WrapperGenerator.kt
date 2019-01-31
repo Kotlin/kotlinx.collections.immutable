@@ -32,7 +32,7 @@ class WrapperGenerator<K: Comparable<K>>(private val hashCodeUpperBound: Int) {
         val wrapper = ObjectWrapper(element, hashCode)
         elementMap[element] = wrapper
 
-        val wrappers = hashCodeMap.getOrDefault(hashCode, mutableListOf())
+        val wrappers = hashCodeMap[hashCode] ?: mutableListOf()
         wrappers.add(wrapper)
         hashCodeMap[hashCode] = wrappers
 
@@ -40,6 +40,6 @@ class WrapperGenerator<K: Comparable<K>>(private val hashCodeUpperBound: Int) {
     }
 
     fun wrappersByHashCode(hashCode: Int): List<ObjectWrapper<K>> {
-        return hashCodeMap.getOrDefault(hashCode, mutableListOf())
+        return hashCodeMap[hashCode] ?: mutableListOf()
     }
 }
