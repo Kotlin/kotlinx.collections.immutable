@@ -194,6 +194,7 @@ internal class TrieNode<K, V>(var dataMap: Int,
 
     private fun mutableRemoveDataAtIndex(keyIndex: Int, position: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
 //        assert(hasDataAt(position))
+        mutator.size--
         mutator.operationResult = buffer[keyIndex + 1] as V
         if (buffer.size == 2) { return null }
 
@@ -214,6 +215,7 @@ internal class TrieNode<K, V>(var dataMap: Int,
     }
 
     private fun mutableCollisionRemoveDataAtIndex(i: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+        mutator.size--
         mutator.operationResult = buffer[i + 1] as V
         if (buffer.size == 2) { return null }
 
@@ -315,7 +317,6 @@ internal class TrieNode<K, V>(var dataMap: Int,
     private fun mutableCollisionRemove(key: K, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == buffer[i]) {
-                mutator.size--
                 return mutableCollisionRemoveDataAtIndex(i, mutator)
             }
         }
@@ -326,6 +327,15 @@ internal class TrieNode<K, V>(var dataMap: Int,
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == buffer[i] && value == buffer[i + 1]) {
                 return collisionRemoveDataAtIndex(i)
+            }
+        }
+        return this
+    }
+
+    private fun mutableCollisionRemove(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+        for (i in 0 until buffer.size step ENTRY_SIZE) {
+            if (key == buffer[i] && value == buffer[i + 1]) {
+                return mutableCollisionRemoveDataAtIndex(i, mutator)
             }
         }
         return this
@@ -472,7 +482,6 @@ internal class TrieNode<K, V>(var dataMap: Int,
             val keyIndex = keyDataIndex(keyPosition)
 
             if (key == keyAtIndex(keyIndex)) {
-                mutator.size--
                 return mutableRemoveDataAtIndex(keyIndex, keyPosition, mutator)
             }
             return this
@@ -518,6 +527,35 @@ internal class TrieNode<K, V>(var dataMap: Int,
             if (targetNode === newNode) { return this }
             if (newNode == null) { return removeNodeAtIndex(nodeIndex, keyPosition) }
             return updateNodeAtIndex(nodeIndex, newNode)
+        }
+
+        // key is absent
+        return this
+    }
+
+    fun mutableRemove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+        val keyPosition = 1 shl ((keyHash shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE)
+
+        if (hasDataAt(keyPosition)) { // key is directly in buffer
+            val keyIndex = keyDataIndex(keyPosition)
+
+            if (key == keyAtIndex(keyIndex) && value == valueAtKeyIndex(keyIndex)) {
+                return mutableRemoveDataAtIndex(keyIndex, keyPosition, mutator)
+            }
+            return this
+        }
+        if (hasNodeAt(keyPosition)) { // key is in node
+            val nodeIndex = keyNodeIndex(keyPosition)
+
+            val targetNode = nodeAtIndex(nodeIndex)
+            val newNode = if (shift == MAX_SHIFT) {
+                targetNode.mutableCollisionRemove(key, value, mutator)
+            } else {
+                targetNode.mutableRemove(keyHash, key, value, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
+            }
+            if (targetNode === newNode) { return this }
+            if (newNode == null) { return mutableRemoveNodeAtIndex(nodeIndex, keyPosition, mutator.marker) }
+            return mutableUpdateNodeAtIndex(nodeIndex, newNode, mutator.marker)
         }
 
         // key is absent

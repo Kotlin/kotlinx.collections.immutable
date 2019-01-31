@@ -105,6 +105,17 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
         return links.value
     }
 
+    fun remove(key: K, value: V): Boolean {
+        val links = mapBuilder[key] ?: return false
+
+        return if (links.value != value) {
+            false
+        } else {
+            remove(key)
+            true
+        }
+    }
+
     override fun clear() {
         mapBuilder.clear()
         firstKey = null
