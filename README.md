@@ -1,12 +1,12 @@
 # Immutable Collections Library for Kotlin
 
-[![JetBrains incubator project](http://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [ ![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.collections.immutable/images/download.svg) ](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable/_latestVersion)
+[![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [ ![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.collections.immutable/images/download.svg) ](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable/_latestVersion)
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
 For further details see the [proposal](proposal.md).
 
-Prototype implementation is based on [pcollections](http://pcollections.org/) (Copyright 2015 The pcollections Authors.)
+Prototype implementation is based on [pcollections](https://pcollections.org/) (Copyright 2015 The pcollections Authors.)
 
 ## What's in this library
 ### Interfaces and implementations
@@ -84,7 +84,7 @@ Add the bintray repository to `<repositories>` section:
     </snapshots>
     <id>kotlinx</id>
     <name>bintray</name>
-    <url>http://dl.bintray.com/kotlin/kotlinx</url>
+    <url>https://dl.bintray.com/kotlin/kotlinx</url>
 </repository>
 ```
 
@@ -105,7 +105,7 @@ Add the bintray repository:
 ```groovy
 repositories {
     maven {
-        url "http://dl.bintray.com/kotlin/kotlinx"
+        url "https://dl.bintray.com/kotlin/kotlinx"
     }
 }
 ```
