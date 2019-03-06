@@ -28,11 +28,13 @@ internal class TrieNodeMutableEntriesIterator<K, V>(private val builder: Persist
 }
 
 private class MutableMapEntry<K, V>(private val builder: PersistentHashMapBuilder<K, V>,
-                                    override val key: K,
-                                    override val value: V) : MutableMap.MutableEntry<K, V> {
+                                    key: K,
+                                    override var value: V) : MapEntry<K, V>(key, value), MutableMap.MutableEntry<K, V> {
     override fun setValue(newValue: V): V {
+        val result = value
+        value = newValue
         builder[key] = newValue
-        return value
+        return result
     }
 }
 
