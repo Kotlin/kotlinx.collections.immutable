@@ -16,6 +16,8 @@
 
 package kotlinx.collections.immutable.implementations.persistentOrderedMap
 
+import kotlinx.collections.immutable.implementations.immutableMap.MapEntry
+
 internal open class PersistentOrderedMapLinksIterator<K, out V>(internal var nextKey: K?,
                                                                 internal val map: Map<K, Links<K, V>>) : Iterator<Links<K, V>> {
     internal var index = 0
@@ -47,12 +49,6 @@ internal class PersistentOrderedMapEntriesIterator<out K, out V>(map: Persistent
         val nextKey = internal.nextKey as K
         val nextValue = internal.next().value
         return MapEntry(nextKey, nextValue)
-    }
-}
-
-private data class MapEntry<out K, out V>(override val key: K, override val value: V) : Map.Entry<K, V> {
-    override fun toString(): String {
-        return key.toString() + "=" + value.toString()
     }
 }
 
