@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 JetBrains s.r.o.
+ * Copyright 2016-2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.implementations
+package kotlinx.collections.immutable.stressTests
 
 import java.util.*
 
@@ -32,7 +32,7 @@ class WrapperGenerator<K: Comparable<K>>(private val hashCodeUpperBound: Int) {
         val wrapper = ObjectWrapper(element, hashCode)
         elementMap[element] = wrapper
 
-        val wrappers = hashCodeMap.getOrDefault(hashCode, mutableListOf())
+        val wrappers = hashCodeMap[hashCode] ?: mutableListOf()
         wrappers.add(wrapper)
         hashCodeMap[hashCode] = wrappers
 
@@ -40,6 +40,6 @@ class WrapperGenerator<K: Comparable<K>>(private val hashCodeUpperBound: Int) {
     }
 
     fun wrappersByHashCode(hashCode: Int): List<ObjectWrapper<K>> {
-        return hashCodeMap.getOrDefault(hashCode, mutableListOf())
+        return hashCodeMap[hashCode] ?: mutableListOf()
     }
 }

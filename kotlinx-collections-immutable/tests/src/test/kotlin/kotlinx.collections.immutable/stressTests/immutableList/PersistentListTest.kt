@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.implementations.immutableList
+package kotlinx.collections.immutable.stressTests.immutableList
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf

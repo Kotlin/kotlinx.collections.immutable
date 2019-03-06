@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 JetBrains s.r.o.
+ * Copyright 2016-2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.implementations
+package kotlinx.collections.immutable.stressTests
 
 class ObjectWrapper<K: Comparable<K>>(val obj: K, val hashCode: Int) : Comparable<ObjectWrapper<K>> {
     override fun hashCode(): Int {

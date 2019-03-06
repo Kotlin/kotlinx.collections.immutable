@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.implementations.immutableSet
+package kotlinx.collections.immutable.stressTests.immutableSet
 
-import kotlinx.collections.immutable.implementations.ObjectWrapper
-import kotlinx.collections.immutable.implementations.WrapperGenerator
+import kotlinx.collections.immutable.stressTests.ObjectWrapper
+import kotlinx.collections.immutable.stressTests.WrapperGenerator
 import kotlinx.collections.immutable.persistentHashSetOf
 import org.junit.Test
 import org.junit.Assert.*
