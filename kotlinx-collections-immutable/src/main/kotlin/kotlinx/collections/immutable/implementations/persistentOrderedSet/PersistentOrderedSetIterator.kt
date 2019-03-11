@@ -25,7 +25,9 @@ internal open class PersistentOrderedSetIterator<E>(private var nextElement: E?,
     }
 
     override fun next(): E {
-        assert(hasNext())
+        if (!hasNext())
+            throw NoSuchElementException()
+
         val result = nextElement as E
         index++
         nextElement = map[result]!!.next
