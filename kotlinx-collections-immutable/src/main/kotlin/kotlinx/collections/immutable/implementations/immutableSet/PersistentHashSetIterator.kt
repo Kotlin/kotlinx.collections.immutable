@@ -70,7 +70,8 @@ internal open class PersistentHashSetIterator<E>(node: TrieNode<E>) : Iterator<E
     }
 
     override fun next(): E {
-        assert(hasNext())
+        if (!hasNext)
+            throw NoSuchElementException()
 
         val result = path[pathLastIndex].nextElement()
         ensureNextElementIsReady()
