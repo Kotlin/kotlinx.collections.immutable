@@ -1,1 +1,10 @@
 ext.JDK_16 = System.getenv("JDK_16")
+
+project('pcollections') {
+    afterEvaluate {
+        compileJava {
+            options.fork = true
+            options.forkOptions.executable = "${JDK_16}/bin/javac"
+        }
+    }
+}

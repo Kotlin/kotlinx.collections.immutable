@@ -38,6 +38,7 @@ configurations {
 dependencies {
     shadow "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    shadowed project(':pcollections')
 }
 
 project('tests') {
@@ -62,6 +63,7 @@ apply plugin: 'maven'
 shadowJar {
     classifier = null
     configurations = [project.configurations.shadowed]
+    relocate 'org.pcollections', 'kotlinx.collections.immutable.internal.org.pcollections'
 }
 
 task sourcesJar(type: Jar) {
