@@ -16,16 +16,17 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
+import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.Assert.*
 import java.util.*
 import kotlin.test.assertFailsWith
 
-class PersistentVectorBuilderTest {
+class PersistentListBuilderTest {
 
     @Test
     fun isEmptyTests() {
-        val builder = persistentVectorOf<String>().builder()
+        val builder = persistentListOf<String>().builder()
 
         assertTrue(builder.isEmpty())
 
@@ -44,7 +45,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun sizeTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertTrue(builder.size == 0)
 
@@ -62,7 +63,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun firstTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertNull(builder.firstOrNull())
 
@@ -80,7 +81,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun lastTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertNull(builder.lastOrNull())
 
@@ -98,7 +99,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun toListTest() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertEquals(emptyList<Int>(), builder)
 
@@ -114,7 +115,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun addFirstTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertNull(builder.firstOrNull())
 
@@ -131,7 +132,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun addLastTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         val elementsToAdd = 10000
         repeat(times = elementsToAdd) { index ->
@@ -147,7 +148,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun removeFirstTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertFailsWith<IndexOutOfBoundsException> { builder.removeAt(0) }
 
@@ -166,7 +167,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun removeLastTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertFailsWith<IndexOutOfBoundsException> {
             builder.removeAt(builder.size - 1)
@@ -200,7 +201,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun getTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertFailsWith<IndexOutOfBoundsException> {
             builder[0]
@@ -225,7 +226,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun setTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         assertFailsWith<IndexOutOfBoundsException> {
             builder[0] = 0
@@ -256,7 +257,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun subListTests() {
-        val builder = persistentVectorOf<Int>().builder()
+        val builder = persistentListOf<Int>().builder()
 
         val elementsToAdd = 10000
         repeat(times = elementsToAdd) { index ->
@@ -287,7 +288,7 @@ class PersistentVectorBuilderTest {
 
     @Test
     fun randomOperationsTests() {
-        val vectorGen = mutableListOf(List(20) { persistentVectorOf<Int>() })
+        val vectorGen = mutableListOf(List(20) { persistentListOf<Int>() })
         val actual = mutableListOf(List(20) { listOf<Int>() })
 
         repeat(times = 10) {

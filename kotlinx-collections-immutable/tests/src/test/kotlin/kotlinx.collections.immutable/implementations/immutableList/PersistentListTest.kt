@@ -16,17 +16,18 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.Assert.*
 import java.util.*
 import kotlin.test.assertFailsWith
 
 
-class PersistentVectorTest {
+class PersistentListTest {
     @Test
     fun isEmptyTests() {
-        var vector = persistentVectorOf<String>()
+        var vector = persistentListOf<String>()
 
         assertTrue(vector.isEmpty())
         assertFalse(vector.add("last").isEmpty())
@@ -46,7 +47,7 @@ class PersistentVectorTest {
 
     @Test
     fun sizeTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertTrue(vector.size == 0)
         assertEquals(1, vector.add(1).size)
@@ -65,7 +66,7 @@ class PersistentVectorTest {
 
     @Test
     fun firstTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertNull(vector.firstOrNull())
         assertEquals(1, vector.add(0, 1).first())
@@ -85,7 +86,7 @@ class PersistentVectorTest {
 
     @Test
     fun lastTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertNull(vector.lastOrNull())
         assertEquals(1, vector.add(0, 1).last())
@@ -105,7 +106,7 @@ class PersistentVectorTest {
 
     @Test
     fun toListTest() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertEquals(emptyList<Int>(), vector.toList())
         assertEquals(listOf(1), vector.add(1).toList())
@@ -140,7 +141,7 @@ class PersistentVectorTest {
 
     @Test
     fun addFirstTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertNull(vector.firstOrNull())
         assertEquals(1, vector.add(0, 1).first())
@@ -159,7 +160,7 @@ class PersistentVectorTest {
 
     @Test
     fun addLastTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertEquals(1, vector.add(1)[0])
 
@@ -177,7 +178,7 @@ class PersistentVectorTest {
 
     @Test
     fun removeFirstTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
             vector.removeAt(0)
@@ -200,7 +201,7 @@ class PersistentVectorTest {
 
     @Test
     fun removeLastTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
             vector.removeAt(vector.size - 1)
@@ -236,7 +237,7 @@ class PersistentVectorTest {
 
     @Test
     fun getTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
             vector[0]
@@ -262,7 +263,7 @@ class PersistentVectorTest {
 
     @Test
     fun setTests() {
-        var vector = persistentVectorOf<Int>()
+        var vector = persistentListOf<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
             vector.set(0, 0)
@@ -298,7 +299,7 @@ class PersistentVectorTest {
 
             val random = Random()
             val lists = List(20) { mutableListOf<Int>() }
-            val vectors = MutableList(20) { persistentVectorOf<Int>() }
+            val vectors = MutableList(20) { persistentListOf<Int>() }
 
             repeat(times = 1000000) {
                 val index = random.nextInt(lists.size)
@@ -347,7 +348,7 @@ class PersistentVectorTest {
         }
     }
 
-    private fun testAfterOperation(list: List<Int>, vector: ImmutableList<Int>, operationIndex: Int) {
+    private fun testAfterOperation(list: List<Int>, vector: PersistentList<Int>, operationIndex: Int) {
         assertEquals(list.firstOrNull(), vector.firstOrNull())
         assertEquals(list.lastOrNull(), vector.lastOrNull())
         assertEquals(list.size, vector.size)

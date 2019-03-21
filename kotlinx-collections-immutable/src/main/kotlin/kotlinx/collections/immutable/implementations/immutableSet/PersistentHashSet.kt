@@ -41,7 +41,7 @@ internal class PersistentHashSet<E>(private val node: TrieNode<E>,
         val hashCode = element?.hashCode() ?: NULL_HASH_CODE
         val newNode = node.remove(hashCode, element, 0)
         if (node === newNode) { return this }
-        if (newNode == null) { return persistentHashSetOf() }
+        if (newNode == null) { return PersistentHashSet.emptyOf() }
         return PersistentHashSet(newNode, size - 1)
     }
 
@@ -54,7 +54,7 @@ internal class PersistentHashSet<E>(private val node: TrieNode<E>,
     }
 
     override fun clear(): PersistentSet<E> {
-        return persistentHashSetOf()
+        return PersistentHashSet.emptyOf()
     }
 
     override fun iterator(): Iterator<E> {
@@ -66,10 +66,7 @@ internal class PersistentHashSet<E>(private val node: TrieNode<E>,
     }
 
     internal companion object {
-        internal val EMPTY = PersistentHashSet(TrieNode.EMPTY, 0)
+        private val EMPTY = PersistentHashSet(TrieNode.EMPTY, 0)
+        internal fun <E> emptyOf(): PersistentSet<E> = PersistentHashSet.EMPTY
     }
-}
-
-fun <E> persistentHashSetOf(): PersistentSet<E> {
-    return PersistentHashSet.EMPTY
 }

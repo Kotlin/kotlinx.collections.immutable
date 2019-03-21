@@ -25,6 +25,6 @@ internal const val MAX_BUFFER_SIZE_PlUS_ONE = MAX_BUFFER_SIZE + 1
 
 internal class ObjectWrapper(var value: Any?)
 
-fun <E> persistentVectorOf(): PersistentList<E> {
+internal fun <E> persistentVectorOf(): PersistentList<E> {
     return SmallPersistentVector.EMPTY
 }
