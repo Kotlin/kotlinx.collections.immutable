@@ -1,16 +1,35 @@
-package kotlinx.collections.immutable
+/*
+ * Copyright 2016-2019 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package kotlinx.collections.immutable.contractTests.immutableMap
+
+import kotlinx.collections.immutable.*
+import kotlinx.collections.immutable.contractTests.collectionBehavior
+import kotlinx.collections.immutable.contractTests.compare
+import kotlinx.collections.immutable.contractTests.mapBehavior
+import kotlinx.collections.immutable.contractTests.setBehavior
 import org.junit.Test
-import test.collections.behaviors.*
-import test.collections.compare
 import java.util.*
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
-    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = kotlinx.collections.immutable.persistentHashMapOf(*pairs)
+    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentHashMapOf(*pairs)
 }
 class ImmutableOrderedMapTest : ImmutableMapTest() {
-    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = kotlinx.collections.immutable.persistentMapOf(*pairs)
+    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
     override fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = true) }
 
     @Test fun iterationOrder() {
