@@ -19,7 +19,7 @@ package kotlinx.collections.immutable.implementations.persistentOrderedMap
 import kotlinx.collections.immutable.implementations.immutableMap.MapEntry
 
 internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(internal var nextKey: K?,
-                                                                   internal val map: MutableMap<K, Links<K, V>>) : MutableIterator<Links<K, V>> {
+                                                                   internal val map: MutableMap<K, LinkedValue<K, V>>) : MutableIterator<LinkedValue<K, V>> {
     internal var lastProcessedKey: K? = null
     private var nextWasInvoked = false
     internal var index = 0
@@ -28,7 +28,7 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(internal var 
         return index < map.size
     }
 
-    override fun next(): Links<K, V> {
+    override fun next(): LinkedValue<K, V> {
         if (!hasNext()) {
             throw NoSuchElementException()
         }
@@ -68,15 +68,15 @@ internal class PersistentOrderedMapBuilderEntriesIterator<K, V>(map: PersistentO
     }
 }
 
-private class MutableMapEntry<K, V>(private val mutableMap: MutableMap<K, Links<K, V>>,
+private class MutableMapEntry<K, V>(private val mutableMap: MutableMap<K, LinkedValue<K, V>>,
                                     key: K,
-                                    private var links: Links<K, V>) : MapEntry<K, V>(key, links.value), MutableMap.MutableEntry<K, V> {
+                                    private var links: LinkedValue<K, V>) : MapEntry<K, V>(key, links.value), MutableMap.MutableEntry<K, V> {
     override val value: V
         get() = links.value
 
     override fun setValue(newValue: V): V {
         val result = links.value
-        links = Links(newValue, links.previous, links.next)
+        links = LinkedValue(newValue, links.previous, links.next)
         mutableMap[key] = links
         return result
     }

@@ -67,22 +67,22 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
             if (links.value == value) {
                 return value
             }
-            mapBuilder[key] = Links(value, links.previous, links.next)
+            mapBuilder[key] = LinkedValue(value, links.previous, links.next)
             return links.value
         }
 
         if (isEmpty()) {  //  isEmpty
             firstKey = key
             lastKey = key
-            mapBuilder[key] = Links<K, V>(value, null, null)
+            mapBuilder[key] = LinkedValue<K, V>(value, null, null)
             return null
         }
         val oldLinks = mapBuilder[lastKey]!!
         assert(oldLinks.next == null)
-        val newLinks = Links(oldLinks.value, oldLinks.previous, key)
+        val newLinks = LinkedValue(oldLinks.value, oldLinks.previous, key)
 
         mapBuilder[lastKey as K] = newLinks
-        mapBuilder[key] = Links(value, lastKey, null)
+        mapBuilder[key] = LinkedValue(value, lastKey, null)
         lastKey = key
         return null
     }
@@ -93,12 +93,12 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
         if (links.previous != null) {
             val previousLinks = mapBuilder[links.previous]!!
             assert(previousLinks.next == key)
-            mapBuilder[links.previous] = Links(previousLinks.value, previousLinks.previous, links.next)
+            mapBuilder[links.previous] = LinkedValue(previousLinks.value, previousLinks.previous, links.next)
         }
         if (links.next != null) {
             val nextLinks = mapBuilder[links.next]!!
             assert(nextLinks.previous == key)
-            mapBuilder[links.next] = Links(nextLinks.value, links.previous, nextLinks.next)
+            mapBuilder[links.next] = LinkedValue(nextLinks.value, links.previous, nextLinks.next)
         }
         firstKey = if (key == firstKey) links.next else firstKey
         lastKey = if (key == lastKey) links.previous else lastKey

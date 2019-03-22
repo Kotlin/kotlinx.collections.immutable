@@ -22,11 +22,11 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.mutate
 
-internal class Links<out K, out V>(val value: V, val previous: K?, val next: K?)
+internal class LinkedValue<out K, out V>(val value: V, val previous: K?, val next: K?)
 
 internal class PersistentOrderedMap<K, V>(internal val firstKey: K?,
                                           internal val lastKey: K?,
-                                          internal val map: PersistentHashMap<K, Links<K, V>>): AbstractMap<K, V>(), PersistentMap<K, V> {
+                                          internal val map: PersistentHashMap<K, LinkedValue<K, V>>): AbstractMap<K, V>(), PersistentMap<K, V> {
 
     override val size: Int
         get() = map.size
@@ -70,17 +70,17 @@ internal class PersistentOrderedMap<K, V>(internal val firstKey: K?,
             if (links.value == value) {
                 return this
             }
-            val newMap = map.put(key, Links(value, links.previous, links.next))
+            val newMap = map.put(key, LinkedValue(value, links.previous, links.next))
             return PersistentOrderedMap(firstKey, lastKey, newMap)
         }
         if (isEmpty()) {
-            val newMap = map.put(key, Links(value, null, null))
+            val newMap = map.put(key, LinkedValue<K, V>(value, null, null))
             return PersistentOrderedMap(key, key, newMap)
         }
         val oldLinks = map[lastKey]!!
         assert(oldLinks.next == null)
-        val newLinks = Links(oldLinks.value, oldLinks.previous, key)
-        val newMap = map.put(lastKey as K, newLinks).put(key, Links(value, lastKey, null))
+        val newLinks = LinkedValue(oldLinks.value, oldLinks.previous, key)
+        val newMap = map.put(lastKey as K, newLinks).put(key, LinkedValue(value, lastKey, null))
         return PersistentOrderedMap(firstKey, key, newMap)
     }
 
@@ -91,12 +91,12 @@ internal class PersistentOrderedMap<K, V>(internal val firstKey: K?,
         if (key != firstKey) {
             val previousLinks = newMap[links.previous]!!
             assert(previousLinks.next == key)
-            newMap = newMap.put(links.previous as K, Links(previousLinks.value, previousLinks.previous, links.next))
+            newMap = newMap.put(links.previous as K, LinkedValue(previousLinks.value, previousLinks.previous, links.next))
         }
         if (key != lastKey) {
             val nextLinks = newMap[links.next]!!
             assert(nextLinks.previous == key)
-            newMap = newMap.put(links.next as K, Links(nextLinks.value, links.previous, nextLinks.next))
+            newMap = newMap.put(links.next as K, LinkedValue(nextLinks.value, links.previous, nextLinks.next))
         }
         val newFirstKey = if (key == firstKey) links.next else firstKey
         val newLastKey = if (key == lastKey) links.previous else lastKey
