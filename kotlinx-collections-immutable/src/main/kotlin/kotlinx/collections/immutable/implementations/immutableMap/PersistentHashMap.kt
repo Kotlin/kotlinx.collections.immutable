@@ -53,35 +53,30 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     }
 
     override fun containsKey(key: K): Boolean {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        return node.containsKey(keyHash, key, 0)
+        return node.containsKey(key.hashCode(), key, 0)
     }
 
     override fun get(key: K): V? {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        return node.get(keyHash, key, 0)
+        return node.get(key.hashCode(), key, 0)
     }
 
     override fun put(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
         val modification = ModificationWrapper()
-        val newNode = node.put(keyHash, key, value, 0, modification)
+        val newNode = node.put(key.hashCode(), key, value, 0, modification)
         if (node === newNode) { return this }
         val sizeDelta = if (modification.value == PUT_KEY_VALUE) 1 else 0
         return PersistentHashMap(newNode, size + sizeDelta)
     }
 
     override fun remove(key: K): PersistentHashMap<K, V> {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        val newNode = node.remove(keyHash, key, 0)
+        val newNode = node.remove(key.hashCode(), key, 0)
         if (node === newNode) { return this }
         if (newNode == null) { return PersistentHashMap.emptyOf() }
         return PersistentHashMap(newNode, size - 1)
     }
 
     override fun remove(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        val newNode = node.remove(keyHash, key, value, 0)
+        val newNode = node.remove(key.hashCode(), key, value, 0)
         if (node === newNode) { return this }
         if (newNode == null) { return PersistentHashMap.emptyOf() }
         return PersistentHashMap(newNode, size - 1)

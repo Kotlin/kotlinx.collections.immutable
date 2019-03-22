@@ -22,7 +22,6 @@ internal const val LOG_MAX_BRANCHING_FACTOR = 5
 internal const val MAX_BRANCHING_FACTOR_MINUS_ONE = MAX_BRANCHING_FACTOR - 1
 internal const val ENTRY_SIZE = 2
 internal const val MAX_SHIFT = 30
-internal const val NULL_HASH_CODE = 0
 
 
 internal class TrieNode<E>(var bitmap: Int,
@@ -99,8 +98,7 @@ internal class TrieNode<E>(var bitmap: Int,
     private fun makeNodeAtIndex(elementIndex: Int, newElementHash: Int, newElement: E,
                                 shift: Int, mutatorMarker: Marker?): TrieNode<E> {
         val storedElement = elementAtIndex(elementIndex)
-        val storedElementHash = storedElement?.hashCode() ?: NULL_HASH_CODE
-        return makeNode(storedElementHash, storedElement,
+        return makeNode(storedElement.hashCode(), storedElement,
                 newElementHash, newElement, shift + LOG_MAX_BRANCHING_FACTOR, mutatorMarker)
     }
 

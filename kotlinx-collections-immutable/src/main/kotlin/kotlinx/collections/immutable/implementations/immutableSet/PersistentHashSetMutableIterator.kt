@@ -36,7 +36,7 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
             val currentElement = currentElement()
 
             assert(builder.remove(lastReturned))
-            resetPath(currentElement?.hashCode() ?: NULL_HASH_CODE, builder.node, currentElement, 0)
+            resetPath(currentElement.hashCode(), builder.node, currentElement, 0)
         } else {
             assert(builder.remove(lastReturned))
         }

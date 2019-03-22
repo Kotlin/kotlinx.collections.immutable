@@ -36,21 +36,18 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
     }
 
     override fun contains(element: E): Boolean {
-        val hashCode = element?.hashCode() ?: NULL_HASH_CODE
-        return node.contains(hashCode, element, 0)
+        return node.contains(element.hashCode(), element, 0)
     }
 
     override fun add(element: E): Boolean {
         val size = this.size
-        val hashCode = element?.hashCode() ?: NULL_HASH_CODE
-        node = node.mutableAdd(hashCode, element, 0, this)
+        node = node.mutableAdd(element.hashCode(), element, 0, this)
         return size != this.size
     }
 
     override fun remove(element: E): Boolean {
         val size = this.size
-        val hashCode = element?.hashCode() ?: NULL_HASH_CODE
-        node = node.mutableRemove(hashCode, element, 0, this) ?: TrieNode.EMPTY as TrieNode<E>
+        node = node.mutableRemove(element.hashCode(), element, 0, this) ?: TrieNode.EMPTY as TrieNode<E>
         return size != this.size
     }
 

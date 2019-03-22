@@ -60,7 +60,7 @@ internal abstract class PersistentHashMapBuilderBaseIterator<K, V, T>(private va
             val currentKey = currentKey()
 
             builder.remove(lastKey)
-            resetPath(currentKey?.hashCode() ?: NULL_HASH_CODE, builder.node, currentKey, 0)
+            resetPath(currentKey.hashCode(), builder.node, currentKey, 0)
         } else {
             builder.remove(lastKey)
         }

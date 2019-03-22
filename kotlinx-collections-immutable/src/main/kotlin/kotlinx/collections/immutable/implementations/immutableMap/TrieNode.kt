@@ -6,7 +6,6 @@ internal const val LOG_MAX_BRANCHING_FACTOR = 5
 internal const val MAX_BRANCHING_FACTOR_MINUS_ONE = MAX_BRANCHING_FACTOR - 1
 internal const val ENTRY_SIZE = 2
 internal const val MAX_SHIFT = 30
-internal const val NULL_HASH_CODE = 0
 
 
 internal class TrieNode<K, V>(var dataMap: Int,
@@ -116,7 +115,7 @@ internal class TrieNode<K, V>(var dataMap: Int,
     private fun bufferMoveDataToNode(keyIndex: Int, position: Int, newKeyHash: Int,
                                      newKey: K, newValue: V, shift: Int, mutatorMarker: Marker?): Array<Any?> {
         val storedKey = keyAtIndex(keyIndex)
-        val storedKeyHash = storedKey?.hashCode() ?: NULL_HASH_CODE
+        val storedKeyHash = storedKey.hashCode()
         val storedValue = valueAtKeyIndex(keyIndex)
         val newNode = makeNode(storedKeyHash, storedKey, storedValue,
                 newKeyHash, newKey, newValue, shift + LOG_MAX_BRANCHING_FACTOR, mutatorMarker)

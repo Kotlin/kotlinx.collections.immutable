@@ -52,33 +52,28 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
         }
 
     override fun containsKey(key: K): Boolean {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        return node.containsKey(keyHash, key, 0)
+        return node.containsKey(key.hashCode(), key, 0)
     }
 
     override fun get(key: K): V? {
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        return node.get(keyHash, key, 0)
+        return node.get(key.hashCode(), key, 0)
     }
 
     override fun put(key: K, value: @UnsafeVariance V): V? {
         operationResult = null
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        node = node.mutablePut(keyHash, key, value, 0, this)
+        node = node.mutablePut(key.hashCode(), key, value, 0, this)
         return operationResult
     }
 
     override fun remove(key: K): V? {
         operationResult = null
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        node = node.mutableRemove(keyHash, key, 0, this) ?: TrieNode.EMPTY as TrieNode<K, V>
+        node = node.mutableRemove(key.hashCode(), key, 0, this) ?: TrieNode.EMPTY as TrieNode<K, V>
         return operationResult
     }
 
     fun remove(key: K, value: V): Boolean {
         val oldSize = size
-        val keyHash = key?.hashCode() ?: NULL_HASH_CODE
-        node = node.mutableRemove(keyHash, key, value, 0, this) ?: TrieNode.EMPTY as TrieNode<K, V>
+        node = node.mutableRemove(key.hashCode(), key, value, 0, this) ?: TrieNode.EMPTY as TrieNode<K, V>
         return oldSize != size
     }
 

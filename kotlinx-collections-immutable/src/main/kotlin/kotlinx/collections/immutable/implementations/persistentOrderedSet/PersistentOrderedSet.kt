@@ -92,7 +92,7 @@ internal class PersistentOrderedSet<E>(internal val firstElement: E?,
     }
 
     internal companion object {
-        private val EMPTY = PersistentOrderedSet(null, null, PersistentHashMap.emptyOf())
+        private val EMPTY = PersistentOrderedSet<Nothing>(null, null, PersistentHashMap.emptyOf<Nothing, Links<Nothing>>())
         internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
     }
 }
