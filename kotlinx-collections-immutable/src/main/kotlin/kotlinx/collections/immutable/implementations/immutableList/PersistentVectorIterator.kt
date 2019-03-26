@@ -24,8 +24,8 @@ internal class PersistentVectorIterator<out T>(root: Array<Any?>,
     private val trieIterator: TrieIterator<T>
 
     init {
-        val trieSize = ((size - 1) shr LOG_MAX_BUFFER_SIZE) shl LOG_MAX_BUFFER_SIZE
-        val trieIndex = if (trieSize < index) trieSize else index
+        val trieSize = rootSize(size)
+        val trieIndex = index.coerceAtMost(trieSize)
         trieIterator = TrieIterator(root, trieIndex, trieSize, trieHeight)
     }
 

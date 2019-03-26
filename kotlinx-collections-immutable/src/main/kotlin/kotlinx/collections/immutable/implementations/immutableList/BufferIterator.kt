@@ -18,9 +18,11 @@ package kotlinx.collections.immutable.implementations.immutableList
 
 import java.util.NoSuchElementException
 
-internal class BufferIterator<out T>(private val buffer: Array<T>,
-                                     index: Int,
-                                     size: Int) : AbstractListIterator<T>(index, size) {
+internal class BufferIterator<out T>(
+        private val buffer: Array<T>,
+        index: Int,
+        size: Int
+) : AbstractListIterator<T>(index, size) {
     override fun next(): T {
         if (!hasNext()) {
             throw NoSuchElementException()

@@ -18,46 +18,77 @@ package kotlinx.collections.immutable.implementations.immutableList
 
 import kotlinx.collections.immutable.PersistentList
 
+/**
+ * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having
+ * from 1 to [MAX_BUFFER_SIZE] elements.
+ *
+ * @param root the root of trie part of the vector, must contain at least one leaf buffer
+ * @param tail the non-empty tail part of the vector
+ * @param size the size of the vector, must be greater than [MAX_BUFFER_SIZE]
+ * @param rootShift specifies the height of the trie structure, so that `rootShift = (height - 1) * LOG_MAX_BUFFER_SIZE`;
+ *        elements in the [root] array are indexed with bits of the index starting from `rootShift` and until `rootShift + LOG_MAX_BUFFER_SIZE`.
+ */
 internal class PersistentVector<E>(private val root: Array<Any?>,
                                    private val tail: Array<Any?>,
                                    override val size: Int,
-                                   private val shiftStart: Int) : PersistentList<E>, AbstractPersistentList<E>() {
-    private fun rootSize(): Int {
-        return ((size - 1) shr LOG_MAX_BUFFER_SIZE) shl LOG_MAX_BUFFER_SIZE
+                                   private val rootShift: Int) : PersistentList<E>, AbstractPersistentList<E>() {
+
+    init {
+        require(size > MAX_BUFFER_SIZE) { "Trie-based persistent vector should have at least ${MAX_BUFFER_SIZE + 1} elements, got $size" }
+        assert(size - rootSize(size) <= tail.size.coerceAtMost(MAX_BUFFER_SIZE))
     }
 
-    private fun bufferWith(e: Any?): Array<Any?> {
-        val buffer = arrayOfNulls<Any?>(MAX_BUFFER_SIZE)
-        buffer[0] = e
-        return buffer
-    }
+    private fun rootSize(): Int = rootSize(size)
 
     override fun add(element: E): PersistentList<E> {
         val tailSize = size - rootSize()
         if (tailSize < MAX_BUFFER_SIZE) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)
             newTail[tailSize] = element
-            return PersistentVector(root, newTail, size + 1, shiftStart)
+            return PersistentVector(root, newTail, size + 1, rootShift)
         }
 
-        val newTail = bufferWith(element)
-        return pushFullTail(root, tail, newTail)
+        val newTail = presizedBufferWith(element)
+        return pushFilledTail(root, tail, newTail)
     }
 
-    private fun pushFullTail(root: Array<Any?>, fullTail: Array<Any?>, newTail: Array<Any?>): PersistentVector<E> {
-        if (size shr LOG_MAX_BUFFER_SIZE > 1 shl shiftStart) {
-            var newRoot = bufferWith(root)
-            newRoot = pushTail(shiftStart + LOG_MAX_BUFFER_SIZE, newRoot, fullTail)
-            return PersistentVector(newRoot, newTail, size + 1, shiftStart + LOG_MAX_BUFFER_SIZE)
+    /**
+     * Appends the specified entirely filled [tail] as a leaf buffer to the next free position in the [root] trie.
+     */
+    private fun pushFilledTail(root: Array<Any?>, filledTail: Array<Any?>, newTail: Array<Any?>): PersistentVector<E> {
+        if (size shr LOG_MAX_BUFFER_SIZE > 1 shl rootShift) {
+            // if the root trie is filled entirely, promote it to the next level
+            var newRoot = presizedBufferWith(root)
+            val newRootShift = rootShift + LOG_MAX_BUFFER_SIZE
+            newRoot = pushTail(newRoot, newRootShift, filledTail)
+            return PersistentVector(newRoot, newTail, size + 1, newRootShift)
         }
 
-        val newRoot = pushTail(shiftStart, root, fullTail)
-        return PersistentVector(newRoot, newTail, size + 1, shiftStart)
+        val newRoot = pushTail(root, rootShift, filledTail)
+        return PersistentVector(newRoot, newTail, size + 1, rootShift)
     }
+
+    /**
+     * Appends the specified entirely filled [tail] as a leaf buffer to the next free position in the [root] trie.
+     * The trie must not be filled entirely.
+     */
+    private fun pushTail(root: Array<Any?>?, shift: Int, tail: Array<Any?>): Array<Any?> {
+        val bufferIndex = indexSegment(size - 1, shift) // size - 1 is the index of the last element in the new trie
+        val newRootNode = root?.copyOf(MAX_BUFFER_SIZE) ?: arrayOfNulls<Any?>(MAX_BUFFER_SIZE)
+
+        if (shift == LOG_MAX_BUFFER_SIZE) {
+            newRootNode[bufferIndex] = tail
+            // don't delve into the leaf level
+        } else {
+            newRootNode[bufferIndex] = pushTail(newRootNode[bufferIndex] as Array<Any?>?, shift - LOG_MAX_BUFFER_SIZE, tail)
+        }
+        return newRootNode
+    }
+
 
     override fun add(index: Int, element: E): PersistentList<E> {
         if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException()
+            throw IndexOutOfBoundsException() // TODO: diagnostic message
         }
         if (index == size) {
             return add(element)
@@ -65,47 +96,58 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
 
         val rootSize = rootSize()
         if (index >= rootSize) {
-            return addToTail(root, index - rootSize, element)
+            return insertIntoTail(root, index - rootSize, element)
         }
 
-        val lastElementWrapper = ObjectWrapper(null)
-        val newRoot = addToRoot(root, shiftStart, index, element, lastElementWrapper)
-        return addToTail(newRoot, 0, lastElementWrapper.value)
+        val elementCarry = ObjectWrapper(null)
+        val newRoot = insertIntoRoot(root, rootShift, index, element, elementCarry)
+        return insertIntoTail(newRoot, 0, elementCarry.value)
     }
 
-    private fun addToTail(root: Array<Any?>, index: Int, element: Any?): PersistentVector<E> {
-        val tailFilledSize = size - rootSize()
+    private fun insertIntoTail(root: Array<Any?>, tailIndex: Int, element: Any?): PersistentVector<E> {
+        val tailSize = size - rootSize()
         val newTail = tail.copyOf(MAX_BUFFER_SIZE)
-        if (tailFilledSize < MAX_BUFFER_SIZE) {
-            System.arraycopy(tail, index, newTail, index + 1, tailFilledSize - index)
-            newTail[index] = element
-            return PersistentVector(root, newTail, size + 1, shiftStart)
+        if (tailSize < MAX_BUFFER_SIZE) {
+            tail.copyInto(newTail, tailIndex + 1, tailIndex, tailSize)
+            newTail[tailIndex] = element
+            return PersistentVector(root, newTail, size + 1, rootShift)
         }
 
         val lastElement = tail[MAX_BUFFER_SIZE_MINUS_ONE]
-        System.arraycopy(tail, index, newTail, index + 1, tailFilledSize - index - 1)
-        newTail[index] = element
-        return pushFullTail(root, newTail, bufferWith(lastElement))
+        tail.copyInto(newTail, tailIndex + 1, tailIndex, tailSize - 1)
+        newTail[tailIndex] = element
+        return pushFilledTail(root, newTail, presizedBufferWith(lastElement))
     }
 
-    private fun addToRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, lastWrapper: ObjectWrapper): Array<Any?> {
-        val bufferIndex = (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+    /**
+     * Insert the specified [element] into the [root] trie at the specified trie [index].
+     *
+     * [elementCarry] contains the last element of this trie that was popped out by the insertion operation.
+     *
+     * @return new root trie
+     */
+    private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectWrapper): Array<Any?> {
+        val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
-            lastWrapper.value = root[MAX_BUFFER_SIZE_MINUS_ONE]
             val newRoot = if (bufferIndex == 0) arrayOfNulls<Any?>(MAX_BUFFER_SIZE) else root.copyOf(MAX_BUFFER_SIZE)
-            System.arraycopy(root, bufferIndex, newRoot, bufferIndex + 1, MAX_BUFFER_SIZE - bufferIndex - 1)
+            root.copyInto(newRoot, bufferIndex + 1, bufferIndex, MAX_BUFFER_SIZE_MINUS_ONE)
+            elementCarry.value = root[MAX_BUFFER_SIZE_MINUS_ONE]
             newRoot[bufferIndex] = element
             return newRoot
         }
 
         val newRoot = root.copyOf(MAX_BUFFER_SIZE)
-        newRoot[bufferIndex] = addToRoot(root[bufferIndex] as Array<Any?>,
-                shift - LOG_MAX_BUFFER_SIZE, index, element, lastWrapper)
+        val lowerLevelShift = shift - LOG_MAX_BUFFER_SIZE
+
+        @Suppress("UNCHECKED_CAST")
+        newRoot[bufferIndex] = insertIntoRoot(root[bufferIndex] as Array<Any?>, lowerLevelShift, index, element, elementCarry)
 
         for (i in bufferIndex + 1 until MAX_BUFFER_SIZE) {
-            if (newRoot[i] == null) { break }
-            newRoot[i] = addToRoot(root[i] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, 0, lastWrapper.value, lastWrapper)
+            if (newRoot[i] == null) break
+
+            @Suppress("UNCHECKED_CAST")
+            newRoot[i] = insertIntoRoot(root[i] as Array<Any?>, lowerLevelShift, 0, elementCarry.value, elementCarry)
         }
 
         return newRoot
@@ -117,120 +159,141 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         }
         val rootSize = rootSize()
         if (index >= rootSize) {
-            return removeFromTail(root, rootSize, shiftStart, index - rootSize)
+            return removeFromTailAt(root, rootSize, rootShift, index - rootSize)
         }
-        val tailElementWrapper = ObjectWrapper(tail[0])
-        val newRoot = removeFromRoot(root, shiftStart, index, tailElementWrapper)
-        return removeFromTail(newRoot, rootSize, shiftStart, 0)
+        val newRoot = removeFromRootAt(root, rootShift, index, ObjectWrapper(tail[0]))
+        return removeFromTailAt(newRoot, rootSize, rootShift, 0)
     }
 
+    private fun removeFromTailAt(root: Array<Any?>, rootSize: Int, shift: Int, index: Int): PersistentList<E> {
+        val tailSize = size - rootSize
+        assert(index < tailSize)
+
+        if (tailSize == 1) {
+            return pullLastBufferFromRoot(root, rootSize, shift)
+        }
+        val newTail = tail.copyOf(MAX_BUFFER_SIZE)
+        if (index < tailSize - 1) {
+            tail.copyInto(newTail, index, index + 1, tailSize)
+        }
+        newTail[tailSize - 1] = null
+        return PersistentVector(root, newTail, rootSize + tailSize - 1, shift)
+    }
+
+    /**
+     * Extracts the last entirely filled leaf buffer from the trie of this vector and makes it a tail in the returned [PersistentVector].
+     *
+     * Used when there are no elements left in current tail.
+     *
+     * Requires the trie to contain at least one leaf buffer.
+     *
+     * If the trie becomes empty after the operation, returns a tail-only vector ([SmallPersistentVector]).
+     */
     private fun pullLastBufferFromRoot(root: Array<Any?>, rootSize: Int, shift: Int): PersistentList<E> {
         if (shift == 0) {
             return SmallPersistentVector(root)
         }
-        val lastBufferWrapper = ObjectWrapper(null)
-        val newRoot = pullLastBuffer(root, shift, rootSize - 1, lastBufferWrapper)!!
-        val newTail = lastBufferWrapper.value as Array<Any?>
+        val tailCarry = ObjectWrapper(null)
+        val newRoot = pullLastBuffer(root, shift, rootSize - 1, tailCarry)!!
+        @Suppress("UNCHECKED_CAST")
+        val newTail = tailCarry.value as Array<Any?>
 
+        // check if the new root contains only one element
         if (newRoot[1] == null) {
-            return PersistentVector(newRoot[0] as Array<Any?>, newTail, rootSize, shift - LOG_MAX_BUFFER_SIZE)
+            // demote the root trie to the lower level
+            @Suppress("UNCHECKED_CAST")
+            val lowerLevelRoot = newRoot[0] as Array<Any?>
+            return PersistentVector(lowerLevelRoot, newTail, rootSize, shift - LOG_MAX_BUFFER_SIZE)
         }
         return PersistentVector(newRoot, newTail, rootSize, shift)
     }
 
-    private fun pullLastBuffer(root: Array<Any?>, shift: Int, index: Int, tailWrapper: ObjectWrapper): Array<Any?>? {
-        val bufferIndex = (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+    /**
+     * Extracts the last leaf buffer from trie and returns new trie without it or `null` if there's no more leaf elements in this trie.
+     *
+     * [tailCarry] on output contains the extracted leaf buffer.
+     */
+    private fun pullLastBuffer(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectWrapper): Array<Any?>? {
+        val bufferIndex = indexSegment(index, shift)
 
-        if (shift == LOG_MAX_BUFFER_SIZE) {
-            tailWrapper.value = root[bufferIndex]
-            if (bufferIndex == 0) {
-                return null
-            }
-            val newRoot = root.copyOf(MAX_BUFFER_SIZE)
-            newRoot[bufferIndex] = null
-            return newRoot
+        val newBufferAtIndex = if (shift == LOG_MAX_BUFFER_SIZE) {
+            tailCarry.value = root[bufferIndex]
+            null
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            pullLastBuffer(root[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, tailCarry)
         }
-        val bufferAtIndex = pullLastBuffer(root[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, tailWrapper)
-        if (bufferAtIndex == null && bufferIndex == 0) {
+
+        if (newBufferAtIndex == null && bufferIndex == 0) {
             return null
         }
+
         val newRoot = root.copyOf(MAX_BUFFER_SIZE)
-        newRoot[bufferIndex] = bufferAtIndex
+        newRoot[bufferIndex] = newBufferAtIndex
         return newRoot
     }
 
-    private fun removeFromTail(root: Array<Any?>, rootSize: Int, shift: Int, index: Int): PersistentList<E> {
-        val tailFilledSize = size - rootSize
-        assert(index < tailFilledSize)
-
-        if (tailFilledSize == 1) {
-            return pullLastBufferFromRoot(root, rootSize, shift)
-        }
-        val newTail = tail.copyOf(MAX_BUFFER_SIZE)
-        if (index < tailFilledSize - 1) {
-            System.arraycopy(tail, index + 1, newTail, index, tailFilledSize - index - 1)
-        }
-        newTail[tailFilledSize - 1] = null
-        return PersistentVector(root, newTail, rootSize + tailFilledSize - 1, shift)
-    }
-
-    private fun removeFromRoot(root: Array<Any?>, shift: Int, index: Int, tailWrapper: ObjectWrapper): Array<Any?> {
-        val bufferIndex = (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+    /**
+     * Removes element from trie at the specified trie [index].
+     *
+     * [tailCarry] on input contains the first element of the adjacent trie to fill the last vacant element with.
+     * [tailCarry] on output contains the first element of this trie.
+     *
+     * @return the new root of the trie.
+     */
+    private fun removeFromRootAt(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectWrapper): Array<Any?> {
+        val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
             val newRoot = if (bufferIndex == 0) arrayOfNulls<Any?>(MAX_BUFFER_SIZE) else root.copyOf(MAX_BUFFER_SIZE)
-            System.arraycopy(root, bufferIndex + 1, newRoot, bufferIndex, MAX_BUFFER_SIZE - bufferIndex - 1)
-            newRoot[MAX_BUFFER_SIZE - 1] = tailWrapper.value
-            tailWrapper.value = root[0]
+            root.copyInto(newRoot, bufferIndex, bufferIndex + 1, MAX_BUFFER_SIZE)
+            newRoot[MAX_BUFFER_SIZE - 1] = tailCarry.value
+            tailCarry.value = root[0]
             return newRoot
         }
 
+        // Could be val bufferLastIndex = root.indexOfLast { it != null }, but that isn't optimized enough
         var bufferLastIndex = MAX_BUFFER_SIZE_MINUS_ONE
         while (root[bufferLastIndex] == null) {
             bufferLastIndex -= 1
         }
 
         val newRoot = root.copyOf(MAX_BUFFER_SIZE)
+        val lowerLevelShift = shift - LOG_MAX_BUFFER_SIZE
+
         for (i in bufferLastIndex downTo bufferIndex + 1) {
-            newRoot[i] = removeFromRoot(newRoot[i] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, 0, tailWrapper)
+            @Suppress("UNCHECKED_CAST")
+            newRoot[i] = removeFromRootAt(newRoot[i] as Array<Any?>, lowerLevelShift, 0, tailCarry)
         }
-        newRoot[bufferIndex] =
-                removeFromRoot(newRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, tailWrapper)
+        @Suppress("UNCHECKED_CAST")
+        newRoot[bufferIndex] = removeFromRootAt(newRoot[bufferIndex] as Array<Any?>, lowerLevelShift, index, tailCarry)
 
         return newRoot
     }
 
     override fun builder(): PersistentList.Builder<E> {
-        return PersistentVectorBuilder(this, root, tail, shiftStart)
+        return PersistentVectorBuilder(this, root, tail, rootShift)
     }
 
     override fun listIterator(index: Int): ListIterator<E> {
         if (index < 0 || index > size) {
             throw IndexOutOfBoundsException()
         }
-        return PersistentVectorIterator(root, tail as Array<E>, index, size, shiftStart / LOG_MAX_BUFFER_SIZE + 1)
+        @Suppress("UNCHECKED_CAST")
+        return PersistentVectorIterator(root, tail as Array<E>, index, size, rootShift / LOG_MAX_BUFFER_SIZE + 1)
     }
 
-    private fun pushTail(shift: Int, root: Array<Any?>?, tail: Array<Any?>): Array<Any?> {
-        val index = ((size - 1) shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
-        val newRootNode = root?.copyOf(MAX_BUFFER_SIZE) ?: arrayOfNulls<Any?>(MAX_BUFFER_SIZE)
 
-        if (shift == LOG_MAX_BUFFER_SIZE) {
-            newRootNode[index] = tail
-        } else {
-            newRootNode[index] = pushTail(shift - LOG_MAX_BUFFER_SIZE, newRootNode[index] as Array<Any?>?, tail)
-        }
-        return newRootNode
-    }
-
+    /** Returns either leaf buffer of the trie or the tail, that contains element with the specified [index]. */
     private fun bufferFor(index: Int): Array<Any?> {
         if (rootSize() <= index) {
             return tail
         }
         var buffer = root
-        var shift = shiftStart
+        var shift = rootShift
         while (shift > 0) {
-            buffer = buffer[(index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE] as Array<Any?>
+            @Suppress("UNCHECKED_CAST")
+            buffer = buffer[indexSegment(index, shift)] as Array<Any?>
             shift -= LOG_MAX_BUFFER_SIZE
         }
         return buffer
@@ -241,6 +304,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
             throw IndexOutOfBoundsException()
         }
         val buffer = bufferFor(index)
+        @Suppress("UNCHECKED_CAST")
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
@@ -251,19 +315,20 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         if (rootSize() <= index) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)
             newTail[index and MAX_BUFFER_SIZE_MINUS_ONE] = element
-            return PersistentVector(root, newTail, size, shiftStart)
+            return PersistentVector(root, newTail, size, rootShift)
         }
 
-        val newRoot = setInRoot(root, shiftStart, index, element)
-        return PersistentVector(newRoot, tail, size, shiftStart)
+        val newRoot = setInRoot(root, rootShift, index, element)
+        return PersistentVector(newRoot, tail, size, rootShift)
     }
 
     private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: Any?): Array<Any?> {
-        val bufferIndex = (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+        val bufferIndex = indexSegment(index, shift)
         val newRoot = root.copyOf(MAX_BUFFER_SIZE)
         if (shift == 0) {
             newRoot[bufferIndex] = e
         } else {
+            @Suppress("UNCHECKED_CAST")
             newRoot[bufferIndex] = setInRoot(newRoot[bufferIndex] as Array<Any?>,
                     shift - LOG_MAX_BUFFER_SIZE, index, e)
         }

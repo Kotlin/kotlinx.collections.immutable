@@ -32,15 +32,16 @@ internal class TrieIterator<out E>(root: Array<Any?>,
         var shift = (height - startLevel) * LOG_MAX_BUFFER_SIZE
         var i = startLevel
         while (i < height) {
-            path[i] = (path[i - 1] as Array<Any?>)[indexAtShift(index, shift)]
+            path[i] = (path[i - 1] as Array<Any?>)[indexSegment(index, shift)]
             shift -= LOG_MAX_BUFFER_SIZE
             i += 1
         }
     }
 
+    // TODO: Document that it positions path to the first or the last element
     private fun fillPathIfNeeded(indexPredicate: Int) {
         var shift = 0
-        while (indexAtShift(index, shift) == indexPredicate) {
+        while (indexSegment(index, shift) == indexPredicate) {
             shift += LOG_MAX_BUFFER_SIZE
         }
 
@@ -53,10 +54,6 @@ internal class TrieIterator<out E>(root: Array<Any?>,
     private fun elementAtCurrentIndex(): E {
         val leafBufferIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
         return (path[height - 1] as Array<E>)[leafBufferIndex]
-    }
-
-    private fun indexAtShift(index: Int, shift: Int): Int {
-        return (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
     }
 
     override fun next(): E {

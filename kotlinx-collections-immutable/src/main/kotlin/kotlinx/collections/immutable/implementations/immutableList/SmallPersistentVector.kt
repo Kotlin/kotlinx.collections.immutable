@@ -21,6 +21,11 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 
 internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : ImmutableList<E>, AbstractPersistentList<E>() {
+
+    init {
+        assert(buffer.size <= MAX_BUFFER_SIZE)
+    }
+
     override val size: Int
         get() = buffer.size
 
@@ -28,25 +33,20 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         return arrayOfNulls<Any?>(size)
     }
 
-    private fun copyBufferTo(newBuffer: Array<Any?>): Array<Any?> {
-        System.arraycopy(buffer, 0, newBuffer, 0, size)
-        return newBuffer
-    }
-
     override fun add(element: E): PersistentList<E> {
         if (size < MAX_BUFFER_SIZE) {
-            val newBuffer = copyBufferTo(bufferOfSize(size + 1))
+            val newBuffer = buffer.copyOf(size + 1)
             newBuffer[size] = element
             return SmallPersistentVector(newBuffer)
         }
-        val tail = bufferOfSize(MAX_BUFFER_SIZE)
-        tail[0] = element
+        val tail = presizedBufferWith(element)
         return PersistentVector(buffer, tail, size + 1, 0)
     }
 
     override fun addAll(elements: Collection<E>): PersistentList<E> {
         if (size + elements.size <= MAX_BUFFER_SIZE) {
-            val newBuffer = copyBufferTo(bufferOfSize(size + elements.size))
+            val newBuffer = buffer.copyOf(size + elements.size)
+            // TODO: investigate performance of elements.toArray + copyInto
             var index = size
             for (element in elements) {
                 newBuffer[index++] = element
@@ -64,20 +64,21 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
                 newBuffer[newSize++] = element
             }
         }
-        if (newSize == size) {
-            return this
+        return when (newSize) {
+            size -> this
+            0 -> EMPTY
+            else -> SmallPersistentVector(newBuffer.copyOfRange(0, newSize))
         }
-        return SmallPersistentVector(newBuffer.copyOfRange(0, newSize))
     }
 
     override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
         if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException()
+            throw IndexOutOfBoundsException() // TODO: message
         }
         if (size + c.size <= MAX_BUFFER_SIZE) {
             val newBuffer = bufferOfSize(size + c.size)
-            System.arraycopy(buffer, 0, newBuffer, 0, index)
-            System.arraycopy(buffer, index, newBuffer, index + c.size, size - index)
+            buffer.copyInto(newBuffer, endIndex = index)
+            buffer.copyInto(newBuffer, index + c.size, index, size)
             var position = index
             for (element in c) {
                 newBuffer[position++] = element
@@ -89,25 +90,25 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
 
     override fun add(index: Int, element: E): PersistentList<E> {
         if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException()
+            throw IndexOutOfBoundsException() // TODO: message
         }
         if (index == size) {
             return add(element)
         }
 
         if (size < MAX_BUFFER_SIZE) {
+            // TODO: copyOf + one copyInto?
             val newBuffer = bufferOfSize(size + 1)
-            System.arraycopy(buffer, 0, newBuffer, 0, index)
-            System.arraycopy(buffer, index, newBuffer, index + 1, size - index)
+            buffer.copyInto(newBuffer, endIndex = index)
+            buffer.copyInto(newBuffer, index + 1, index, size)
             newBuffer[index] = element
             return SmallPersistentVector(newBuffer)
         }
 
         val root = buffer.copyOf()
-        System.arraycopy(buffer, index, root, index + 1, size - index - 1)
+        buffer.copyInto(root, index + 1, index, size - 1)
         root[index] = element
-        val tail = arrayOfNulls<Any?>(MAX_BUFFER_SIZE)
-        tail[0] = buffer[MAX_BUFFER_SIZE_MINUS_ONE]
+        val tail = presizedBufferWith(buffer[MAX_BUFFER_SIZE_MINUS_ONE])
         return PersistentVector(root, tail, size + 1, 0)
     }
 
@@ -116,11 +117,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
             throw IndexOutOfBoundsException()
         }
         if (size == 1) {
-            return persistentVectorOf()
+            return EMPTY
         }
-        val newBuffer = bufferOfSize(size - 1)
-        System.arraycopy(buffer, 0, newBuffer, 0, index)
-        System.arraycopy(buffer, index + 1, newBuffer, index, size - index - 1)
+        val newBuffer = buffer.copyOf(size - 1)
+        buffer.copyInto(newBuffer, index, index + 1, size)
         return SmallPersistentVector(newBuffer)
     }
 
@@ -138,14 +138,15 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
 
     override fun listIterator(index: Int): ListIterator<E> {
         if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException()
+            throw IndexOutOfBoundsException() // TODO: Message
         }
         return BufferIterator(buffer as Array<E>, index, size)
     }
 
     override fun get(index: Int): E {
+        // TODO: use elementAt(index)?
         if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
+            throw IndexOutOfBoundsException()  // TODO: Message (element index)
         }
         return buffer[index] as E
     }
