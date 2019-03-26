@@ -17,6 +17,8 @@
 package kotlinx.collections.immutable.implementations.immutableList
 
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
+import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 
 private class Marker
 
@@ -129,9 +131,8 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
     }
 
     override fun add(index: Int, element: E) {
-        if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkPositionIndex(index, size)
+
         if (index == size) {
             add(element)
             return
@@ -193,9 +194,8 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
     }
 
     override fun get(index: Int): E {
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkElementIndex(index, size)
+
         val buffer = bufferFor(index)
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as  E
     }
@@ -214,9 +214,8 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
     }
 
     override fun removeAt(index: Int): E {
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkElementIndex(index, size)
+
         modCount += 1
 
         val rootSize = rootSize()
@@ -321,9 +320,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
     }
 
     override fun set(index: Int, element: E): E {
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkElementIndex(index, size)
         if (rootSize() <= index) {
             val mutableTail = makeMutable(tail)
             val oldElement = mutableTail[index and MAX_BUFFER_SIZE_MINUS_ONE]

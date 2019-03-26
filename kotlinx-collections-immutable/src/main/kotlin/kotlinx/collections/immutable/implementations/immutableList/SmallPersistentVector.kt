@@ -18,6 +18,8 @@ package kotlinx.collections.immutable.implementations.immutableList
 
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
+import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.mutate
 
 internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : ImmutableList<E>, AbstractPersistentList<E>() {
@@ -72,9 +74,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
     }
 
     override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
-        if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException() // TODO: message
-        }
+        checkPositionIndex(index, size)
         if (size + c.size <= MAX_BUFFER_SIZE) {
             val newBuffer = bufferOfSize(size + c.size)
             buffer.copyInto(newBuffer, endIndex = index)
@@ -89,9 +89,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
     }
 
     override fun add(index: Int, element: E): PersistentList<E> {
-        if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException() // TODO: message
-        }
+        checkPositionIndex(index, size)
         if (index == size) {
             return add(element)
         }
@@ -113,9 +111,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
     }
 
     override fun removeAt(index: Int): PersistentList<E> {
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkElementIndex(index, size)
         if (size == 1) {
             return EMPTY
         }
@@ -137,24 +133,18 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
     }
 
     override fun listIterator(index: Int): ListIterator<E> {
-        if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException() // TODO: Message
-        }
+        checkPositionIndex(index, size)
         return BufferIterator(buffer as Array<E>, index, size)
     }
 
     override fun get(index: Int): E {
         // TODO: use elementAt(index)?
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()  // TODO: Message (element index)
-        }
+        checkElementIndex(index, size)
         return buffer[index] as E
     }
 
     override fun set(index: Int, element: E): PersistentList<E> {
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkElementIndex(index, size)
         val newBuffer = buffer.copyOf()
         newBuffer[index] = element
         return SmallPersistentVector(newBuffer)

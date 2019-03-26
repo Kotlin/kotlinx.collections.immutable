@@ -18,18 +18,21 @@ package kotlinx.collections.immutable.internal
 
 internal object ListImplementation {
 
+    @JvmStatic
     internal fun checkElementIndex(index: Int, size: Int) {
         if (index < 0 || index >= size) {
             throw IndexOutOfBoundsException("index: $index, size: $size")
         }
     }
 
+    @JvmStatic
     internal fun checkPositionIndex(index: Int, size: Int) {
         if (index < 0 || index > size) {
             throw IndexOutOfBoundsException("index: $index, size: $size")
         }
     }
 
+    @JvmStatic
     internal fun checkRangeIndexes(fromIndex: Int, toIndex: Int, size: Int) {
         if (fromIndex < 0 || toIndex > size) {
             throw IndexOutOfBoundsException("fromIndex: $fromIndex, toIndex: $toIndex, size: $size")
@@ -39,6 +42,7 @@ internal object ListImplementation {
         }
     }
 
+    @JvmStatic
     internal fun orderedHashCode(c: Collection<*>): Int {
         var hashCode = 1
         for (e in c) {
@@ -47,6 +51,7 @@ internal object ListImplementation {
         return hashCode
     }
 
+    @JvmStatic
     internal fun orderedEquals(c: Collection<*>, other: Collection<*>): Boolean {
         if (c.size != other.size) return false
 

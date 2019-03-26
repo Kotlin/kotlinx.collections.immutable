@@ -17,6 +17,8 @@
 package kotlinx.collections.immutable.implementations.immutableList
 
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
+import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 
 /**
  * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having
@@ -87,9 +89,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
 
 
     override fun add(index: Int, element: E): PersistentList<E> {
-        if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException() // TODO: diagnostic message
-        }
+        checkPositionIndex(index, size)
         if (index == size) {
             return add(element)
         }
@@ -154,9 +154,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
     }
 
     override fun removeAt(index: Int): PersistentList<E> {
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkElementIndex(index, size)
         val rootSize = rootSize()
         if (index >= rootSize) {
             return removeFromTailAt(root, rootSize, rootShift, index - rootSize)
@@ -276,9 +274,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
     }
 
     override fun listIterator(index: Int): ListIterator<E> {
-        if (index < 0 || index > size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkPositionIndex(index, size)
         @Suppress("UNCHECKED_CAST")
         return PersistentVectorIterator(root, tail as Array<E>, index, size, rootShift / LOG_MAX_BUFFER_SIZE + 1)
     }
@@ -300,18 +296,14 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
     }
 
     override fun get(index: Int): E {
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkElementIndex(index, size)
         val buffer = bufferFor(index)
         @Suppress("UNCHECKED_CAST")
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
     override fun set(index: Int, element: E): PersistentList<E> {
-        if (index < 0 || index >= size) {
-            throw IndexOutOfBoundsException()
-        }
+        checkElementIndex(index, size)
         if (rootSize() <= index) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)
             newTail[index and MAX_BUFFER_SIZE_MINUS_ONE] = element
