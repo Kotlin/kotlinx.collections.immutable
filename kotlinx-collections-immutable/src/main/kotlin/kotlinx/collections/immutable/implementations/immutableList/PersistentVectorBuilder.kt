@@ -20,12 +20,13 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 
-private class Marker
+private class Marker // TODO: Rename to MutabilityOwnership?
 
+// TODO: Fix iteration O(N*logN) complexity
 class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
                                  private var vectorRoot: Array<Any?>?,
                                  private var vectorTail: Array<Any?>,
-                                 private var shiftStart: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
+                                 private var rootShift: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
     private var marker = Marker()
     private var root = vectorRoot
     private var tail = vectorTail
@@ -45,7 +46,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
                     SmallPersistentVector(tail.copyOf(size))
                 }
             } else {
-                PersistentVector(root!!, tail, size, shiftStart)
+                PersistentVector(root!!, tail, size, rootShift)
             }
         }
         return vector
@@ -55,28 +56,31 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         if (size <= MAX_BUFFER_SIZE) {
             return 0
         }
-        return ((size - 1) shr LOG_MAX_BUFFER_SIZE) shl LOG_MAX_BUFFER_SIZE
+        return rootSize(size)
     }
 
+    /**
+     * Checks if [buffer] is mutable and returns it or its mutable copy.
+     */
     private fun makeMutable(buffer: Array<Any?>?): Array<Any?> {
         if (buffer == null) {
-            val newBuffer = arrayOfNulls<Any?>(MAX_BUFFER_SIZE_PlUS_ONE)
-            newBuffer[MAX_BUFFER_SIZE] = marker
+            val newBuffer = arrayOfNulls<Any?>(MUTABLE_BUFFER_SIZE)
+            newBuffer[MUTABLE_BUFFER_SIZE - 1] = marker
             return newBuffer
         }
-        if (buffer.size != MAX_BUFFER_SIZE_PlUS_ONE || buffer[MAX_BUFFER_SIZE] !== marker) {
-            val newBuffer = arrayOfNulls<Any?>(MAX_BUFFER_SIZE_PlUS_ONE)
-            System.arraycopy(buffer, 0, newBuffer, 0, minOf(buffer.size, MAX_BUFFER_SIZE))
-            newBuffer[MAX_BUFFER_SIZE] = marker
+        if (buffer.size != MUTABLE_BUFFER_SIZE || buffer[MUTABLE_BUFFER_SIZE - 1] !== marker) {
+            val newBuffer = arrayOfNulls<Any?>(MUTABLE_BUFFER_SIZE)
+            buffer.copyInto(newBuffer, endIndex = buffer.size.coerceAtMost(MAX_BUFFER_SIZE))
+            newBuffer[MUTABLE_BUFFER_SIZE - 1] = marker
             return newBuffer
         }
         return buffer
     }
 
     private fun mutableBufferWith(element: Any?): Array<Any?> {
-        val buffer = arrayOfNulls<Any?>(MAX_BUFFER_SIZE_PlUS_ONE)
+        val buffer = arrayOfNulls<Any?>(MUTABLE_BUFFER_SIZE)
         buffer[0] = element
-        buffer[MAX_BUFFER_SIZE] = marker
+        buffer[MUTABLE_BUFFER_SIZE - 1] = marker
         return buffer
     }
 
@@ -91,43 +95,49 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             this.size += 1
         } else {
             val newTail = mutableBufferWith(element)
-            this.pushFullTail(root, tail, newTail)
+            this.pushFilledTail(root, tail, newTail)
         }
         return true
     }
 
-    private fun pushFullTail(root: Array<Any?>?, fullTail: Array<Any?>, newLast: Array<Any?>) = when {
-        size shr LOG_MAX_BUFFER_SIZE > 1 shl shiftStart -> {
-            var mutableRest = mutableBufferWith(root)
-            mutableRest = pushTail(mutableRest, fullTail, shiftStart + LOG_MAX_BUFFER_SIZE)
-            this.root = mutableRest
-            this.tail = newLast
-            this.shiftStart += LOG_MAX_BUFFER_SIZE
+    /**
+     * Appends the specified entirely filled [tail] as a leaf buffer to the next free position in the [root] trie.
+     */
+    private fun pushFilledTail(root: Array<Any?>?, filledTail: Array<Any?>, newTail: Array<Any?>) = when {
+        size shr LOG_MAX_BUFFER_SIZE > 1 shl rootShift -> {
+            // if the root trie is filled entirely, promote it to the next level
+            this.root = pushTail(mutableBufferWith(root), filledTail, rootShift + LOG_MAX_BUFFER_SIZE)
+            this.tail = newTail
+            this.rootShift += LOG_MAX_BUFFER_SIZE
             this.size += 1
         }
         root == null -> {
-            this.root = fullTail
-            this.tail = newLast
+            this.root = filledTail
+            this.tail = newTail
             this.size += 1
         }
         else -> {
-            val newRest = pushTail(root, fullTail, shiftStart)
-            this.root = newRest
-            this.tail = newLast
+            this.root = pushTail(root, filledTail, rootShift)
+            this.tail = newTail
             this.size += 1
         }
     }
 
+    /**
+     * Appends the specified entirely filled [tail] as a leaf buffer to the next free position in the [root] trie.
+     * The trie must not be filled entirely.
+     */
     private fun pushTail(root: Array<Any?>?, tail: Array<Any?>, shift: Int): Array<Any?> {
-        val index = ((size - 1) shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
-        val mutableRest = makeMutable(root)
+        val index = indexSegment(size - 1, shift)
+        val mutableRoot = makeMutable(root)
 
         if (shift == LOG_MAX_BUFFER_SIZE) {
-            mutableRest[index] = tail
+            mutableRoot[index] = tail
         } else {
-            mutableRest[index] = pushTail(mutableRest[index] as Array<Any?>?, tail, shift - LOG_MAX_BUFFER_SIZE)
+            @Suppress("UNCHECKED_CAST")
+            mutableRoot[index] = pushTail(mutableRoot[index] as Array<Any?>?, tail, shift - LOG_MAX_BUFFER_SIZE)
         }
-        return mutableRest
+        return mutableRoot
     }
 
     override fun add(index: Int, element: E) {
@@ -142,52 +152,63 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
 
         val rootSize = rootSize()
         if (index >= rootSize) {
-            addToTail(root, index - rootSize, element)
+            insertIntoTail(root, index - rootSize, element)
             return
         }
 
-        val lastElementWrapper = ObjectWrapper(null)
-        val newRest = addToRoot(root!!, shiftStart, index, element, lastElementWrapper)
-        addToTail(newRest, 0, lastElementWrapper.value as E)
+        val elementCarry = ObjectWrapper(null)
+        val newRest = insertIntoRoot(root!!, rootShift, index, element, elementCarry)
+        insertIntoTail(newRest, 0, elementCarry.value as E)
     }
 
 
-    private fun addToTail(root: Array<Any?>?, index: Int, element: E) {
-        val tailFilledSize = size - rootSize()
+    private fun insertIntoTail(root: Array<Any?>?, index: Int, element: E) {
+        val tailSize = size - rootSize()
         val mutableTail = makeMutable(tail)
-        if (tailFilledSize < MAX_BUFFER_SIZE) {
-            System.arraycopy(tail, index, mutableTail, index + 1, tailFilledSize - index)
+        if (tailSize < MAX_BUFFER_SIZE) {
+            tail.copyInto(mutableTail, index + 1, index, tailSize)
             mutableTail[index] = element
             this.root = root
             this.tail = mutableTail
             this.size += 1
         } else {
             val lastElement = tail[MAX_BUFFER_SIZE_MINUS_ONE]
-            System.arraycopy(tail, index, mutableTail, index + 1, MAX_BUFFER_SIZE_MINUS_ONE - index)
+            tail.copyInto(mutableTail, index + 1, index, MAX_BUFFER_SIZE_MINUS_ONE)
             mutableTail[index] = element
-            pushFullTail(root, mutableTail, mutableBufferWith(lastElement))
+            pushFilledTail(root, mutableTail, mutableBufferWith(lastElement))
         }
     }
 
-    private fun addToRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, lastWrapper: ObjectWrapper): Array<Any?> {
-        val bufferIndex = (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+    /**
+     * Insert the specified [element] into the [root] trie at the specified trie [index].
+     *
+     * [elementCarry] contains the last element of this trie that was popped out by the insertion operation.
+     *
+     * @return new root trie or this modified trie, if it's already mutable
+     */
+    private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectWrapper): Array<Any?> {
+        val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
-            lastWrapper.value = root[MAX_BUFFER_SIZE_MINUS_ONE]
+            elementCarry.value = root[MAX_BUFFER_SIZE_MINUS_ONE]
             val mutableRoot = makeMutable(root)
-            System.arraycopy(root, bufferIndex, mutableRoot, bufferIndex + 1, MAX_BUFFER_SIZE_MINUS_ONE - bufferIndex)
+            root.copyInto(mutableRoot, bufferIndex + 1, bufferIndex, MAX_BUFFER_SIZE_MINUS_ONE)
             mutableRoot[bufferIndex] = element
             return mutableRoot
         }
 
         val mutableRoot = makeMutable(root)
+        val lowerLevelShift = shift - LOG_MAX_BUFFER_SIZE
+
+        @Suppress("UNCHECKED_CAST")
         mutableRoot[bufferIndex] =
-                addToRoot(mutableRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, element, lastWrapper)
+                insertIntoRoot(mutableRoot[bufferIndex] as Array<Any?>, lowerLevelShift, index, element, elementCarry)
 
         for (i in bufferIndex + 1 until MAX_BUFFER_SIZE) {
-            if (mutableRoot[i] == null) { break }
+            if (mutableRoot[i] == null) break
+            @Suppress("UNCHECKED_CAST")
             mutableRoot[i] =
-                    addToRoot(mutableRoot[i] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, 0, lastWrapper.value, lastWrapper)
+                    insertIntoRoot(mutableRoot[i] as Array<Any?>, lowerLevelShift, 0, elementCarry.value, elementCarry)
         }
 
         return mutableRoot
@@ -197,7 +218,8 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         checkElementIndex(index, size)
 
         val buffer = bufferFor(index)
-        return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as  E
+        @Suppress("UNCHECKED_CAST")
+        return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
     private fun bufferFor(index: Int): Array<Any?> {
@@ -205,9 +227,10 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             return tail
         }
         var buffer = root!!
-        var shift = shiftStart
+        var shift = rootShift
         while (shift > 0) {
-            buffer = buffer[(index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE] as Array<Any?>
+            @Suppress("UNCHECKED_CAST")
+            buffer = buffer[indexSegment(index, shift)] as Array<Any?>
             shift -= LOG_MAX_BUFFER_SIZE
         }
         return buffer
@@ -220,45 +243,55 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
 
         val rootSize = rootSize()
         if (index >= rootSize) {
-            return removeFromTail(root, rootSize, shiftStart, index - rootSize) as E
+            @Suppress("UNCHECKED_CAST")
+            return removeFromTailAt(root, rootSize, rootShift, index - rootSize) as E
         }
-        val lastElementWrapper = ObjectWrapper(tail[0])
-        val newRoot = removeFromRoot(root!!, shiftStart, index, lastElementWrapper)
-        removeFromTail(newRoot, rootSize, shiftStart, 0)
-        return lastElementWrapper.value as E
+        val elementCarry = ObjectWrapper(tail[0])
+        val newRoot = removeFromRootAt(root!!, rootShift, index, elementCarry)
+        removeFromTailAt(newRoot, rootSize, rootShift, 0)
+        @Suppress("UNCHECKED_CAST")
+        return elementCarry.value as E
     }
 
-    private fun removeFromTail(root: Array<Any?>?, rootSize: Int, shift: Int, index: Int): Any? {
-        val tailFilledSize = size - rootSize
-        assert(index < tailFilledSize)
+    private fun removeFromTailAt(root: Array<Any?>?, rootSize: Int, shift: Int, index: Int): Any? {
+        val tailSize = size - rootSize
+        assert(index < tailSize)
 
         val removedElement: Any?
-        if (tailFilledSize == 1) {
+        if (tailSize == 1) {
             removedElement = tail[0]
             pullLastBufferFromRoot(root, rootSize, shift)
         } else {
             removedElement = tail[index]
             val mutableTail = makeMutable(tail)
-            System.arraycopy(tail, index + 1, mutableTail, index, tailFilledSize - index - 1)
-            mutableTail[tailFilledSize - 1] = null as E
+            tail.copyInto(mutableTail, index, index + 1, tailSize)
+            mutableTail[tailSize - 1] = null
             this.root = root
             this.tail = mutableTail
-            this.size = rootSize + tailFilledSize - 1
-            this.shiftStart = shift
+            this.size = rootSize + tailSize - 1
+            this.rootShift = shift
         }
         return removedElement
     }
 
-    private fun removeFromRoot(root: Array<Any?>, shift: Int, index: Int, lastWrapper: ObjectWrapper): Array<Any?> {
-        val bufferIndex = (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+    /**
+     * Removes element from trie at the specified trie [index].
+     *
+     * [tailCarry] on input contains the first element of the adjacent trie to fill the last vacant element with.
+     * [tailCarry] on output contains the first element of this trie.
+     *
+     * @return the new root of the trie.
+     */
+    private fun removeFromRootAt(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectWrapper): Array<Any?> {
+        val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
             val removedElement = root[bufferIndex]
-            val mutableRest = makeMutable(root)
-            System.arraycopy(root, bufferIndex + 1, mutableRest, bufferIndex, MAX_BUFFER_SIZE - bufferIndex - 1)
-            mutableRest[MAX_BUFFER_SIZE - 1] = lastWrapper.value
-            lastWrapper.value = removedElement
-            return mutableRest
+            val mutableRoot = makeMutable(root)
+            root.copyInto(mutableRoot, bufferIndex, bufferIndex + 1, MAX_BUFFER_SIZE)
+            mutableRoot[MAX_BUFFER_SIZE - 1] = tailCarry.value
+            tailCarry.value = removedElement
+            return mutableRoot
         }
 
         var bufferLastIndex = MAX_BUFFER_SIZE_MINUS_ONE
@@ -266,85 +299,109 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             bufferLastIndex -= 1
         }
 
-        val mutableRest = makeMutable(root)
-        for (i in bufferLastIndex downTo bufferIndex + 1) {
-            mutableRest[i] = removeFromRoot(mutableRest[i] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, 0, lastWrapper)
-        }
-        mutableRest[bufferIndex] =
-                removeFromRoot(mutableRest[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, lastWrapper)
+        val mutableRoot = makeMutable(root)
+        val lowerLevelShift = shift - LOG_MAX_BUFFER_SIZE
 
-        return mutableRest
+        for (i in bufferLastIndex downTo bufferIndex + 1) {
+            @Suppress("UNCHECKED_CAST")
+            mutableRoot[i] = removeFromRootAt(mutableRoot[i] as Array<Any?>, lowerLevelShift, 0, tailCarry)
+        }
+        @Suppress("UNCHECKED_CAST")
+        mutableRoot[bufferIndex] =
+                removeFromRootAt(mutableRoot[bufferIndex] as Array<Any?>, lowerLevelShift, index, tailCarry)
+
+        return mutableRoot
     }
 
+    /**
+     * Extracts the last entirely filled leaf buffer from the trie of this vector and makes it a tail in this
+     *
+     * Used when there are no elements left in current tail.
+     *
+     * Requires the trie to contain at least one leaf buffer.
+     */
     private fun pullLastBufferFromRoot(root: Array<Any?>?, rootSize: Int, shift: Int) {
         if (shift == 0) {
             this.root = null
             this.tail = root ?: emptyArray()
             this.size = rootSize
-            this.shiftStart = shift
+            this.rootShift = shift
             return
         }
 
-        val lastBufferWrapper = ObjectWrapper(null)
-        val newRest = pullLastBuffer(root!!, shift, rootSize, lastBufferWrapper)!!
-        this.root = newRest
-        this.tail = lastBufferWrapper.value as Array<Any?>
+        val tailCarry = ObjectWrapper(null)
+        val newRoot = pullLastBuffer(root!!, shift, rootSize, tailCarry)!!
+        @Suppress("UNCHECKED_CAST")
+        this.tail = tailCarry.value as Array<Any?>
         this.size = rootSize
-        this.shiftStart = shift
-        if (newRest[1] == null) {
-            this.root = newRest[0] as Array<Any?>?
-            this.shiftStart -= LOG_MAX_BUFFER_SIZE
+
+        // check if the new root contains only one element
+        if (newRoot[1] == null) {
+            // demote the root trie to the lower level
+            @Suppress("UNCHECKED_CAST")
+            this.root = newRoot[0] as Array<Any?>?
+            this.rootShift = shift - LOG_MAX_BUFFER_SIZE
+        } else {
+            this.root = newRoot
+            this.rootShift = shift
         }
     }
 
-    private fun pullLastBuffer(root: Array<Any?>, shift: Int, rootSize: Int, lastWrapper: ObjectWrapper): Array<Any?>? {
-        val bufferIndex = ((rootSize - 1) shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+    /**
+     * Extracts the last leaf buffer from trie and returns new trie without it or `null` if there's no more leaf elements in this trie.
+     *
+     * [tailCarry] on output contains the extracted leaf buffer.
+     */
+    private fun pullLastBuffer(root: Array<Any?>, shift: Int, rootSize: Int, tailCarry: ObjectWrapper): Array<Any?>? {
+        val bufferIndex = indexSegment(rootSize - 1, shift)
 
-        if (shift == LOG_MAX_BUFFER_SIZE) {
-            lastWrapper.value = root[bufferIndex] as Array<Any?>
-            if (bufferIndex == 0) {
-                return null
-            }
-            val mutableRoot = makeMutable(root)
-            mutableRoot[bufferIndex] = null
-            return mutableRoot
+        val newBufferAtIndex = if (shift == LOG_MAX_BUFFER_SIZE) {
+            tailCarry.value = root[bufferIndex]
+            null
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            pullLastBuffer(root[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, rootSize, tailCarry)
         }
-        val bufferAtIndex =
-                pullLastBuffer(root[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, rootSize, lastWrapper)
-        if (bufferAtIndex == null && bufferIndex == 0) {
+        if (newBufferAtIndex == null && bufferIndex == 0) {
             return null
         }
+
         val mutableRoot = makeMutable(root)
-        mutableRoot[bufferIndex] = bufferAtIndex
+        mutableRoot[bufferIndex] = newBufferAtIndex
         return mutableRoot
     }
 
     override fun set(index: Int, element: E): E {
+        // TODO: Should list[i] = list[i] make it mutable?
         checkElementIndex(index, size)
         if (rootSize() <= index) {
             val mutableTail = makeMutable(tail)
-            val oldElement = mutableTail[index and MAX_BUFFER_SIZE_MINUS_ONE]
-            mutableTail[index and MAX_BUFFER_SIZE_MINUS_ONE] = element
+            val tailIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
+            val oldElement = mutableTail[tailIndex]
+            mutableTail[tailIndex] = element
             this.tail = mutableTail
+            @Suppress("UNCHECKED_CAST")
             return oldElement as E
         }
 
-        val oldElement = ObjectWrapper(null)
-        this.root = setInRoot(root!!, shiftStart, index, element, oldElement)
-        return oldElement.value as E
+        val oldElementCarry = ObjectWrapper(null)
+        this.root = setInRoot(root!!, rootShift, index, element, oldElementCarry)
+        @Suppress("UNCHECKED_CAST")
+        return oldElementCarry.value as E
     }
 
-    private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: E, oldElement: ObjectWrapper): Array<Any?> {
-        val bufferIndex = (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+    private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: E, oldElementCarry: ObjectWrapper): Array<Any?> {
+        val bufferIndex = indexSegment(index, shift)
         val mutableRoot = makeMutable(root)
 
         if (shift == 0) {
-            oldElement.value = mutableRoot[bufferIndex]
+            oldElementCarry.value = mutableRoot[bufferIndex]
             mutableRoot[bufferIndex] = e
             return mutableRoot
         }
+        @Suppress("UNCHECKED_CAST")
         mutableRoot[bufferIndex] =
-                setInRoot(mutableRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e, oldElement)
+                setInRoot(mutableRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e, oldElementCarry)
         return mutableRoot
     }
 }
