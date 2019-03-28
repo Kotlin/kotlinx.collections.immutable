@@ -156,7 +156,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             return
         }
 
-        val elementCarry = ObjectWrapper(null)
+        val elementCarry = ObjectRef(null)
         val newRest = insertIntoRoot(root!!, rootShift, index, element, elementCarry)
         insertIntoTail(newRest, 0, elementCarry.value as E)
     }
@@ -186,7 +186,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      *
      * @return new root trie or this modified trie, if it's already mutable
      */
-    private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectWrapper): Array<Any?> {
+    private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
@@ -246,7 +246,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             @Suppress("UNCHECKED_CAST")
             return removeFromTailAt(root, rootSize, rootShift, index - rootSize) as E
         }
-        val elementCarry = ObjectWrapper(tail[0])
+        val elementCarry = ObjectRef(tail[0])
         val newRoot = removeFromRootAt(root!!, rootShift, index, elementCarry)
         removeFromTailAt(newRoot, rootSize, rootShift, 0)
         @Suppress("UNCHECKED_CAST")
@@ -282,7 +282,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      *
      * @return the new root of the trie.
      */
-    private fun removeFromRootAt(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectWrapper): Array<Any?> {
+    private fun removeFromRootAt(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
@@ -329,7 +329,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             return
         }
 
-        val tailCarry = ObjectWrapper(null)
+        val tailCarry = ObjectRef(null)
         val newRoot = pullLastBuffer(root!!, shift, rootSize, tailCarry)!!
         @Suppress("UNCHECKED_CAST")
         this.tail = tailCarry.value as Array<Any?>
@@ -352,7 +352,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      *
      * [tailCarry] on output contains the extracted leaf buffer.
      */
-    private fun pullLastBuffer(root: Array<Any?>, shift: Int, rootSize: Int, tailCarry: ObjectWrapper): Array<Any?>? {
+    private fun pullLastBuffer(root: Array<Any?>, shift: Int, rootSize: Int, tailCarry: ObjectRef): Array<Any?>? {
         val bufferIndex = indexSegment(rootSize - 1, shift)
 
         val newBufferAtIndex = if (shift == LOG_MAX_BUFFER_SIZE) {
@@ -384,13 +384,13 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             return oldElement as E
         }
 
-        val oldElementCarry = ObjectWrapper(null)
+        val oldElementCarry = ObjectRef(null)
         this.root = setInRoot(root!!, rootShift, index, element, oldElementCarry)
         @Suppress("UNCHECKED_CAST")
         return oldElementCarry.value as E
     }
 
-    private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: E, oldElementCarry: ObjectWrapper): Array<Any?> {
+    private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: E, oldElementCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
         val mutableRoot = makeMutable(root)
 

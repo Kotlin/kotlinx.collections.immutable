@@ -99,7 +99,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
             return insertIntoTail(root, index - rootSize, element)
         }
 
-        val elementCarry = ObjectWrapper(null)
+        val elementCarry = ObjectRef(null)
         val newRoot = insertIntoRoot(root, rootShift, index, element, elementCarry)
         return insertIntoTail(newRoot, 0, elementCarry.value)
     }
@@ -126,7 +126,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
      *
      * @return new root trie
      */
-    private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectWrapper): Array<Any?> {
+    private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
@@ -159,7 +159,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         if (index >= rootSize) {
             return removeFromTailAt(root, rootSize, rootShift, index - rootSize)
         }
-        val newRoot = removeFromRootAt(root, rootShift, index, ObjectWrapper(tail[0]))
+        val newRoot = removeFromRootAt(root, rootShift, index, ObjectRef(tail[0]))
         return removeFromTailAt(newRoot, rootSize, rootShift, 0)
     }
 
@@ -191,7 +191,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         if (shift == 0) {
             return SmallPersistentVector(root)
         }
-        val tailCarry = ObjectWrapper(null)
+        val tailCarry = ObjectRef(null)
         val newRoot = pullLastBuffer(root, shift, rootSize - 1, tailCarry)!!
         @Suppress("UNCHECKED_CAST")
         val newTail = tailCarry.value as Array<Any?>
@@ -211,7 +211,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
      *
      * [tailCarry] on output contains the extracted leaf buffer.
      */
-    private fun pullLastBuffer(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectWrapper): Array<Any?>? {
+    private fun pullLastBuffer(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectRef): Array<Any?>? {
         val bufferIndex = indexSegment(index, shift)
 
         val newBufferAtIndex = if (shift == LOG_MAX_BUFFER_SIZE) {
@@ -239,14 +239,14 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
      *
      * @return the new root of the trie.
      */
-    private fun removeFromRootAt(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectWrapper): Array<Any?> {
+    private fun removeFromRootAt(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
             val newRoot = if (bufferIndex == 0) arrayOfNulls<Any?>(MAX_BUFFER_SIZE) else root.copyOf(MAX_BUFFER_SIZE)
             root.copyInto(newRoot, bufferIndex, bufferIndex + 1, MAX_BUFFER_SIZE)
             newRoot[MAX_BUFFER_SIZE - 1] = tailCarry.value
-            tailCarry.value = root[0]
+            tailCarry.value = root[bufferIndex]
             return newRoot
         }
 

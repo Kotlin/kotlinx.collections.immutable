@@ -23,7 +23,7 @@ internal const val LOG_MAX_BUFFER_SIZE = 5
 internal const val MAX_BUFFER_SIZE_MINUS_ONE = MAX_BUFFER_SIZE - 1
 internal const val MUTABLE_BUFFER_SIZE = MAX_BUFFER_SIZE + 1
 
-internal class ObjectWrapper(var value: Any?) // TODO: name: ElementReference, ElementRef, ObjectCarry, CarryRef
+internal class ObjectRef(var value: Any?)
 
 internal fun <E> persistentVectorOf(): PersistentList<E> {
     return SmallPersistentVector.EMPTY
