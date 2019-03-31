@@ -19,23 +19,34 @@ package kotlinx.collections.immutable.implementations.persistentOrderedSet
 internal class PersistentOrderedSetMutableIterator<E>(private val builder: PersistentOrderedSetBuilder<E>)
     : PersistentOrderedSetIterator<E>(builder.firstElement, builder.mapBuilder), MutableIterator<E> {
 
-    var lastReturned: E? = null
-    var nextWasInvoked = false
+    private var lastIteratedElement: E? = null
+    private var nextWasInvoked = false
+    private var expectedModCount = builder.mapBuilder.modCount
 
     override fun next(): E {
+        checkForComodification()
         val next = super.next()
-        lastReturned = next
+        lastIteratedElement = next
         nextWasInvoked = true
         return next
     }
 
     override fun remove() {
-        if (!nextWasInvoked) {
-            throw NoSuchElementException()
-        }
-        builder.remove(lastReturned)
-        index--
-        lastReturned = null
+        checkNextWasInvoked()
+        builder.remove(lastIteratedElement)
+        lastIteratedElement = null
         nextWasInvoked = false
+        expectedModCount = builder.mapBuilder.modCount
+        index--
+    }
+
+    private fun checkNextWasInvoked() {
+        if (!nextWasInvoked)
+            throw IllegalStateException()
+    }
+
+    private fun checkForComodification() {
+        if (builder.mapBuilder.modCount != expectedModCount)
+            throw ConcurrentModificationException()
     }
 }

@@ -17,7 +17,7 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
 internal open class PersistentOrderedSetIterator<E>(private var nextElement: E?,
-                                                    internal val map: Map<E, Links<E>>) : Iterator<E> {
+                                                    internal val map: Map<E, Links>) : Iterator<E> {
     internal var index = 0
 
     override fun hasNext(): Boolean {
@@ -25,12 +25,16 @@ internal open class PersistentOrderedSetIterator<E>(private var nextElement: E?,
     }
 
     override fun next(): E {
-        if (!hasNext())
-            throw NoSuchElementException()
+        checkHasNext()
 
         val result = nextElement as E
         index++
-        nextElement = map[result]!!.next
+        nextElement = map[result]!!.next as? E
         return result
+    }
+
+    private fun checkHasNext() {
+        if (!hasNext())
+            throw NoSuchElementException()
     }
 }
