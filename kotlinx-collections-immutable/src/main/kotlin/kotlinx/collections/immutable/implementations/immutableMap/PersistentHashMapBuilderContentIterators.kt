@@ -43,30 +43,31 @@ internal abstract class PersistentHashMapBuilderBaseIterator<K, V, T>(private va
                                                                       path: Array<TrieNodeBaseIterator<K, V, T>>)
     : MutableIterator<T>, PersistentHashMapBaseIterator<K, V, T>(builder.node, path) {
 
-    private var lastKey: K? = null
+    private var lastIteratedKey: K? = null
     private var nextWasInvoked = false
+    private var expectedModCount = builder.modCount
 
     override fun next(): T {
-        lastKey = currentKey()
+        checkForComodification()
+        lastIteratedKey = currentKey()
         nextWasInvoked = true
         return super.next()
     }
 
     override fun remove() {
-        if (!nextWasInvoked) {
-            throw NoSuchElementException()
-        }
+        checkNextWasInvoked()
         if (hasNext()) {
             val currentKey = currentKey()
 
-            builder.remove(lastKey)
+            builder.remove(lastIteratedKey)
             resetPath(currentKey.hashCode(), builder.node, currentKey, 0)
         } else {
-            builder.remove(lastKey)
+            builder.remove(lastIteratedKey)
         }
 
-        lastKey = null
+        lastIteratedKey = null
         nextWasInvoked = false
+        expectedModCount = builder.modCount
     }
 
     private fun resetPath(keyHash: Int, node: TrieNode<*, *>, key: K, pathIndex: Int) {
@@ -76,13 +77,13 @@ internal abstract class PersistentHashMapBuilderBaseIterator<K, V, T>(private va
         if (node.hasDataAt(keyPosition)) { // key is directly in buffer
             val keyIndex = node.keyDataIndex(keyPosition)
 
-            assert(node.keyAtIndex(keyIndex) == key)
+//            assert(node.keyAtIndex(keyIndex) == key)
 
             path[pathIndex].reset(node.buffer, 2 * Integer.bitCount(node.dataMap), keyIndex)
             return
         }
 
-        assert(node.hasNodeAt(keyPosition)) // key is in node
+//        assert(node.hasNodeAt(keyPosition)) // key is in node
 
         val nodeIndex = node.keyNodeIndex(keyPosition)
         val targetNode = node.nodeAtIndex(nodeIndex)
@@ -95,6 +96,16 @@ internal abstract class PersistentHashMapBuilderBaseIterator<K, V, T>(private va
             path[pathIndex].reset(node.buffer, 2 * Integer.bitCount(node.dataMap), nodeIndex)
             resetPath(keyHash, targetNode, key, pathIndex + 1)
         }
+    }
+
+    private fun checkNextWasInvoked() {
+        if (!nextWasInvoked)
+            throw IllegalStateException()
+    }
+
+    private fun checkForComodification() {
+        if (builder.modCount != expectedModCount)
+            throw ConcurrentModificationException()
     }
 }
 

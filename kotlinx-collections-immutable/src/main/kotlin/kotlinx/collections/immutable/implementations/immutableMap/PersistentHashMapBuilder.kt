@@ -24,7 +24,14 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
     internal var marker = Marker()
     internal var node = map.node
     internal var operationResult: V? = null
+    internal var modCount = 0
+
+    // Size change implies structural changes.
     override var size = map.size
+        set(value) {
+            field = value
+            modCount++
+        }
 
     override fun build(): PersistentHashMap<K, V> {
         map = if (node === map.node) {
