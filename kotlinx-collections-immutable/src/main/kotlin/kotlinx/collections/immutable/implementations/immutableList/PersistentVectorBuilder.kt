@@ -299,8 +299,8 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         }
 
         var bufferLastIndex = MAX_BUFFER_SIZE_MINUS_ONE
-        while (root[bufferLastIndex] == null) {
-            bufferLastIndex -= 1
+        if (root[bufferLastIndex] == null) {
+            bufferLastIndex = indexSegment(rootSize() - 1, shift)
         }
 
         val mutableRoot = makeMutable(root)

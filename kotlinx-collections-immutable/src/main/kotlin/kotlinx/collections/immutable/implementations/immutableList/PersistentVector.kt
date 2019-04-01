@@ -250,10 +250,9 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
             return newRoot
         }
 
-        // Could be val bufferLastIndex = root.indexOfLast { it != null }, but that isn't optimized enough
         var bufferLastIndex = MAX_BUFFER_SIZE_MINUS_ONE
-        while (root[bufferLastIndex] == null) {
-            bufferLastIndex -= 1
+        if (root[bufferLastIndex] == null) {
+            bufferLastIndex = indexSegment(rootSize() - 1, shift)
         }
 
         val newRoot = root.copyOf(MAX_BUFFER_SIZE)
