@@ -47,18 +47,19 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
         if (mapBuilder.containsKey(element)) {
             return false
         }
-        if (isEmpty()) {  //  isEmpty
+        if (isEmpty()) {
             firstElement = element
             lastElement = element
             mapBuilder[element] = Links()
             return true
         }
+
         val lastLinks = mapBuilder[lastElement]!!
 //        assert(lastLinks.next === EndOfLink)
-
         mapBuilder[lastElement as E] = lastLinks.withNext(element)
         mapBuilder[element] = lastLinks.putNextLink(lastElement)
         lastElement = element
+
         return true
     }
 
@@ -70,22 +71,23 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
 //            assert(previousLinks.next == element)
             mapBuilder[links.previous as E] = previousLinks.withNext(links.next)
         } else {
-            firstElement = links.next as? E
+            firstElement = links.next
         }
         if (links.next !== EndOfLink) {
             val nextLinks = mapBuilder[links.next]!!
 //            assert(nextLinks.previous == element)
             mapBuilder[links.next as E] = nextLinks.withPrevious(links.previous)
         } else {
-            lastElement = links.previous as? E
+            lastElement = links.previous
         }
+
         return true
     }
 
     override fun clear() {
         mapBuilder.clear()
-        firstElement = null
-        lastElement = null
+        firstElement = EndOfLink
+        lastElement = EndOfLink
     }
 
     override fun iterator(): MutableIterator<E> {

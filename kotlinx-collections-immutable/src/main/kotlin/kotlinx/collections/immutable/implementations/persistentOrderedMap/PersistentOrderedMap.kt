@@ -37,8 +37,8 @@ internal class LinkedValue<V>(val value: V, val previous: Any?, val next: Any?) 
     }
 }
 
-internal class PersistentOrderedMap<K, V>(internal val firstKey: K?,
-                                          internal val lastKey: K?,
+internal class PersistentOrderedMap<K, V>(internal val firstKey: Any?,
+                                          internal val lastKey: Any?,
                                           internal val map: PersistentHashMap<K, LinkedValue<V>>): AbstractMap<K, V>(), PersistentMap<K, V> {
 
     override val size: Int
@@ -78,6 +78,11 @@ internal class PersistentOrderedMap<K, V>(internal val firstKey: K?,
     }
 
     override fun put(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
+        if (isEmpty()) {
+            val newMap = map.put(key, LinkedValue(value))
+            return PersistentOrderedMap(key, key, newMap)
+        }
+
         val links = map[key]
         if (links != null) {
             if (links.value == value) {
@@ -86,10 +91,7 @@ internal class PersistentOrderedMap<K, V>(internal val firstKey: K?,
             val newMap = map.put(key, links.withValue(value))
             return PersistentOrderedMap(firstKey, lastKey, newMap)
         }
-        if (isEmpty()) {
-            val newMap = map.put(key, LinkedValue(value))
-            return PersistentOrderedMap(key, key, newMap)
-        }
+
         val lastLink = map[lastKey]!!
 //        assert(lastLink.next === EndOfLink)
         val newMap = map
@@ -112,8 +114,9 @@ internal class PersistentOrderedMap<K, V>(internal val firstKey: K?,
 //            assert(nextLinks.previous == key)
             newMap = newMap.put(links.next as K, nextLinks.withPrevious(links.previous))
         }
-        val newFirstKey = if (links.previous === EndOfLink) links.next as? K else firstKey
-        val newLastKey = if (links.next === EndOfLink) links.previous as? K else lastKey
+
+        val newFirstKey = if (links.previous === EndOfLink) links.next else firstKey
+        val newLastKey = if (links.next === EndOfLink) links.previous else lastKey
         return PersistentOrderedMap(newFirstKey, newLastKey, newMap)
     }
 
@@ -135,7 +138,7 @@ internal class PersistentOrderedMap<K, V>(internal val firstKey: K?,
     }
 
     internal companion object {
-        private val EMPTY = PersistentOrderedMap<Nothing, Nothing>(null, null, PersistentHashMap.emptyOf())
+        private val EMPTY = PersistentOrderedMap<Nothing, Nothing>(EndOfLink, EndOfLink, PersistentHashMap.emptyOf())
         internal fun <K, V> emptyOf(): PersistentOrderedMap<K, V> = EMPTY as PersistentOrderedMap<K, V>
     }
 }

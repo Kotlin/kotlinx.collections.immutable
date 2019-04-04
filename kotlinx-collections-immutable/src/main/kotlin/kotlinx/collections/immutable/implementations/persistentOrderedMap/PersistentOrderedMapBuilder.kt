@@ -94,15 +94,16 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
 //            assert(previousLinks.next == key)
             mapBuilder[links.previous as K] = previousLinks.withNext(links.next)
         } else {
-            firstKey = links.next as? K
+            firstKey = links.next
         }
         if (links.next !== EndOfLink) {
             val nextLinks = mapBuilder[links.next]!!
 //            assert(nextLinks.previous == key)
             mapBuilder[links.next as K] = nextLinks.withPrevious(links.previous)
         } else {
-            lastKey = links.previous as? K
+            lastKey = links.previous
         }
+
         return links.value
     }
 
@@ -119,7 +120,7 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
 
     override fun clear() {
         mapBuilder.clear()
-        firstKey = null
-        lastKey = null
+        firstKey = EndOfLink
+        lastKey = EndOfLink
     }
 }

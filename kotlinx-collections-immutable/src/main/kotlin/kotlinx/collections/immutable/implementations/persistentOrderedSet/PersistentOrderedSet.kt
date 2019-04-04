@@ -33,8 +33,8 @@ internal class Links(val previous: Any?, val next: Any?) {
     }
 }
 
-internal class PersistentOrderedSet<E>(internal val firstElement: E?,
-                                       internal val lastElement: E?,
+internal class PersistentOrderedSet<E>(internal val firstElement: Any?,
+                                       internal val lastElement: Any?,
                                        internal val map: PersistentHashMap<E, Links>): AbstractSet<E>(), PersistentSet<E> {
 
     override val size: Int
@@ -48,7 +48,7 @@ internal class PersistentOrderedSet<E>(internal val firstElement: E?,
         if (map.containsKey(element)) {
             return this
         }
-        if (isEmpty()) {  //  isEmpty
+        if (isEmpty()) {
             val newMap = map.put(element, Links())
             return PersistentOrderedSet(element, element, newMap)
         }
@@ -79,8 +79,8 @@ internal class PersistentOrderedSet<E>(internal val firstElement: E?,
 //            assert(nextLinks.previous == element)
             newMap = newMap.put(links.next as E, nextLinks.withPrevious(links.previous))
         }
-        val newFirstElement = if (links.previous === EndOfLink) links.next as? E else firstElement
-        val newLastElement = if (links.next === EndOfLink) links.previous as? E else lastElement
+        val newFirstElement = if (links.previous === EndOfLink) links.next else firstElement
+        val newLastElement = if (links.next === EndOfLink) links.previous else lastElement
         return PersistentOrderedSet(newFirstElement, newLastElement, newMap)
     }
 
@@ -105,7 +105,7 @@ internal class PersistentOrderedSet<E>(internal val firstElement: E?,
     }
 
     internal companion object {
-        private val EMPTY = PersistentOrderedSet(null, null, PersistentHashMap.emptyOf())
+        private val EMPTY = PersistentOrderedSet<Nothing>(EndOfLink, EndOfLink, PersistentHashMap.emptyOf())
         internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
     }
 }

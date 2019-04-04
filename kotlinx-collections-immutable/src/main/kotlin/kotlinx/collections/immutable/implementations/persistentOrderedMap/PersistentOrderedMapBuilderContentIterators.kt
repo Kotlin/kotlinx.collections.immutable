@@ -19,11 +19,11 @@ package kotlinx.collections.immutable.implementations.persistentOrderedMap
 import kotlinx.collections.immutable.implementations.immutableMap.MapEntry
 
 internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
-        private var nextKey: K?,
+        private var nextKey: Any?,
         internal val builder: PersistentOrderedMapBuilder<K, V>
 ) : MutableIterator<LinkedValue<V>> {
 
-    internal var lastIteratedKey: K? = null
+    internal var lastIteratedKey: Any? = EndOfLink
     private var nextWasInvoked = false
     private var expectedModCount = builder.mapBuilder.modCount
     internal var index = 0
@@ -39,7 +39,7 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
         nextWasInvoked = true
         index++
         val result = builder.mapBuilder[nextKey]!!
-        nextKey = result.next as? K
+        nextKey = result.next
         return result
     }
 
