@@ -16,6 +16,9 @@
 
 package kotlinx.collections.immutable.stressTests.immutableList
 
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.contractTests.compare
+import kotlinx.collections.immutable.contractTests.listIteratorProperties
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Test
 import org.junit.Assert.*
@@ -283,6 +286,173 @@ class PersistentListBuilderTest {
         builder.add(0)
         assertFailsWith<ConcurrentModificationException> {
             subList.add(0)
+        }
+    }
+
+    private fun <E> PersistentList(size: Int, producer: (Int) -> E): PersistentList<E> {
+        var list = persistentListOf<E>()
+        repeat(times = size) { index ->
+            list = list.add(producer(index))
+        }
+        return list
+    }
+
+    private fun <E> iterateWith(expectedIterator: MutableListIterator<E>,
+                                actualIterator: MutableListIterator<E>,
+                                maxIterationCount: Int,
+                                afterIteration: () -> Unit) {
+        val random = Random()
+        val towardStart = random.nextBoolean()
+        val iterationCount = random.nextInt(maxIterationCount)
+
+        if (towardStart) {
+            repeat(iterationCount) {
+                if (!expectedIterator.hasPrevious()) return
+                assertEquals(expectedIterator.previous(), actualIterator.previous())
+                afterIteration()
+                compare(expectedIterator, actualIterator) { listIteratorProperties() }
+            }
+        } else {
+            repeat(iterationCount) {
+                if (!expectedIterator.hasNext()) return
+                assertEquals(expectedIterator.next(), actualIterator.next())
+                afterIteration()
+                compare(expectedIterator, actualIterator) { listIteratorProperties() }
+            }
+        }
+    }
+
+    @Test
+    fun iterationTests() {
+        val list = PersistentList(100000) { it }
+        val builder = list.builder()
+        val expected = list.toMutableList()
+
+        var builderIterator = builder.listIterator()
+        var expectedIterator = expected.listIterator()
+        compare(expectedIterator, builderIterator) { listIteratorProperties() }
+
+        val random = Random()
+        repeat(times = 100) {
+            val createNew = random.nextDouble() < 0.2
+            if (createNew) {
+                val index = random.nextInt(expected.size)
+                builderIterator = builder.listIterator(index)
+                expectedIterator = expected.listIterator(index)
+                compare(expectedIterator, builderIterator) { listIteratorProperties() }
+            }
+
+            iterateWith(expectedIterator, builderIterator, expected.size) { /* Do nothing after iteration */ }
+        }
+    }
+
+    @Test
+    fun iteratorSetTests() {
+        val list = PersistentList(100000) { it }
+        val builder = list.builder()
+        val expected = list.toMutableList()
+
+        var builderIterator = builder.listIterator()
+        var expectedIterator = expected.listIterator()
+        compare(expectedIterator, builderIterator) { listIteratorProperties() }
+
+        val random = Random()
+        repeat(times = 100) {
+            val createNew = random.nextDouble() < 0.1
+            if (createNew) {
+                val index = random.nextInt(expected.size)
+                builderIterator = builder.listIterator(index)
+                expectedIterator = expected.listIterator(index)
+                compare(expectedIterator, builderIterator) { listIteratorProperties() }
+            }
+
+            val shouldSet = random.nextBoolean()
+            iterateWith(expectedIterator, builderIterator, expected.size) {
+                if (shouldSet) {
+                    val elementToSet = random.nextInt()
+                    expectedIterator.set(elementToSet)
+                    builderIterator.set(elementToSet)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun iteratorAddTests() {
+        val list = PersistentList(10000) { it }
+        val builder = list.builder()
+        val expected = list.toMutableList()
+
+        var builderIterator = builder.listIterator(builder.size)
+        var expectedIterator = expected.listIterator(builder.size)
+        compare(expectedIterator, builderIterator) { listIteratorProperties() }
+
+        val random = Random()
+        repeat(times = 100) {
+            val createNew = random.nextDouble() < 0.1
+            if (createNew) {
+                val index = random.nextInt(expected.size)
+                builderIterator = builder.listIterator(index)
+                expectedIterator = expected.listIterator(index)
+                compare(expectedIterator, builderIterator) { listIteratorProperties() }
+            }
+
+            val shouldAdd = random.nextBoolean()
+            if (shouldAdd) {
+                val addCount = random.nextInt(2000)
+                repeat(addCount) {
+                    val elementToAdd = random.nextInt()
+                    expectedIterator.add(elementToAdd)
+                    builderIterator.add(elementToAdd)
+                    compare(expectedIterator, builderIterator) { listIteratorProperties() }
+                }
+            } else {
+                iterateWith(expectedIterator, builderIterator, expected.size) { /* Do nothing after iteration */ }
+            }
+        }
+    }
+
+    @Test
+    fun iteratorRemoveTests() {
+        val list = PersistentList(100000) { it }
+        val builder = list.builder()
+        val expected = list.toMutableList()
+
+        var builderIterator = builder.listIterator()
+        var expectedIterator = expected.listIterator()
+        compare(expectedIterator, builderIterator) { listIteratorProperties() }
+
+        val random = Random()
+        repeat(times = 100) {
+            val createNew = random.nextDouble() < 0.1
+            if (createNew) {
+                val index = random.nextInt(expected.size)
+                builderIterator = builder.listIterator(index)
+                expectedIterator = expected.listIterator(index)
+                compare(expectedIterator, builderIterator) { listIteratorProperties() }
+            }
+
+            val shouldAddOrRemove = random.nextBoolean()
+            if (shouldAddOrRemove) {
+                val actionCount = random.nextInt(2000)
+                val shouldAdd = random.nextBoolean()
+
+                if (shouldAdd) {
+                    repeat(actionCount) {
+                        val elementToAdd = random.nextInt()
+                        expectedIterator.add(elementToAdd)
+                        builderIterator.add(elementToAdd)
+                        compare(expectedIterator, builderIterator) { listIteratorProperties() }
+                    }
+                } else {
+                    iterateWith(expectedIterator, builderIterator, expected.size) {
+                        expectedIterator.remove()
+                        builderIterator.remove()
+                    }
+                }
+            } else {
+                iterateWith(expectedIterator, builderIterator, expected.size) { /* Do nothing after iteration */ }
+            }
         }
     }
 

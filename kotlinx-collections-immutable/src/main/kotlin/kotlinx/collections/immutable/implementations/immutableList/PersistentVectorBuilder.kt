@@ -22,15 +22,19 @@ import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIn
 
 private class Marker // TODO: Rename to MutabilityOwnership?
 
-// TODO: Fix iteration O(N*logN) complexity
 class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
                                  private var vectorRoot: Array<Any?>?,
                                  private var vectorTail: Array<Any?>,
-                                 private var rootShift: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
+                                 internal var rootShift: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
     private var marker = Marker()
-    private var root = vectorRoot
-    private var tail = vectorTail
+    internal var root = vectorRoot
+        private set
+    internal var tail = vectorTail
+        private set
     override var size = vector.size
+        private set
+
+    internal fun getModCount() = modCount
 
     override fun build(): PersistentList<E> {
         vector = if (root === vectorRoot && tail === vectorTail) {
@@ -403,5 +407,18 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         mutableRoot[bufferIndex] =
                 setInRoot(mutableRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e, oldElementCarry)
         return mutableRoot
+    }
+
+    override fun iterator(): MutableIterator<E> {
+        return this.listIterator()
+    }
+
+    override fun listIterator(): MutableListIterator<E> {
+        return this.listIterator(0)
+    }
+
+    override fun listIterator(index: Int): MutableListIterator<E> {
+        checkPositionIndex(index, size)
+        return PersistentVectorMutableIterator(this, index)
     }
 }

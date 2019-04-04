@@ -16,7 +16,7 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-internal abstract class AbstractListIterator<out E>(var index: Int, val size: Int) : ListIterator<E> {
+internal abstract class AbstractListIterator<out E>(var index: Int, var size: Int) : ListIterator<E> {
     override fun hasNext(): Boolean {
         return index < size
     }
