@@ -44,6 +44,7 @@ dependencies {
 project('tests') {
     dependencies {
         compile project(path: ':kotlinx-collections-immutable', configuration: 'shadow')
+        testCompile 'com.google.guava:guava-testlib:18.0'
     }
 }
 

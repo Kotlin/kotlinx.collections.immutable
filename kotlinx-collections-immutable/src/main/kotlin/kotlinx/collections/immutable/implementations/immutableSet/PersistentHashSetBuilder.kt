@@ -23,7 +23,14 @@ internal class Marker
 internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
     internal var marker = Marker()
     internal var node = set.node
+    internal var modCount = 0
+
+    // Size change implies structural changes.
     override var size = set.size
+        set(value) {
+            field = value
+            modCount++
+        }
 
     override fun build(): PersistentSet<E> {
         set = if (node === set.node) {

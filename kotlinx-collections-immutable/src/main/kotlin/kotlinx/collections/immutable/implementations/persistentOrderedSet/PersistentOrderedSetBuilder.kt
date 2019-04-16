@@ -17,6 +17,7 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.EndOfLink
 
 internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrderedSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
     internal var firstElement = set.firstElement
@@ -46,44 +47,47 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
         if (mapBuilder.containsKey(element)) {
             return false
         }
-        if (lastElement == null) {  //  isEmpty
+        if (isEmpty()) {
             firstElement = element
             lastElement = element
-            mapBuilder[element] = Links<E>(null, null)
+            mapBuilder[element] = Links()
             return true
         }
-        val oldLinks = mapBuilder[lastElement!!]!!
-        assert(oldLinks.next == null)
-        val newLinks = Links(oldLinks.previous, element)
 
-        mapBuilder[lastElement!!] = newLinks
-        mapBuilder[element] = Links(lastElement, null)
+        val lastLinks = mapBuilder[lastElement]!!
+//        assert(lastLinks.next === EndOfLink)
+        mapBuilder[lastElement as E] = lastLinks.withNext(element)
+        mapBuilder[element] = lastLinks.putNextLink(lastElement)
         lastElement = element
+
         return true
     }
 
     override fun remove(element: E): Boolean {
         val links = mapBuilder.remove(element) ?: return false
 
-        if (links.previous != null) {
+        if (links.previous !== EndOfLink) {
             val previousLinks = mapBuilder[links.previous]!!
-            assert(previousLinks.next == element)
-            mapBuilder[links.previous] = Links(previousLinks.previous, links.next)
+//            assert(previousLinks.next == element)
+            mapBuilder[links.previous as E] = previousLinks.withNext(links.next)
+        } else {
+            firstElement = links.next
         }
-        if (links.next != null) {
+        if (links.next !== EndOfLink) {
             val nextLinks = mapBuilder[links.next]!!
-            assert(nextLinks.previous == element)
-            mapBuilder[links.next] = Links(links.previous, nextLinks.next)
+//            assert(nextLinks.previous == element)
+            mapBuilder[links.next as E] = nextLinks.withPrevious(links.previous)
+        } else {
+            lastElement = links.previous
         }
-        firstElement = if (element == firstElement) links.next else firstElement
-        lastElement = if (element == lastElement) links.previous else lastElement
+
         return true
     }
 
     override fun clear() {
         mapBuilder.clear()
-        firstElement = null
-        lastElement = null
+        firstElement = EndOfLink
+        lastElement = EndOfLink
     }
 
     override fun iterator(): MutableIterator<E> {

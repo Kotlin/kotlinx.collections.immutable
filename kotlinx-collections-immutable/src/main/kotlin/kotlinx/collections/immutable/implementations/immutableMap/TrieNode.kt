@@ -19,7 +19,7 @@ internal class TrieNode<K, V>(var dataMap: Int,
         return dataMap and position != 0
     }
 
-    internal fun hasNodeAt(position: Int): Boolean {
+    private fun hasNodeAt(position: Int): Boolean {
         return nodeMap and position != 0
     }
 
@@ -31,7 +31,7 @@ internal class TrieNode<K, V>(var dataMap: Int,
         return buffer.size - 1 - Integer.bitCount(nodeMap and (position - 1))
     }
 
-    internal fun keyAtIndex(keyIndex: Int): K {
+    private fun keyAtIndex(keyIndex: Int): K {
         return buffer[keyIndex] as K
     }
 
@@ -84,11 +84,14 @@ internal class TrieNode<K, V>(var dataMap: Int,
     private fun mutableUpdateValueAtIndex(keyIndex: Int, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
 //        assert(buffer[keyIndex + 1] !== value)
 
-        mutator.operationResult = buffer[keyIndex + 1] as V
+        // If the [mutator] is exclusive owner of this node, update value at specified index in-place.
         if (marker === mutator.marker) {
             buffer[keyIndex + 1] = value
             return this
         }
+        // Structural change due to node replacement.
+        mutator.modCount++
+        // Create new node with updated value at specified index.
         val newBuffer = buffer.copyOf()
         newBuffer[keyIndex + 1] = value
         return TrieNode(dataMap, nodeMap, newBuffer, mutator.marker)
@@ -103,6 +106,8 @@ internal class TrieNode<K, V>(var dataMap: Int,
     }
 
     private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<K, V>, mutatorMarker: Marker): TrieNode<K, V> {
+//        assert(buffer[nodeIndex] !== newNode)
+
         if (marker === mutatorMarker) {
             buffer[nodeIndex] = newNode
             return this
@@ -286,19 +291,26 @@ internal class TrieNode<K, V>(var dataMap: Int,
     }
 
     private fun mutableCollisionPut(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
+        // Check if there is an entry with the specified key.
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i]) {
+            if (key == buffer[i]) { // found entry with the specified key
                 mutator.operationResult = buffer[i + 1] as V
 
+                // If the [mutator] is exclusive owner of this node, update value of the entry in-place.
                 if (marker === mutator.marker) {
                     buffer[i + 1] = value
                     return this
                 }
+
+                // Structural change due to node replacement.
+                mutator.modCount++
+                // Create new node with updated entry value.
                 val newBuffer = buffer.copyOf()
                 newBuffer[i + 1] = value
                 return TrieNode(0, 0, newBuffer, mutator.marker)
             }
         }
+        // Create new collision node with the specified entry added to it.
         mutator.size++
         val newBuffer = bufferPutDataAtIndex(0, key, value)
         return TrieNode(0, 0, newBuffer, mutator.marker)
@@ -388,9 +400,9 @@ internal class TrieNode<K, V>(var dataMap: Int,
             val keyIndex = keyDataIndex(keyPosition)
 
             if (key == keyAtIndex(keyIndex)) {
+                modification.value = UPDATE_VALUE
                 if (valueAtKeyIndex(keyIndex) === value) { return this }
 
-                modification.value = UPDATE_VALUE
                 return updateValueAtIndex(keyIndex, value)
             }
             modification.value = PUT_KEY_VALUE
@@ -421,10 +433,9 @@ internal class TrieNode<K, V>(var dataMap: Int,
             val keyIndex = keyDataIndex(keyPosition)
 
             if (key == keyAtIndex(keyIndex)) {
-                if (valueAtKeyIndex(keyIndex) === value) { // needs discussion
-                    mutator.operationResult = value
-                    return this
-                }
+                mutator.operationResult = valueAtKeyIndex(keyIndex)
+                if (valueAtKeyIndex(keyIndex) === value) { return this }
+
                 return mutableUpdateValueAtIndex(keyIndex, value, mutator)
             }
             mutator.size++

@@ -299,8 +299,8 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         }
 
         var bufferLastIndex = MAX_BUFFER_SIZE_MINUS_ONE
-        while (root[bufferLastIndex] == null) {
-            bufferLastIndex -= 1
+        if (root[bufferLastIndex] == null) {
+            bufferLastIndex = indexSegment(rootSize() - 1, shift)
         }
 
         val mutableRoot = makeMutable(root)
@@ -380,6 +380,10 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         checkElementIndex(index, size)
         if (rootSize() <= index) {
             val mutableTail = makeMutable(tail)
+
+            // Creating new tail implies structural change.
+            if (mutableTail !== tail) { modCount++ }
+
             val tailIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
             val oldElement = mutableTail[tailIndex]
             mutableTail[tailIndex] = element
@@ -399,6 +403,12 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         val mutableRoot = makeMutable(root)
 
         if (shift == 0) {
+            // Creating new leaf implies structural change.
+            // Actually, while descending to this leaf several nodes could be recreated.
+            // However, this builder is exclusive owner of this leaf iff it is exclusive owner of all leaf's ancestors.
+            // Hence, checking recreation of this leaf is enough to determine if a structural change occurred.
+            if (mutableRoot !== root) { modCount++ }
+
             oldElementCarry.value = mutableRoot[bufferIndex]
             mutableRoot[bufferIndex] = e
             return mutableRoot

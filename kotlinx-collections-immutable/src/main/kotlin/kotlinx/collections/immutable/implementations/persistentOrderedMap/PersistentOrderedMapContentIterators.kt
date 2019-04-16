@@ -18,19 +18,19 @@ package kotlinx.collections.immutable.implementations.persistentOrderedMap
 
 import kotlinx.collections.immutable.implementations.immutableMap.MapEntry
 
-internal open class PersistentOrderedMapLinksIterator<K, out V>(internal var nextKey: K?,
-                                                                internal val map: Map<K, LinkedValue<K, V>>) : Iterator<LinkedValue<K, V>> {
+internal open class PersistentOrderedMapLinksIterator<K, V>(internal var nextKey: Any?,
+                                                            internal val map: Map<K, LinkedValue<V>>) : Iterator<LinkedValue<V>> {
     internal var index = 0
 
     override fun hasNext(): Boolean {
         return index < map.size
     }
 
-    override fun next(): LinkedValue<K, V> {
+    override fun next(): LinkedValue<V> {
         if (!hasNext()) {
             throw NoSuchElementException()
         }
-        val result = map[nextKey as K]!!
+        val result = map[nextKey]!!
         index++
         nextKey = result.next
         return result

@@ -134,6 +134,7 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K,
     }
 
     protected fun currentKey(): K {
+        checkHasNext()
         return path[pathLastIndex].currentKey()
     }
 
@@ -142,10 +143,15 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K,
     }
 
     override fun next(): T {
-        assert(hasNext())
+        checkHasNext()
         val result = path[pathLastIndex].next()
         ensureNextEntryIsReady()
         return result
+    }
+
+    private fun checkHasNext() {
+        if (!hasNext())
+            throw NoSuchElementException()
     }
 }
 

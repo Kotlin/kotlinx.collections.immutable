@@ -18,13 +18,24 @@ package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.EndOfLink
 import kotlinx.collections.immutable.mutate
 
-internal class Links<out E>(val previous: E?, val next: E?)
+internal class Links(val previous: Any?, val next: Any?) {
+    constructor() : this(EndOfLink, EndOfLink)
 
-internal class PersistentOrderedSet<E>(internal val firstElement: E?,
-                                       internal val lastElement: E?,
-                                       internal val map: PersistentHashMap<E, Links<E>>): AbstractSet<E>(), PersistentSet<E> {
+    fun withNext(newNext: Any?) = Links(previous, newNext)
+    fun withPrevious(newPrevious: Any?) = Links(newPrevious, next)
+
+    fun putNextLink(previous: Any?): Links {
+//        assert(next === EndOfLink)
+        return Links(previous, next)
+    }
+}
+
+internal class PersistentOrderedSet<E>(internal val firstElement: Any?,
+                                       internal val lastElement: Any?,
+                                       internal val map: PersistentHashMap<E, Links>): AbstractSet<E>(), PersistentSet<E> {
 
     override val size: Int
         get() = map.size
@@ -37,14 +48,16 @@ internal class PersistentOrderedSet<E>(internal val firstElement: E?,
         if (map.containsKey(element)) {
             return this
         }
-        if (lastElement == null) {  //  isEmpty
-            val newMap = map.put(element, Links<E>(null, null))
+        if (isEmpty()) {
+            val newMap = map.put(element, Links())
             return PersistentOrderedSet(element, element, newMap)
         }
-        val oldLinks = map[lastElement]!!
-        assert(oldLinks.next == null)
-        val newLinks = Links(oldLinks.previous, element)
-        val newMap = map.put(lastElement, newLinks).put(element, Links(lastElement, null))
+        val lastLinks = map[lastElement]!!
+//        assert(lastLinks.next === EndOfLink)
+
+        val newMap = map
+                .put(lastElement as E, lastLinks.withNext(element))
+                .put(element, lastLinks.putNextLink(lastElement))
         return PersistentOrderedSet(firstElement, element, newMap)
     }
 
@@ -56,18 +69,18 @@ internal class PersistentOrderedSet<E>(internal val firstElement: E?,
         val links = map[element] ?: return this
 
         var newMap = map.remove(element)
-        if (links.previous != null) {
+        if (links.previous !== EndOfLink) {
             val previousLinks = newMap[links.previous]!!
-            assert(previousLinks.next == element)
-            newMap = newMap.put(links.previous, Links(previousLinks.previous, links.next))
+//            assert(previousLinks.next == element)
+            newMap = newMap.put(links.previous as E, previousLinks.withNext(links.next))
         }
-        if (links.next != null) {
+        if (links.next !== EndOfLink) {
             val nextLinks = newMap[links.next]!!
-            assert(nextLinks.previous == element)
-            newMap = newMap.put(links.next, Links(links.previous, nextLinks.next))
+//            assert(nextLinks.previous == element)
+            newMap = newMap.put(links.next as E, nextLinks.withPrevious(links.previous))
         }
-        val newFirstElement = if (element == firstElement) links.next else firstElement
-        val newLastElement = if (element == lastElement) links.previous else lastElement
+        val newFirstElement = if (links.previous === EndOfLink) links.next else firstElement
+        val newLastElement = if (links.next === EndOfLink) links.previous else lastElement
         return PersistentOrderedSet(newFirstElement, newLastElement, newMap)
     }
 
@@ -92,7 +105,7 @@ internal class PersistentOrderedSet<E>(internal val firstElement: E?,
     }
 
     internal companion object {
-        private val EMPTY = PersistentOrderedSet<Nothing>(null, null, PersistentHashMap.emptyOf<Nothing, Links<Nothing>>())
+        private val EMPTY = PersistentOrderedSet<Nothing>(EndOfLink, EndOfLink, PersistentHashMap.emptyOf())
         internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
     }
 }
