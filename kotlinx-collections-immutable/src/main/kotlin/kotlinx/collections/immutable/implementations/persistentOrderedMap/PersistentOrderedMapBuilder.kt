@@ -20,20 +20,22 @@ import kotlinx.collections.immutable.PersistentMap
 
 internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrderedMap<K, V>) : AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
     internal var firstKey = map.firstKey
-    private var lastKey = map.lastKey
-    internal val mapBuilder = map.map.builder()
+        private set
 
-    override val size: Int
-        get() = mapBuilder.size
+    private var lastKey = map.lastKey
+
+    internal val hashMapBuilder = map.hashMap.builder()
+
+    override val size: Int get() = hashMapBuilder.size
 
     override fun build(): PersistentMap<K, V> {
-        val newMap = mapBuilder.build()
-        map = if (newMap === map.map) {
+        val newHashMap = hashMapBuilder.build()
+        map = if (newHashMap === map.hashMap) {
             assert(firstKey === map.firstKey)
             assert(lastKey === map.lastKey)
             map
         } else {
-            PersistentOrderedMap(firstKey, lastKey, newMap)
+            PersistentOrderedMap(firstKey, lastKey, newHashMap)
         }
         return map
     }
@@ -53,53 +55,53 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
             return PersistentOrderedMapBuilderValues(this)
         }
 
-    override fun containsKey(key: K): Boolean {
-        return mapBuilder.containsKey(key)
-    }
+    override fun containsKey(key: K): Boolean = hashMapBuilder.containsKey(key)
 
-    override fun get(key: K): V? {
-        return mapBuilder[key]?.value
-    }
+    override fun get(key: K): V? = hashMapBuilder[key]?.value
 
     override fun put(key: K, value: @UnsafeVariance V): V? {
-        val links = mapBuilder[key]
+        val links = hashMapBuilder[key]
         if (links != null) {
             if (links.value === value) {
                 return value
             }
-            mapBuilder[key] = links.withValue(value)
+            hashMapBuilder[key] = links.withValue(value)
             return links.value
         }
 
         if (isEmpty()) {  //  isEmpty
             firstKey = key
             lastKey = key
-            mapBuilder[key] = LinkedValue(value)
+            hashMapBuilder[key] = LinkedValue(value)
             return null
         }
-        val lastLink = mapBuilder[lastKey]!!
-        assert(lastLink.next == EndOfLink)
+        @Suppress("UNCHECKED_CAST")
+        val lastKey = lastKey as K
+        val lastLink = hashMapBuilder[lastKey]!!
+        assert(!lastLink.hasNext)
 
-        mapBuilder[lastKey as K] = lastLink.withNext(key)
-        mapBuilder[key] = lastLink.putNextLink(value, lastKey)
-        lastKey = key
+        hashMapBuilder[lastKey] = lastLink.withNext(key)
+        hashMapBuilder[key] = lastLink.putNextLink(value, lastKey)
+        this.lastKey = key
         return null
     }
 
     override fun remove(key: K): V? {
-        val links = mapBuilder.remove(key) ?: return null
+        val links = hashMapBuilder.remove(key) ?: return null
 
-        if (links.previous !== EndOfLink) {
-            val previousLinks = mapBuilder[links.previous]!!
+        if (links.hasPrevious) {
+            val previousLinks = hashMapBuilder[links.previous]!!
 //            assert(previousLinks.next == key)
-            mapBuilder[links.previous as K] = previousLinks.withNext(links.next)
+            @Suppress("UNCHECKED_CAST")
+            hashMapBuilder[links.previous as K] = previousLinks.withNext(links.next)
         } else {
             firstKey = links.next
         }
-        if (links.next !== EndOfLink) {
-            val nextLinks = mapBuilder[links.next]!!
+        if (links.hasNext) {
+            val nextLinks = hashMapBuilder[links.next]!!
 //            assert(nextLinks.previous == key)
-            mapBuilder[links.next as K] = nextLinks.withPrevious(links.previous)
+            @Suppress("UNCHECKED_CAST")
+            hashMapBuilder[links.next as K] = nextLinks.withPrevious(links.previous)
         } else {
             lastKey = links.previous
         }
@@ -108,7 +110,7 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
     }
 
     fun remove(key: K, value: V): Boolean {
-        val links = mapBuilder[key] ?: return false
+        val links = hashMapBuilder[key] ?: return false
 
         return if (links.value != value) {
             false
@@ -119,8 +121,8 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
     }
 
     override fun clear() {
-        mapBuilder.clear()
-        firstKey = EndOfLink
-        lastKey = EndOfLink
+        hashMapBuilder.clear()
+        firstKey = EndOfChain
+        lastKey = EndOfChain
     }
 }

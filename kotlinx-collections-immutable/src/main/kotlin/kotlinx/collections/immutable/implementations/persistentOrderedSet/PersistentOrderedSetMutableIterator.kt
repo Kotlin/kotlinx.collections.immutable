@@ -17,11 +17,11 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
 internal class PersistentOrderedSetMutableIterator<E>(private val builder: PersistentOrderedSetBuilder<E>)
-    : PersistentOrderedSetIterator<E>(builder.firstElement, builder.mapBuilder), MutableIterator<E> {
+    : PersistentOrderedSetIterator<E>(builder.firstElement, builder.hashMapBuilder), MutableIterator<E> {
 
     private var lastIteratedElement: E? = null
     private var nextWasInvoked = false
-    private var expectedModCount = builder.mapBuilder.modCount
+    private var expectedModCount = builder.hashMapBuilder.modCount
 
     override fun next(): E {
         checkForComodification()
@@ -36,7 +36,7 @@ internal class PersistentOrderedSetMutableIterator<E>(private val builder: Persi
         builder.remove(lastIteratedElement)
         lastIteratedElement = null
         nextWasInvoked = false
-        expectedModCount = builder.mapBuilder.modCount
+        expectedModCount = builder.hashMapBuilder.modCount
         index--
     }
 
@@ -46,7 +46,7 @@ internal class PersistentOrderedSetMutableIterator<E>(private val builder: Persi
     }
 
     private fun checkForComodification() {
-        if (builder.mapBuilder.modCount != expectedModCount)
+        if (builder.hashMapBuilder.modCount != expectedModCount)
             throw ConcurrentModificationException()
     }
 }

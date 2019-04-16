@@ -17,19 +17,19 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
 import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.implementations.persistentOrderedMap.EndOfLink
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.EndOfChain
 
 internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrderedSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
     internal var firstElement = set.firstElement
     private var lastElement = set.lastElement
-    internal val mapBuilder = set.map.builder()
+    internal val hashMapBuilder = set.hashMap.builder()
 
     override val size: Int
-        get() = mapBuilder.size
+        get() = hashMapBuilder.size
 
     override fun build(): PersistentSet<E> {
-        val newMap = mapBuilder.build()
-        set = if (newMap === set.map) {
+        val newMap = hashMapBuilder.build()
+        set = if (newMap === set.hashMap) {
             assert(firstElement === set.firstElement)
             assert(lastElement === set.lastElement)
             set
@@ -40,43 +40,45 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
     }
 
     override fun contains(element: E): Boolean {
-        return mapBuilder.containsKey(element)
+        return hashMapBuilder.containsKey(element)
     }
 
     override fun add(element: E): Boolean {
-        if (mapBuilder.containsKey(element)) {
+        if (hashMapBuilder.containsKey(element)) {
             return false
         }
         if (isEmpty()) {
             firstElement = element
             lastElement = element
-            mapBuilder[element] = Links()
+            hashMapBuilder[element] = Links()
             return true
         }
 
-        val lastLinks = mapBuilder[lastElement]!!
+        val lastLinks = hashMapBuilder[lastElement]!!
 //        assert(lastLinks.next === EndOfLink)
-        mapBuilder[lastElement as E] = lastLinks.withNext(element)
-        mapBuilder[element] = lastLinks.putNextLink(lastElement)
+        hashMapBuilder[lastElement as E] = lastLinks.withNext(element)
+        hashMapBuilder[element] = lastLinks.putNextLink(lastElement)
         lastElement = element
 
         return true
     }
 
     override fun remove(element: E): Boolean {
-        val links = mapBuilder.remove(element) ?: return false
+        val links = hashMapBuilder.remove(element) ?: return false
 
-        if (links.previous !== EndOfLink) {
-            val previousLinks = mapBuilder[links.previous]!!
+        if (links.hasPrevious) {
+            val previousLinks = hashMapBuilder[links.previous]!!
 //            assert(previousLinks.next == element)
-            mapBuilder[links.previous as E] = previousLinks.withNext(links.next)
+            @Suppress("UNCHECKED_CAST")
+            hashMapBuilder[links.previous as E] = previousLinks.withNext(links.next)
         } else {
             firstElement = links.next
         }
-        if (links.next !== EndOfLink) {
-            val nextLinks = mapBuilder[links.next]!!
+        if (links.hasNext) {
+            val nextLinks = hashMapBuilder[links.next]!!
 //            assert(nextLinks.previous == element)
-            mapBuilder[links.next as E] = nextLinks.withPrevious(links.previous)
+            @Suppress("UNCHECKED_CAST")
+            hashMapBuilder[links.next as E] = nextLinks.withPrevious(links.previous)
         } else {
             lastElement = links.previous
         }
@@ -85,9 +87,9 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
     }
 
     override fun clear() {
-        mapBuilder.clear()
-        firstElement = EndOfLink
-        lastElement = EndOfLink
+        hashMapBuilder.clear()
+        firstElement = EndOfChain
+        lastElement = EndOfChain
     }
 
     override fun iterator(): MutableIterator<E> {
