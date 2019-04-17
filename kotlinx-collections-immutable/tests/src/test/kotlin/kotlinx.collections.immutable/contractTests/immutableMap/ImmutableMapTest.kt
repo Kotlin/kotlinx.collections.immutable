@@ -60,7 +60,7 @@ abstract class ImmutableMapTest {
         val empty2 = immutableMapOf<String, Int>()
         assertEquals<ImmutableMap<*, *>>(empty1, empty2)
         assertEquals(mapOf<Int, String>(), empty1)
-        assertTrue(empty1 === empty2)
+        assertSame<ImmutableMap<*, *>>(empty1, empty2)
 
         compareMaps(emptyMap(), empty1)
     }
@@ -85,7 +85,7 @@ abstract class ImmutableMapTest {
         val map = HashMap(original) // copy
         var immMap = map.toPersistentMap()
         val immMap2 = immMap.toImmutableMap()
-        assertTrue(immMap2 === immMap)
+        assertSame(immMap2, immMap)
 
         compareMapsUnordered(original, immMap)
         compareMapsUnordered(map, immMap)
@@ -113,6 +113,19 @@ abstract class ImmutableMapTest {
         assertEquals(map.size, map.entries.size)
 
         assertEquals(mapOf("x" to null, "y" to 1, "x!" to null, "y!" to 1), map)
+    }
+
+    @Test fun putEqualButNotSameValue() {
+        data class Value<T>(val value: T)
+        val map = immutableMapOf("x" to Value(1))
+
+        val newValue = Value(1)
+        val newMap = map.put("x", newValue)
+        assertNotSame(map, newMap)
+        assertEquals(map, newMap)
+
+        val sameMap = newMap.put("x", newValue)
+        assertSame(newMap, sameMap)
     }
 
     @Test fun removeElements() {
@@ -149,10 +162,10 @@ abstract class ImmutableMapTest {
         "abcxaxyz12".associateTo(builder) { it to it.toInt() }
         val map = builder.build()
         assertEquals<Map<*, *>>(map, builder)
-        assertTrue(map === builder.build(), "Building the same list without modifications")
+        assertSame(map, builder.build(), "Building the same list without modifications")
 
         val map2 = builder.toImmutableMap()
-        assertTrue(map2 === map, "toImmutable calls build()")
+        assertSame(map2, map, "toImmutable calls build()")
 
         with(map) {
             testMutation { put('K', null) }
@@ -191,8 +204,8 @@ abstract class ImmutableMapTest {
         val result = this.persistent()
         val buildResult = this.mutate(mutating)
         // Ensure non-mutating operations return the same instance
-        assertTrue(this === result)
-        assertTrue(this === buildResult)
+        assertSame(this, result)
+        assertSame(this, buildResult)
     }
 
 

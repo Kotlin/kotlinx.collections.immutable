@@ -86,7 +86,7 @@ internal class PersistentOrderedMap<K, V>(
 
         val links = hashMap[key]
         if (links != null) {
-            if (links.value == value) {
+            if (links.value === value) {
                 return this
             }
             val newMap = hashMap.put(key, links.withValue(value))
