@@ -72,20 +72,20 @@ internal abstract class PersistentHashMapBuilderBaseIterator<K, V, T>(private va
 
     private fun resetPath(keyHash: Int, node: TrieNode<*, *>, key: K, pathIndex: Int) {
         val shift = pathIndex * LOG_MAX_BRANCHING_FACTOR
-        val keyPosition = 1 shl ((keyHash shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE)
+        val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
-        if (node.hasDataAt(keyPosition)) { // key is directly in buffer
-            val keyIndex = node.keyDataIndex(keyPosition)
+        if (node.hasEntryAt(keyPositionMask)) { // key is directly in buffer
+            val keyIndex = node.entryKeyIndex(keyPositionMask)
 
 //            assert(node.keyAtIndex(keyIndex) == key)
 
-            path[pathIndex].reset(node.buffer, 2 * Integer.bitCount(node.dataMap), keyIndex)
+            path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), keyIndex)
             return
         }
 
 //        assert(node.hasNodeAt(keyPosition)) // key is in node
 
-        val nodeIndex = node.keyNodeIndex(keyPosition)
+        val nodeIndex = node.nodeIndex(keyPositionMask)
         val targetNode = node.nodeAtIndex(nodeIndex)
         if (shift == MAX_SHIFT) {   // collision
             path[pathIndex].reset(node.buffer, node.buffer.size, 0)
@@ -93,7 +93,7 @@ internal abstract class PersistentHashMapBuilderBaseIterator<K, V, T>(private va
                 path[pathIndex].moveToNextKey()
             }
         } else {
-            path[pathIndex].reset(node.buffer, 2 * Integer.bitCount(node.dataMap), nodeIndex)
+            path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), nodeIndex)
             resetPath(keyHash, targetNode, key, pathIndex + 1)
         }
     }

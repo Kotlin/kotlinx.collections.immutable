@@ -95,7 +95,8 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     }
 
     internal companion object {
-        private val EMPTY = PersistentHashMap(TrieNode.EMPTY, 0)
+        private val EMPTY = PersistentHashMap<Nothing, Nothing>(TrieNode.EMPTY, 0)
+        @Suppress("UNCHECKED_CAST")
         internal fun <K, V> emptyOf(): PersistentHashMap<K, V> = EMPTY as PersistentHashMap<K, V>
     }
 }

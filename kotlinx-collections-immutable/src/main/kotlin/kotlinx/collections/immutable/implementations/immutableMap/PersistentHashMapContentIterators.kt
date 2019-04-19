@@ -4,6 +4,7 @@ internal const val TRIE_MAX_HEIGHT = 7
 
 internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> {
     protected var buffer = emptyArray<Any?>()
+        private set
     private var dataSize = 0
     protected var index = 0
 
@@ -90,7 +91,7 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K,
     private var hasNext = true
 
     init {
-        path[0].reset(node.buffer, 2 * Integer.bitCount(node.dataMap))
+        path[0].reset(node.buffer, ENTRY_SIZE * node.entryCount())
         pathLastIndex = 0
         ensureNextEntryIsReady()
     }
@@ -104,7 +105,7 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K,
             if (pathIndex == TRIE_MAX_HEIGHT - 1) {     // collision
                 path[pathIndex + 1].reset(node.buffer, node.buffer.size)
             } else {
-                path[pathIndex + 1].reset(node.buffer, 2 * Integer.bitCount(node.dataMap))
+                path[pathIndex + 1].reset(node.buffer, ENTRY_SIZE * node.entryCount())
             }
             return moveToNextNodeWithData(pathIndex + 1)
         }
