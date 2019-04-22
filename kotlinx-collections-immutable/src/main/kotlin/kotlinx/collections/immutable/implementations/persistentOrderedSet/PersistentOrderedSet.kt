@@ -22,18 +22,16 @@ import kotlinx.collections.immutable.implementations.persistentOrderedMap.EndOfC
 import kotlinx.collections.immutable.mutate
 
 internal class Links(val previous: Any?, val next: Any?) {
+    /** Constructs Links for a new single element */
     constructor() : this(EndOfChain, EndOfChain)
+    /** Constructs Links for a new last element */
+    constructor(previous: Any?) : this(previous, EndOfChain)
 
     fun withNext(newNext: Any?) = Links(previous, newNext)
     fun withPrevious(newPrevious: Any?) = Links(newPrevious, next)
 
     val hasNext get() = next !== EndOfChain
     val hasPrevious get() = previous !== EndOfChain
-
-    fun putNextLink(previous: Any?): Links {
-//        assert(next === EndOfChain)
-        return Links(previous, next)
-    }
 }
 
 internal class PersistentOrderedSet<E>(
@@ -61,7 +59,7 @@ internal class PersistentOrderedSet<E>(
 
         val newMap = hashMap
                 .put(lastElement, lastLinks.withNext(element))
-                .put(element, lastLinks.putNextLink(lastElement))
+                .put(element, Links(previous = lastElement))
         return PersistentOrderedSet(firstElement, element, newMap)
     }
 

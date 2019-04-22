@@ -25,7 +25,10 @@ import kotlinx.collections.immutable.mutate
 internal object EndOfChain
 
 internal class LinkedValue<V>(val value: V, val previous: Any?, val next: Any?) {
+    /** Constructs LinkedValue for a new single entry */
     constructor(value: V) : this(value, EndOfChain, EndOfChain)
+    /** Constructs LinkedValue for a new last entry */
+    constructor(value: V, previous: Any?) : this(value, previous, EndOfChain)
 
     fun withValue(newValue: V) = LinkedValue(newValue, previous, next)
     fun withPrevious(newPrevious: Any?) = LinkedValue(value, newPrevious, next)
@@ -33,12 +36,6 @@ internal class LinkedValue<V>(val value: V, val previous: Any?, val next: Any?) 
 
     val hasNext get() = next !== EndOfChain
     val hasPrevious get() = previous !== EndOfChain
-
-    // TODO: it doesn't use 'this', can be made static
-    fun putNextLink(value: V, previous: Any?): LinkedValue<V> {
-//        assert(next === EndOfChain)
-        return LinkedValue(value, previous, EndOfChain)
-    }
 }
 
 internal class PersistentOrderedMap<K, V>(
@@ -95,11 +92,11 @@ internal class PersistentOrderedMap<K, V>(
 
         @Suppress("UNCHECKED_CAST")
         val lastKey = lastKey as K
-        val lastLink = hashMap[lastKey]!!
+        val lastLinks = hashMap[lastKey]!!
 //        assert(!lastLink.hasNext)
         val newMap = hashMap
-                .put(lastKey, lastLink.withNext(key))
-                .put(key, lastLink.putNextLink(value, lastKey))
+                .put(lastKey, lastLinks.withNext(key))
+                .put(key, LinkedValue(value, previous = lastKey))
         return PersistentOrderedMap(firstKey, key, newMap)
     }
 

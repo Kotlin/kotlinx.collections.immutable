@@ -77,11 +77,11 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
         }
         @Suppress("UNCHECKED_CAST")
         val lastKey = lastKey as K
-        val lastLink = hashMapBuilder[lastKey]!!
-        assert(!lastLink.hasNext)
+        val lastLinks = hashMapBuilder[lastKey]!!
+        assert(!lastLinks.hasNext)
 
-        hashMapBuilder[lastKey] = lastLink.withNext(key)
-        hashMapBuilder[key] = lastLink.putNextLink(value, lastKey)
+        hashMapBuilder[lastKey] = lastLinks.withNext(key)
+        hashMapBuilder[key] = LinkedValue(value, previous = lastKey)
         this.lastKey = key
         return null
     }

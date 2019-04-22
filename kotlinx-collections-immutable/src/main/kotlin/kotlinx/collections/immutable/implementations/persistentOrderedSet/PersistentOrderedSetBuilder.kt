@@ -57,7 +57,7 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
         val lastLinks = hashMapBuilder[lastElement]!!
 //        assert(lastLinks.next === EndOfLink)
         hashMapBuilder[lastElement as E] = lastLinks.withNext(element)
-        hashMapBuilder[element] = lastLinks.putNextLink(lastElement)
+        hashMapBuilder[element] = Links(previous = lastElement)
         lastElement = element
 
         return true
