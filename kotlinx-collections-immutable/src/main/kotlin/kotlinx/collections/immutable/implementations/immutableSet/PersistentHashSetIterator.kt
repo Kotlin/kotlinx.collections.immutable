@@ -85,7 +85,7 @@ internal open class PersistentHashSetIterator<E>(node: TrieNode<E>) : Iterator<E
 }
 
 internal class TrieNodeIterator<out E> {
-    private var buffer = emptyArray<Any?>()
+    private var buffer = TrieNode.EMPTY.buffer
     private var index = 0
 
     fun reset(buffer: Array<Any?>, index: Int = 0) {

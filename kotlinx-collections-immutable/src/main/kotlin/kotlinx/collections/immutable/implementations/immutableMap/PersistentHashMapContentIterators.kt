@@ -3,7 +3,7 @@ package kotlinx.collections.immutable.implementations.immutableMap
 internal const val TRIE_MAX_HEIGHT = 7
 
 internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> {
-    protected var buffer = emptyArray<Any?>()
+    protected var buffer = TrieNode.EMPTY.buffer
         private set
     private var dataSize = 0
     protected var index = 0
