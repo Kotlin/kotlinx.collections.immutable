@@ -18,12 +18,6 @@ package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.*
 
-internal const val NO_MODIFICATION = 0
-internal const val UPDATE_VALUE = 1
-internal const val PUT_KEY_VALUE = 2
-internal class ModificationWrapper(var value: Int = NO_MODIFICATION)
-
-
 internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
                                        override val size: Int): AbstractMap<K, V>(), PersistentMap<K, V> {
 
@@ -61,11 +55,8 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     }
 
     override fun put(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
-        val modification = ModificationWrapper()
-        val newNode = node.put(key.hashCode(), key, value, 0, modification)
-        if (node === newNode) { return this }
-        val sizeDelta = if (modification.value == PUT_KEY_VALUE) 1 else 0
-        return PersistentHashMap(newNode, size + sizeDelta)
+        val newNodeResult = node.put(key.hashCode(), key, value, 0) ?: return this
+        return PersistentHashMap(newNodeResult.node, size + newNodeResult.sizeDelta)
     }
 
     override fun remove(key: K): PersistentHashMap<K, V> {

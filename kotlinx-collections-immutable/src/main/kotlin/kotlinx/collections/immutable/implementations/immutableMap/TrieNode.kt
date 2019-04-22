@@ -75,6 +75,14 @@ internal class TrieNode<K, V>(
 ) {
     constructor(dataMap: Int, nodeMap: Int, buffer: Array<Any?>) : this(dataMap, nodeMap, buffer, null)
 
+    internal class ModificationResult<K, V>(var node: TrieNode<K, V>, val sizeDelta: Int) {
+        inline fun replaceNode(operation: (TrieNode<K, V>) -> TrieNode<K, V>): ModificationResult<K, V> =
+                apply { node = operation(node) }
+    }
+
+    private fun asInsertResult() = ModificationResult(this, 1)
+    private fun asUpdateResult() = ModificationResult(this, 0)
+
     internal var buffer: Array<Any?> = buffer
         private set
 
@@ -333,21 +341,19 @@ internal class TrieNode<K, V>(
         return null
     }
 
-    private fun collisionPut(key: K, value: V, modification: ModificationWrapper): TrieNode<K, V> {
+    private fun collisionPut(key: K, value: V): ModificationResult<K, V>? {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
             if (key == buffer[i]) {
                 if (value === buffer[i + 1]) {
-                    return this
+                    return null
                 }
-                modification.value = UPDATE_VALUE
                 val newBuffer = buffer.copyOf()
                 newBuffer[i + 1] = value
-                return TrieNode(0, 0, newBuffer)
+                return TrieNode<K, V>(0, 0, newBuffer).asUpdateResult()
             }
         }
-        modification.value = PUT_KEY_VALUE
         val newBuffer = buffer.insertEntryAtIndex(0, key, value)
-        return TrieNode(0, 0, newBuffer)
+        return TrieNode<K, V>(0, 0, newBuffer).asInsertResult()
     }
 
     private fun mutableCollisionPut(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
@@ -454,37 +460,33 @@ internal class TrieNode<K, V>(
         return null
     }
 
-    fun put(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, modification: ModificationWrapper): TrieNode<K, V> {
+    fun put(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): ModificationResult<K, V>? {
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
             val keyIndex = entryKeyIndex(keyPositionMask)
 
             if (key == keyAtIndex(keyIndex)) {
-                modification.value = UPDATE_VALUE
-                if (valueAtKeyIndex(keyIndex) === value) return this
+                if (valueAtKeyIndex(keyIndex) === value) return null
 
-                return updateValueAtIndex(keyIndex, value)
+                return updateValueAtIndex(keyIndex, value).asUpdateResult()
             }
-            modification.value = PUT_KEY_VALUE
-            return moveEntryToNode(keyIndex, keyPositionMask, keyHash, key, value, shift)
+            return moveEntryToNode(keyIndex, keyPositionMask, keyHash, key, value, shift).asInsertResult()
         }
         if (hasNodeAt(keyPositionMask)) { // key is in node
             val nodeIndex = nodeIndex(keyPositionMask)
 
             val targetNode = nodeAtIndex(nodeIndex)
-            val newNode = if (shift == MAX_SHIFT) {
-                targetNode.collisionPut(key, value, modification)
+            val putResult = if (shift == MAX_SHIFT) {
+                targetNode.collisionPut(key, value) ?: return null
             } else {
-                targetNode.put(keyHash, key, value, shift + LOG_MAX_BRANCHING_FACTOR, modification)
+                targetNode.put(keyHash, key, value, shift + LOG_MAX_BRANCHING_FACTOR) ?: return null
             }
-            if (targetNode === newNode) return this
-            return updateNodeAtIndex(nodeIndex, newNode)
+            return putResult.replaceNode { node -> updateNodeAtIndex(nodeIndex, node) }
         }
 
         // no entry at this key hash segment
-        modification.value = PUT_KEY_VALUE
-        return insertEntryAt(keyPositionMask, key, value)
+        return insertEntryAt(keyPositionMask, key, value).asInsertResult()
     }
 
     fun mutablePut(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
