@@ -18,12 +18,15 @@ package kotlinx.collections.immutable.implementations.immutableSet
 
 import kotlinx.collections.immutable.PersistentSet
 
-internal class Marker
+internal class MutabilityOwnership
 
 internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
-    internal var marker = Marker()
+    internal var ownership = MutabilityOwnership()
+        private set
     internal var node = set.node
+        private set
     internal var modCount = 0
+        private set
 
     // Size change implies structural changes.
     override var size = set.size
@@ -36,7 +39,7 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
         set = if (node === set.node) {
             set
         } else {
-            marker = Marker()
+            ownership = MutabilityOwnership()
             PersistentHashSet(node, size)
         }
         return set

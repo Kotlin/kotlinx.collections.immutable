@@ -18,10 +18,11 @@ package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.PersistentMap
 
-internal class Marker
+internal class MutabilityOwnership
 
 internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
-    internal var marker = Marker()
+    internal var ownership = MutabilityOwnership()
+        private set
     internal var node = map.node
     internal var operationResult: V? = null
     internal var modCount = 0
@@ -37,7 +38,7 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
         map = if (node === map.node) {
             map
         } else {
-            marker = Marker()
+            ownership = MutabilityOwnership()
             PersistentHashMap(node, size)
         }
         return map

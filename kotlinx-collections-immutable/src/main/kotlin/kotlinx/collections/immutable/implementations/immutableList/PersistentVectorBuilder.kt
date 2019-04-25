@@ -20,13 +20,13 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 
-private class Marker // TODO: Rename to MutabilityOwnership?
+private class MutabilityOwnership // TODO: Rename to MutabilityOwnership?
 
 class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
                                  private var vectorRoot: Array<Any?>?,
                                  private var vectorTail: Array<Any?>,
                                  internal var rootShift: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
-    private var marker = Marker()
+    private var ownership = MutabilityOwnership()
     internal var root = vectorRoot
         private set
     internal var tail = vectorTail
@@ -40,7 +40,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         vector = if (root === vectorRoot && tail === vectorTail) {
             vector
         } else {
-            marker = Marker()
+            ownership = MutabilityOwnership()
             vectorRoot = root
             vectorTail = tail
             if (root == null) {
@@ -69,13 +69,13 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
     private fun makeMutable(buffer: Array<Any?>?): Array<Any?> {
         if (buffer == null) {
             val newBuffer = arrayOfNulls<Any?>(MUTABLE_BUFFER_SIZE)
-            newBuffer[MUTABLE_BUFFER_SIZE - 1] = marker
+            newBuffer[MUTABLE_BUFFER_SIZE - 1] = ownership
             return newBuffer
         }
-        if (buffer.size != MUTABLE_BUFFER_SIZE || buffer[MUTABLE_BUFFER_SIZE - 1] !== marker) {
+        if (buffer.size != MUTABLE_BUFFER_SIZE || buffer[MUTABLE_BUFFER_SIZE - 1] !== ownership) {
             val newBuffer = arrayOfNulls<Any?>(MUTABLE_BUFFER_SIZE)
             buffer.copyInto(newBuffer, endIndex = buffer.size.coerceAtMost(MAX_BUFFER_SIZE))
-            newBuffer[MUTABLE_BUFFER_SIZE - 1] = marker
+            newBuffer[MUTABLE_BUFFER_SIZE - 1] = ownership
             return newBuffer
         }
         return buffer
@@ -84,7 +84,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
     private fun mutableBufferWith(element: Any?): Array<Any?> {
         val buffer = arrayOfNulls<Any?>(MUTABLE_BUFFER_SIZE)
         buffer[0] = element
-        buffer[MUTABLE_BUFFER_SIZE - 1] = marker
+        buffer[MUTABLE_BUFFER_SIZE - 1] = ownership
         return buffer
     }
 
