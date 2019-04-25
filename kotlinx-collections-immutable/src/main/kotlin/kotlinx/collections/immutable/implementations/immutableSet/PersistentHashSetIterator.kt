@@ -108,11 +108,13 @@ internal class TrieNodeIterator<out E> {
 
     fun currentElement(): E {
         assert(hasNextElement())
+        @Suppress("UNCHECKED_CAST")
         return buffer[index] as E
     }
 
     fun nextElement(): E {
         assert(hasNextElement())
+        @Suppress("UNCHECKED_CAST")
         return buffer[index++] as E
     }
 
@@ -122,6 +124,7 @@ internal class TrieNodeIterator<out E> {
 
     fun currentNode(): TrieNode<out E> {
         assert(hasNextNode())
+        @Suppress("UNCHECKED_CAST")
         return buffer[index] as TrieNode<E>
     }
 }

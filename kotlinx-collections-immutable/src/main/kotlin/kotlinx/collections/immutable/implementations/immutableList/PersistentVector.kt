@@ -82,6 +82,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
             newRootNode[bufferIndex] = tail
             // don't delve into the leaf level
         } else {
+            @Suppress("UNCHECKED_CAST")
             newRootNode[bufferIndex] = pushTail(newRootNode[bufferIndex] as Array<Any?>?, shift - LOG_MAX_BUFFER_SIZE, tail)
         }
         return newRootNode

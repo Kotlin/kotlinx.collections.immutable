@@ -23,6 +23,7 @@ internal class TrieNodeMutableEntriesIterator<K, V>(private val builder: Persist
     override fun next(): MutableMap.MutableEntry<K, V> {
         assert(hasNextKey())
         index += 2
+        @Suppress("UNCHECKED_CAST")
         return MutableMapEntry(builder, buffer[index - 2] as K, buffer[index - 1] as V)
     }
 }

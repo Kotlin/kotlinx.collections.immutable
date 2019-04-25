@@ -27,6 +27,7 @@ internal open class PersistentOrderedSetIterator<E>(private var nextElement: Any
     override fun next(): E {
         checkHasNext()
 
+        @Suppress("UNCHECKED_CAST")
         val result = nextElement as E
         index++
         nextElement = map[result]!!.next

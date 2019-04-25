@@ -62,6 +62,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
         val newBuffer = buffer.copyOf()
         var newSize = 0
         for (element in buffer) {
+            @Suppress("UNCHECKED_CAST")
             if (!predicate(element as E)) {
                 newBuffer[newSize++] = element
             }
@@ -134,12 +135,14 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
 
     override fun listIterator(index: Int): ListIterator<E> {
         checkPositionIndex(index, size)
+        @Suppress("UNCHECKED_CAST")
         return BufferIterator(buffer as Array<E>, index, size)
     }
 
     override fun get(index: Int): E {
         // TODO: use elementAt(index)?
         checkElementIndex(index, size)
+        @Suppress("UNCHECKED_CAST")
         return buffer[index] as E
     }
 

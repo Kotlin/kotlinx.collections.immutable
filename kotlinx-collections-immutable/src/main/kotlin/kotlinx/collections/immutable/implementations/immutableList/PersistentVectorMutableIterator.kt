@@ -55,8 +55,10 @@ internal class PersistentVectorMutableIterator<T>(
 
         lastIteratedIndex = index - 1
 
+        @Suppress("UNCHECKED_CAST")
         val trieIterator = this.trieIterator ?: return builder.tail[--index] as T
         if (index > trieIterator.size) {
+            @Suppress("UNCHECKED_CAST")
             return builder.tail[--index - trieIterator.size] as T
         }
         index--
@@ -69,11 +71,13 @@ internal class PersistentVectorMutableIterator<T>(
 
         lastIteratedIndex = index
 
+        @Suppress("UNCHECKED_CAST")
         val trieIterator = this.trieIterator ?: return builder.tail[index++] as T
         if (trieIterator.hasNext()) {
             index++
             return trieIterator.next()
         }
+        @Suppress("UNCHECKED_CAST")
         return builder.tail[index++ - trieIterator.size] as T
     }
 

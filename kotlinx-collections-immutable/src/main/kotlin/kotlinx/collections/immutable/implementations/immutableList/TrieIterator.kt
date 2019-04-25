@@ -43,6 +43,7 @@ internal class TrieIterator<out E>(root: Array<Any?>,
         var shift = (height - startLevel) * LOG_MAX_BUFFER_SIZE
         var i = startLevel
         while (i < height) {
+            @Suppress("UNCHECKED_CAST")
             path[i] = (path[i - 1] as Array<Any?>)[indexSegment(index, shift)]
             shift -= LOG_MAX_BUFFER_SIZE
             i += 1
@@ -64,6 +65,7 @@ internal class TrieIterator<out E>(root: Array<Any?>,
 
     private fun elementAtCurrentIndex(): E {
         val leafBufferIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
+        @Suppress("UNCHECKED_CAST")
         return (path[height - 1] as Array<E>)[leafBufferIndex]
     }
 

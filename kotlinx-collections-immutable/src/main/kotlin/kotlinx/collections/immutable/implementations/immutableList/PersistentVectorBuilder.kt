@@ -162,6 +162,7 @@ class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
 
         val elementCarry = ObjectRef(null)
         val newRest = insertIntoRoot(root!!, rootShift, index, element, elementCarry)
+        @Suppress("UNCHECKED_CAST")
         insertIntoTail(newRest, 0, elementCarry.value as E)
     }
 
