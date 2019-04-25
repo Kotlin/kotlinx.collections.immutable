@@ -270,7 +270,7 @@ internal class TrieNode<K, V>(
     private fun mutableRemoveEntryAtIndex(keyIndex: Int, positionMask: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
 //        assert(hasEntryAt(positionMask))
         mutator.size--
-        mutator.operationResult = buffer[keyIndex + 1] as V
+        mutator.operationResult = valueAtKeyIndex(keyIndex)
         if (buffer.size == ENTRY_SIZE) return null
 
         if (marker === mutator.marker) {
@@ -291,8 +291,7 @@ internal class TrieNode<K, V>(
 
     private fun mutableCollisionRemoveEntryAtIndex(i: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         mutator.size--
-        @Suppress("UNCHECKED_CAST")
-        mutator.operationResult = buffer[i + 1] as V
+        mutator.operationResult = valueAtKeyIndex(i)
         if (buffer.size == ENTRY_SIZE) return null
 
         if (marker === mutator.marker) {
@@ -333,9 +332,8 @@ internal class TrieNode<K, V>(
 
     private fun collisionGet(key: K): V? {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i]) {
-                @Suppress("UNCHECKED_CAST")
-                return buffer[i + 1] as V
+            if (key == keyAtIndex(i)) {
+                return valueAtKeyIndex(i)
             }
         }
         return null
@@ -343,8 +341,8 @@ internal class TrieNode<K, V>(
 
     private fun collisionPut(key: K, value: V): ModificationResult<K, V>? {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i]) {
-                if (value === buffer[i + 1]) {
+            if (key == keyAtIndex(i)) {
+                if (value === valueAtKeyIndex(i)) {
                     return null
                 }
                 val newBuffer = buffer.copyOf()
@@ -359,9 +357,8 @@ internal class TrieNode<K, V>(
     private fun mutableCollisionPut(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
         // Check if there is an entry with the specified key.
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i]) { // found entry with the specified key
-                @Suppress("UNCHECKED_CAST")
-                mutator.operationResult = buffer[i + 1] as V
+            if (key == keyAtIndex(i)) { // found entry with the specified key
+                mutator.operationResult = valueAtKeyIndex(i)
 
                 // If the [mutator] is exclusive owner of this node, update value of the entry in-place.
                 if (marker === mutator.marker) {
@@ -385,7 +382,7 @@ internal class TrieNode<K, V>(
 
     private fun collisionRemove(key: K): TrieNode<K, V>? {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i]) {
+            if (key == keyAtIndex(i)) {
                 return collisionRemoveEntryAtIndex(i)
             }
         }
@@ -394,7 +391,7 @@ internal class TrieNode<K, V>(
 
     private fun mutableCollisionRemove(key: K, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i]) {
+            if (key == keyAtIndex(i)) {
                 return mutableCollisionRemoveEntryAtIndex(i, mutator)
             }
         }
@@ -403,7 +400,7 @@ internal class TrieNode<K, V>(
 
     private fun collisionRemove(key: K, value: V): TrieNode<K, V>? {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i] && value == buffer[i + 1]) {
+            if (key == keyAtIndex(i) && value == valueAtKeyIndex(i)) {
                 return collisionRemoveEntryAtIndex(i)
             }
         }
@@ -412,7 +409,7 @@ internal class TrieNode<K, V>(
 
     private fun mutableCollisionRemove(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i] && value == buffer[i + 1]) {
+            if (key == keyAtIndex(i) && value == valueAtKeyIndex(i)) {
                 return mutableCollisionRemoveEntryAtIndex(i, mutator)
             }
         }
