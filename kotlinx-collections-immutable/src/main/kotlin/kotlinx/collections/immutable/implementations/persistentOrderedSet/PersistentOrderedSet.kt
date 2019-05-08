@@ -18,7 +18,7 @@ package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
-import kotlinx.collections.immutable.implementations.persistentOrderedMap.EndOfChain
+import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.mutate
 
 internal class Links(val previous: Any?, val next: Any?) {

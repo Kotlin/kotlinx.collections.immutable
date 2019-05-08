@@ -17,6 +17,7 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedMap
 
 import kotlinx.collections.immutable.implementations.immutableMap.MapEntry
+import kotlinx.collections.immutable.internal.EndOfChain
 
 internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
         private var nextKey: Any?,

@@ -17,7 +17,7 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
 import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.implementations.persistentOrderedMap.EndOfChain
+import kotlinx.collections.immutable.internal.EndOfChain
 
 internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrderedSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
     internal var firstElement = set.firstElement
