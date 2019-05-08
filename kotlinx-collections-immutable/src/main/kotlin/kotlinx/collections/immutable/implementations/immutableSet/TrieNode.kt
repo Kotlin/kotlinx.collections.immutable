@@ -16,6 +16,8 @@
 
 package kotlinx.collections.immutable.implementations.immutableSet
 
+import kotlinx.collections.immutable.internal.MutabilityOwnership
+
 
 internal const val MAX_BRANCHING_FACTOR = 32
 internal const val LOG_MAX_BRANCHING_FACTOR = 5

@@ -17,8 +17,7 @@
 package kotlinx.collections.immutable.implementations.immutableSet
 
 import kotlinx.collections.immutable.PersistentSet
-
-internal class MutabilityOwnership
+import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
     internal var ownership = MutabilityOwnership()

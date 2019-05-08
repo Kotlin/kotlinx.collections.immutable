@@ -17,8 +17,7 @@
 package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.PersistentMap
-
-internal class MutabilityOwnership
+import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
     internal var ownership = MutabilityOwnership()

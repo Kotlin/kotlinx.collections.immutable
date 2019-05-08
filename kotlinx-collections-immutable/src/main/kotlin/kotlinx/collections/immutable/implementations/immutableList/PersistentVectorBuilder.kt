@@ -19,8 +19,7 @@ package kotlinx.collections.immutable.implementations.immutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
-
-private class MutabilityOwnership // TODO: Rename to MutabilityOwnership?
+import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
                                  private var vectorRoot: Array<Any?>?,
