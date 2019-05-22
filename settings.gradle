@@ -1,4 +1,12 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://dl.bintray.com/orangy/maven' }
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name = 'Kotlin Immutable Collections'
 include ':pcollections'
 include ':kotlinx-collections-immutable'
 include ':kotlinx-collections-immutable:tests'
+include ':benchmarks-mpp'
