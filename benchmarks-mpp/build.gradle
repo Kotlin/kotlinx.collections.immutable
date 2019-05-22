@@ -1,0 +1,39 @@
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform' version '1.3.31'
+    id 'org.jetbrains.gradle.benchmarks.plugin' version '0.1.7-dev-21'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://dl.bintray.com/orangy/maven' }
+}
+
+apply plugin: 'maven-publish'
+
+kotlin {
+    jvm()
+
+    sourceSets {
+        commonMain {
+        }
+        commonTest {
+        }
+        jvmMain {
+            dependencies {
+                implementation kotlin('stdlib-jdk8')
+                implementation project(path: ':kotlinx-collections-immutable')
+                implementation 'org.jetbrains.gradle.benchmarks:runtime-jvm:0.1.7-dev-21'
+            }
+        }
+        jvmTest {
+        }
+    }
+}
+
+benchmark {
+    configurations {
+        register("jvm") {
+            jmhVersion = "1.21"
+        }
+    }
+}
