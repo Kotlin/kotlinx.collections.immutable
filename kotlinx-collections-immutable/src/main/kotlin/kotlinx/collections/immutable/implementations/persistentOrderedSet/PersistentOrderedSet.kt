@@ -109,7 +109,7 @@ internal class PersistentOrderedSet<E>(
     }
 
     internal companion object {
-        private val EMPTY = PersistentOrderedSet<Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf<Nothing, Links>())
+        private val EMPTY = PersistentOrderedSet<Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf())
         internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
     }
 }

@@ -139,7 +139,7 @@ internal class PersistentOrderedMap<K, V>(
     }
 
     internal companion object {
-        private val EMPTY = PersistentOrderedMap<Nothing, Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf<Nothing, LinkedValue<Nothing>>())
+        private val EMPTY = PersistentOrderedMap<Nothing, Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf())
         @Suppress("UNCHECKED_CAST")
         internal fun <K, V> emptyOf(): PersistentOrderedMap<K, V> = EMPTY as PersistentOrderedMap<K, V>
     }
