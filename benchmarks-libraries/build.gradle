@@ -1,0 +1,39 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.21'
+    id "me.champeau.gradle.jmh" version "0.4.8"
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'http://nexus.usethesource.io/content/repositories/public/' }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    
+    implementation project(path: ':kotlinx-collections-immutable')
+    implementation 'io.usethesource:capsule:0.6.1'
+    implementation 'org.organicdesign:Paguro:3.1.2'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+jmh {
+    include = ['immutableList', 'immutableMap', 'immutableSet']
+    exclude = ['builder']
+
+    warmup = '1s'
+    warmupIterations = 5
+    timeOnIteration = '1s'
+    iterations = 5
+    benchmarkMode = ['avgt']
+    benchmarkParameters = [
+            'size':['10000'], 
+            'implementation': ['hash'], 
+            'hashCodeType':['random'], 
+            'immutablePercentage':['0']
+    ]
+}
