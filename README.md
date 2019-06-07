@@ -1,6 +1,6 @@
 # Immutable Collections Library for Kotlin
 
-[![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [ ![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.collections.immutable/images/download.svg) ](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable/_latestVersion)
+[![JetBrains incubator project](https://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub) [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [ ![Download](https://api.bintray.com/packages/kotlin/kotlinx/kotlinx.collections.immutable/images/download.svg) ](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable/_latestVersion)
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
