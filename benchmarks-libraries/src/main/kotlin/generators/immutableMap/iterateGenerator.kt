@@ -25,7 +25,7 @@ interface MapIterateBenchmark {
 }
 
 class MapIterateBenchmarkGenerator(private val impl: MapIterateBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Iterate"
+    override val outputFileName: String = "Iterate"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableMap." + impl.packageName

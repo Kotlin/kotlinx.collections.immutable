@@ -16,10 +16,12 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.paguro
+package benchmarks.immutableMap.paguro.builder
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
+import org.openjdk.jmh.infra.Blackhole
+import benchmarks.*
 
 @Fork(1)
 @Warmup(iterations = 5)
@@ -27,23 +29,32 @@ import java.util.concurrent.TimeUnit
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
-open class Remove {
+open class Get {
     @Param("10000", "100000")
     var size: Int = 0
 
-    private var persistentList = org.organicdesign.fp.collections.RrbTree.empty<String>()
+    @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
+    var hashCodeType = ""
+
+    @Param("0.0", "50.0")
+    var immutablePercentage: Double = 0.0
+
+    private var keys = listOf<IntWrapper>()
+    private var builder = org.organicdesign.fp.collections.PersistentHashMap.emptyMutable<IntWrapper, String>()
 
     @Setup(Level.Trial)
     fun prepare() {
-        persistentList = persistentListAdd(size)
+        keys = generateKeys(hashCodeType, size)
+        builder = persistentMapBuilderPut(keys, immutablePercentage)
+
+        if (hashCodeType == NON_EXISTING_HASH_CODE)
+            keys = generateKeys(hashCodeType, size)
     }
 
     @Benchmark
-    fun removeLast(): org.organicdesign.fp.collections.RrbTree.ImRrbt<String> {
-        var list = persistentList
-        repeat(times = size) {
-            list = list.without(list.size - 1)
+    fun get(bh: Blackhole) {
+        repeat(times = size) { index ->
+            bh.consume(builder[keys[index]])
         }
-        return list
     }
 }

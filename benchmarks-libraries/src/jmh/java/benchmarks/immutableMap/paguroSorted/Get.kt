@@ -16,10 +16,12 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.paguro
+package benchmarks.immutableMap.paguroSorted
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
+import org.openjdk.jmh.infra.Blackhole
+import benchmarks.*
 
 @Fork(1)
 @Warmup(iterations = 5)
@@ -27,32 +29,30 @@ import java.util.concurrent.TimeUnit
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
-open class Set {
+open class Get {
     @Param("10000", "100000")
     var size: Int = 0
 
-    private var persistentList = org.organicdesign.fp.collections.RrbTree.empty<String>()
-    private var randomIndices = listOf<Int>()
+    @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
+    var hashCodeType = ""
+
+    private var keys = listOf<IntWrapper>()
+    private var persistentMap = org.organicdesign.fp.collections.PersistentTreeMap.empty<IntWrapper, String>()
 
     @Setup(Level.Trial)
     fun prepare() {
-        persistentList = persistentListAdd(size)
-        randomIndices = List(size) { it }.shuffled()
+        keys = generateKeys(hashCodeType, size)
+        persistentMap = persistentMapPut(keys)
+
+        if (hashCodeType == NON_EXISTING_HASH_CODE)
+            keys = generateKeys(hashCodeType, size)
+
     }
 
     @Benchmark
-    fun setByIndex(): org.organicdesign.fp.collections.RrbTree.ImRrbt<String> {
+    fun get(bh: Blackhole) {
         repeat(times = size) { index ->
-            persistentList = persistentList.replace(index, "another element")
+            bh.consume(persistentMap[keys[index]])
         }
-        return persistentList
-    }
-
-    @Benchmark
-    fun setByRandomIndex(): org.organicdesign.fp.collections.RrbTree.ImRrbt<String> {
-        repeat(times = size) { index ->
-            persistentList = persistentList.replace(randomIndices[index], "another element")
-        }
-        return persistentList
     }
 }

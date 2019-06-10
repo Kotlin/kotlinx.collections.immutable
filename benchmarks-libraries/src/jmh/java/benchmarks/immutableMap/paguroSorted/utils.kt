@@ -16,14 +16,14 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableMap.capsule
+package benchmarks.immutableMap.paguroSorted
 
 import benchmarks.IntWrapper
 
-fun persistentMapPut(keys: List<IntWrapper>): io.usethesource.capsule.Map.Immutable<IntWrapper, String> {
-    var map = io.usethesource.capsule.core.PersistentTrieMap.of<IntWrapper, String>()
+fun persistentMapPut(keys: List<IntWrapper>): org.organicdesign.fp.collections.PersistentTreeMap<IntWrapper, String> {
+    var map = org.organicdesign.fp.collections.PersistentTreeMap.empty<IntWrapper, String>()
     for (key in keys) {
-        map = map.__put(key, "some element")
+        map = map.assoc(key, "some element")
     }
     return map
 }

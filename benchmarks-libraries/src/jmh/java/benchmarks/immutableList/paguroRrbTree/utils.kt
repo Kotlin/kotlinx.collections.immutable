@@ -16,14 +16,13 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableMap.capsule
+package benchmarks.immutableList.paguroRrbTree
 
-import benchmarks.IntWrapper
 
-fun persistentMapPut(keys: List<IntWrapper>): io.usethesource.capsule.Map.Immutable<IntWrapper, String> {
-    var map = io.usethesource.capsule.core.PersistentTrieMap.of<IntWrapper, String>()
-    for (key in keys) {
-        map = map.__put(key, "some element")
+fun persistentListAdd(size: Int): org.organicdesign.fp.collections.RrbTree.ImRrbt<String> {
+    var list = org.organicdesign.fp.collections.RrbTree.empty<String>()
+    repeat(times = size) {
+        list = list.append("some element")
     }
-    return map
+    return list
 }

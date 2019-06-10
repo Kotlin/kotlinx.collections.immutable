@@ -27,7 +27,7 @@ interface SetBuilderRemoveBenchmark {
 }
 
 class SetBuilderRemoveBenchmarkGenerator(private val impl: SetBuilderRemoveBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Remove"
+    override val outputFileName: String = "Remove"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableSet." + impl.packageName

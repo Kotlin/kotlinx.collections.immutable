@@ -18,7 +18,7 @@ package generators.immutableList.impl
 
 import generators.immutableList.*
 
-class ListPaguroBenchmark:
+class ListPaguroRrbTreeBenchmark:
         ListAddBenchmark,
         ListGetBenchmark,
         ListIterateBenchmark,
@@ -26,7 +26,7 @@ class ListPaguroBenchmark:
         ListSetBenchmark,
         ListBenchmarkUtils
 {
-    override val packageName: String = "paguro"
+    override val packageName: String = "paguroRrbTree"
 
     override fun listType(T: String): String = "org.organicdesign.fp.collections.RrbTree.ImRrbt<$T>"
 

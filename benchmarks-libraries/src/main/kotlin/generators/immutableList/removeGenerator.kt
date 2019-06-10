@@ -27,7 +27,7 @@ interface ListRemoveBenchmark {
 }
 
 class ListRemoveBenchmarkGenerator(private val impl: ListRemoveBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Remove"
+    override val outputFileName: String = "Remove"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableList." + impl.packageName

@@ -27,7 +27,7 @@ interface ListBuilderSetBenchmark {
 }
 
 class ListBuilderSetBenchmarkGenerator(private val impl: ListBuilderSetBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Set"
+    override val outputFileName: String = "Set"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableList." + impl.packageName
