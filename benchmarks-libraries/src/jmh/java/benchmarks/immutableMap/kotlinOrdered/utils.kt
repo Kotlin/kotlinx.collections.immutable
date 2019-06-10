@@ -18,9 +18,10 @@
 
 package benchmarks.immutableMap.kotlinOrdered
 
+import benchmarks.IntWrapper
 
-fun <K> persistentMapPut(keys: List<K>): kotlinx.collections.immutable.PersistentMap<K, String> {
-    var map = kotlinx.collections.immutable.persistentMapOf<K, String>()
+fun persistentMapPut(keys: List<IntWrapper>): kotlinx.collections.immutable.PersistentMap<IntWrapper, String> {
+    var map = kotlinx.collections.immutable.persistentMapOf<IntWrapper, String>()
     for (key in keys) {
         map = map.put(key, "some element")
     }

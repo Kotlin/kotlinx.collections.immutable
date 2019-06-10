@@ -25,7 +25,7 @@ interface SetBuilderAddBenchmark {
 }
 
 class SetBuilderAddBenchmarkGenerator(private val impl: SetBuilderAddBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Add"
+    override val outputFileName: String = "Add"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableSet." + impl.packageName

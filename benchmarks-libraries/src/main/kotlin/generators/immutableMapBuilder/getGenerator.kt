@@ -25,7 +25,7 @@ interface MapBuilderGetBenchmark {
 }
 
 class MapBuilderGetBenchmarkGenerator(private val impl: MapBuilderGetBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Get"
+    override val outputFileName: String = "Get"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableMap." + impl.packageName

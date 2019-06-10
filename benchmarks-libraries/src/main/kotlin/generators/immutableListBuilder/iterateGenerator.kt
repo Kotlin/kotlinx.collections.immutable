@@ -25,7 +25,7 @@ interface ListBuilderIterateBenchmark {
 }
 
 class ListBuilderIterateBenchmarkGenerator(private val impl: ListBuilderIterateBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Iterate"
+    override val outputFileName: String = "Iterate"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableList." + impl.packageName

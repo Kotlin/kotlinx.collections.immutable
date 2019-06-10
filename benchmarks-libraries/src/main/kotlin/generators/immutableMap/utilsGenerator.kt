@@ -31,10 +31,12 @@ class MapUtilsGenerator(private val impl: MapBenchmarkUtils): BenchmarkUtilsGene
 
     override val outputFileName: String = "utils"
 
+    override val imports: Set<String> = super.imports + "benchmarks.IntWrapper"
+
     override fun generateBody(out: PrintWriter) {
         out.println("""
-fun <K> persistentMapPut(keys: List<K>): ${impl.mapType("K", "String")} {
-    var map = ${impl.emptyOf("K", "String")}
+fun persistentMapPut(keys: List<IntWrapper>): ${impl.mapType("IntWrapper", "String")} {
+    var map = ${impl.emptyOf("IntWrapper", "String")}
     for (key in keys) {
         map = map.${impl.putOperation}(key, "some element")
     }

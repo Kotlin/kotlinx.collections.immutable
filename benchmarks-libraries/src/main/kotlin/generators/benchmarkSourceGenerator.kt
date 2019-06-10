@@ -18,18 +18,17 @@ package generators
 
 import generators.immutableList.*
 import generators.immutableList.impl.ListKotlinBenchmark
-import generators.immutableList.impl.ListPaguroBenchmark
+import generators.immutableList.impl.ListPaguroRrbTreeBenchmark
 import generators.immutableListBuilder.*
 import generators.immutableListBuilder.impl.ListBuilderKotlinBenchmark
 import generators.immutableListBuilder.impl.ListBuilderPaguroBenchmark
 import generators.immutableMap.*
-import generators.immutableMap.impl.MapCapsuleBenchmark
-import generators.immutableMap.impl.MapKotlinBenchmark
-import generators.immutableMap.impl.MapKotlinOrderedBenchmark
+import generators.immutableMap.impl.*
 import generators.immutableMapBuilder.*
 import generators.immutableMapBuilder.impl.MapBuilderCapsuleBenchmark
 import generators.immutableMapBuilder.impl.MapBuilderKotlinBenchmark
 import generators.immutableMapBuilder.impl.MapBuilderKotlinOrderedBenchmark
+import generators.immutableMapBuilder.impl.MapBuilderPaguroBenchmark
 import generators.immutableSet.*
 import generators.immutableSet.impl.SetCapsuleBenchmark
 import generators.immutableSet.impl.SetKotlinBenchmark
@@ -46,7 +45,7 @@ import javax.xml.xpath.XPathFactory
 abstract class BenchmarkSourceGenerator {
     protected abstract fun generateBody(out: PrintWriter): Unit
 
-    abstract val benchmarkName: String
+    abstract val outputFileName: String
 
     open fun getPackage(): String = "benchmarks"
 
@@ -122,7 +121,7 @@ private const val BENCHMARKS_ROOT = "benchmarks-libraries/src/jmh/java/"
 
 private val listImpls = listOf(
         ListKotlinBenchmark(),
-        ListPaguroBenchmark()
+        ListPaguroRrbTreeBenchmark()
 )
 private val listBuilderImpls = listOf(
         ListBuilderKotlinBenchmark(),
@@ -132,12 +131,15 @@ private val listBuilderImpls = listOf(
 private val mapImpls = listOf(
         MapKotlinBenchmark(),
         MapKotlinOrderedBenchmark(),
-        MapCapsuleBenchmark()
+        MapCapsuleBenchmark(),
+        MapPaguroBenchmark(),
+        MapPaguroSortedBenchmark()
 )
 private val mapBuilderImpls = listOf(
         MapBuilderKotlinBenchmark(),
         MapBuilderKotlinOrderedBenchmark(),
-        MapBuilderCapsuleBenchmark()
+        MapBuilderCapsuleBenchmark(),
+        MapBuilderPaguroBenchmark()
 )
 
 private val setImpls = listOf(
@@ -197,7 +199,7 @@ fun generateBenchmarks() {
     val allBenchmarks = (listBenchmarks + listBuilderBenchmarks + mapBenchmarks + mapBuilderBenchmarks + setBenchmarks + setBuilderBenchmarks).flatten()
 
     allBenchmarks.forEach { benchmark ->
-        val path = benchmark.getPackage().replace('.', '/') + "/" + benchmark.benchmarkName + ".kt"
+        val path = benchmark.getPackage().replace('.', '/') + "/" + benchmark.outputFileName + ".kt"
         val file = File(BENCHMARKS_ROOT + path)
         file.parentFile?.mkdirs()
         val out = PrintWriter(file)

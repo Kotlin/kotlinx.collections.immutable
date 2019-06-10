@@ -25,7 +25,7 @@ interface SetIterateBenchmark {
 }
 
 class SetIterateBenchmarkGenerator(private val impl: SetIterateBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Iterate"
+    override val outputFileName: String = "Iterate"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableSet." + impl.packageName

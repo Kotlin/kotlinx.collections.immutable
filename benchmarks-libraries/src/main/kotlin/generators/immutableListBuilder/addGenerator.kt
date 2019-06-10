@@ -25,7 +25,7 @@ interface ListBuilderAddBenchmark {
 }
 
 class ListBuilderAddBenchmarkGenerator(private val impl: ListBuilderAddBenchmark) : BenchmarkSourceGenerator() {
-    override val benchmarkName: String = "Add"
+    override val outputFileName: String = "Add"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableList." + impl.packageName
