@@ -32,22 +32,6 @@ dependencies {
     runtimeOnly project(path: ':kotlinx-collections-immutable')
 }
 
-/*
-task copyLibrariesBenchmarkList(type: Copy, dependsOn: ':benchmarks-libraries:jmhRunBytecodeGenerator', group: "librariesBenchmark") {
-    from "${project(':benchmarks-libraries').buildDir}/jmh-generated-resources"
-    into sourceSets.main.output.resourcesDir
-}
-
-task benchmarkLibraries(type: JavaExec, group: "librariesBenchmark") {
-    dependsOn copyLibrariesBenchmarkList
-    dependsOn ':benchmarks-libraries:jmhJar'
-
-    main = 'RunnerKt'
-    classpath = sourceSets.main.runtimeClasspath
-    classpath += files("../benchmarks-libraries/build/libs/benchmarks-libraries-jmh.jar")
-}
-*/
-
 task copyKotlinBenchmarkList(type: Copy, dependsOn: ':benchmarks-mpp:jvmBenchmarkGenerate', group: "kotlinBenchmark") {
     from "${project(':benchmarks-mpp').buildDir}/benchmarks/jvm/resources"
     into sourceSets.main.output.resourcesDir

@@ -4,6 +4,7 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     jcenter()
     maven { url 'http://nexus.usethesource.io/content/repositories/public/' }
@@ -12,9 +13,10 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     
-    implementation project(path: ':kotlinx-collections-immutable')
+    implementation 'org.jetbrains.kotlinx:kotlinx-collections-immutable:0.1-SNAPSHOT'
     implementation 'io.usethesource:capsule:0.6.1'
     implementation 'org.organicdesign:Paguro:3.1.2'
+    implementation 'com.oath.cyclops:cyclops:10.3.0'
 }
 
 compileKotlin {
