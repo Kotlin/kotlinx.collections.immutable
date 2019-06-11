@@ -41,7 +41,7 @@ open class Get {
 
     @Benchmark
     fun getByIndex(bh: Blackhole) {
-        for (i in 0 until persistentList.size) {
+        for (i in 0 until size) {
             bh.consume(persistentList[i])
         }
     }

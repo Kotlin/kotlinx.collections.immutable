@@ -16,11 +16,10 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.kotlin
+package benchmarks.immutableList.cyclops
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
-import org.openjdk.jmh.infra.Blackhole
 
 @Fork(1)
 @Warmup(iterations = 5)
@@ -28,28 +27,32 @@ import org.openjdk.jmh.infra.Blackhole
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
-open class Add {
+open class Set {
     @Param("10000", "100000")
     var size: Int = 0
 
-    @Benchmark
-    fun addLast(): kotlinx.collections.immutable.PersistentList<String> {
-        return persistentListAdd(size)
+    private var persistentList = cyclops.data.Vector.empty<String>()
+    private var randomIndices = listOf<Int>()
+
+    @Setup(Level.Trial)
+    fun prepare() {
+        persistentList = persistentListAdd(size)
+        randomIndices = List(size) { it }.shuffled()
     }
 
     @Benchmark
-    fun addLastAndIterate(bh: Blackhole) {
-        val list = persistentListAdd(size)
-        for (e in list) {
-            bh.consume(e)
+    fun setByIndex(): cyclops.data.Vector<String> {
+        repeat(times = size) { index ->
+            persistentList = persistentList.updateAt(index, "another element")
         }
+        return persistentList
     }
 
     @Benchmark
-    fun addLastAndGet(bh: Blackhole) {
-        val list = persistentListAdd(size)
-        for (i in 0 until size) {
-            bh.consume(list[i])
+    fun setByRandomIndex(): cyclops.data.Vector<String> {
+        repeat(times = size) { index ->
+            persistentList = persistentList.updateAt(randomIndices[index], "another element")
         }
+        return persistentList
     }
 }

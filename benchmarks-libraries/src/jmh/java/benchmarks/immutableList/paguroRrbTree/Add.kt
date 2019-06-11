@@ -48,7 +48,7 @@ open class Add {
     @Benchmark
     fun addLastAndGet(bh: Blackhole) {
         val list = persistentListAdd(size)
-        for (i in 0 until list.size) {
+        for (i in 0 until size) {
             bh.consume(list[i])
         }
     }

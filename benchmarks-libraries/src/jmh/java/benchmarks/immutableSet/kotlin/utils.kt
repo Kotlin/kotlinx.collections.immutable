@@ -18,9 +18,10 @@
 
 package benchmarks.immutableSet.kotlin
 
+import benchmarks.IntWrapper
 
-fun <E> persistentSetAdd(elements: List<E>): kotlinx.collections.immutable.PersistentSet<E> {
-    var set = kotlinx.collections.immutable.persistentHashSetOf<E>()
+fun persistentSetAdd(elements: List<IntWrapper>): kotlinx.collections.immutable.PersistentSet<IntWrapper> {
+    var set = kotlinx.collections.immutable.persistentHashSetOf<IntWrapper>()
     for (element in elements) {
         set = set.add(element)
     }

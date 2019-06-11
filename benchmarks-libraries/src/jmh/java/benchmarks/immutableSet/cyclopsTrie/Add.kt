@@ -16,11 +16,12 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.kotlin
+package benchmarks.immutableSet.cyclopsTrie
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.infra.Blackhole
+import benchmarks.*
 
 @Fork(1)
 @Warmup(iterations = 5)
@@ -32,24 +33,34 @@ open class Add {
     @Param("10000", "100000")
     var size: Int = 0
 
-    @Benchmark
-    fun addLast(): kotlinx.collections.immutable.PersistentList<String> {
-        return persistentListAdd(size)
+    @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE)
+    var hashCodeType = ""
+
+    private var elements = listOf<IntWrapper>()
+
+    @Setup(Level.Trial)
+    fun prepare() {
+        elements = generateElements(hashCodeType, size)
     }
 
     @Benchmark
-    fun addLastAndIterate(bh: Blackhole) {
-        val list = persistentListAdd(size)
-        for (e in list) {
-            bh.consume(e)
+    fun add(): cyclops.data.TrieSet<IntWrapper> {
+        return persistentSetAdd(elements)
+    }
+
+    @Benchmark
+    fun addAndContains(bh: Blackhole) {
+        val set = persistentSetAdd(elements)
+        repeat(times = size) { index ->
+            bh.consume(set.contains(elements[index]))
         }
     }
 
     @Benchmark
-    fun addLastAndGet(bh: Blackhole) {
-        val list = persistentListAdd(size)
-        for (i in 0 until size) {
-            bh.consume(list[i])
+    fun addAndIterate(bh: Blackhole) {
+        val set = persistentSetAdd(elements)
+        for (element in set) {
+            bh.consume(element)
         }
     }
 }

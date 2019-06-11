@@ -16,12 +16,12 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableSet.kotlinOrdered
+package benchmarks.immutableSet.cyclopsTrie
 
 import benchmarks.IntWrapper
 
-fun persistentSetAdd(elements: List<IntWrapper>): kotlinx.collections.immutable.PersistentSet<IntWrapper> {
-    var set = kotlinx.collections.immutable.persistentSetOf<IntWrapper>()
+fun persistentSetAdd(elements: List<IntWrapper>): cyclops.data.TrieSet<IntWrapper> {
+    var set = cyclops.data.TrieSet.empty<IntWrapper>()
     for (element in elements) {
         set = set.add(element)
     }

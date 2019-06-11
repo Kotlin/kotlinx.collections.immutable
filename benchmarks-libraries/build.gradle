@@ -23,6 +23,11 @@ compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+task generateBenchmarkSources(type: JavaExec) {
+    main = 'generators.BenchmarkSourceGeneratorKt'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 jmh {
     include = ['immutableList', 'immutableMap', 'immutableSet']
     exclude = ['builder']
