@@ -17,6 +17,7 @@
 package generators
 
 import generators.immutableList.*
+import generators.immutableList.impl.ListCyclopsBenchmark
 import generators.immutableList.impl.ListKotlinBenchmark
 import generators.immutableList.impl.ListPaguroRrbTreeBenchmark
 import generators.immutableListBuilder.*
@@ -30,9 +31,7 @@ import generators.immutableMapBuilder.impl.MapBuilderKotlinBenchmark
 import generators.immutableMapBuilder.impl.MapBuilderKotlinOrderedBenchmark
 import generators.immutableMapBuilder.impl.MapBuilderPaguroBenchmark
 import generators.immutableSet.*
-import generators.immutableSet.impl.SetCapsuleBenchmark
-import generators.immutableSet.impl.SetKotlinBenchmark
-import generators.immutableSet.impl.SetKotlinOrderedBenchmark
+import generators.immutableSet.impl.*
 import generators.immutableSetBuilder.*
 import generators.immutableSetBuilder.impl.SetBuilderCapsuleBenchmark
 import generators.immutableSetBuilder.impl.SetBuilderKotlinBenchmark
@@ -121,7 +120,8 @@ private const val BENCHMARKS_ROOT = "benchmarks-libraries/src/jmh/java/"
 
 private val listImpls = listOf(
         ListKotlinBenchmark(),
-        ListPaguroRrbTreeBenchmark()
+        ListPaguroRrbTreeBenchmark(),
+        ListCyclopsBenchmark()
 )
 private val listBuilderImpls = listOf(
         ListBuilderKotlinBenchmark(),
@@ -133,7 +133,10 @@ private val mapImpls = listOf(
         MapKotlinOrderedBenchmark(),
         MapCapsuleBenchmark(),
         MapPaguroBenchmark(),
-        MapPaguroSortedBenchmark()
+        MapPaguroSortedBenchmark(),
+        MapCyclopsBenchmark(),
+        MapCyclopsOrderedBenchmark(),
+        MapCyclopsTrieBenchmark()
 )
 private val mapBuilderImpls = listOf(
         MapBuilderKotlinBenchmark(),
@@ -145,7 +148,10 @@ private val mapBuilderImpls = listOf(
 private val setImpls = listOf(
         SetKotlinBenchmark(),
         SetKotlinOrderedBenchmark(),
-        SetCapsuleBenchmark()
+        SetCapsuleBenchmark(),
+        SetCyclopsBenchmark(),
+        SetCyclopsTrieBenchmark(),
+        SetCyclopsSortedBenchmark()
 )
 private val setBuilderImpls = listOf(
         SetBuilderKotlinBenchmark(),

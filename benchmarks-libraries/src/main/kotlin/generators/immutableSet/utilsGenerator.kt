@@ -31,10 +31,12 @@ class SetUtilsGenerator(private val impl: SetBenchmarkUtils): BenchmarkUtilsGene
 
     override val outputFileName: String = "utils"
 
+    override val imports: Set<String> = super.imports + "benchmarks.IntWrapper"
+
     override fun generateBody(out: PrintWriter) {
         out.println("""
-fun <E> persistentSetAdd(elements: List<E>): ${impl.setType("E")} {
-    var set = ${impl.emptyOf("E")}
+fun persistentSetAdd(elements: List<IntWrapper>): ${impl.setType("IntWrapper")} {
+    var set = ${impl.emptyOf("IntWrapper")}
     for (element in elements) {
         set = set.${impl.addOperation}(element)
     }

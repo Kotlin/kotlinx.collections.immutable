@@ -16,7 +16,7 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.kotlin
+package benchmarks.immutableList.cyclops
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
@@ -33,7 +33,7 @@ open class Add {
     var size: Int = 0
 
     @Benchmark
-    fun addLast(): kotlinx.collections.immutable.PersistentList<String> {
+    fun addLast(): cyclops.data.Vector<String> {
         return persistentListAdd(size)
     }
 

@@ -16,11 +16,12 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.kotlin
+package benchmarks.immutableMap.cyclops
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.infra.Blackhole
+import benchmarks.*
 
 @Fork(1)
 @Warmup(iterations = 5)
@@ -28,28 +29,30 @@ import org.openjdk.jmh.infra.Blackhole
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
-open class Add {
+open class Get {
     @Param("10000", "100000")
     var size: Int = 0
 
-    @Benchmark
-    fun addLast(): kotlinx.collections.immutable.PersistentList<String> {
-        return persistentListAdd(size)
+    @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
+    var hashCodeType = ""
+
+    private var keys = listOf<IntWrapper>()
+    private var persistentMap = cyclops.data.HashMap.empty<IntWrapper, String>()
+
+    @Setup(Level.Trial)
+    fun prepare() {
+        keys = generateKeys(hashCodeType, size)
+        persistentMap = persistentMapPut(keys)
+
+        if (hashCodeType == NON_EXISTING_HASH_CODE)
+            keys = generateKeys(hashCodeType, size)
+
     }
 
     @Benchmark
-    fun addLastAndIterate(bh: Blackhole) {
-        val list = persistentListAdd(size)
-        for (e in list) {
-            bh.consume(e)
-        }
-    }
-
-    @Benchmark
-    fun addLastAndGet(bh: Blackhole) {
-        val list = persistentListAdd(size)
-        for (i in 0 until size) {
-            bh.consume(list[i])
+    fun get(bh: Blackhole) {
+        repeat(times = size) { index ->
+            bh.consume(persistentMap[keys[index]])
         }
     }
 }

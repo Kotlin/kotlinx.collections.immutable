@@ -16,14 +16,14 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableSet.kotlinOrdered
+package benchmarks.immutableMap.cyclopsTrie
 
 import benchmarks.IntWrapper
 
-fun persistentSetAdd(elements: List<IntWrapper>): kotlinx.collections.immutable.PersistentSet<IntWrapper> {
-    var set = kotlinx.collections.immutable.persistentSetOf<IntWrapper>()
-    for (element in elements) {
-        set = set.add(element)
+fun persistentMapPut(keys: List<IntWrapper>): cyclops.data.TrieMap<IntWrapper, String> {
+    var map = cyclops.data.TrieMap.empty<IntWrapper, String>()
+    for (key in keys) {
+        map = map.put(key, "some element")
     }
-    return set
+    return map
 }

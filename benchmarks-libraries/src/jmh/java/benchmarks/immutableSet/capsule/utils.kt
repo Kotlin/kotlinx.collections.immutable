@@ -18,9 +18,10 @@
 
 package benchmarks.immutableSet.capsule
 
+import benchmarks.IntWrapper
 
-fun <E> persistentSetAdd(elements: List<E>): io.usethesource.capsule.Set.Immutable<E> {
-    var set = io.usethesource.capsule.core.PersistentTrieSet.of<E>()
+fun persistentSetAdd(elements: List<IntWrapper>): io.usethesource.capsule.Set.Immutable<IntWrapper> {
+    var set = io.usethesource.capsule.core.PersistentTrieSet.of<IntWrapper>()
     for (element in elements) {
         set = set.__insert(element)
     }

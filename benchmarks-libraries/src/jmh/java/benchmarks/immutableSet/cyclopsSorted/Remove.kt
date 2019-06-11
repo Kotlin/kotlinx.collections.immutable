@@ -16,11 +16,11 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.kotlin
+package benchmarks.immutableSet.cyclopsSorted
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
-import org.openjdk.jmh.infra.Blackhole
+import benchmarks.*
 
 @Fork(1)
 @Warmup(iterations = 5)
@@ -28,28 +28,31 @@ import org.openjdk.jmh.infra.Blackhole
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
-open class Add {
+open class Remove {
     @Param("10000", "100000")
     var size: Int = 0
 
-    @Benchmark
-    fun addLast(): kotlinx.collections.immutable.PersistentList<String> {
-        return persistentListAdd(size)
+    @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
+    var hashCodeType = ""
+
+    private var elements = listOf<IntWrapper>()
+    private var persistentSet = cyclops.data.TreeSet.empty<IntWrapper>()
+
+    @Setup(Level.Trial)
+    fun prepare() {
+        elements = generateElements(hashCodeType, size)
+        persistentSet = persistentSetAdd(elements)
+
+        if (hashCodeType == NON_EXISTING_HASH_CODE)
+            elements = generateElements(hashCodeType, size)
     }
 
     @Benchmark
-    fun addLastAndIterate(bh: Blackhole) {
-        val list = persistentListAdd(size)
-        for (e in list) {
-            bh.consume(e)
+    fun remove(): cyclops.data.TreeSet<IntWrapper> {
+        var set = persistentSet
+        repeat(times = size) { index ->
+            set = set.removeValue(elements[index])
         }
-    }
-
-    @Benchmark
-    fun addLastAndGet(bh: Blackhole) {
-        val list = persistentListAdd(size)
-        for (i in 0 until size) {
-            bh.consume(list[i])
-        }
+        return set
     }
 }
