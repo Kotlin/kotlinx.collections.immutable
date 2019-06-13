@@ -19,27 +19,20 @@ package generators.immutableList
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface ListRemoveBenchmark {
-    val packageName: String
-    fun emptyOf(T: String): String
-    fun listType(T: String): String
-    fun removeAtOperation(list: String): String
-}
-
-class ListRemoveBenchmarkGenerator(private val impl: ListRemoveBenchmark) : BenchmarkSourceGenerator() {
-    override val outputFileName: String = "Remove"
+class ListRemoveBenchmarkGenerator(private val impl: ListImplementation) : BenchmarkSourceGenerator() {
+    override val outputFileName: String get() = "Remove"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableList." + impl.packageName
     }
 
-    override fun generateBody(out: PrintWriter) {
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Remove {
     @Param("10000", "100000")
     var size: Int = 0
 
-    private var persistentList = ${impl.emptyOf("String")}
+    private var persistentList = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -47,10 +40,10 @@ open class Remove {
     }
 
     @Benchmark
-    fun removeLast(): ${impl.listType("String")} {
+    fun removeLast(): ${impl.type()} {
         var list = persistentList
         repeat(times = size) {
-            list = list.${impl.removeAtOperation("list")}
+            list = ${impl.removeLastOperation("list")}
         }
         return list
     }

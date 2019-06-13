@@ -18,29 +18,22 @@ package generators.immutableList.impl
 
 import generators.immutableList.*
 
-class ListCyclopsBenchmark:
-        ListAddBenchmark,
-        ListGetBenchmark,
-        ListIterateBenchmark,
-        ListRemoveBenchmark,
-        ListSetBenchmark,
-        ListBenchmarkUtils
-{
+object CyclopsListImplementation: ListImplementation {
     override val packageName: String = "cyclops"
 
-    override fun listType(T: String): String = "cyclops.data.Vector<$T>"
+    override fun type(): String = "cyclops.data.Vector<$listElementType>"
+    override fun empty(): String = "cyclops.data.Vector.empty<$listElementType>()"
 
-    override fun emptyOf(T: String): String = "cyclops.data.Vector.empty<$T>()"
+    override fun getOperation(list: String, index: String): String
+            = "$list.get($index)"
+    override fun setOperation(list: String, index: String, newValue: String): String
+            = "$list.updateAt($index, $newValue)"
+    override fun addOperation(list: String, element: String): String
+            = "$list.plus($element)"
+    override fun removeLastOperation(list: String): String
+            = "$list.dropRight(1)"
 
-    override fun addOperation(list: String, T: String, element: String): String = "$list.plus($element)"
-
-    override fun removeAtOperation(list: String): String = "dropRight(1)"
-
-    override val getOperation: String = "get"
-
-    override val setOperation: String = "updateAt"
-
-    override fun iterateLastToFirst(list: String): String {
+    override fun iterateLastToFirst(list: String, size: String): String {
         return """
     @Benchmark
     fun lastToFirst(bh: Blackhole) {

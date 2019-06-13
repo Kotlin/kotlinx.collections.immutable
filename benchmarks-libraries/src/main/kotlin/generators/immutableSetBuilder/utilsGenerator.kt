@@ -16,7 +16,7 @@
 
 package generators.immutableSetBuilder
 
-import generators.BenchmarkUtilsGenerator
+import generators.UtilsSourceGenerator
 import java.io.PrintWriter
 
 interface SetBuilderBenchmarkUtils {
@@ -29,7 +29,7 @@ interface SetBuilderBenchmarkUtils {
     fun builderOperation(set: String): String
 }
 
-class SetBuilderUtilsGenerator(private val impl: SetBuilderBenchmarkUtils): BenchmarkUtilsGenerator() {
+class SetBuilderUtilsGenerator(private val impl: SetBuilderBenchmarkUtils): UtilsSourceGenerator() {
     override fun getPackage(): String = super.getPackage() + ".immutableSet." + impl.packageName
 
     override val outputFileName: String = "utils"

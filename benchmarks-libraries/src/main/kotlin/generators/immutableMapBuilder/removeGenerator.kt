@@ -34,7 +34,8 @@ class MapBuilderRemoveBenchmarkGenerator(private val impl: MapBuilderRemoveBench
     }
 
     override val imports: Set<String> = super.imports + "benchmarks.*"
-    override fun generateBody(out: PrintWriter) {
+
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Remove {
     @Param("10000", "100000")

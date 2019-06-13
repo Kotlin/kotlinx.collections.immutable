@@ -19,27 +19,20 @@ package generators.immutableList
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface ListSetBenchmark {
-    val packageName: String
-    fun emptyOf(T: String): String
-    fun listType(T: String): String
-    val setOperation: String
-}
-
-class ListSetBenchmarkGenerator(private val impl: ListSetBenchmark) : BenchmarkSourceGenerator() {
-    override val outputFileName: String = "Set"
+class ListSetBenchmarkGenerator(private val impl: ListImplementation) : BenchmarkSourceGenerator() {
+    override val outputFileName: String get() = "Set"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableList." + impl.packageName
     }
 
-    override fun generateBody(out: PrintWriter) {
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Set {
     @Param("10000", "100000")
     var size: Int = 0
 
-    private var persistentList = ${impl.emptyOf("String")}
+    private var persistentList = ${impl.empty()}
     private var randomIndices = listOf<Int>()
 
     @Setup(Level.Trial)
@@ -49,17 +42,17 @@ open class Set {
     }
 
     @Benchmark
-    fun setByIndex(): ${impl.listType("String")} {
+    fun setByIndex(): ${impl.type()} {
         repeat(times = size) { index ->
-            persistentList = persistentList.${impl.setOperation}(index, "another element")
+            persistentList = ${impl.setOperation("persistentList", "index", listNewElement)}
         }
         return persistentList
     }
 
     @Benchmark
-    fun setByRandomIndex(): ${impl.listType("String")} {
+    fun setByRandomIndex(): ${impl.type()} {
         repeat(times = size) { index ->
-            persistentList = persistentList.${impl.setOperation}(randomIndices[index], "another element")
+            persistentList = ${impl.setOperation("persistentList", "randomIndices[index]", listNewElement)}
         }
         return persistentList
     }

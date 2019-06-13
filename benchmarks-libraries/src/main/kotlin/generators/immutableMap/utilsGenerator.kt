@@ -16,7 +16,7 @@
 
 package generators.immutableMap
 
-import generators.BenchmarkUtilsGenerator
+import generators.UtilsSourceGenerator
 import java.io.PrintWriter
 
 interface MapBenchmarkUtils {
@@ -26,7 +26,7 @@ interface MapBenchmarkUtils {
     fun putOperation(map: String, key: String, value: String): String
 }
 
-class MapUtilsGenerator(private val impl: MapBenchmarkUtils): BenchmarkUtilsGenerator() {
+class MapUtilsGenerator(private val impl: MapBenchmarkUtils): UtilsSourceGenerator() {
     override fun getPackage(): String = super.getPackage() + ".immutableMap." + impl.packageName
 
     override val outputFileName: String = "utils"

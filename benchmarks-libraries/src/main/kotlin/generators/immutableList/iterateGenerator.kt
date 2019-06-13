@@ -19,28 +19,22 @@ package generators.immutableList
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface ListIterateBenchmark {
-    val packageName: String
-    fun emptyOf(T: String): String
-    fun iterateLastToFirst(list: String): String
-}
-
-class ListIterateBenchmarkGenerator(private val impl: ListIterateBenchmark) : BenchmarkSourceGenerator() {
-    override val outputFileName: String = "Iterate"
+class ListIterateBenchmarkGenerator(private val impl: ListImplementation) : BenchmarkSourceGenerator() {
+    override val outputFileName: String get() = "Iterate"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableList." + impl.packageName
     }
 
-    override val imports: Set<String> = super.imports + "org.openjdk.jmh.infra.Blackhole"
+    override val imports: Set<String> get() = super.imports + "org.openjdk.jmh.infra.Blackhole"
 
-    override fun generateBody(out: PrintWriter) {
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Iterate {
     @Param("10000", "100000")
     var size: Int = 0
 
-    private var persistentList = ${impl.emptyOf("String")}
+    private var persistentList = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -55,7 +49,8 @@ open class Iterate {
     }
         """.trimIndent()
         )
-        out.println(impl.iterateLastToFirst("persistentList"))
+
+        out.println(impl.iterateLastToFirst("persistentList", "size"))
         out.println("}")
     }
 }

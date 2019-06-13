@@ -18,33 +18,26 @@ package generators.immutableList.impl
 
 import generators.immutableList.*
 
-class ListKotlinBenchmark:
-        ListAddBenchmark,
-        ListGetBenchmark,
-        ListIterateBenchmark,
-        ListRemoveBenchmark,
-        ListSetBenchmark,
-        ListBenchmarkUtils
-{
+object KotlinListImplementation: ListImplementation {
     override val packageName: String = "kotlin"
 
-    override fun listType(T: String): String = "kotlinx.collections.immutable.PersistentList<$T>"
+    override fun type(): String = "kotlinx.collections.immutable.PersistentList<$listElementType>"
+    override fun empty(): String = "kotlinx.collections.immutable.persistentListOf<$listElementType>()"
 
-    override fun emptyOf(T: String): String = "kotlinx.collections.immutable.persistentListOf<$T>()"
+    override fun getOperation(list: String, index: String): String
+            = "$list.get($index)"
+    override fun setOperation(list: String, index: String, newValue: String): String
+            = "$list.set($index, $newValue)"
+    override fun addOperation(list: String, element: String): String
+            = "$list.add($element)"
+    override fun removeLastOperation(list: String): String
+            = "$list.removeAt($list.size - 1)"
 
-    override fun addOperation(list: String, T: String, element: String): String = "$list.add($element)"
-
-    override fun removeAtOperation(list: String): String = "removeAt($list.size - 1)"
-
-    override val getOperation: String = "get"
-
-    override val setOperation: String = "set"
-
-    override fun iterateLastToFirst(list: String): String {
+    override fun iterateLastToFirst(list: String, size: String): String {
         return """
     @Benchmark
     fun lastToFirst(bh: Blackhole) {
-        val iterator = $list.listIterator(size)
+        val iterator = $list.listIterator($size)
 
         while (iterator.hasPrevious()) {
             bh.consume(iterator.previous())

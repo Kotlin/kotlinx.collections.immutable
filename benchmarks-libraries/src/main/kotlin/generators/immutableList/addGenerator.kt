@@ -19,29 +19,23 @@ package generators.immutableList
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface ListAddBenchmark {
-    val packageName: String
-    fun listType(T: String): String
-    val getOperation: String
-}
-
-class ListAddBenchmarkGenerator(private val impl: ListAddBenchmark) : BenchmarkSourceGenerator() {
-    override val outputFileName: String = "Add"
+class ListAddBenchmarkGenerator(private val impl: ListImplementation) : BenchmarkSourceGenerator() {
+    override val outputFileName: String get() = "Add"
 
     override fun getPackage(): String {
         return super.getPackage() + ".immutableList." + impl.packageName
     }
 
-    override val imports: Set<String> = super.imports + "org.openjdk.jmh.infra.Blackhole"
+    override val imports: Set<String> get() = super.imports + "org.openjdk.jmh.infra.Blackhole"
 
-    override fun generateBody(out: PrintWriter) {
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Add {
     @Param("10000", "100000")
     var size: Int = 0
 
     @Benchmark
-    fun addLast(): ${impl.listType("String")} {
+    fun addLast(): ${impl.type()} {
         return persistentListAdd(size)
     }
 
@@ -57,7 +51,7 @@ open class Add {
     fun addLastAndGet(bh: Blackhole) {
         val list = persistentListAdd(size)
         for (i in 0 until size) {
-            bh.consume(list.${impl.getOperation}(i))
+            bh.consume(${impl.getOperation("list", "i")})
         }
     }
 }

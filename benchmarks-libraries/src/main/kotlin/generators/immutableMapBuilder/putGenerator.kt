@@ -35,7 +35,7 @@ class MapBuilderPutBenchmarkGenerator(private val impl: MapBuilderPutBenchmark) 
 
     override val imports: Set<String> = super.imports + "org.openjdk.jmh.infra.Blackhole" + "benchmarks.*"
 
-    override fun generateBody(out: PrintWriter) {
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Put {
     @Param("10000", "100000")

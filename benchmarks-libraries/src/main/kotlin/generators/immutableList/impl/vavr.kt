@@ -18,29 +18,22 @@ package generators.immutableList.impl
 
 import generators.immutableList.*
 
-class ListVavrBenchmark:
-        ListAddBenchmark,
-        ListGetBenchmark,
-        ListIterateBenchmark,
-        ListRemoveBenchmark,
-        ListSetBenchmark,
-        ListBenchmarkUtils
-{
+object VavrListImplementation: ListImplementation {
     override val packageName: String = "vavr"
 
-    override fun listType(T: String): String = "io.vavr.collection.Vector<$T>"
+    override fun type(): String = "io.vavr.collection.Vector<$listElementType>"
+    override fun empty(): String = "io.vavr.collection.Vector.empty<$listElementType>()"
 
-    override fun emptyOf(T: String): String = "io.vavr.collection.Vector.empty<$T>()"
+    override fun getOperation(list: String, index: String): String
+            = "$list.apply($index)"
+    override fun setOperation(list: String, index: String, newValue: String): String
+            = "$list.update($index, $newValue)"
+    override fun addOperation(list: String, element: String): String
+            = "$list.append($element)"
+    override fun removeLastOperation(list: String): String
+            = "$list.dropRight(1)"
 
-    override fun addOperation(list: String, T: String, element: String): String = "$list.append($element)"
-
-    override fun removeAtOperation(list: String): String = "dropRight(1)"
-
-    override val getOperation: String = "apply"
-
-    override val setOperation: String = "update"
-
-    override fun iterateLastToFirst(list: String): String {
+    override fun iterateLastToFirst(list: String, size: String): String {
         return """
     @Benchmark
     fun lastToFirst(bh: Blackhole) {
