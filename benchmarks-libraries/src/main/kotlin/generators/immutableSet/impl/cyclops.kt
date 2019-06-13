@@ -31,7 +31,7 @@ class SetCyclopsBenchmark:
 
     override fun emptyOf(E: String): String = "cyclops.data.HashSet.empty<$E>()"
 
-    override val addOperation: String = "add"
+    override fun addOperation(set: String, element: String): String = "$set.add($element)"
 
-    override val removeOperation: String = "removeValue"
+    override fun removeOperation(set: String, element: String): String = "$set.removeValue($element)"
 }

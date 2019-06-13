@@ -23,7 +23,7 @@ interface MapRemoveBenchmark {
     val packageName: String
     fun emptyOf(K: String, V: String): String
     fun mapType(K: String, V: String): String
-    val removeOperation: String
+    fun removeOperation(map: String, key: String): String
 }
 
 class MapRemoveBenchmarkGenerator(private val impl: MapRemoveBenchmark) : BenchmarkSourceGenerator() {
@@ -60,7 +60,7 @@ open class Remove {
     fun remove(): ${impl.mapType("IntWrapper", "String")} {
         var map = persistentMap
         repeat(times = size) { index ->
-            map = map.${impl.removeOperation}(keys[index])
+            map = ${impl.removeOperation("map", "keys[index]")}
         }
         return map
     }

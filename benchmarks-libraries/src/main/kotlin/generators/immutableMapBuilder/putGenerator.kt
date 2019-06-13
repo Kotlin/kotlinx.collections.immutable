@@ -17,11 +17,13 @@
 package generators.immutableMapBuilder
 
 import generators.BenchmarkSourceGenerator
+import generators.immutableMap.MapIterateBenchmark
 import java.io.PrintWriter
 
 interface MapBuilderPutBenchmark {
     val packageName: String
     fun mapBuilderType(K: String, V: String): String
+    val getOperation: String
 }
 
 class MapBuilderPutBenchmarkGenerator(private val impl: MapBuilderPutBenchmark) : BenchmarkSourceGenerator() {
@@ -61,10 +63,13 @@ open class Put {
     fun putAndGet(bh: Blackhole) {
         val builder = persistentMapBuilderPut(keys, immutablePercentage)
         repeat(times = size) { index ->
-            bh.consume(builder[keys[index]])
+            bh.consume(builder.${impl.getOperation}(keys[index]))
         }
     }
-
+        """.trimIndent()
+        )
+        if (impl is MapBuilderIterateBenchmark) {
+            out.println("""
     @Benchmark
     fun putAndIterateKeys(bh: Blackhole) {
         val builder = persistentMapBuilderPut(keys, immutablePercentage)
@@ -72,8 +77,10 @@ open class Put {
             bh.consume(key)
         }
     }
-}
-        """.trimIndent()
-        )
+            """
+            )
+        }
+
+        out.println("}")
     }
 }

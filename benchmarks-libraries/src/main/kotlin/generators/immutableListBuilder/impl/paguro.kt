@@ -36,9 +36,11 @@ class ListBuilderPaguroBenchmark:
     override val addOperation: String = "append"
     override val immutableAddOperation: String = "append"
 
-    override val removeAtOperation: String = "without"
+    override fun removeAtOperation(builder: String): String = "without($builder.size - 1)"
+
+    override val getOperation: String = "get"
 
     override val setOperation: String = "replace"
 
-    override val builderOperation: String = "mutable"
+    override fun builderOperation(list: String): String = "$list.mutable()"
 }

@@ -23,7 +23,7 @@ interface SetBenchmarkUtils {
     val packageName: String
     fun emptyOf(E: String): String
     fun setType(E: String): String
-    val addOperation: String
+    fun addOperation(set: String, element: String): String
 }
 
 class SetUtilsGenerator(private val impl: SetBenchmarkUtils): BenchmarkUtilsGenerator() {
@@ -38,7 +38,7 @@ class SetUtilsGenerator(private val impl: SetBenchmarkUtils): BenchmarkUtilsGene
 fun persistentSetAdd(elements: List<IntWrapper>): ${impl.setType("IntWrapper")} {
     var set = ${impl.emptyOf("IntWrapper")}
     for (element in elements) {
-        set = set.${impl.addOperation}(element)
+        set = ${impl.addOperation("set", "element")}
     }
     return set
 }

@@ -35,7 +35,9 @@ class MapBuilderKotlinOrderedBenchmark:
     override val putOperation: String = "put"
     override val immutablePutOperation: String = "put"
 
+    override val getOperation: String = "get"
+
     override val removeOperation: String = "remove"
 
-    override val builderOperation: String = "builder"
+    override fun builderOperation(map: String): String = "$map.builder()"
 }

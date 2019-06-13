@@ -33,9 +33,9 @@ class SetBuilderKotlinBenchmark:
     override fun immutableOf(E: String): String = "kotlinx.collections.immutable.persistentHashSetOf<$E>()"
 
     override val addOperation: String = "add"
-    override val immutableAddOperation: String = "add"
+    override fun immutableAddOperation(set: String, element: String): String = "$set.add($element)"
 
     override val removeOperation: String = "remove"
 
-    override val builderOperation: String = "builder"
+    override fun builderOperation(set: String): String = "$set.builder()"
 }

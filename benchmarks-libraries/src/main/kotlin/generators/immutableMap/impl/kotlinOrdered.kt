@@ -28,10 +28,12 @@ class MapKotlinOrderedBenchmark:
     override val packageName: String = "kotlinOrdered"
 
     override fun mapType(K: String, V: String): String = "kotlinx.collections.immutable.PersistentMap<$K, $V>"
-
     override fun emptyOf(K: String, V: String): String = "kotlinx.collections.immutable.persistentMapOf<$K, $V>()"
 
-    override val putOperation: String = "put"
+    override val getOperation: String = "get"
+    override fun putOperation(map: String, key: String, value: String): String = "$map.put($key, $value)"
+    override fun removeOperation(map: String, key: String): String = "$map.remove($key)"
 
-    override val removeOperation: String = "remove"
+    override val keys: String = "keys"
+    override val values: String = "values"
 }

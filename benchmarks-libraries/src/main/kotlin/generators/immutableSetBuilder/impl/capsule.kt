@@ -33,9 +33,9 @@ class SetBuilderCapsuleBenchmark:
     override fun immutableOf(E: String): String = "io.usethesource.capsule.core.PersistentTrieSet.of<$E>()"
 
     override val addOperation: String = "add"
-    override val immutableAddOperation: String = "__insert"
+    override fun immutableAddOperation(set: String, element: String): String = "$set.__insert($element)"
 
     override val removeOperation: String = "__remove"
 
-    override val builderOperation: String = "asTransient"
+    override fun builderOperation(set: String): String = "$set.asTransient()"
 }

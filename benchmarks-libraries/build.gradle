@@ -17,9 +17,16 @@ dependencies {
     implementation 'io.usethesource:capsule:0.6.1'
     implementation 'org.organicdesign:Paguro:3.1.2'
     implementation 'com.oath.cyclops:cyclops:10.3.0'
+    implementation 'org.clojure:clojure:1.10.0'
+    implementation 'org.scala-lang:scala-library:2.13.0'
+    implementation 'io.vavr:vavr:0.9.3'
 }
 
 compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+compileJmhKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 

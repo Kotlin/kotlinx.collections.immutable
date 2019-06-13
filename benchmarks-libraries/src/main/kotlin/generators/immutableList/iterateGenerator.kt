@@ -22,6 +22,7 @@ import java.io.PrintWriter
 interface ListIterateBenchmark {
     val packageName: String
     fun emptyOf(T: String): String
+    fun iterateLastToFirst(list: String): String
 }
 
 class ListIterateBenchmarkGenerator(private val impl: ListIterateBenchmark) : BenchmarkSourceGenerator() {
@@ -52,17 +53,9 @@ open class Iterate {
             bh.consume(e)
         }
     }
-
-    @Benchmark
-    fun lastToFirst(bh: Blackhole) {
-        val iterator = persistentList.listIterator(size)
-
-        while (iterator.hasPrevious()) {
-            bh.consume(iterator.previous())
-        }
-    }
-}
         """.trimIndent()
         )
+        out.println(impl.iterateLastToFirst("persistentList"))
+        out.println("}")
     }
 }

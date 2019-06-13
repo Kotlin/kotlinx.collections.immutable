@@ -22,6 +22,7 @@ import java.io.PrintWriter
 interface ListGetBenchmark {
     val packageName: String
     fun emptyOf(T: String): String
+    val getOperation: String
 }
 
 class ListGetBenchmarkGenerator(private val impl: ListGetBenchmark) : BenchmarkSourceGenerator() {
@@ -49,7 +50,7 @@ open class Get {
     @Benchmark
     fun getByIndex(bh: Blackhole) {
         for (i in 0 until size) {
-            bh.consume(persistentList[i])
+            bh.consume(persistentList.${impl.getOperation}(i))
         }
     }
 }

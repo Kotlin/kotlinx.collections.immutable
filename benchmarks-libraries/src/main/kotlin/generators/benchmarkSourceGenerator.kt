@@ -17,28 +17,23 @@
 package generators
 
 import generators.immutableList.*
-import generators.immutableList.impl.ListCyclopsBenchmark
-import generators.immutableList.impl.ListKotlinBenchmark
-import generators.immutableList.impl.ListPaguroRrbTreeBenchmark
+import generators.immutableList.impl.*
 import generators.immutableListBuilder.*
-import generators.immutableListBuilder.impl.ListBuilderKotlinBenchmark
-import generators.immutableListBuilder.impl.ListBuilderPaguroBenchmark
+import generators.immutableListBuilder.impl.*
 import generators.immutableMap.*
 import generators.immutableMap.impl.*
 import generators.immutableMapBuilder.*
-import generators.immutableMapBuilder.impl.MapBuilderCapsuleBenchmark
-import generators.immutableMapBuilder.impl.MapBuilderKotlinBenchmark
-import generators.immutableMapBuilder.impl.MapBuilderKotlinOrderedBenchmark
-import generators.immutableMapBuilder.impl.MapBuilderPaguroBenchmark
+import generators.immutableMapBuilder.impl.*
 import generators.immutableSet.*
 import generators.immutableSet.impl.*
 import generators.immutableSetBuilder.*
-import generators.immutableSetBuilder.impl.SetBuilderCapsuleBenchmark
-import generators.immutableSetBuilder.impl.SetBuilderKotlinBenchmark
-import generators.immutableSetBuilder.impl.SetBuilderKotlinOrderedBenchmark
+import generators.immutableSetBuilder.impl.*
 import org.xml.sax.InputSource
 import java.io.File
 import java.io.PrintWriter
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import javax.xml.xpath.XPathFactory
 
 abstract class BenchmarkSourceGenerator {
@@ -115,17 +110,21 @@ fun readCopyrightNoticeFromProfile(copyrightProfile: File): String {
     return template.replace(yearTemplate, year).lines().joinToString("", prefix = "/*\n", postfix = " */\n") { " * $it\n" }
 }
 
-private const val BENCHMARKS_ROOT = "benchmarks-libraries/src/jmh/java/"
+private const val BENCHMARKS_ROOT = "src/jmh/java/"
 
 
 private val listImpls = listOf(
         ListKotlinBenchmark(),
         ListPaguroRrbTreeBenchmark(),
-        ListCyclopsBenchmark()
+        ListCyclopsBenchmark(),
+        ListClojureBenchmark(),
+        ListScalaBenchmark(),
+        ListVavrBenchmark()
 )
 private val listBuilderImpls = listOf(
         ListBuilderKotlinBenchmark(),
-        ListBuilderPaguroBenchmark()
+        ListBuilderPaguroBenchmark(),
+        ListBuilderClojureBenchmark()
 )
 
 private val mapImpls = listOf(
@@ -136,13 +135,21 @@ private val mapImpls = listOf(
         MapPaguroSortedBenchmark(),
         MapCyclopsBenchmark(),
         MapCyclopsOrderedBenchmark(),
-        MapCyclopsTrieBenchmark()
+        MapCyclopsTrieBenchmark(),
+        MapClojureBenchmark(),
+        MapClojureSortedBenchmark(),
+        MapScalaBenchmark(),
+        MapScalaSortedBenchmark(),
+        MapVavrBenchmark(),
+        MapVavrSortedBenchmark(),
+        MapVavrOrderedBenchmark()
 )
 private val mapBuilderImpls = listOf(
         MapBuilderKotlinBenchmark(),
         MapBuilderKotlinOrderedBenchmark(),
         MapBuilderCapsuleBenchmark(),
-        MapBuilderPaguroBenchmark()
+        MapBuilderPaguroBenchmark(),
+        MapBuilderClojureBenchmark()
 )
 
 private val setImpls = listOf(
@@ -151,12 +158,20 @@ private val setImpls = listOf(
         SetCapsuleBenchmark(),
         SetCyclopsBenchmark(),
         SetCyclopsTrieBenchmark(),
-        SetCyclopsSortedBenchmark()
+        SetCyclopsSortedBenchmark(),
+        SetClojureBenchmark(),
+        SetClojureSortedBenchmark(),
+        SetScalaBenchmark(),
+        SetScalaSortedBenchmark(),
+        SetVavrBenchmark(),
+        SetVavrSortedBenchmark(),
+        SetVavrOrderedBenchmark()
 )
 private val setBuilderImpls = listOf(
         SetBuilderKotlinBenchmark(),
         SetBuilderKotlinOrderedBenchmark(),
-        SetBuilderCapsuleBenchmark()
+        SetBuilderCapsuleBenchmark(),
+        SetBuilderClojureBenchmark()
 )
 
 fun generateBenchmarks() {
@@ -242,6 +257,11 @@ fun generateUtils() {
 }
 
 fun main() {
+    Files.walk(Paths.get(BENCHMARKS_ROOT))
+            .sorted(Comparator.reverseOrder())
+            .map(Path::toFile)
+            .forEach { it.delete() }
+
     generateUtils()
     generateBenchmarks()
 }

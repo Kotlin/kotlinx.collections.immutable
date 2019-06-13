@@ -64,7 +64,7 @@ open class Remove {
     fun putAndRemove(): ${impl.mapBuilderType("IntWrapper", "String")} {
         val builder = persistentMapBuilderPut(keys, immutablePercentage)
         repeat(times = size) { index ->
-            builder.remove(keysToRemove[index])
+            builder.${impl.removeOperation}(keysToRemove[index])
         }
         return builder
     }

@@ -45,14 +45,14 @@ open class Iterate {
 
     @Benchmark
     fun iterateKeys(bh: Blackhole) {
-        for (k in persistentMap.keys) {
+        for (k in persistentMap.keys()) {
             bh.consume(k)
         }
     }
 
     @Benchmark
     fun iterateValues(bh: Blackhole) {
-        for (v in persistentMap.values) {
+        for (v in persistentMap.values()) {
             bh.consume(v)
         }
     }

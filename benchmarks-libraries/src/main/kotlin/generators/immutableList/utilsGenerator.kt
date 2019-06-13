@@ -23,7 +23,7 @@ interface ListBenchmarkUtils {
     val packageName: String
     fun emptyOf(T: String): String
     fun listType(T: String): String
-    val addOperation: String
+    fun addOperation(list: String, T: String, element: String): String
 }
 
 class ListUtilsGenerator(private val impl: ListBenchmarkUtils): BenchmarkUtilsGenerator() {
@@ -36,7 +36,7 @@ class ListUtilsGenerator(private val impl: ListBenchmarkUtils): BenchmarkUtilsGe
 fun persistentListAdd(size: Int): ${impl.listType("String")} {
     var list = ${impl.emptyOf("String")}
     repeat(times = size) {
-        list = list.${impl.addOperation}("some element")
+        list = ${impl.addOperation("list", "String", "\"some element\"")}
     }
     return list
 }

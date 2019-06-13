@@ -48,10 +48,10 @@ open class Iterate {
 
     @Benchmark
     fun lastToFirst(bh: Blackhole) {
-        val iterator = persistentList.listIterator(size)
+        val iterator = persistentList.reverse().iterator()
 
-        while (iterator.hasPrevious()) {
-            bh.consume(iterator.previous())
+        while (iterator.hasNext()) {
+            bh.consume(iterator.next())
         }
     }
 }

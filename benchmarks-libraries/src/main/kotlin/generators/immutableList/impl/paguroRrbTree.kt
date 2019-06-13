@@ -32,9 +32,23 @@ class ListPaguroRrbTreeBenchmark:
 
     override fun emptyOf(T: String): String = "org.organicdesign.fp.collections.RrbTree.empty<$T>()"
 
-    override val addOperation: String = "append"
+    override fun addOperation(list: String, T: String, element: String): String = "$list.append($element)"
 
-    override val removeAtOperation: String = "without"
+    override fun removeAtOperation(list: String): String = "without($list.size - 1)"
+
+    override val getOperation: String = "get"
 
     override val setOperation: String = "replace"
+
+    override fun iterateLastToFirst(list: String): String {
+        return """
+    @Benchmark
+    fun lastToFirst(bh: Blackhole) {
+        val iterator = $list.listIterator(size)
+
+        while (iterator.hasPrevious()) {
+            bh.consume(iterator.previous())
+        }
+    }"""
+    }
 }

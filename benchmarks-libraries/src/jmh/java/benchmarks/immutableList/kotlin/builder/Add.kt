@@ -41,18 +41,17 @@ open class Add {
     }
 
     @Benchmark
+    fun addLastAndGet(bh: Blackhole) {
+        val builder = persistentListBuilderAdd(size, immutablePercentage)
+        for (i in 0 until size) {
+            bh.consume(builder.get(i))
+        }
+    }
+    @Benchmark
     fun addLastAndIterate(bh: Blackhole) {
         val builder = persistentListBuilderAdd(size, immutablePercentage)
         for (e in builder) {
             bh.consume(e)
-        }
-    }
-
-    @Benchmark
-    fun addLastAndGet(bh: Blackhole) {
-        val builder = persistentListBuilderAdd(size, immutablePercentage)
-        for (i in 0 until builder.size) {
-            bh.consume(builder[i])
         }
     }
 }

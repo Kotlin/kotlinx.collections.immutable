@@ -28,10 +28,12 @@ class MapCapsuleBenchmark:
     override val packageName: String = "capsule"
 
     override fun mapType(K: String, V: String): String = "io.usethesource.capsule.Map.Immutable<$K, $V>"
-
     override fun emptyOf(K: String, V: String): String = "io.usethesource.capsule.core.PersistentTrieMap.of<$K, $V>()"
 
-    override val putOperation: String = "__put"
+    override val getOperation: String = "get"
+    override fun putOperation(map: String, key: String, value: String): String = "$map.__put($key, $value)"
+    override fun removeOperation(map: String, key: String): String = "$map.__remove($key)"
 
-    override val removeOperation: String = "__remove"
+    override val keys: String = "keys"
+    override val values: String = "values"
 }

@@ -23,7 +23,7 @@ interface SetRemoveBenchmark {
     val packageName: String
     fun emptyOf(E: String): String
     fun setType(E: String): String
-    val removeOperation: String
+    fun removeOperation(set: String, element: String): String
 }
 
 class SetRemoveBenchmarkGenerator(private val impl: SetRemoveBenchmark) : BenchmarkSourceGenerator() {
@@ -59,7 +59,7 @@ open class Remove {
     fun remove(): ${impl.setType("IntWrapper")} {
         var set = persistentSet
         repeat(times = size) { index ->
-            set = set.${impl.removeOperation}(elements[index])
+            set = ${impl.removeOperation("set", "elements[index]")}
         }
         return set
     }

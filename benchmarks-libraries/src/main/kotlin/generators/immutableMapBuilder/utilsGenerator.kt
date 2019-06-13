@@ -25,7 +25,7 @@ interface MapBuilderBenchmarkUtils {
     fun immutableOf(K: String, V: String): String
     val putOperation: String
     val immutablePutOperation: String
-    val builderOperation: String
+    fun builderOperation(map: String): String
 }
 
 class MapBuilderUtilsGenerator(private val impl: MapBuilderBenchmarkUtils): BenchmarkUtilsGenerator() {
@@ -48,7 +48,7 @@ fun persistentMapBuilderPut(
         map = map.${impl.immutablePutOperation}(keys[index], "some element")
     }
 
-    val builder = map.${impl.builderOperation}()
+    val builder = ${impl.builderOperation("map")}
     for (index in immutableSize until keys.size) {
         builder.${impl.putOperation}(keys[index], "some element")
     }

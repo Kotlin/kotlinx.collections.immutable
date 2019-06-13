@@ -22,6 +22,7 @@ import java.io.PrintWriter
 interface MapBuilderGetBenchmark {
     val packageName: String
     fun emptyOf(K: String, V: String): String
+    val getOperation: String
 }
 
 class MapBuilderGetBenchmarkGenerator(private val impl: MapBuilderGetBenchmark) : BenchmarkSourceGenerator() {
@@ -60,7 +61,7 @@ open class Get {
     @Benchmark
     fun get(bh: Blackhole) {
         repeat(times = size) { index ->
-            bh.consume(builder[keys[index]])
+            bh.consume(builder.${impl.getOperation}(keys[index]))
         }
     }
 }

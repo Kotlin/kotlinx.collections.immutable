@@ -23,7 +23,7 @@ interface ListRemoveBenchmark {
     val packageName: String
     fun emptyOf(T: String): String
     fun listType(T: String): String
-    val removeAtOperation: String
+    fun removeAtOperation(list: String): String
 }
 
 class ListRemoveBenchmarkGenerator(private val impl: ListRemoveBenchmark) : BenchmarkSourceGenerator() {
@@ -50,7 +50,7 @@ open class Remove {
     fun removeLast(): ${impl.listType("String")} {
         var list = persistentList
         repeat(times = size) {
-            list = list.${impl.removeAtOperation}(list.size - 1)
+            list = list.${impl.removeAtOperation("list")}
         }
         return list
     }

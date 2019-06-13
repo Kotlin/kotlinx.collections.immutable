@@ -55,7 +55,7 @@ open class Put {
     fun putAndGet(bh: Blackhole) {
         val builder = persistentMapBuilderPut(keys, immutablePercentage)
         repeat(times = size) { index ->
-            bh.consume(builder[keys[index]])
+            bh.consume(builder.get(keys[index]))
         }
     }
 
@@ -66,4 +66,5 @@ open class Put {
             bh.consume(key)
         }
     }
+            
 }

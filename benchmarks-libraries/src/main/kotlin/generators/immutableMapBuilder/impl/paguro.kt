@@ -35,7 +35,9 @@ class MapBuilderPaguroBenchmark:
     override val putOperation: String = "assoc"
     override val immutablePutOperation: String = "assoc"
 
+    override val getOperation: String = "get"
+
     override val removeOperation: String = "without"
 
-    override val builderOperation: String = "mutable"
+    override fun builderOperation(map: String): String = "$map.mutable()"
 }

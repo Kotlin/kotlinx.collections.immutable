@@ -64,7 +64,10 @@ open class Add {
             bh.consume(builder.contains(elements[index]))
         }
     }
-
+        """.trimIndent()
+        )
+        if (impl is SetBuilderIterateBenchmark) {
+            out.println("""
     @Benchmark
     fun addAndIterate(bh: Blackhole) {
         val set = persistentSetBuilderAdd(elements, immutablePercentage)
@@ -72,8 +75,10 @@ open class Add {
             bh.consume(element)
         }
     }
-}
-        """.trimIndent()
-        )
+            """
+            )
+        }
+
+        out.println("}")
     }
 }

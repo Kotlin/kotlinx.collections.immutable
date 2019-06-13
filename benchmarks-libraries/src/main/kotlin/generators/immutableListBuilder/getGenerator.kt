@@ -22,6 +22,8 @@ import java.io.PrintWriter
 interface ListBuilderGetBenchmark {
     val packageName: String
     fun emptyOf(T: String): String
+    fun listBuilderType(T: String): String
+    val getOperation: String
 }
 
 class ListBuilderGetBenchmarkGenerator(private val impl: ListBuilderGetBenchmark) : BenchmarkSourceGenerator() {
@@ -42,7 +44,7 @@ open class Get {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var builder = ${impl.emptyOf("String")}
+    private var builder: ${impl.listBuilderType("String")} = ${impl.emptyOf("String")}
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -51,8 +53,8 @@ open class Get {
 
     @Benchmark
     fun getByIndex(bh: Blackhole) {
-        for (i in 0 until builder.size) {
-            bh.consume(builder[i])
+        for (i in 0 until size) {
+            bh.consume(builder.${impl.getOperation}(i))
         }
     }
 }

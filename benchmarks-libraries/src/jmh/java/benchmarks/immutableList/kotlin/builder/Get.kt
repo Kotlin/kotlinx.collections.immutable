@@ -35,7 +35,7 @@ open class Get {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var builder = kotlinx.collections.immutable.persistentListOf<String>().builder()
+    private var builder: kotlinx.collections.immutable.PersistentList.Builder<String> = kotlinx.collections.immutable.persistentListOf<String>().builder()
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -44,8 +44,8 @@ open class Get {
 
     @Benchmark
     fun getByIndex(bh: Blackhole) {
-        for (i in 0 until builder.size) {
-            bh.consume(builder[i])
+        for (i in 0 until size) {
+            bh.consume(builder.get(i))
         }
     }
 }
