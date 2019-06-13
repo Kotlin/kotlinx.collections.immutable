@@ -35,7 +35,7 @@ class ListBuilderGetBenchmarkGenerator(private val impl: ListBuilderGetBenchmark
 
     override val imports: Set<String> = super.imports + "org.openjdk.jmh.infra.Blackhole"
 
-    override fun generateBody(out: PrintWriter) {
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Get {
     @Param("10000", "100000")

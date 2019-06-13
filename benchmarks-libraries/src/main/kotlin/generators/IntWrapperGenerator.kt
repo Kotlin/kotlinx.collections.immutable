@@ -18,7 +18,7 @@ package generators
 
 import java.io.PrintWriter
 
-class IntWrapperGenerator: BenchmarkUtilsGenerator() {
+class IntWrapperGenerator: UtilsSourceGenerator() {
     override val outputFileName: String = "IntWrapper"
 
     override fun generateBody(out: PrintWriter) {

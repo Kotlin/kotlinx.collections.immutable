@@ -16,26 +16,21 @@
 
 package generators.immutableList
 
-import generators.UtilsSourceGenerator
-import java.io.PrintWriter
+interface ListImplementation {
+    val packageName: String
 
-class ListUtilsGenerator(private val impl: ListImplementation): UtilsSourceGenerator() {
-    override val outputFileName: String get() = "utils"
+    fun type(): String
+    fun empty(): String
 
-    override fun getPackage(): String {
-        return super.getPackage() + ".immutableList." + impl.packageName
-    }
+    fun getOperation(list: String, index: String): String
+    fun setOperation(list: String, index: String, newValue: String): String
+    fun addOperation(list: String, element: String): String
+    fun removeLastOperation(list: String): String
 
-    override fun generateBody(out: PrintWriter) {
-        out.println("""
-fun persistentListAdd(size: Int): ${impl.type()} {
-    var list = ${impl.empty()}
-    repeat(times = size) {
-        list = ${impl.addOperation("list", listElement)}
-    }
-    return list
+    fun iterateLastToFirst(list: String, size: String): String
 }
-        """.trimIndent()
-        )
-    }
-}
+
+const val listElementType = "String"
+
+const val listElement = "\"some element\""
+const val listNewElement = "\"another element\""

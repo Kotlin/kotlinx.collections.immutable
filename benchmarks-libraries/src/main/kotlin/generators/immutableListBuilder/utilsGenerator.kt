@@ -16,7 +16,7 @@
 
 package generators.immutableListBuilder
 
-import generators.BenchmarkUtilsGenerator
+import generators.UtilsSourceGenerator
 import java.io.PrintWriter
 
 interface ListBuilderBenchmarkUtils {
@@ -28,7 +28,7 @@ interface ListBuilderBenchmarkUtils {
     fun builderOperation(list: String): String
 }
 
-class ListBuilderUtilsGenerator(private val impl: ListBuilderBenchmarkUtils): BenchmarkUtilsGenerator() {
+class ListBuilderUtilsGenerator(private val impl: ListBuilderBenchmarkUtils): UtilsSourceGenerator() {
     override fun getPackage(): String = super.getPackage() + ".immutableList." + impl.packageName
 
     override val outputFileName: String = "utils"

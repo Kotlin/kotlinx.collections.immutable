@@ -33,7 +33,7 @@ class ListBuilderSetBenchmarkGenerator(private val impl: ListBuilderSetBenchmark
         return super.getPackage() + ".immutableList." + impl.packageName
     }
 
-    override fun generateBody(out: PrintWriter) {
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Set {
     @Param("10000", "100000")

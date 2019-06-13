@@ -18,7 +18,7 @@ package generators
 
 import java.io.PrintWriter
 
-class CommonUtilsGenerator: BenchmarkUtilsGenerator() {
+class CommonUtilsGenerator: UtilsSourceGenerator() {
     override val outputFileName: String = "utils"
 
     override fun generateBody(out: PrintWriter) {

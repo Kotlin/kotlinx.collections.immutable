@@ -36,17 +36,9 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.xpath.XPathFactory
 
-abstract class BenchmarkSourceGenerator {
-    protected abstract fun generateBody(out: PrintWriter): Unit
-
+abstract class SourceGenerator {
     abstract val outputFileName: String
-
     open fun getPackage(): String = "benchmarks"
-
-    protected open val imports: Set<String> = setOf(
-            "org.openjdk.jmh.annotations.*",
-            "java.util.concurrent.TimeUnit"
-    )
 
     fun generate(out: PrintWriter) {
         out.println(readCopyrightNoticeFromProfile(File(".idea/copyright/apache_2_0.xml")))
@@ -60,6 +52,22 @@ abstract class BenchmarkSourceGenerator {
             out.println("import $it")
         }
         out.println()
+
+        generateBody(out)
+    }
+
+    protected abstract val imports: Set<String>
+    protected abstract fun generateBody(out: PrintWriter): Unit
+}
+
+
+abstract class BenchmarkSourceGenerator: SourceGenerator() {
+    override val imports: Set<String> = setOf(
+            "org.openjdk.jmh.annotations.*",
+            "java.util.concurrent.TimeUnit"
+    )
+
+    override fun generateBody(out: PrintWriter) {
         out.println("""
 @Fork(1)
 @Warmup(iterations = 5)
@@ -69,34 +77,14 @@ abstract class BenchmarkSourceGenerator {
 @State(Scope.Thread)
         """.trimIndent()
         )
-
-        generateBody(out)
+        generateBenchmark(out)
     }
+
+    protected abstract fun generateBenchmark(out: PrintWriter)
 }
 
-abstract class BenchmarkUtilsGenerator {
-    protected abstract fun generateBody(out: PrintWriter): Unit
-
-    abstract val outputFileName: String
-
-    open fun getPackage(): String = "benchmarks"
-
-    protected open val imports: Set<String> = setOf()
-
-    fun generate(out: PrintWriter) {
-        out.println(readCopyrightNoticeFromProfile(File(".idea/copyright/apache_2_0.xml")))
-        // Don't include generator class name in the message: these are built-in sources,
-        // and we don't want to scare users with any internal information about our project
-        out.println("// Auto-generated file. DO NOT EDIT!")
-        out.println()
-        out.println("package ${getPackage()}")
-        out.println()
-        imports.forEach {
-            out.println("import $it")
-        }
-        out.println()
-        generateBody(out)
-    }
+abstract class UtilsSourceGenerator: SourceGenerator() {
+    override val imports: Set<String> = setOf()
 }
 
 fun readCopyrightNoticeFromProfile(copyrightProfile: File): String {
@@ -114,12 +102,12 @@ private const val BENCHMARKS_ROOT = "src/jmh/java/"
 
 
 private val listImpls = listOf(
-        ListKotlinBenchmark(),
-        ListPaguroRrbTreeBenchmark(),
-        ListCyclopsBenchmark(),
-        ListClojureBenchmark(),
-        ListScalaBenchmark(),
-        ListVavrBenchmark()
+        KotlinListImplementation,
+        PaguroRrbTreeListImplementation,
+        CyclopsListImplementation,
+        ClojureListImplementation,
+        ScalaListImplementation,
+        VavrListImplementation
 )
 private val listBuilderImpls = listOf(
         ListBuilderKotlinBenchmark(),
@@ -175,13 +163,21 @@ private val setBuilderImpls = listOf(
 )
 
 fun generateBenchmarks() {
-    val listBenchmarks = listOf(
+    val listBenchmarks = listImpls.map { listOf(
+            ListAddBenchmarkGenerator(it),
+            ListGetBenchmarkGenerator(it),
+            ListIterateBenchmarkGenerator(it),
+            ListRemoveBenchmarkGenerator(it),
+            ListSetBenchmarkGenerator(it),
+            ListUtilsGenerator(it)
+    ) }
+    /*listOf(
             listImpls.filterIsInstance<ListAddBenchmark>().map { ListAddBenchmarkGenerator(it) },
             listImpls.filterIsInstance<ListGetBenchmark>().map { ListGetBenchmarkGenerator(it) },
             listImpls.filterIsInstance<ListIterateBenchmark>().map { ListIterateBenchmarkGenerator(it) },
             listImpls.filterIsInstance<ListRemoveBenchmark>().map { ListRemoveBenchmarkGenerator(it) },
             listImpls.filterIsInstance<ListSetBenchmark>().map { ListSetBenchmarkGenerator(it) }
-    )
+    )*/
     val listBuilderBenchmarks = listOf(
             listBuilderImpls.filterIsInstance<ListBuilderAddBenchmark>().map { ListBuilderAddBenchmarkGenerator(it) },
             listBuilderImpls.filterIsInstance<ListBuilderGetBenchmark>().map { ListBuilderGetBenchmarkGenerator(it) },
@@ -230,7 +226,6 @@ fun generateBenchmarks() {
 }
 
 fun generateUtils() {
-    val listUtils = listImpls.filterIsInstance<ListBenchmarkUtils>().map { ListUtilsGenerator(it) }
     val listBuilderUtils = listBuilderImpls.filterIsInstance<ListBuilderBenchmarkUtils>().map { ListBuilderUtilsGenerator(it) }
 
     val mapUtils = mapImpls.filterIsInstance<MapBenchmarkUtils>().map { MapUtilsGenerator(it) }
@@ -244,7 +239,7 @@ fun generateUtils() {
             CommonUtilsGenerator()
     )
 
-    val utils = listUtils + listBuilderUtils + mapUtils + mapBuilderUtils + setUtils + setBuilderUtils + commonUtils
+    val utils = listBuilderUtils + mapUtils + mapBuilderUtils + setUtils + setBuilderUtils + commonUtils
 
     utils.forEach { util ->
         val path = util.getPackage().replace('.', '/') + "/" + util.outputFileName + ".kt"

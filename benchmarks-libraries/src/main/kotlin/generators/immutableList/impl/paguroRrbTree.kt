@@ -18,33 +18,26 @@ package generators.immutableList.impl
 
 import generators.immutableList.*
 
-class ListPaguroRrbTreeBenchmark:
-        ListAddBenchmark,
-        ListGetBenchmark,
-        ListIterateBenchmark,
-        ListRemoveBenchmark,
-        ListSetBenchmark,
-        ListBenchmarkUtils
-{
+object PaguroRrbTreeListImplementation: ListImplementation {
     override val packageName: String = "paguroRrbTree"
 
-    override fun listType(T: String): String = "org.organicdesign.fp.collections.RrbTree.ImRrbt<$T>"
+    override fun type(): String = "org.organicdesign.fp.collections.RrbTree.ImRrbt<$listElementType>"
+    override fun empty(): String = "org.organicdesign.fp.collections.RrbTree.empty<$listElementType>()"
 
-    override fun emptyOf(T: String): String = "org.organicdesign.fp.collections.RrbTree.empty<$T>()"
+    override fun getOperation(list: String, index: String): String
+            = "$list.get($index)"
+    override fun setOperation(list: String, index: String, newValue: String): String
+            = "$list.replace($index, $newValue)"
+    override fun addOperation(list: String, element: String): String
+            = "$list.append($element)"
+    override fun removeLastOperation(list: String): String
+            = "$list.without($list.size - 1)"
 
-    override fun addOperation(list: String, T: String, element: String): String = "$list.append($element)"
-
-    override fun removeAtOperation(list: String): String = "without($list.size - 1)"
-
-    override val getOperation: String = "get"
-
-    override val setOperation: String = "replace"
-
-    override fun iterateLastToFirst(list: String): String {
+    override fun iterateLastToFirst(list: String, size: String): String {
         return """
     @Benchmark
     fun lastToFirst(bh: Blackhole) {
-        val iterator = $list.listIterator(size)
+        val iterator = $list.listIterator($size)
 
         while (iterator.hasPrevious()) {
             bh.consume(iterator.previous())

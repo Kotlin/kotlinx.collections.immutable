@@ -18,29 +18,22 @@ package generators.immutableList.impl
 
 import generators.immutableList.*
 
-class ListScalaBenchmark:
-        ListAddBenchmark,
-        ListGetBenchmark,
-        ListIterateBenchmark,
-        ListRemoveBenchmark,
-        ListSetBenchmark,
-        ListBenchmarkUtils
-{
+object ScalaListImplementation: ListImplementation {
     override val packageName: String = "scala"
 
-    override fun listType(T: String): String = "scala.collection.immutable.Vector<$T>"
+    override fun type(): String = "scala.collection.immutable.Vector<$listElementType>"
+    override fun empty(): String = "scala.collection.immutable.`Vector\$`.`MODULE\$`.empty<$listElementType>()"
 
-    override fun emptyOf(T: String): String = "scala.collection.immutable.`Vector\$`.`MODULE\$`.empty<String>()"
+    override fun getOperation(list: String, index: String): String
+            = "$list.apply($index)"
+    override fun setOperation(list: String, index: String, newValue: String): String
+            = "$list.updateAt($index, $newValue)"
+    override fun addOperation(list: String, element: String): String
+            = "$list.appended($element) as " + type()
+    override fun removeLastOperation(list: String): String
+            = "$list.dropRight(1)"
 
-    override fun addOperation(list: String, T: String, element: String): String = "$list.appended($element) as " + listType(T)
-
-    override fun removeAtOperation(list: String): String = "dropRight(1)"
-
-    override val getOperation: String = "apply"
-
-    override val setOperation: String = "updateAt"
-
-    override fun iterateLastToFirst(list: String): String {
+    override fun iterateLastToFirst(list: String, size: String): String {
         return """
     @Benchmark
     fun lastToFirst(bh: Blackhole) {

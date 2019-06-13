@@ -33,7 +33,7 @@ class SetBuilderIterateBenchmarkGenerator(private val impl: SetBuilderIterateBen
 
     override val imports: Set<String> = super.imports + "org.openjdk.jmh.infra.Blackhole" + "benchmarks.*"
 
-    override fun generateBody(out: PrintWriter) {
+    override fun generateBenchmark(out: PrintWriter) {
         out.println("""
 open class Iterate {
     @Param("10000", "100000")

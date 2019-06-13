@@ -18,33 +18,26 @@ package generators.immutableList.impl
 
 import generators.immutableList.*
 
-class ListClojureBenchmark:
-        ListAddBenchmark,
-        ListGetBenchmark,
-        ListIterateBenchmark,
-        ListRemoveBenchmark,
-        ListSetBenchmark,
-        ListBenchmarkUtils
-{
+object ClojureListImplementation: ListImplementation {
     override val packageName: String = "clojure"
 
-    override fun listType(T: String): String = "clojure.lang.PersistentVector"
+    override fun type(): String = "clojure.lang.PersistentVector"
+    override fun empty(): String = "clojure.lang.PersistentVector.EMPTY"
 
-    override fun emptyOf(T: String): String = "clojure.lang.PersistentVector.EMPTY"
+    override fun getOperation(list: String, index: String): String
+            = "$list.get($index)"
+    override fun setOperation(list: String, index: String, newValue: String): String
+            = "$list.assocN($index, $newValue)"
+    override fun addOperation(list: String, element: String): String
+            = "$list.cons($element)"
+    override fun removeLastOperation(list: String): String
+            = "$list.pop()"
 
-    override fun addOperation(list: String, T: String, element: String): String = "$list.cons($element)"
-
-    override fun removeAtOperation(list: String): String = "pop()"
-
-    override val getOperation: String = "get"
-
-    override val setOperation: String = "assocN"
-
-    override fun iterateLastToFirst(list: String): String {
+    override fun iterateLastToFirst(list: String, size: String): String {
         return """
     @Benchmark
     fun lastToFirst(bh: Blackhole) {
-        val iterator = $list.listIterator(size)
+        val iterator = $list.listIterator($size)
 
         while (iterator.hasPrevious()) {
             bh.consume(iterator.previous())
