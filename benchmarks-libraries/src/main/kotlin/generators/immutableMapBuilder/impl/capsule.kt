@@ -35,7 +35,9 @@ class MapBuilderCapsuleBenchmark:
     override val putOperation: String = "put"
     override val immutablePutOperation: String = "__put"
 
+    override val getOperation: String = "get"
+
     override val removeOperation: String = "remove"
 
-    override val builderOperation: String = "asTransient"
+    override fun builderOperation(map: String): String = "$map.asTransient()"
 }

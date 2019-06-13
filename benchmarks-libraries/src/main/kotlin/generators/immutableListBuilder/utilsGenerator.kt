@@ -25,7 +25,7 @@ interface ListBuilderBenchmarkUtils {
     fun immutableOf(T: String): String
     val addOperation: String
     val immutableAddOperation: String
-    val builderOperation: String
+    fun builderOperation(list: String): String
 }
 
 class ListBuilderUtilsGenerator(private val impl: ListBuilderBenchmarkUtils): BenchmarkUtilsGenerator() {
@@ -45,7 +45,7 @@ fun persistentListBuilderAdd(size: Int, immutablePercentage: Double): ${impl.lis
         list = list.${impl.immutableAddOperation}("some element")
     }
 
-    val builder = list.${impl.builderOperation}()
+    val builder = ${impl.builderOperation("list")}
     repeat(times = size - immutableSize) {
         builder.${impl.addOperation}("some element")
     }

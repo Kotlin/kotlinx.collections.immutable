@@ -31,7 +31,7 @@ class SetCapsuleBenchmark:
 
     override fun emptyOf(E: String): String = "io.usethesource.capsule.core.PersistentTrieSet.of<$E>()"
 
-    override val addOperation: String = "__insert"
+    override fun addOperation(set: String, element: String): String = "$set.__insert($element)"
 
-    override val removeOperation: String = "__remove"
+    override fun removeOperation(set: String, element: String): String = "$set.__remove($element)"
 }

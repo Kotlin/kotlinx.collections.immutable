@@ -49,7 +49,7 @@ open class Add {
     fun addLastAndGet(bh: Blackhole) {
         val list = persistentListAdd(size)
         for (i in 0 until size) {
-            bh.consume(list[i])
+            bh.consume(list.get(i))
         }
     }
 }

@@ -56,7 +56,7 @@ open class Remove {
     fun putAndRemove(): org.organicdesign.fp.collections.PersistentHashMap.MutableHashMap<IntWrapper, String> {
         val builder = persistentMapBuilderPut(keys, immutablePercentage)
         repeat(times = size) { index ->
-            builder.remove(keysToRemove[index])
+            builder.without(keysToRemove[index])
         }
         return builder
     }

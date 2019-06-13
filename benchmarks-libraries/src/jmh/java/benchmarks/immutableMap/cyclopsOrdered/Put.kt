@@ -52,14 +52,14 @@ open class Put {
     fun putAndGet(bh: Blackhole) {
         val map = persistentMapPut(keys)
         repeat(times = size) { index ->
-            bh.consume(map[keys[index]])
+            bh.consume(map.get(keys[index]))
         }
     }
 
     @Benchmark
     fun putAndIterateKeys(bh: Blackhole) {
         val map = persistentMapPut(keys)
-        for (key in map.keys) {
+        for (key in map.keys()) {
             bh.consume(key)
         }
     }

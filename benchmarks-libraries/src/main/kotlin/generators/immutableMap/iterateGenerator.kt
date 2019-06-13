@@ -22,6 +22,8 @@ import java.io.PrintWriter
 interface MapIterateBenchmark {
     val packageName: String
     fun emptyOf(K: String, V: String): String
+    val keys: String
+    val values: String
 }
 
 class MapIterateBenchmarkGenerator(private val impl: MapIterateBenchmark) : BenchmarkSourceGenerator() {
@@ -51,14 +53,14 @@ open class Iterate {
 
     @Benchmark
     fun iterateKeys(bh: Blackhole) {
-        for (k in persistentMap.keys) {
+        for (k in persistentMap.${impl.keys}) {
             bh.consume(k)
         }
     }
 
     @Benchmark
     fun iterateValues(bh: Blackhole) {
-        for (v in persistentMap.values) {
+        for (v in persistentMap.${impl.values}) {
             bh.consume(v)
         }
     }

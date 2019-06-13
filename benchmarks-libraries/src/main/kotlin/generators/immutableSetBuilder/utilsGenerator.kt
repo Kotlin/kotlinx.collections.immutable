@@ -25,8 +25,8 @@ interface SetBuilderBenchmarkUtils {
     fun immutableOf(E: String): String
     fun setBuilderType(E: String): String
     val addOperation: String
-    val immutableAddOperation: String
-    val builderOperation: String
+    fun immutableAddOperation(set: String, element: String): String
+    fun builderOperation(set: String): String
 }
 
 class SetBuilderUtilsGenerator(private val impl: SetBuilderBenchmarkUtils): BenchmarkUtilsGenerator() {
@@ -46,10 +46,10 @@ fun <E> persistentSetBuilderAdd(
 
     var set = ${impl.immutableOf("E")}
     for (index in 0 until immutableSize) {
-        set = set.${impl.immutableAddOperation}(elements[index])
+        set = ${impl.immutableAddOperation("set", "elements[index]")}
     }
 
-    val builder = set.${impl.builderOperation}()
+    val builder = ${impl.builderOperation("set")}
     for (index in immutableSize until elements.size) {
         builder.${impl.addOperation}(elements[index])
     }

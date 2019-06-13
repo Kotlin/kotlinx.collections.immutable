@@ -28,10 +28,12 @@ class MapPaguroBenchmark:
     override val packageName: String = "paguro"
 
     override fun mapType(K: String, V: String): String = "org.organicdesign.fp.collections.PersistentHashMap<$K, $V>"
-
     override fun emptyOf(K: String, V: String): String = "org.organicdesign.fp.collections.PersistentHashMap.empty<$K, $V>()"
 
-    override val putOperation: String = "assoc"
+    override val getOperation: String = "get"
+    override fun putOperation(map: String, key: String, value: String): String = "$map.assoc($key, $value)"
+    override fun removeOperation(map: String, key: String): String = "$map.without($key)"
 
-    override val removeOperation: String = "without"
+    override val keys: String = "keys"
+    override val values: String = "values"
 }

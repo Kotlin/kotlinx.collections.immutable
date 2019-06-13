@@ -54,7 +54,7 @@ open class Get {
     @Benchmark
     fun get(bh: Blackhole) {
         repeat(times = size) { index ->
-            bh.consume(builder[keys[index]])
+            bh.consume(builder.get(keys[index]))
         }
     }
 }

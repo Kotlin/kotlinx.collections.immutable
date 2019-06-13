@@ -42,7 +42,7 @@ open class Remove {
     fun removeLast(): cyclops.data.Vector<String> {
         var list = persistentList
         repeat(times = size) {
-            list = list.removeAt(list.size - 1)
+            list = list.dropRight(1)
         }
         return list
     }

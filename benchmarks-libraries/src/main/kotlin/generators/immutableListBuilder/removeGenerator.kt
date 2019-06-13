@@ -23,7 +23,7 @@ interface ListBuilderRemoveBenchmark {
     val packageName: String
     fun emptyOf(T: String): String
     fun listBuilderType(T: String): String
-    val removeAtOperation: String
+    fun removeAtOperation(builder: String): String
 }
 
 class ListBuilderRemoveBenchmarkGenerator(private val impl: ListBuilderRemoveBenchmark) : BenchmarkSourceGenerator() {
@@ -46,7 +46,7 @@ open class Remove {
     fun addAndRemoveLast(): ${impl.listBuilderType("String")} {
         val builder = persistentListBuilderAdd(size, immutablePercentage)
         for (i in 0 until size) {
-            builder.${impl.removeAtOperation}(builder.size - 1)
+            builder.${impl.removeAtOperation("builder")}
         }
         return builder
     }

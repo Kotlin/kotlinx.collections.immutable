@@ -23,7 +23,7 @@ interface MapBenchmarkUtils {
     val packageName: String
     fun emptyOf(K: String, V: String): String
     fun mapType(K: String, V: String): String
-    val putOperation: String
+    fun putOperation(map: String, key: String, value: String): String
 }
 
 class MapUtilsGenerator(private val impl: MapBenchmarkUtils): BenchmarkUtilsGenerator() {
@@ -38,7 +38,7 @@ class MapUtilsGenerator(private val impl: MapBenchmarkUtils): BenchmarkUtilsGene
 fun persistentMapPut(keys: List<IntWrapper>): ${impl.mapType("IntWrapper", "String")} {
     var map = ${impl.emptyOf("IntWrapper", "String")}
     for (key in keys) {
-        map = map.${impl.putOperation}(key, "some element")
+        map = ${impl.putOperation("map", "key", "\"some element\"")}
     }
     return map
 }

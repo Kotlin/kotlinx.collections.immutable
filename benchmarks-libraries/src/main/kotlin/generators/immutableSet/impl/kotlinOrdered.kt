@@ -31,7 +31,7 @@ class SetKotlinOrderedBenchmark:
 
     override fun emptyOf(E: String): String = "kotlinx.collections.immutable.persistentSetOf<$E>()"
 
-    override val addOperation: String = "add"
+    override fun addOperation(set: String, element: String): String = "$set.add($element)"
 
-    override val removeOperation: String = "remove"
+    override fun removeOperation(set: String, element: String): String = "$set.remove($element)"
 }

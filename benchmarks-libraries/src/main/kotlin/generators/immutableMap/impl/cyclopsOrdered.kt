@@ -28,10 +28,12 @@ class MapCyclopsOrderedBenchmark:
     override val packageName: String = "cyclopsOrdered"
 
     override fun mapType(K: String, V: String): String = "cyclops.data.LinkedMap<$K, $V>"
-
     override fun emptyOf(K: String, V: String): String = "cyclops.data.LinkedMap.empty<$K, $V>()"
 
-    override val putOperation: String = "put"
+    override val getOperation: String = "get"
+    override fun putOperation(map: String, key: String, value: String): String = "$map.put($key, $value)"
+    override fun removeOperation(map: String, key: String): String = "$map.remove($key)"
 
-    override val removeOperation: String = "remove"
+    override val keys: String = "keys()"
+    override val values: String = "values()"
 }

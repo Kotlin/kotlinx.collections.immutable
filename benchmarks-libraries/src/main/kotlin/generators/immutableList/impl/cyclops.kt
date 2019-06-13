@@ -32,9 +32,23 @@ class ListCyclopsBenchmark:
 
     override fun emptyOf(T: String): String = "cyclops.data.Vector.empty<$T>()"
 
-    override val addOperation: String = "plus"
+    override fun addOperation(list: String, T: String, element: String): String = "$list.plus($element)"
 
-    override val removeAtOperation: String = "removeAt"
+    override fun removeAtOperation(list: String): String = "dropRight(1)"
+
+    override val getOperation: String = "get"
 
     override val setOperation: String = "updateAt"
+
+    override fun iterateLastToFirst(list: String): String {
+        return """
+    @Benchmark
+    fun lastToFirst(bh: Blackhole) {
+        val iterator = $list.reverse().iterator()
+
+        while (iterator.hasNext()) {
+            bh.consume(iterator.next())
+        }
+    }"""
+    }
 }

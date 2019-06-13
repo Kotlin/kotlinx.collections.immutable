@@ -22,6 +22,7 @@ import java.io.PrintWriter
 interface ListBuilderAddBenchmark {
     val packageName: String
     fun listBuilderType(T: String): String
+    val getOperation: String
 }
 
 class ListBuilderAddBenchmarkGenerator(private val impl: ListBuilderAddBenchmark) : BenchmarkSourceGenerator() {
@@ -48,22 +49,27 @@ open class Add {
     }
 
     @Benchmark
+    fun addLastAndGet(bh: Blackhole) {
+        val builder = persistentListBuilderAdd(size, immutablePercentage)
+        for (i in 0 until size) {
+            bh.consume(builder.${impl.getOperation}(i))
+        }
+    }
+        """.trimIndent())
+        if (impl is ListBuilderIterateBenchmark) {
+            out.println("""
+    @Benchmark
     fun addLastAndIterate(bh: Blackhole) {
         val builder = persistentListBuilderAdd(size, immutablePercentage)
         for (e in builder) {
             bh.consume(e)
         }
     }
-
-    @Benchmark
-    fun addLastAndGet(bh: Blackhole) {
-        val builder = persistentListBuilderAdd(size, immutablePercentage)
-        for (i in 0 until builder.size) {
-            bh.consume(builder[i])
-        }
-    }
 }
-        """.trimIndent()
-        )
+            """.trimIndent()
+            )
+        } else {
+            out.println("}")
+        }
     }
 }

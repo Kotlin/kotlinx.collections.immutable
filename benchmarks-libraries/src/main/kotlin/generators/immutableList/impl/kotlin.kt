@@ -32,9 +32,23 @@ class ListKotlinBenchmark:
 
     override fun emptyOf(T: String): String = "kotlinx.collections.immutable.persistentListOf<$T>()"
 
-    override val addOperation: String = "add"
+    override fun addOperation(list: String, T: String, element: String): String = "$list.add($element)"
 
-    override val removeAtOperation: String = "removeAt"
+    override fun removeAtOperation(list: String): String = "removeAt($list.size - 1)"
+
+    override val getOperation: String = "get"
 
     override val setOperation: String = "set"
+
+    override fun iterateLastToFirst(list: String): String {
+        return """
+    @Benchmark
+    fun lastToFirst(bh: Blackhole) {
+        val iterator = $list.listIterator(size)
+
+        while (iterator.hasPrevious()) {
+            bh.consume(iterator.previous())
+        }
+    }"""
+    }
 }

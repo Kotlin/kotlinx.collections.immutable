@@ -36,9 +36,11 @@ class ListBuilderKotlinBenchmark:
     override val addOperation: String = "add"
     override val immutableAddOperation: String = "add"
 
-    override val removeAtOperation: String = "removeAt"
+    override fun removeAtOperation(builder: String): String = "removeAt($builder.size - 1)"
+
+    override val getOperation: String = "get"
 
     override val setOperation: String = "set"
 
-    override val builderOperation: String = "builder"
+    override fun builderOperation(list: String): String = "$list.builder()"
 }

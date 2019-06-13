@@ -35,7 +35,7 @@ open class Get {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var builder = org.organicdesign.fp.collections.RrbTree.emptyMutable<String>()
+    private var builder: org.organicdesign.fp.collections.RrbTree.MutableRrbt<String> = org.organicdesign.fp.collections.RrbTree.emptyMutable<String>()
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -44,8 +44,8 @@ open class Get {
 
     @Benchmark
     fun getByIndex(bh: Blackhole) {
-        for (i in 0 until builder.size) {
-            bh.consume(builder[i])
+        for (i in 0 until size) {
+            bh.consume(builder.get(i))
         }
     }
 }

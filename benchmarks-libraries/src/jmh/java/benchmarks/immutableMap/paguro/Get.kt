@@ -52,7 +52,7 @@ open class Get {
     @Benchmark
     fun get(bh: Blackhole) {
         repeat(times = size) { index ->
-            bh.consume(persistentMap[keys[index]])
+            bh.consume(persistentMap.get(keys[index]))
         }
     }
 }

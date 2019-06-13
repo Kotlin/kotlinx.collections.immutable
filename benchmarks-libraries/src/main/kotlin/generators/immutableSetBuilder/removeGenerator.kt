@@ -64,7 +64,7 @@ open class Remove {
     fun addAndRemove(): ${impl.setBuilderType("IntWrapper")} {
         val builder = persistentSetBuilderAdd(elements, immutablePercentage)
         repeat(times = size) { index ->
-            builder.remove(elementsToRemove[index])
+            builder.${impl.removeOperation}(elementsToRemove[index])
         }
         return builder
     }

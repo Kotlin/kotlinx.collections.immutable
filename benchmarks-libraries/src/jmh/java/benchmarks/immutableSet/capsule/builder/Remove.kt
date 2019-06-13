@@ -56,7 +56,7 @@ open class Remove {
     fun addAndRemove(): io.usethesource.capsule.Set.Transient<IntWrapper> {
         val builder = persistentSetBuilderAdd(elements, immutablePercentage)
         repeat(times = size) { index ->
-            builder.remove(elementsToRemove[index])
+            builder.__remove(elementsToRemove[index])
         }
         return builder
     }
