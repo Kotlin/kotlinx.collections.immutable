@@ -18,23 +18,28 @@ package generators.immutableSetBuilder.impl
 
 import generators.immutableSetBuilder.*
 
-class SetBuilderClojureBenchmark:
-        SetBuilderContainsBenchmark,
-        SetBuilderAddBenchmark,
-        SetBuilderRemoveBenchmark,
-        SetBuilderBenchmarkUtils
-{
-    override val packageName: String = "clojure.builder"
+object ClojureSetBuilderImplementation: SetBuilderImplementation{
+    override val packageName: String
+            = "clojure.builder"
 
-    override fun setBuilderType(E: String): String = "clojure.lang.ATransientSet"
+    override fun type(): String
+            = "clojure.lang.ATransientSet"
+    override fun empty(): String
+            = "clojure.lang.PersistentHashSet.EMPTY.asTransient() as clojure.lang.ATransientSet"
 
-    override fun emptyOf(E: String): String = "clojure.lang.PersistentHashSet.EMPTY.asTransient() as clojure.lang.ATransientSet"
-    override fun immutableOf(E: String): String = "clojure.lang.PersistentHashSet.EMPTY"
+    override fun addOperation(builder: String, element: String): String
+            = "$builder.conj($element)"
+    override fun removeOperation(builder: String, element: String): String
+            = "$builder.disjoin($element)"
 
-    override val addOperation: String = "conj"
-    override fun immutableAddOperation(set: String, element: String): String = "$set.cons($element) as clojure.lang.PersistentHashSet"
+    override val isIterable: Boolean
+            = false
 
-    override val removeOperation: String = "disjoin"
+    override fun builderOperation(immutable: String): String
+            = "$immutable.asTransient() as clojure.lang.ATransientSet"
 
-    override fun builderOperation(set: String): String = "$set.asTransient() as clojure.lang.ATransientSet"
+    override fun immutableEmpty(): String
+            = "clojure.lang.PersistentHashSet.EMPTY"
+    override fun immutableAddOperation(immutable: String, element: String): String
+            = "$immutable.cons($element) as clojure.lang.PersistentHashSet"
 }

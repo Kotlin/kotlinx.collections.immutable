@@ -19,12 +19,7 @@ package generators.immutableSetBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface SetBuilderContainsBenchmark {
-    val packageName: String
-    fun emptyOf(E: String): String
-}
-
-class SetBuilderContainsBenchmarkGenerator(private val impl: SetBuilderContainsBenchmark) : BenchmarkSourceGenerator() {
+class SetBuilderContainsBenchmarkGenerator(private val impl: SetBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Contains"
 
     override fun getPackage(): String {
@@ -45,8 +40,8 @@ open class Contains {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var elements = listOf<IntWrapper>()
-    private var builder = ${impl.emptyOf("IntWrapper")}
+    private var elements = listOf<$setBuilderElementType>()
+    private var builder = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {

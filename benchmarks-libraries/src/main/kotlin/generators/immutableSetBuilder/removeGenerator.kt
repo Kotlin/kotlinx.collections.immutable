@@ -19,14 +19,7 @@ package generators.immutableSetBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface SetBuilderRemoveBenchmark {
-    val packageName: String
-    fun emptyOf(E: String): String
-    fun setBuilderType(E: String): String
-    val removeOperation: String
-}
-
-class SetBuilderRemoveBenchmarkGenerator(private val impl: SetBuilderRemoveBenchmark) : BenchmarkSourceGenerator() {
+class SetBuilderRemoveBenchmarkGenerator(private val impl: SetBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Remove"
 
     override fun getPackage(): String {
@@ -47,8 +40,8 @@ open class Remove {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var elements = listOf<IntWrapper>()
-    private var elementsToRemove = listOf<IntWrapper>()
+    private var elements = listOf<$setBuilderElementType>()
+    private var elementsToRemove = listOf<$setBuilderElementType>()
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -62,10 +55,10 @@ open class Remove {
     }
 
     @Benchmark
-    fun addAndRemove(): ${impl.setBuilderType("IntWrapper")} {
+    fun addAndRemove(): ${impl.type()} {
         val builder = persistentSetBuilderAdd(elements, immutablePercentage)
         repeat(times = size) { index ->
-            builder.${impl.removeOperation}(elementsToRemove[index])
+            ${impl.removeOperation("builder", "elementsToRemove[index]")}
         }
         return builder
     }

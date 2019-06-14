@@ -19,12 +19,7 @@ package generators.immutableSetBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface SetBuilderAddBenchmark {
-    val packageName: String
-    fun setBuilderType(E: String): String
-}
-
-class SetBuilderAddBenchmarkGenerator(private val impl: SetBuilderAddBenchmark) : BenchmarkSourceGenerator() {
+class SetBuilderAddBenchmarkGenerator(private val impl: SetBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Add"
 
     override fun getPackage(): String {
@@ -45,7 +40,7 @@ open class Add {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var elements = listOf<IntWrapper>()
+    private var elements = listOf<$setBuilderElementType>()
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -53,7 +48,7 @@ open class Add {
     }
 
     @Benchmark
-    fun add(): ${impl.setBuilderType("IntWrapper")} {
+    fun add(): ${impl.type()} {
         return persistentSetBuilderAdd(elements, immutablePercentage)
     }
 
@@ -66,7 +61,7 @@ open class Add {
     }
         """.trimIndent()
         )
-        if (impl is SetBuilderIterateBenchmark) {
+        if (impl.isIterable) {
             out.println("""
     @Benchmark
     fun addAndIterate(bh: Blackhole) {
