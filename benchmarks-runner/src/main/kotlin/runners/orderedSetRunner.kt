@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
+package runners
+
+import implementationParam
+import orderedSetOutputFilePath
+import orderedSetReferenceFilePath
+import runBenchmarks
+
 
 fun main(args: Array<String>) {
-    runBenchmarks(hashMapBuilderOutputFilePath, hashMapBuilderReferenceFilePath) { this
-            .include("immutableMap.builder")
-            .param(implementationParam, "hash")
+    runBenchmarks(orderedSetOutputFilePath, orderedSetReferenceFilePath) { this
+            .include("immutableSet")
+            .exclude("builder")
+            .param(implementationParam, "ordered")
     }
 }

@@ -42,7 +42,7 @@ fun calculateRegression(referencePath: String, targetPath: String) {
         throw IllegalArgumentException("Reference file is empty: $referencePath")
     }
 
-    println("Calculating regression\n")
+    println("Calculating regression...\n")
     val regressionResults = calculateRegression(referenceResults, targetResults)
 
     printReport(regressionResults, System.out, descendingScore = true)
@@ -56,6 +56,8 @@ fun calculateRegression(referencePath: String, targetPath: String) {
 }
 
 private fun calculateRegression(referenceResults: List<List<String>>, targetResults: List<List<String>>): List<List<String>> {
+    require(referenceResults.isNotEmpty() && targetResults.isNotEmpty())
+
     if (referenceResults.first() != targetResults.first()) {
         throw IllegalArgumentException("Benchmark results have different headers")
     }
@@ -66,24 +68,24 @@ private fun calculateRegression(referenceResults: List<List<String>>, targetResu
     val scoreErrorColumn = header.indexOf(benchmarkScoreError)
     val allocRateColumn = header.indexOf(benchmarkAllocRate)
 
-    val regression = targetResults.drop(1).map { target ->
-        val reference = referenceResults.firstOrNull { reference ->
-            target.withIndex().all {
-                it.value == reference[it.index] || it.index in listOf(scoreColumn, scoreErrorColumn, allocRateColumn)
+    val regression = targetResults.drop(1).map { targetRow ->
+        val reference = referenceResults.firstOrNull { referenceRow ->
+            targetRow.withIndex().all {
+                it.value == referenceRow[it.index] || it.index in listOf(scoreColumn, scoreErrorColumn, allocRateColumn)
             }
         }
 
-        val result = target.toMutableList()
+        val resultRow = targetRow.toMutableList()
         if (reference == null) {
-            result[scoreColumn] = "NaN"
-            result[scoreErrorColumn] = "NaN"
-            result[allocRateColumn] = "NaN"
+            resultRow[scoreColumn] = "NaN"
+            resultRow[scoreErrorColumn] = "NaN"
+            resultRow[allocRateColumn] = "NaN"
         } else {
-            result[scoreColumn] = "%.3f".format(target[scoreColumn].toDouble() - reference[scoreColumn].toDouble())
-            result[scoreErrorColumn] = "%.3f".format(target[scoreErrorColumn].toDouble() + reference[scoreErrorColumn].toDouble())
-            result[allocRateColumn] = "%.3f".format(target[allocRateColumn].toDouble() - reference[allocRateColumn].toDouble())
+            resultRow[scoreColumn] = "%.3f".format(targetRow[scoreColumn].toDouble() - reference[scoreColumn].toDouble())
+            resultRow[scoreErrorColumn] = "%.3f".format(targetRow[scoreErrorColumn].toDouble() + reference[scoreErrorColumn].toDouble())
+            resultRow[allocRateColumn] = "%.3f".format(targetRow[allocRateColumn].toDouble() - reference[allocRateColumn].toDouble())
         }
-        return@map result
+        return@map resultRow
     }
 
     return listOf(header) + regression

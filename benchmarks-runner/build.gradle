@@ -32,85 +32,85 @@ dependencies {
     runtimeOnly project(path: ':kotlinx-collections-immutable')
 }
 
-task copyKotlinBenchmarkList(type: Copy, dependsOn: ':benchmarks-mpp:jvmBenchmarkGenerate', group: "kotlinBenchmark") {
+task copyBenchmarkList(type: Copy, dependsOn: ':benchmarks-mpp:jvmBenchmarkGenerate', group: "Benchmark") {
     from "${project(':benchmarks-mpp').buildDir}/benchmarks/jvm/resources"
     into sourceSets.main.output.resourcesDir
 }
 
 // map
-task benchmarkKotlinHashMap(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'HashMapBenchmarkerKt'
+task benchmarkHashMap(type: JavaExec, group: "Benchmark") {
+    main = 'runners.HashMapRunnerKt'
 }
 
-task benchmarkKotlinHashMapBuilder(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'HashMapBuilderBenchmarkerKt'
+task benchmarkHashMapBuilder(type: JavaExec, group: "Benchmark") {
+    main = 'runners.HashMapBuilderRunnerKt'
 }
 
-task benchmarkKotlinOrderedMap(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'OrderedMapBenchmarkerKt'
+task benchmarkOrderedMap(type: JavaExec, group: "Benchmark") {
+    main = 'runners.OrderedMapRunnerKt'
 }
 
-task benchmarkKotlinOrderedMapBuilder(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'OrderedMapBuilderBenchmarkerKt'
+task benchmarkOrderedMapBuilder(type: JavaExec, group: "Benchmark") {
+    main = 'runners.OrderedMapBuilderRunnerKt'
 }
 
-task benchmarkKotlinAllMaps(group: "kotlinBenchmark") {
-    dependsOn benchmarkKotlinHashMap
-    dependsOn benchmarkKotlinHashMapBuilder
-    dependsOn benchmarkKotlinOrderedMap
-    dependsOn benchmarkKotlinOrderedMapBuilder
+task benchmarkAllMaps(group: "Benchmark") {
+    dependsOn benchmarkHashMap
+    dependsOn benchmarkHashMapBuilder
+    dependsOn benchmarkOrderedMap
+    dependsOn benchmarkOrderedMapBuilder
 }
 
 // set
-task benchmarkKotlinHashSet(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'HashSetBenchmarkerKt'
+task benchmarkHashSet(type: JavaExec, group: "Benchmark") {
+    main = 'runners.HashSetRunnerKt'
 }
 
-task benchmarkKotlinHashSetBuilder(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'HashSetBuilderBenchmarkerKt'
+task benchmarkHashSetBuilder(type: JavaExec, group: "Benchmark") {
+    main = 'runners.HashSetBuilderRunnerKt'
 }
 
-task benchmarkKotlinOrderedSet(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'OrderedSetBenchmarkerKt'
+task benchmarkOrderedSet(type: JavaExec, group: "Benchmark") {
+    main = 'runners.OrderedSetRunnerKt'
 }
 
-task benchmarkKotlinOrderedSetBuilder(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'OrderedSetBuilderBenchmarkerKt'
+task benchmarkOrderedSetBuilder(type: JavaExec, group: "Benchmark") {
+    main = 'runners.OrderedSetBuilderRunnerKt'
 }
 
-task benchmarkKotlinAllSets(group: "kotlinBenchmark") {
-    dependsOn benchmarkKotlinHashSet
-    dependsOn benchmarkKotlinHashSetBuilder
-    dependsOn benchmarkKotlinOrderedSet
-    dependsOn benchmarkKotlinOrderedSetBuilder
+task benchmarkAllSets(group: "Benchmark") {
+    dependsOn benchmarkHashSet
+    dependsOn benchmarkHashSetBuilder
+    dependsOn benchmarkOrderedSet
+    dependsOn benchmarkOrderedSetBuilder
 }
 
 // list
-task benchmarkKotlinList(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'ListBenchmarkerKt'
+task benchmarkList(type: JavaExec, group: "Benchmark") {
+    main = 'runners.ListRunnerKt'
 }
 
-task benchmarkKotlinListBuilder(type: JavaExec, group: "kotlinBenchmark") {
-    main = 'ListBuilderBenchmarkerKt'
+task benchmarkListBuilder(type: JavaExec, group: "Benchmark") {
+    main = 'runners.ListBuilderRunnerKt'
 }
 
-task benchmarkKotlinAllLists(group: "kotlinBenchmark") {
-    dependsOn benchmarkKotlinList
-    dependsOn benchmarkKotlinListBuilder
+task benchmarkAllLists(group: "Benchmark") {
+    dependsOn benchmarkList
+    dependsOn benchmarkListBuilder
 }
 
 // all
-task benchmarkKotlinAll(group: "kotlinBenchmark") {
-    dependsOn benchmarkKotlinAllMaps
-    dependsOn benchmarkKotlinAllSets
-    dependsOn benchmarkKotlinAllLists
+task benchmarkAll(group: "Benchmark") {
+    dependsOn benchmarkAllMaps
+    dependsOn benchmarkAllSets
+    dependsOn benchmarkAllLists
 }
 
 
 // configure runner tasks
 tasks.withType(JavaExec) {
-    if (group == "kotlinBenchmark") {
-        dependsOn copyKotlinBenchmarkList
+    if (group == "Benchmark") {
+        dependsOn copyBenchmarkList
         dependsOn ':benchmarks-mpp:jvmBenchmarkCompile'
 
         classpath = sourceSets.main.runtimeClasspath

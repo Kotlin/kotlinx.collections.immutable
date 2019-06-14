@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
+package runners
+
+import implementationParam
+import orderedMapBuilderOutputFilePath
+import orderedMapBuilderReferenceFilePath
+import runBenchmarks
+
 
 fun main(args: Array<String>) {
-    runBenchmarks(listBuilderOutputFilePath, listBuilderReferenceFilePath) { this
-            .include("immutableList.builder")
+    runBenchmarks(orderedMapBuilderOutputFilePath, orderedMapBuilderReferenceFilePath) { this
+            .include("immutableMap.builder")
+            .param(implementationParam, "ordered")
     }
 }

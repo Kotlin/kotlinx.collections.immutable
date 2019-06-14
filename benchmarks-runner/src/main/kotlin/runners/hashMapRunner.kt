@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
+package runners
+
+import hashMapOutputFilePath
+import hashMapReferenceFilePath
+import implementationParam
+import runBenchmarks
+
 
 fun main(args: Array<String>) {
-    runBenchmarks(listOutputFilePath, listReferenceFilePath) { this
-            .include("immutableList")
+    runBenchmarks(hashMapOutputFilePath, hashMapReferenceFilePath) { this
+            .include("immutableMap")
             .exclude("builder")
+            .param(implementationParam, "hash")
     }
 }
