@@ -25,7 +25,7 @@ fun persistentListBuilderAdd(size: Int, immutablePercentage: Double): org.organi
 
     var list = org.organicdesign.fp.collections.RrbTree.empty<String>()
     repeat(times = immutableSize) {
-        list = list.append("some element")
+        list = list.append("another element")
     }
 
     val builder = list.mutable()

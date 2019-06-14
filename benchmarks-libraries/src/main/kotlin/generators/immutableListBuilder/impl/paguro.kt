@@ -18,29 +18,32 @@ package generators.immutableListBuilder.impl
 
 import generators.immutableListBuilder.*
 
-class ListBuilderPaguroBenchmark:
-        ListBuilderAddBenchmark,
-        ListBuilderGetBenchmark,
-        ListBuilderIterateBenchmark,
-        ListBuilderRemoveBenchmark,
-        ListBuilderSetBenchmark,
-        ListBuilderBenchmarkUtils
-{
-    override val packageName: String = "paguro.builder"
+object PaguroListBuilderImplementation: ListBuilderImplementation {
+    override val packageName: String
+            = "paguro.builder"
 
-    override fun listBuilderType(T: String): String = "org.organicdesign.fp.collections.RrbTree.MutableRrbt<$T>"
+    override fun type(): String
+            = "org.organicdesign.fp.collections.RrbTree.MutableRrbt<$listBuilderElementType>"
+    override fun empty(): String
+            = "org.organicdesign.fp.collections.RrbTree.emptyMutable<$listBuilderElementType>()"
 
-    override fun emptyOf(T: String): String = "org.organicdesign.fp.collections.RrbTree.emptyMutable<$T>()"
-    override fun immutableOf(T: String): String = "org.organicdesign.fp.collections.RrbTree.empty<$T>()"
+    override fun getOperation(builder: String, index: String): String
+            = "$builder.get($index)"
+    override fun setOperation(builder: String, index: String, newValue: String): String
+            = "$builder.replace($index, $newValue)"
+    override fun addOperation(builder: String, element: String): String
+            = "$builder.append($element)"
+    override fun removeLastOperation(builder: String): String
+            = "$builder.without($builder.size - 1)"
 
-    override val addOperation: String = "append"
-    override val immutableAddOperation: String = "append"
+    override val isIterable: Boolean
+            = true
 
-    override fun removeAtOperation(builder: String): String = "without($builder.size - 1)"
+    override fun builderOperation(immutable: String): String
+            = "$immutable.mutable()"
 
-    override val getOperation: String = "get"
-
-    override val setOperation: String = "replace"
-
-    override fun builderOperation(list: String): String = "$list.mutable()"
+    override fun immutableEmpty(): String
+            = "org.organicdesign.fp.collections.RrbTree.empty<$listBuilderElementType>()"
+    override fun immutableAddOperation(immutable: String, element: String): String
+            = "$immutable.append($element)"
 }

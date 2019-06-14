@@ -16,7 +16,7 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.paguroRrbTree
+package benchmarks.immutableList.paguro
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit

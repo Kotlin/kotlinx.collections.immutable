@@ -19,10 +19,13 @@ package generators.immutableList.impl
 import generators.immutableList.*
 
 object KotlinListImplementation: ListImplementation {
-    override val packageName: String = "kotlin"
+    override val packageName: String
+            = "kotlin"
 
-    override fun type(): String = "kotlinx.collections.immutable.PersistentList<$listElementType>"
-    override fun empty(): String = "kotlinx.collections.immutable.persistentListOf<$listElementType>()"
+    override fun type(): String
+            = "kotlinx.collections.immutable.PersistentList<$listElementType>"
+    override fun empty(): String
+            = "kotlinx.collections.immutable.persistentListOf<$listElementType>()"
 
     override fun getOperation(list: String, index: String): String
             = "$list.get($index)"

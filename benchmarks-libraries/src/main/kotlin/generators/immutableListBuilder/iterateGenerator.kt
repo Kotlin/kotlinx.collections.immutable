@@ -19,12 +19,7 @@ package generators.immutableListBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface ListBuilderIterateBenchmark {
-    val packageName: String
-    fun emptyOf(T: String): String
-}
-
-class ListBuilderIterateBenchmarkGenerator(private val impl: ListBuilderIterateBenchmark) : BenchmarkSourceGenerator() {
+class ListBuilderIterateBenchmarkGenerator(private val impl: ListBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Iterate"
 
     override fun getPackage(): String {
@@ -42,7 +37,7 @@ open class Iterate {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var builder = ${impl.emptyOf("String")}
+    private var builder = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {

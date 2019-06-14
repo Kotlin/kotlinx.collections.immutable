@@ -19,14 +19,7 @@ package generators.immutableListBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface ListBuilderSetBenchmark {
-    val packageName: String
-    fun emptyOf(T: String): String
-    fun listBuilderType(T: String): String
-    val setOperation: String
-}
-
-class ListBuilderSetBenchmarkGenerator(private val impl: ListBuilderSetBenchmark) : BenchmarkSourceGenerator() {
+class ListBuilderSetBenchmarkGenerator(private val impl: ListBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Set"
 
     override fun getPackage(): String {
@@ -42,7 +35,7 @@ open class Set {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var builder = ${impl.emptyOf("String")}
+    private var builder = ${impl.empty()}
     private var randomIndices = listOf<Int>()
 
     @Setup(Level.Trial)
@@ -52,17 +45,17 @@ open class Set {
     }
 
     @Benchmark
-    fun setByIndex(): ${impl.listBuilderType("String")} {
+    fun setByIndex(): ${impl.type()} {
         for (i in 0 until size) {
-            builder.${impl.setOperation}(i, "another element")
+            ${impl.setOperation("builder", "i", listBuilderNewElement)}
         }
         return builder
     }
 
     @Benchmark
-    fun setByRandomIndex(): ${impl.listBuilderType("String")} {
+    fun setByRandomIndex(): ${impl.type()} {
         for (i in 0 until size) {
-            builder.${impl.setOperation}(randomIndices[i], "another element")
+            ${impl.setOperation("builder", "randomIndices[i]", listBuilderNewElement)}
         }
         return builder
     }

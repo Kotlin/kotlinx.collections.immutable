@@ -25,7 +25,7 @@ fun persistentListBuilderAdd(size: Int, immutablePercentage: Double): kotlinx.co
 
     var list = kotlinx.collections.immutable.persistentListOf<String>()
     repeat(times = immutableSize) {
-        list = list.add("some element")
+        list = list.add("another element")
     }
 
     val builder = list.builder()

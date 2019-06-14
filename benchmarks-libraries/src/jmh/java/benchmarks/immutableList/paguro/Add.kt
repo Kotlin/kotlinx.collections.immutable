@@ -16,7 +16,7 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.paguroRrbTree
+package benchmarks.immutableList.paguro
 
 import org.openjdk.jmh.annotations.*
 import java.util.concurrent.TimeUnit
@@ -28,21 +28,28 @@ import org.openjdk.jmh.infra.Blackhole
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
-open class Get {
+open class Add {
     @Param("10000", "100000")
     var size: Int = 0
 
-    private var persistentList = org.organicdesign.fp.collections.RrbTree.empty<String>()
-
-    @Setup(Level.Trial)
-    fun prepare() {
-        persistentList = persistentListAdd(size)
+    @Benchmark
+    fun addLast(): org.organicdesign.fp.collections.RrbTree.ImRrbt<String> {
+        return persistentListAdd(size)
     }
 
     @Benchmark
-    fun getByIndex(bh: Blackhole) {
+    fun addLastAndIterate(bh: Blackhole) {
+        val list = persistentListAdd(size)
+        for (e in list) {
+            bh.consume(e)
+        }
+    }
+
+    @Benchmark
+    fun addLastAndGet(bh: Blackhole) {
+        val list = persistentListAdd(size)
         for (i in 0 until size) {
-            bh.consume(persistentList.get(i))
+            bh.consume(list.get(i))
         }
     }
 }

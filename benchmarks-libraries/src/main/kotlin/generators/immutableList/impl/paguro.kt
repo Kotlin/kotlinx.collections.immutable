@@ -18,11 +18,14 @@ package generators.immutableList.impl
 
 import generators.immutableList.*
 
-object PaguroRrbTreeListImplementation: ListImplementation {
-    override val packageName: String = "paguroRrbTree"
+object PaguroListImplementation: ListImplementation {
+    override val packageName: String
+            = "paguro"
 
-    override fun type(): String = "org.organicdesign.fp.collections.RrbTree.ImRrbt<$listElementType>"
-    override fun empty(): String = "org.organicdesign.fp.collections.RrbTree.empty<$listElementType>()"
+    override fun type(): String
+            = "org.organicdesign.fp.collections.RrbTree.ImRrbt<$listElementType>"
+    override fun empty(): String
+            = "org.organicdesign.fp.collections.RrbTree.empty<$listElementType>()"
 
     override fun getOperation(list: String, index: String): String
             = "$list.get($index)"

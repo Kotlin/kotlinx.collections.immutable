@@ -19,10 +19,13 @@ package generators.immutableList.impl
 import generators.immutableList.*
 
 object VavrListImplementation: ListImplementation {
-    override val packageName: String = "vavr"
+    override val packageName: String
+            = "vavr"
 
-    override fun type(): String = "io.vavr.collection.Vector<$listElementType>"
-    override fun empty(): String = "io.vavr.collection.Vector.empty<$listElementType>()"
+    override fun type(): String
+            = "io.vavr.collection.Vector<$listElementType>"
+    override fun empty(): String
+            = "io.vavr.collection.Vector.empty<$listElementType>()"
 
     override fun getOperation(list: String, index: String): String
             = "$list.apply($index)"

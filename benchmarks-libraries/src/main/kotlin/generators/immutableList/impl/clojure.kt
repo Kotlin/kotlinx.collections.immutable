@@ -19,10 +19,13 @@ package generators.immutableList.impl
 import generators.immutableList.*
 
 object ClojureListImplementation: ListImplementation {
-    override val packageName: String = "clojure"
+    override val packageName: String
+            = "clojure"
 
-    override fun type(): String = "clojure.lang.PersistentVector"
-    override fun empty(): String = "clojure.lang.PersistentVector.EMPTY"
+    override fun type(): String
+            = "clojure.lang.PersistentVector"
+    override fun empty(): String
+            = "clojure.lang.PersistentVector.EMPTY"
 
     override fun getOperation(list: String, index: String): String
             = "$list.get($index)"
