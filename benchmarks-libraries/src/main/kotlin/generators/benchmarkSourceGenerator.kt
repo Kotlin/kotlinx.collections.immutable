@@ -156,10 +156,10 @@ private val setImpls = listOf(
         VavrOrderedSetImplementation
 )
 private val setBuilderImpls = listOf(
-        SetBuilderKotlinBenchmark(),
-        SetBuilderKotlinOrderedBenchmark(),
-        SetBuilderCapsuleBenchmark(),
-        SetBuilderClojureBenchmark()
+        KotlinSetBuilderImplementation,
+        KotlinOrderedSetBuilderImplementation,
+        CapsuleSetBuilderImplementation,
+        ClojureSetBuilderImplementation
 )
 
 fun generateBenchmarks() {
@@ -236,12 +236,20 @@ fun generateBenchmarks() {
             setImpls.filterIsInstance<SetIterateBenchmark>().map { SetIterateBenchmarkGenerator(it) },
             setImpls.filterIsInstance<SetRemoveBenchmark>().map { SetRemoveBenchmarkGenerator(it) }
     )*/
-    val setBuilderBenchmarks = listOf(
+    val setBuilderBenchmarks = setBuilderImpls.map { listOf(
+            SetBuilderAddBenchmarkGenerator(it),
+            SetBuilderContainsBenchmarkGenerator(it),
+            SetBuilderRemoveBenchmarkGenerator(it),
+            SetBuilderUtilsGenerator(it)
+    ) } + setBuilderImpls.filter(SetBuilderImplementation::isIterable).map { listOf(
+            SetBuilderIterateBenchmarkGenerator(it)
+    ) }
+    /*listOf(
             setBuilderImpls.filterIsInstance<SetBuilderAddBenchmark>().map { SetBuilderAddBenchmarkGenerator(it) },
             setBuilderImpls.filterIsInstance<SetBuilderContainsBenchmark>().map { SetBuilderContainsBenchmarkGenerator(it) },
             setBuilderImpls.filterIsInstance<SetBuilderIterateBenchmark>().map { SetBuilderIterateBenchmarkGenerator(it) },
             setBuilderImpls.filterIsInstance<SetBuilderRemoveBenchmark>().map { SetBuilderRemoveBenchmarkGenerator(it) }
-    )
+    )*/
 
 
     val allBenchmarks = (listBenchmarks + listBuilderBenchmarks + mapBenchmarks + mapBuilderBenchmarks + setBenchmarks + setBuilderBenchmarks).flatten()
@@ -257,16 +265,12 @@ fun generateBenchmarks() {
 }
 
 fun generateUtils() {
-    val setBuilderUtils = setBuilderImpls.filterIsInstance<SetBuilderBenchmarkUtils>().map { SetBuilderUtilsGenerator(it) }
-
     val commonUtils = listOf(
             IntWrapperGenerator(),
             CommonUtilsGenerator()
     )
 
-    val utils = setBuilderUtils + commonUtils
-
-    utils.forEach { util ->
+    commonUtils.forEach { util ->
         val path = util.getPackage().replace('.', '/') + "/" + util.outputFileName + ".kt"
         val file = File(BENCHMARKS_ROOT + path)
         file.parentFile?.mkdirs()

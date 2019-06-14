@@ -19,9 +19,10 @@
 package benchmarks.immutableSet.clojure.builder
 
 import benchmarks.immutableSize
+import benchmarks.IntWrapper
 
-fun <E> persistentSetBuilderAdd(
-        elements: List<E>,
+fun persistentSetBuilderAdd(
+        elements: List<IntWrapper>,
         immutablePercentage: Double
 ): clojure.lang.ATransientSet {
     val immutableSize = immutableSize(elements.size, immutablePercentage)

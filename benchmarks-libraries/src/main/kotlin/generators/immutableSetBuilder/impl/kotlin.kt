@@ -18,24 +18,28 @@ package generators.immutableSetBuilder.impl
 
 import generators.immutableSetBuilder.*
 
-class SetBuilderKotlinBenchmark:
-        SetBuilderContainsBenchmark,
-        SetBuilderIterateBenchmark,
-        SetBuilderAddBenchmark,
-        SetBuilderRemoveBenchmark,
-        SetBuilderBenchmarkUtils
-{
-    override val packageName: String = "kotlin.builder"
+object KotlinSetBuilderImplementation: SetBuilderImplementation{
+    override val packageName: String
+            = "kotlin.builder"
 
-    override fun setBuilderType(E: String): String = "kotlinx.collections.immutable.PersistentSet.Builder<$E>"
+    override fun type(): String
+            = "kotlinx.collections.immutable.PersistentSet.Builder<$setBuilderElementType>"
+    override fun empty(): String
+            = "kotlinx.collections.immutable.persistentHashSetOf<$setBuilderElementType>().builder()"
 
-    override fun emptyOf(E: String): String = "kotlinx.collections.immutable.persistentHashSetOf<$E>().builder()"
-    override fun immutableOf(E: String): String = "kotlinx.collections.immutable.persistentHashSetOf<$E>()"
+    override fun addOperation(builder: String, element: String): String
+            = "$builder.add($element)"
+    override fun removeOperation(builder: String, element: String): String
+            = "$builder.remove($element)"
 
-    override val addOperation: String = "add"
-    override fun immutableAddOperation(set: String, element: String): String = "$set.add($element)"
+    override val isIterable: Boolean
+            = true
 
-    override val removeOperation: String = "remove"
+    override fun builderOperation(immutable: String): String
+            = "$immutable.builder()"
 
-    override fun builderOperation(set: String): String = "$set.builder()"
+    override fun immutableEmpty(): String
+            = "kotlinx.collections.immutable.persistentHashSetOf<$setBuilderElementType>()"
+    override fun immutableAddOperation(immutable: String, element: String): String
+            = "$immutable.add($element)"
 }

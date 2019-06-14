@@ -19,14 +19,15 @@
 package benchmarks.immutableSet.capsule.builder
 
 import benchmarks.immutableSize
+import benchmarks.IntWrapper
 
-fun <E> persistentSetBuilderAdd(
-        elements: List<E>,
+fun persistentSetBuilderAdd(
+        elements: List<IntWrapper>,
         immutablePercentage: Double
-): io.usethesource.capsule.Set.Transient<E> {
+): io.usethesource.capsule.Set.Transient<IntWrapper> {
     val immutableSize = immutableSize(elements.size, immutablePercentage)
 
-    var set = io.usethesource.capsule.core.PersistentTrieSet.of<E>()
+    var set = io.usethesource.capsule.core.PersistentTrieSet.of<IntWrapper>()
     for (index in 0 until immutableSize) {
         set = set.__insert(elements[index])
     }

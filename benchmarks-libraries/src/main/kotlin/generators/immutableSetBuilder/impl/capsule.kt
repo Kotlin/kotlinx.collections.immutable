@@ -18,24 +18,28 @@ package generators.immutableSetBuilder.impl
 
 import generators.immutableSetBuilder.*
 
-class SetBuilderCapsuleBenchmark:
-        SetBuilderContainsBenchmark,
-        SetBuilderIterateBenchmark,
-        SetBuilderAddBenchmark,
-        SetBuilderRemoveBenchmark,
-        SetBuilderBenchmarkUtils
-{
-    override val packageName: String = "capsule.builder"
+object CapsuleSetBuilderImplementation: SetBuilderImplementation{
+    override val packageName: String
+            = "capsule.builder"
 
-    override fun setBuilderType(E: String): String = "io.usethesource.capsule.Set.Transient<$E>"
+    override fun type(): String
+            = "io.usethesource.capsule.Set.Transient<$setBuilderElementType>"
+    override fun empty(): String
+            = "io.usethesource.capsule.core.PersistentTrieSet.of<$setBuilderElementType>().asTransient()"
 
-    override fun emptyOf(E: String): String = "io.usethesource.capsule.core.PersistentTrieSet.of<$E>().asTransient()"
-    override fun immutableOf(E: String): String = "io.usethesource.capsule.core.PersistentTrieSet.of<$E>()"
+    override fun addOperation(builder: String, element: String): String
+            = "$builder.add($element)"
+    override fun removeOperation(builder: String, element: String): String
+            = "$builder.__remove($element)"
 
-    override val addOperation: String = "add"
-    override fun immutableAddOperation(set: String, element: String): String = "$set.__insert($element)"
+    override val isIterable: Boolean
+            = true
 
-    override val removeOperation: String = "__remove"
+    override fun builderOperation(immutable: String): String
+            = "$immutable.asTransient()"
 
-    override fun builderOperation(set: String): String = "$set.asTransient()"
+    override fun immutableEmpty(): String
+            = "io.usethesource.capsule.core.PersistentTrieSet.of<$setBuilderElementType>()"
+    override fun immutableAddOperation(immutable: String, element: String): String
+            = "$immutable.__insert($element)"
 }

@@ -19,14 +19,15 @@
 package benchmarks.immutableSet.kotlinOrdered.builder
 
 import benchmarks.immutableSize
+import benchmarks.IntWrapper
 
-fun <E> persistentSetBuilderAdd(
-        elements: List<E>,
+fun persistentSetBuilderAdd(
+        elements: List<IntWrapper>,
         immutablePercentage: Double
-): kotlinx.collections.immutable.PersistentSet.Builder<E> {
+): kotlinx.collections.immutable.PersistentSet.Builder<IntWrapper> {
     val immutableSize = immutableSize(elements.size, immutablePercentage)
 
-    var set = kotlinx.collections.immutable.persistentSetOf<E>()
+    var set = kotlinx.collections.immutable.persistentSetOf<IntWrapper>()
     for (index in 0 until immutableSize) {
         set = set.add(elements[index])
     }

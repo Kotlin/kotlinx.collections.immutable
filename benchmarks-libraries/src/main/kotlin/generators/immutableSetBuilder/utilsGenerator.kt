@@ -19,39 +19,29 @@ package generators.immutableSetBuilder
 import generators.UtilsSourceGenerator
 import java.io.PrintWriter
 
-interface SetBuilderBenchmarkUtils {
-    val packageName: String
-    fun emptyOf(E: String): String
-    fun immutableOf(E: String): String
-    fun setBuilderType(E: String): String
-    val addOperation: String
-    fun immutableAddOperation(set: String, element: String): String
-    fun builderOperation(set: String): String
-}
-
-class SetBuilderUtilsGenerator(private val impl: SetBuilderBenchmarkUtils): UtilsSourceGenerator() {
+class SetBuilderUtilsGenerator(private val impl: SetBuilderImplementation): UtilsSourceGenerator() {
     override fun getPackage(): String = super.getPackage() + ".immutableSet." + impl.packageName
 
     override val outputFileName: String = "utils"
 
-    override val imports: Set<String> = super.imports + "benchmarks.immutableSize"
+    override val imports: Set<String> = super.imports + "benchmarks.immutableSize" + "benchmarks.IntWrapper"
 
     override fun generateBody(out: PrintWriter) {
         out.println("""
-fun <E> persistentSetBuilderAdd(
-        elements: List<E>,
+fun persistentSetBuilderAdd(
+        elements: List<$setBuilderElementType>,
         immutablePercentage: Double
-): ${impl.setBuilderType("E")} {
+): ${impl.type()} {
     val immutableSize = immutableSize(elements.size, immutablePercentage)
 
-    var set = ${impl.immutableOf("E")}
+    var set = ${impl.immutableEmpty()}
     for (index in 0 until immutableSize) {
         set = ${impl.immutableAddOperation("set", "elements[index]")}
     }
 
     val builder = ${impl.builderOperation("set")}
     for (index in immutableSize until elements.size) {
-        builder.${impl.addOperation}(elements[index])
+        ${impl.addOperation("builder", "elements[index]")}
     }
 
     return builder
