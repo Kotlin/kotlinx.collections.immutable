@@ -18,22 +18,24 @@ package generators.immutableMap.impl
 
 import generators.immutableMap.*
 
-class MapClojureBenchmark:
-        MapGetBenchmark,
-        MapIterateBenchmark,
-        MapPutBenchmark,
-        MapRemoveBenchmark,
-        MapBenchmarkUtils
-{
-    override val packageName: String = "clojure"
+object ClojureMapImplementation: MapImplementation {
+    override val packageName: String
+            = "clojure"
 
-    override fun mapType(K: String, V: String): String = "clojure.lang.PersistentHashMap"
-    override fun emptyOf(K: String, V: String): String = "clojure.lang.PersistentHashMap.EMPTY"
+    override fun type(): String
+            = "clojure.lang.PersistentHashMap"
+    override fun empty(): String
+            = "clojure.lang.PersistentHashMap.EMPTY"
 
-    override val getOperation: String = "valAt"
-    override fun putOperation(map: String, key: String, value: String): String = "$map.assoc($key, $value) as clojure.lang.PersistentHashMap"
-    override fun removeOperation(map: String, key: String): String = "$map.without($key) as clojure.lang.PersistentHashMap"
+    override fun keysOperation(map: String): String
+            = "$map.keys"
+    override fun valuesOperation(map: String): String
+            = "$map.values"
 
-    override val keys: String = "keys"
-    override val values: String = "values"
+    override fun getOperation(map: String, key: String): String
+            = "$map.valAt($key)"
+    override fun putOperation(map: String, key: String, value: String): String
+            = "$map.assoc($key, $value) as clojure.lang.PersistentHashMap"
+    override fun removeOperation(map: String, key: String): String
+            = "$map.without($key) as clojure.lang.PersistentHashMap"
 }

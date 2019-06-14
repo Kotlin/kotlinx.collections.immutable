@@ -18,22 +18,24 @@ package generators.immutableMap.impl
 
 import generators.immutableMap.*
 
-class MapClojureSortedBenchmark:
-        MapGetBenchmark,
-        MapIterateBenchmark,
-        MapPutBenchmark,
-        MapRemoveBenchmark,
-        MapBenchmarkUtils
-{
-    override val packageName: String = "clojureSorted"
+object ClojureSortedMapImplementation: MapImplementation {
+    override val packageName: String
+            = "clojureSorted"
 
-    override fun mapType(K: String, V: String): String = "clojure.lang.PersistentTreeMap"
-    override fun emptyOf(K: String, V: String): String = "clojure.lang.PersistentTreeMap.EMPTY"
+    override fun type(): String
+            = "clojure.lang.PersistentTreeMap"
+    override fun empty(): String
+            = "clojure.lang.PersistentTreeMap.EMPTY"
 
-    override val getOperation: String = "valAt"
-    override fun putOperation(map: String, key: String, value: String): String = "$map.assoc($key, $value)"
-    override fun removeOperation(map: String, key: String): String = "$map.without($key)"
+    override fun keysOperation(map: String): String
+            = "$map.keys"
+    override fun valuesOperation(map: String): String
+            = "$map.values"
 
-    override val keys: String = "keys"
-    override val values: String = "values"
+    override fun getOperation(map: String, key: String): String
+            = "$map.valAt($key)"
+    override fun putOperation(map: String, key: String, value: String): String
+            = "$map.assoc($key, $value)"
+    override fun removeOperation(map: String, key: String): String
+            = "$map.without($key)"
 }

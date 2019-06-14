@@ -19,14 +19,7 @@ package generators.immutableMap
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface MapPutBenchmark {
-    val packageName: String
-    fun mapType(K: String, V: String): String
-    val getOperation: String
-    val keys: String
-}
-
-class MapPutBenchmarkGenerator(private val impl: MapPutBenchmark) : BenchmarkSourceGenerator() {
+class MapPutBenchmarkGenerator(private val impl: MapImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Put"
 
     override fun getPackage(): String {
@@ -44,7 +37,7 @@ open class Put {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE)
     var hashCodeType = ""
 
-    private var keys = listOf<IntWrapper>()
+    private var keys = listOf<$mapKeyType>()
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -52,7 +45,7 @@ open class Put {
     }
 
     @Benchmark
-    fun put(): ${impl.mapType("IntWrapper", "String")} {
+    fun put(): ${impl.type()} {
         return persistentMapPut(keys)
     }
 
@@ -60,14 +53,14 @@ open class Put {
     fun putAndGet(bh: Blackhole) {
         val map = persistentMapPut(keys)
         repeat(times = size) { index ->
-            bh.consume(map.${impl.getOperation}(keys[index]))
+            bh.consume(${impl.getOperation("map", "keys[index]")})
         }
     }
 
     @Benchmark
     fun putAndIterateKeys(bh: Blackhole) {
         val map = persistentMapPut(keys)
-        for (key in map.${impl.keys}) {
+        for (key in ${impl.keysOperation("map")}) {
             bh.consume(key)
         }
     }

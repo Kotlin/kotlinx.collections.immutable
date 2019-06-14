@@ -19,24 +19,19 @@ package generators.immutableMap
 import generators.UtilsSourceGenerator
 import java.io.PrintWriter
 
-interface MapBenchmarkUtils {
-    val packageName: String
-    fun emptyOf(K: String, V: String): String
-    fun mapType(K: String, V: String): String
-    fun putOperation(map: String, key: String, value: String): String
-}
-
-class MapUtilsGenerator(private val impl: MapBenchmarkUtils): UtilsSourceGenerator() {
-    override fun getPackage(): String = super.getPackage() + ".immutableMap." + impl.packageName
-
+class MapUtilsGenerator(private val impl: MapImplementation): UtilsSourceGenerator() {
     override val outputFileName: String = "utils"
+
+    override fun getPackage(): String {
+        return super.getPackage() + ".immutableMap." + impl.packageName
+    }
 
     override val imports: Set<String> = super.imports + "benchmarks.IntWrapper"
 
     override fun generateBody(out: PrintWriter) {
         out.println("""
-fun persistentMapPut(keys: List<IntWrapper>): ${impl.mapType("IntWrapper", "String")} {
-    var map = ${impl.emptyOf("IntWrapper", "String")}
+fun persistentMapPut(keys: List<$mapKeyType>): ${impl.type()} {
+    var map = ${impl.empty()}
     for (key in keys) {
         map = ${impl.putOperation("map", "key", "\"some element\"")}
     }

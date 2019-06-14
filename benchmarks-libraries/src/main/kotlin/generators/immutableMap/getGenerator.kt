@@ -19,13 +19,7 @@ package generators.immutableMap
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface MapGetBenchmark {
-    val packageName: String
-    fun emptyOf(K: String, V: String): String
-    val getOperation: String
-}
-
-class MapGetBenchmarkGenerator(private val impl: MapGetBenchmark) : BenchmarkSourceGenerator() {
+class MapGetBenchmarkGenerator(private val impl: MapImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Get"
 
     override fun getPackage(): String {
@@ -43,8 +37,8 @@ open class Get {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
     var hashCodeType = ""
 
-    private var keys = listOf<IntWrapper>()
-    private var persistentMap = ${impl.emptyOf("IntWrapper", "String")}
+    private var keys = listOf<$mapKeyType>()
+    private var persistentMap = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -59,7 +53,7 @@ open class Get {
     @Benchmark
     fun get(bh: Blackhole) {
         repeat(times = size) { index ->
-            bh.consume(persistentMap.${impl.getOperation}(keys[index]))
+            bh.consume(${impl.getOperation("persistentMap", "keys[index]")})
         }
     }
 }

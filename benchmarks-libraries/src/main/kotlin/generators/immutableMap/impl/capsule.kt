@@ -18,22 +18,24 @@ package generators.immutableMap.impl
 
 import generators.immutableMap.*
 
-class MapCapsuleBenchmark:
-        MapGetBenchmark,
-        MapIterateBenchmark,
-        MapPutBenchmark,
-        MapRemoveBenchmark,
-        MapBenchmarkUtils
-{
-    override val packageName: String = "capsule"
+object CapsuleMapImplementation: MapImplementation {
+    override val packageName: String
+            = "capsule"
 
-    override fun mapType(K: String, V: String): String = "io.usethesource.capsule.Map.Immutable<$K, $V>"
-    override fun emptyOf(K: String, V: String): String = "io.usethesource.capsule.core.PersistentTrieMap.of<$K, $V>()"
+    override fun type(): String
+            = "io.usethesource.capsule.Map.Immutable<$mapKeyType, $mapValueType>"
+    override fun empty(): String
+            = "io.usethesource.capsule.core.PersistentTrieMap.of<$mapKeyType, $mapValueType>()"
 
-    override val getOperation: String = "get"
-    override fun putOperation(map: String, key: String, value: String): String = "$map.__put($key, $value)"
-    override fun removeOperation(map: String, key: String): String = "$map.__remove($key)"
+    override fun keysOperation(map: String): String
+            = "$map.keys"
+    override fun valuesOperation(map: String): String
+            = "$map.values"
 
-    override val keys: String = "keys"
-    override val values: String = "values"
+    override fun getOperation(map: String, key: String): String
+            = "$map.get($key)"
+    override fun putOperation(map: String, key: String, value: String): String
+            = "$map.__put($key, $value)"
+    override fun removeOperation(map: String, key: String): String
+            = "$map.__remove($key)"
 }
