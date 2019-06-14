@@ -18,26 +18,30 @@ package generators.immutableMapBuilder.impl
 
 import generators.immutableMapBuilder.*
 
-class MapBuilderPaguroBenchmark:
-        MapBuilderGetBenchmark,
-        MapBuilderIterateBenchmark,
-        MapBuilderPutBenchmark,
-        MapBuilderRemoveBenchmark,
-        MapBuilderBenchmarkUtils
-{
-    override val packageName: String = "paguro.builder"
+object PaguroMapBuilderImplementation: MapBuilderImplementation {
+    override val packageName: String
+            = "paguro.builder"
 
-    override fun mapBuilderType(K: String, V: String): String = "org.organicdesign.fp.collections.PersistentHashMap.MutableHashMap<$K, $V>"
+    override fun type(): String
+            = "org.organicdesign.fp.collections.PersistentHashMap.MutableHashMap<$mapBuilderKeyType, $mapBuilderValueType>"
+    override fun empty(): String
+            = "org.organicdesign.fp.collections.PersistentHashMap.emptyMutable<$mapBuilderKeyType, $mapBuilderValueType>()"
 
-    override fun emptyOf(K: String, V: String): String = "org.organicdesign.fp.collections.PersistentHashMap.emptyMutable<$K, $V>()"
-    override fun immutableOf(K: String, V: String): String = "org.organicdesign.fp.collections.PersistentHashMap.empty<$K, $V>()"
+    override fun getOperation(builder: String, key: String): String
+            = "$builder.get($key)"
+    override fun putOperation(builder: String, key: String, value: String): String
+            = "$builder.assoc($key, $value)"
+    override fun removeOperation(builder: String, key: String): String
+            = "$builder.without($key)"
 
-    override val putOperation: String = "assoc"
-    override val immutablePutOperation: String = "assoc"
+    override val isIterable: Boolean
+            = true
 
-    override val getOperation: String = "get"
+    override fun builderOperation(immutable: String): String =
+            "$immutable.mutable()"
 
-    override val removeOperation: String = "without"
-
-    override fun builderOperation(map: String): String = "$map.mutable()"
+    override fun immutableEmpty(): String
+            = "org.organicdesign.fp.collections.PersistentHashMap.empty<$mapBuilderKeyType, $mapBuilderValueType>()"
+    override fun immutablePutOperation(immutable: String, key: String, value: String): String
+            = "$immutable.assoc($key, $value)"
 }

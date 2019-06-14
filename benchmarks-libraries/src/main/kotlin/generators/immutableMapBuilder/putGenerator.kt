@@ -19,13 +19,7 @@ package generators.immutableMapBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface MapBuilderPutBenchmark {
-    val packageName: String
-    fun mapBuilderType(K: String, V: String): String
-    val getOperation: String
-}
-
-class MapBuilderPutBenchmarkGenerator(private val impl: MapBuilderPutBenchmark) : BenchmarkSourceGenerator() {
+class MapBuilderPutBenchmarkGenerator(private val impl: MapBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Put"
 
     override fun getPackage(): String {
@@ -46,7 +40,7 @@ open class Put {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var keys = listOf<IntWrapper>()
+    private var keys = listOf<$mapBuilderKeyType>()
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -54,7 +48,7 @@ open class Put {
     }
 
     @Benchmark
-    fun put(): ${impl.mapBuilderType("IntWrapper", "String")} {
+    fun put(): ${impl.type()} {
         return persistentMapBuilderPut(keys, immutablePercentage)
     }
 
@@ -62,12 +56,12 @@ open class Put {
     fun putAndGet(bh: Blackhole) {
         val builder = persistentMapBuilderPut(keys, immutablePercentage)
         repeat(times = size) { index ->
-            bh.consume(builder.${impl.getOperation}(keys[index]))
+            bh.consume(${impl.getOperation("builder", "keys[index]")})
         }
     }
         """.trimIndent()
         )
-        if (impl is MapBuilderIterateBenchmark) {
+        if (impl.isIterable) {
             out.println("""
     @Benchmark
     fun putAndIterateKeys(bh: Blackhole) {
