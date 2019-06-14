@@ -16,8 +16,6 @@
 
 package generators.immutableMap.impl
 
-import generators.immutableMap.*
-
 object ScalaSortedMapImplementation: MapImplementation {
     override val packageName: String
             = "scalaSorted"

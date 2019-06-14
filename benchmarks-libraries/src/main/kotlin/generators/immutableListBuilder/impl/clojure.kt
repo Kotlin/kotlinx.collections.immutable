@@ -16,8 +16,6 @@
 
 package generators.immutableListBuilder.impl
 
-import generators.immutableListBuilder.*
-
 object ClojureListBuilderImplementation: ListBuilderImplementation {
     override val packageName: String
             = "clojure.builder"

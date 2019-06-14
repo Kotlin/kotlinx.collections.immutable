@@ -17,6 +17,7 @@
 package generators.immutableMapBuilder
 
 import generators.BenchmarkSourceGenerator
+import generators.immutableMapBuilder.impl.MapBuilderImplementation
 import java.io.PrintWriter
 
 class MapBuilderIterateBenchmarkGenerator(private val impl: MapBuilderImplementation) : BenchmarkSourceGenerator() {

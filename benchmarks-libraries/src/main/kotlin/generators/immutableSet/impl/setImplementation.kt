@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package generators.immutableSetBuilder
+package generators.immutableSet.impl
 
-interface SetBuilderImplementation {
+interface SetImplementation {
     val packageName: String
 
     fun type(): String
     fun empty(): String
 
-    fun addOperation(builder: String, element: String): String
-    fun removeOperation(builder: String, element: String): String
-
-    val isIterable: Boolean
-
-    fun builderOperation(immutable: String): String
-
-    fun immutableEmpty(): String
-    fun immutableAddOperation(immutable: String, element: String): String
+    fun addOperation(set: String, element: String): String
+    fun removeOperation(set: String, element: String): String
 }
 
-const val setBuilderElementType = "IntWrapper"
+const val setElementType = "IntWrapper"

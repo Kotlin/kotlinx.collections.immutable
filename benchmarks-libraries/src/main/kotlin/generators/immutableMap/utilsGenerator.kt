@@ -17,6 +17,8 @@
 package generators.immutableMap
 
 import generators.UtilsSourceGenerator
+import generators.immutableMap.impl.MapImplementation
+import generators.immutableMap.impl.mapKeyType
 import java.io.PrintWriter
 
 class MapUtilsGenerator(private val impl: MapImplementation): UtilsSourceGenerator() {

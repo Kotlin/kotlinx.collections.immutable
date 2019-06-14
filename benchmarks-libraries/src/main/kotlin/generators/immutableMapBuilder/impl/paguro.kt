@@ -16,8 +16,6 @@
 
 package generators.immutableMapBuilder.impl
 
-import generators.immutableMapBuilder.*
-
 object PaguroMapBuilderImplementation: MapBuilderImplementation {
     override val packageName: String
             = "paguro.builder"

@@ -17,6 +17,7 @@
 package generators.immutableSet
 
 import generators.BenchmarkSourceGenerator
+import generators.immutableSet.impl.SetImplementation
 import java.io.PrintWriter
 
 class SetIterateBenchmarkGenerator(private val impl: SetImplementation) : BenchmarkSourceGenerator() {

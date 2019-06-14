@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package generators.immutableMap
+package generators.immutableList.impl
 
-interface MapImplementation {
+interface ListImplementation {
     val packageName: String
 
     fun type(): String
     fun empty(): String
 
-    fun keysOperation(map: String): String
-    fun valuesOperation(map: String): String
+    fun getOperation(list: String, index: String): String
+    fun setOperation(list: String, index: String, newValue: String): String
+    fun addOperation(list: String, element: String): String
+    fun removeLastOperation(list: String): String
 
-    fun getOperation(map: String, key: String): String
-    fun putOperation(map: String, key: String, value: String): String
-    fun removeOperation(map: String, key: String): String
+    fun iterateLastToFirst(list: String, size: String): String
 }
 
-const val mapKeyType = "IntWrapper"
-const val mapValueType = "String"
+const val listElementType = "String"
+
+const val listElement = "\"some element\""
+const val listNewElement = "\"another element\""

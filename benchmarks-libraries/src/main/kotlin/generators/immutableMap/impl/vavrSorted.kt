@@ -16,8 +16,6 @@
 
 package generators.immutableMap.impl
 
-import generators.immutableMap.*
-
 object VavrSortedMapImplementation: MapImplementation {
     override val packageName: String
             = "vavrSorted"

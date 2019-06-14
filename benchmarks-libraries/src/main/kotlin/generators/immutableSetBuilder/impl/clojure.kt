@@ -16,9 +16,7 @@
 
 package generators.immutableSetBuilder.impl
 
-import generators.immutableSetBuilder.*
-
-object ClojureSetBuilderImplementation: SetBuilderImplementation{
+object ClojureSetBuilderImplementation: SetBuilderImplementation {
     override val packageName: String
             = "clojure.builder"
 

@@ -16,9 +16,7 @@
 
 package generators.immutableSetBuilder.impl
 
-import generators.immutableSetBuilder.*
-
-object CapsuleSetBuilderImplementation: SetBuilderImplementation{
+object CapsuleSetBuilderImplementation: SetBuilderImplementation {
     override val packageName: String
             = "capsule.builder"
 

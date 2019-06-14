@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package generators.immutableList
+package generators.immutableSetBuilder.impl
 
-interface ListImplementation {
+interface SetBuilderImplementation {
     val packageName: String
 
     fun type(): String
     fun empty(): String
 
-    fun getOperation(list: String, index: String): String
-    fun setOperation(list: String, index: String, newValue: String): String
-    fun addOperation(list: String, element: String): String
-    fun removeLastOperation(list: String): String
+    fun addOperation(builder: String, element: String): String
+    fun removeOperation(builder: String, element: String): String
 
-    fun iterateLastToFirst(list: String, size: String): String
+    val isIterable: Boolean
+
+    fun builderOperation(immutable: String): String
+
+    fun immutableEmpty(): String
+    fun immutableAddOperation(immutable: String, element: String): String
 }
 
-const val listElementType = "String"
-
-const val listElement = "\"some element\""
-const val listNewElement = "\"another element\""
+const val setBuilderElementType = "IntWrapper"

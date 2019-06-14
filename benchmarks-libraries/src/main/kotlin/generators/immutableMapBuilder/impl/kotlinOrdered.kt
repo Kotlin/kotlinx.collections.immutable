@@ -16,8 +16,6 @@
 
 package generators.immutableMapBuilder.impl
 
-import generators.immutableMapBuilder.*
-
 object KotlinOrderedMapBuilderImplementation: MapBuilderImplementation {
     override val packageName: String
             = "kotlinOrdered.builder"

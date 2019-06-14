@@ -17,6 +17,8 @@
 package generators.immutableSet
 
 import generators.UtilsSourceGenerator
+import generators.immutableSet.impl.SetImplementation
+import generators.immutableSet.impl.setElementType
 import java.io.PrintWriter
 
 class SetUtilsGenerator(private val impl: SetImplementation): UtilsSourceGenerator() {

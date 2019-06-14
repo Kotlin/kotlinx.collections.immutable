@@ -16,8 +16,6 @@
 
 package generators.immutableList.impl
 
-import generators.immutableList.*
-
 object VavrListImplementation: ListImplementation {
     override val packageName: String
             = "vavr"

@@ -16,8 +16,6 @@
 
 package generators.immutableMap.impl
 
-import generators.immutableMap.*
-
 object CapsuleMapImplementation: MapImplementation {
     override val packageName: String
             = "capsule"

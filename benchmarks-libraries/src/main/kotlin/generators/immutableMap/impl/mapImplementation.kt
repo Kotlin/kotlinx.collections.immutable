@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package generators.immutableSet
+package generators.immutableMap.impl
 
-interface SetImplementation {
+interface MapImplementation {
     val packageName: String
 
     fun type(): String
     fun empty(): String
 
-    fun addOperation(set: String, element: String): String
-    fun removeOperation(set: String, element: String): String
+    fun keysOperation(map: String): String
+    fun valuesOperation(map: String): String
+
+    fun getOperation(map: String, key: String): String
+    fun putOperation(map: String, key: String, value: String): String
+    fun removeOperation(map: String, key: String): String
 }
 
-const val setElementType = "IntWrapper"
+const val mapKeyType = "IntWrapper"
+const val mapValueType = "String"
