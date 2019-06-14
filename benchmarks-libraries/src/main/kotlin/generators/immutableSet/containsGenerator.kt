@@ -19,12 +19,7 @@ package generators.immutableSet
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface SetContainsBenchmark {
-    val packageName: String
-    fun emptyOf(E: String): String
-}
-
-class SetContainsBenchmarkGenerator(private val impl: SetContainsBenchmark) : BenchmarkSourceGenerator() {
+class SetContainsBenchmarkGenerator(private val impl: SetImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Contains"
 
     override fun getPackage(): String {
@@ -42,8 +37,8 @@ open class Contains {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
     var hashCodeType = ""
 
-    private var elements = listOf<IntWrapper>()
-    private var persistentSet = ${impl.emptyOf("IntWrapper")}
+    private var elements = listOf<$setElementType>()
+    private var persistentSet = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {

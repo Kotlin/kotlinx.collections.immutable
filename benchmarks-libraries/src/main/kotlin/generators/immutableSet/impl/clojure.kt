@@ -18,20 +18,17 @@ package generators.immutableSet.impl
 
 import generators.immutableSet.*
 
-class SetClojureBenchmark:
-        SetContainsBenchmark,
-        SetIterateBenchmark,
-        SetAddBenchmark,
-        SetRemoveBenchmark,
-        SetBenchmarkUtils
-{
-    override val packageName: String = "clojure"
+object ClojureSetImplementation: SetImplementation {
+    override val packageName: String
+            = "clojure"
 
-    override fun setType(E: String): String = "clojure.lang.PersistentHashSet"
+    override fun type(): String
+            = "clojure.lang.PersistentHashSet"
+    override fun empty(): String
+            = "clojure.lang.PersistentHashSet.EMPTY"
 
-    override fun emptyOf(E: String): String = "clojure.lang.PersistentHashSet.EMPTY"
-
-    override fun addOperation(set: String, element: String): String = "$set.cons($element) as clojure.lang.PersistentHashSet"
-
-    override fun removeOperation(set: String, element: String): String = "$set.disjoin($element) as clojure.lang.PersistentHashSet"
+    override fun addOperation(set: String, element: String): String
+            = "$set.cons($element) as clojure.lang.PersistentHashSet"
+    override fun removeOperation(set: String, element: String): String
+            = "$set.disjoin($element) as clojure.lang.PersistentHashSet"
 }

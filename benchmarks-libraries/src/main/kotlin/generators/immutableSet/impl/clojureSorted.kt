@@ -18,20 +18,17 @@ package generators.immutableSet.impl
 
 import generators.immutableSet.*
 
-class SetClojureSortedBenchmark:
-        SetContainsBenchmark,
-        SetIterateBenchmark,
-        SetAddBenchmark,
-        SetRemoveBenchmark,
-        SetBenchmarkUtils
-{
-    override val packageName: String = "clojureSorted"
+object ClojureSortedSetImplementation: SetImplementation {
+    override val packageName: String
+            = "clojureSorted"
 
-    override fun setType(E: String): String = "clojure.lang.PersistentTreeSet"
+    override fun type(): String
+            = "clojure.lang.PersistentTreeSet"
+    override fun empty(): String
+            = "clojure.lang.PersistentTreeSet.EMPTY"
 
-    override fun emptyOf(E: String): String = "clojure.lang.PersistentTreeSet.EMPTY"
-
-    override fun addOperation(set: String, element: String): String = "$set.cons($element) as clojure.lang.PersistentTreeSet"
-
-    override fun removeOperation(set: String, element: String): String = "$set.disjoin($element) as clojure.lang.PersistentTreeSet"
+    override fun addOperation(set: String, element: String): String
+            = "$set.cons($element) as clojure.lang.PersistentTreeSet"
+    override fun removeOperation(set: String, element: String): String
+            = "$set.disjoin($element) as clojure.lang.PersistentTreeSet"
 }

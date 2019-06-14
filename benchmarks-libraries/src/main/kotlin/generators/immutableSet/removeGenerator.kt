@@ -19,14 +19,7 @@ package generators.immutableSet
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface SetRemoveBenchmark {
-    val packageName: String
-    fun emptyOf(E: String): String
-    fun setType(E: String): String
-    fun removeOperation(set: String, element: String): String
-}
-
-class SetRemoveBenchmarkGenerator(private val impl: SetRemoveBenchmark) : BenchmarkSourceGenerator() {
+class SetRemoveBenchmarkGenerator(private val impl: SetImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Remove"
 
     override fun getPackage(): String {
@@ -44,8 +37,8 @@ open class Remove {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
     var hashCodeType = ""
 
-    private var elements = listOf<IntWrapper>()
-    private var persistentSet = ${impl.emptyOf("IntWrapper")}
+    private var elements = listOf<$setElementType>()
+    private var persistentSet = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -57,7 +50,7 @@ open class Remove {
     }
 
     @Benchmark
-    fun remove(): ${impl.setType("IntWrapper")} {
+    fun remove(): ${impl.type()} {
         var set = persistentSet
         repeat(times = size) { index ->
             set = ${impl.removeOperation("set", "elements[index]")}

@@ -18,20 +18,17 @@ package generators.immutableSet.impl
 
 import generators.immutableSet.*
 
-class SetVavrSortedBenchmark:
-        SetContainsBenchmark,
-        SetIterateBenchmark,
-        SetAddBenchmark,
-        SetRemoveBenchmark,
-        SetBenchmarkUtils
-{
-    override val packageName: String = "vavrSorted"
+object VavrSortedSetImplementation: SetImplementation {
+    override val packageName: String
+            = "vavrSorted"
 
-    override fun setType(E: String): String = "io.vavr.collection.TreeSet<$E>"
+    override fun type(): String
+            = "io.vavr.collection.TreeSet<$setElementType>"
+    override fun empty(): String
+            = "io.vavr.collection.TreeSet.empty<$setElementType>()"
 
-    override fun emptyOf(E: String): String = "io.vavr.collection.TreeSet.empty<$E>()"
-
-    override fun addOperation(set: String, element: String): String = "$set.add($element)"
-
-    override fun removeOperation(set: String, element: String): String = "$set.remove($element)"
+    override fun addOperation(set: String, element: String): String
+            = "$set.add($element)"
+    override fun removeOperation(set: String, element: String): String
+            = "$set.remove($element)"
 }

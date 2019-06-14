@@ -18,20 +18,17 @@ package generators.immutableSet.impl
 
 import generators.immutableSet.*
 
-class SetKotlinBenchmark:
-        SetContainsBenchmark,
-        SetIterateBenchmark,
-        SetAddBenchmark,
-        SetRemoveBenchmark,
-        SetBenchmarkUtils
-{
-    override val packageName: String = "kotlin"
+object KotlinSetImplementation: SetImplementation {
+    override val packageName: String
+            = "kotlin"
 
-    override fun setType(E: String): String = "kotlinx.collections.immutable.PersistentSet<$E>"
+    override fun type(): String
+            = "kotlinx.collections.immutable.PersistentSet<$setElementType>"
+    override fun empty(): String
+            = "kotlinx.collections.immutable.persistentHashSetOf<$setElementType>()"
 
-    override fun emptyOf(E: String): String = "kotlinx.collections.immutable.persistentHashSetOf<$E>()"
-
-    override fun addOperation(set: String, element: String): String = "$set.add($element)"
-
-    override fun removeOperation(set: String, element: String): String = "$set.remove($element)"
+    override fun addOperation(set: String, element: String): String
+            = "$set.add($element)"
+    override fun removeOperation(set: String, element: String): String
+            = "$set.remove($element)"
 }

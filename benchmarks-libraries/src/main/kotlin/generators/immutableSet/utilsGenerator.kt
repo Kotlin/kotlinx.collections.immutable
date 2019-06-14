@@ -19,14 +19,7 @@ package generators.immutableSet
 import generators.UtilsSourceGenerator
 import java.io.PrintWriter
 
-interface SetBenchmarkUtils {
-    val packageName: String
-    fun emptyOf(E: String): String
-    fun setType(E: String): String
-    fun addOperation(set: String, element: String): String
-}
-
-class SetUtilsGenerator(private val impl: SetBenchmarkUtils): UtilsSourceGenerator() {
+class SetUtilsGenerator(private val impl: SetImplementation): UtilsSourceGenerator() {
     override fun getPackage(): String = super.getPackage() + ".immutableSet." + impl.packageName
 
     override val outputFileName: String = "utils"
@@ -35,8 +28,8 @@ class SetUtilsGenerator(private val impl: SetBenchmarkUtils): UtilsSourceGenerat
 
     override fun generateBody(out: PrintWriter) {
         out.println("""
-fun persistentSetAdd(elements: List<IntWrapper>): ${impl.setType("IntWrapper")} {
-    var set = ${impl.emptyOf("IntWrapper")}
+fun persistentSetAdd(elements: List<$setElementType>): ${impl.type()} {
+    var set = ${impl.empty()}
     for (element in elements) {
         set = ${impl.addOperation("set", "element")}
     }

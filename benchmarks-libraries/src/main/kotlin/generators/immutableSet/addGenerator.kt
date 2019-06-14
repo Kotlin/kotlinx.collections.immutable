@@ -19,12 +19,7 @@ package generators.immutableSet
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface SetAddBenchmark {
-    val packageName: String
-    fun setType(E: String): String
-}
-
-class SetAddBenchmarkGenerator(private val impl: SetAddBenchmark) : BenchmarkSourceGenerator() {
+class SetAddBenchmarkGenerator(private val impl: SetImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Add"
 
     override fun getPackage(): String {
@@ -42,7 +37,7 @@ open class Add {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE)
     var hashCodeType = ""
 
-    private var elements = listOf<IntWrapper>()
+    private var elements = listOf<$setElementType>()
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -50,7 +45,7 @@ open class Add {
     }
 
     @Benchmark
-    fun add(): ${impl.setType("IntWrapper")} {
+    fun add(): ${impl.type()} {
         return persistentSetAdd(elements)
     }
 

@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package generators.immutableSet.impl
+package generators.immutableSet
 
-import generators.immutableSet.*
+interface SetImplementation {
+    val packageName: String
 
-object CyclopsTrieSetImplementation: SetImplementation {
-    override val packageName: String
-            = "cyclopsTrie"
+    fun type(): String
+    fun empty(): String
 
-    override fun type(): String
-            = "cyclops.data.TrieSet<$setElementType>"
-    override fun empty(): String
-            = "cyclops.data.TrieSet.empty<$setElementType>()"
-
-    override fun addOperation(set: String, element: String): String
-            = "$set.add($element)"
-    override fun removeOperation(set: String, element: String): String
-            = "$set.removeValue($element)"
+    fun addOperation(set: String, element: String): String
+    fun removeOperation(set: String, element: String): String
 }
+
+const val setElementType = "IntWrapper"
