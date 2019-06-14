@@ -19,14 +19,7 @@ package generators.immutableMap
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface MapRemoveBenchmark {
-    val packageName: String
-    fun emptyOf(K: String, V: String): String
-    fun mapType(K: String, V: String): String
-    fun removeOperation(map: String, key: String): String
-}
-
-class MapRemoveBenchmarkGenerator(private val impl: MapRemoveBenchmark) : BenchmarkSourceGenerator() {
+class MapRemoveBenchmarkGenerator(private val impl: MapImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Remove"
 
     override fun getPackage(): String {
@@ -44,8 +37,8 @@ open class Remove {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
     var hashCodeType = ""
 
-    private var keys = listOf<IntWrapper>()
-    private var persistentMap = ${impl.emptyOf("IntWrapper", "String")}
+    private var keys = listOf<$mapKeyType>()
+    private var persistentMap = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -57,7 +50,7 @@ open class Remove {
     }
 
     @Benchmark
-    fun remove(): ${impl.mapType("IntWrapper", "String")} {
+    fun remove(): ${impl.type()} {
         var map = persistentMap
         repeat(times = size) { index ->
             map = ${impl.removeOperation("map", "keys[index]")}

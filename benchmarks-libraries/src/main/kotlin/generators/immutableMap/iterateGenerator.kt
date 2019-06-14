@@ -19,14 +19,7 @@ package generators.immutableMap
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface MapIterateBenchmark {
-    val packageName: String
-    fun emptyOf(K: String, V: String): String
-    val keys: String
-    val values: String
-}
-
-class MapIterateBenchmarkGenerator(private val impl: MapIterateBenchmark) : BenchmarkSourceGenerator() {
+class MapIterateBenchmarkGenerator(private val impl: MapImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Iterate"
 
     override fun getPackage(): String {
@@ -44,7 +37,7 @@ open class Iterate {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE)
     var hashCodeType = ""
 
-    private var persistentMap = ${impl.emptyOf("IntWrapper", "String")}
+    private var persistentMap = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -53,14 +46,14 @@ open class Iterate {
 
     @Benchmark
     fun iterateKeys(bh: Blackhole) {
-        for (k in persistentMap.${impl.keys}) {
+        for (k in ${impl.keysOperation("persistentMap")}) {
             bh.consume(k)
         }
     }
 
     @Benchmark
     fun iterateValues(bh: Blackhole) {
-        for (v in persistentMap.${impl.values}) {
+        for (v in ${impl.valuesOperation("persistentMap")}) {
             bh.consume(v)
         }
     }

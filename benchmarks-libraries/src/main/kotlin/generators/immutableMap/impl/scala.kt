@@ -18,22 +18,24 @@ package generators.immutableMap.impl
 
 import generators.immutableMap.*
 
-class MapScalaBenchmark:
-        MapGetBenchmark,
-        MapIterateBenchmark,
-        MapPutBenchmark,
-        MapRemoveBenchmark,
-        MapBenchmarkUtils
-{
-    override val packageName: String = "scala"
+object ScalaMapImplementation: MapImplementation {
+    override val packageName: String
+            = "scala"
 
-    override fun mapType(K: String, V: String): String = "scala.collection.immutable.HashMap<$K, $V>"
-    override fun emptyOf(K: String, V: String): String = "scala.collection.immutable.`HashMap\$`.`MODULE\$`.empty<IntWrapper, String>()"
+    override fun type(): String
+            = "scala.collection.immutable.HashMap<$mapKeyType, $mapValueType>"
+    override fun empty(): String
+            = "scala.collection.immutable.`HashMap\$`.`MODULE\$`.empty<$mapKeyType, $mapValueType>()"
 
-    override val getOperation: String = "get"
-    override fun putOperation(map: String, key: String, value: String): String = "$map.updated($key, $value)"
-    override fun removeOperation(map: String, key: String): String = "$map.removed($key)"
+    override fun keysOperation(map: String): String
+            = "$map.keys()"
+    override fun valuesOperation(map: String): String
+            = "$map.values()"
 
-    override val keys: String = "keys()"
-    override val values: String = "values()"
+    override fun getOperation(map: String, key: String): String
+            = "$map.get($key)"
+    override fun putOperation(map: String, key: String, value: String): String
+            = "$map.updated($key, $value)"
+    override fun removeOperation(map: String, key: String): String
+            = "$map.removed($key)"
 }

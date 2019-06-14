@@ -18,22 +18,24 @@ package generators.immutableMap.impl
 
 import generators.immutableMap.*
 
-class MapVavrBenchmark:
-        MapGetBenchmark,
-        MapIterateBenchmark,
-        MapPutBenchmark,
-        MapRemoveBenchmark,
-        MapBenchmarkUtils
-{
-    override val packageName: String = "vavr"
+object VavrMapImplementation: MapImplementation {
+    override val packageName: String
+            = "vavr"
 
-    override fun mapType(K: String, V: String): String = "io.vavr.collection.HashMap<$K, $V>"
-    override fun emptyOf(K: String, V: String): String = "io.vavr.collection.HashMap.empty<IntWrapper, String>()"
+    override fun type(): String
+            = "io.vavr.collection.HashMap<$mapKeyType, $mapValueType>"
+    override fun empty(): String
+            = "io.vavr.collection.HashMap.empty<$mapKeyType, $mapValueType>()"
 
-    override val getOperation: String = "get"
-    override fun putOperation(map: String, key: String, value: String): String = "$map.put($key, $value)"
-    override fun removeOperation(map: String, key: String): String = "$map.remove($key)"
+    override fun keysOperation(map: String): String
+            = "$map.keysIterator()"
+    override fun valuesOperation(map: String): String
+            = "$map.valuesIterator()"
 
-    override val keys: String = "keysIterator()"
-    override val values: String = "valuesIterator()"
+    override fun getOperation(map: String, key: String): String
+            = "$map.get($key)"
+    override fun putOperation(map: String, key: String, value: String): String
+            = "$map.put($key, $value)"
+    override fun removeOperation(map: String, key: String): String
+            = "$map.remove($key)"
 }

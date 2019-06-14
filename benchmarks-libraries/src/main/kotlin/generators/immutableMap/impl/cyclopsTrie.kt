@@ -18,22 +18,24 @@ package generators.immutableMap.impl
 
 import generators.immutableMap.*
 
-class MapCyclopsTrieBenchmark:
-        MapGetBenchmark,
-        MapIterateBenchmark,
-        MapPutBenchmark,
-        MapRemoveBenchmark,
-        MapBenchmarkUtils
-{
-    override val packageName: String = "cyclopsTrie"
+object CyclopsTrieMapImplementation: MapImplementation {
+    override val packageName: String
+            = "cyclopsTrie"
 
-    override fun mapType(K: String, V: String): String = "cyclops.data.TrieMap<$K, $V>"
-    override fun emptyOf(K: String, V: String): String = "cyclops.data.TrieMap.empty<$K, $V>()"
+    override fun type(): String
+            = "cyclops.data.TrieMap<$mapKeyType, $mapValueType>"
+    override fun empty(): String
+            = "cyclops.data.TrieMap.empty<$mapKeyType, $mapValueType>()"
 
-    override val getOperation: String = "get"
-    override fun putOperation(map: String, key: String, value: String): String = "$map.put($key, $value)"
-    override fun removeOperation(map: String, key: String): String = "$map.remove($key)"
+    override fun keysOperation(map: String): String
+            = "$map.keys()"
+    override fun valuesOperation(map: String): String
+            = "$map.values()"
 
-    override val keys: String = "keys()"
-    override val values: String = "values()"
+    override fun getOperation(map: String, key: String): String
+            = "$map.get($key)"
+    override fun putOperation(map: String, key: String, value: String): String
+            = "$map.put($key, $value)"
+    override fun removeOperation(map: String, key: String): String
+            = "$map.remove($key)"
 }

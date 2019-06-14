@@ -18,22 +18,24 @@ package generators.immutableMap.impl
 
 import generators.immutableMap.*
 
-class MapKotlinBenchmark:
-        MapGetBenchmark,
-        MapIterateBenchmark,
-        MapPutBenchmark,
-        MapRemoveBenchmark,
-        MapBenchmarkUtils
-{
-    override val packageName: String = "kotlin"
+object KotlinMapImplementation: MapImplementation {
+    override val packageName: String
+            = "kotlin"
 
-    override fun mapType(K: String, V: String): String = "kotlinx.collections.immutable.PersistentMap<$K, $V>"
-    override fun emptyOf(K: String, V: String): String = "kotlinx.collections.immutable.persistentHashMapOf<$K, $V>()"
+    override fun type(): String
+            = "kotlinx.collections.immutable.PersistentMap<$mapKeyType, $mapValueType>"
+    override fun empty(): String
+            = "kotlinx.collections.immutable.persistentHashMapOf<$mapKeyType, $mapValueType>()"
 
-    override val getOperation: String = "get"
-    override fun putOperation(map: String, key: String, value: String): String = "$map.put($key, $value)"
-    override fun removeOperation(map: String, key: String): String = "$map.remove($key)"
+    override fun keysOperation(map: String): String
+            = "$map.keys"
+    override fun valuesOperation(map: String): String
+            = "$map.values"
 
-    override val keys: String = "keys"
-    override val values: String = "values"
+    override fun getOperation(map: String, key: String): String
+            = "$map.get($key)"
+    override fun putOperation(map: String, key: String, value: String): String
+            = "$map.put($key, $value)"
+    override fun removeOperation(map: String, key: String): String
+            = "$map.remove($key)"
 }

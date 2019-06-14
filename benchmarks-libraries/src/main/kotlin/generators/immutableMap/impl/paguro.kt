@@ -18,22 +18,24 @@ package generators.immutableMap.impl
 
 import generators.immutableMap.*
 
-class MapPaguroBenchmark:
-        MapGetBenchmark,
-        MapIterateBenchmark,
-        MapPutBenchmark,
-        MapRemoveBenchmark,
-        MapBenchmarkUtils
-{
-    override val packageName: String = "paguro"
+object PaguroMapImplementation: MapImplementation {
+    override val packageName: String
+            = "paguro"
 
-    override fun mapType(K: String, V: String): String = "org.organicdesign.fp.collections.PersistentHashMap<$K, $V>"
-    override fun emptyOf(K: String, V: String): String = "org.organicdesign.fp.collections.PersistentHashMap.empty<$K, $V>()"
+    override fun type(): String
+            = "org.organicdesign.fp.collections.PersistentHashMap<$mapKeyType, $mapValueType>"
+    override fun empty(): String
+            = "org.organicdesign.fp.collections.PersistentHashMap.empty<$mapKeyType, $mapValueType>()"
 
-    override val getOperation: String = "get"
-    override fun putOperation(map: String, key: String, value: String): String = "$map.assoc($key, $value)"
-    override fun removeOperation(map: String, key: String): String = "$map.without($key)"
+    override fun keysOperation(map: String): String
+            = "$map.keys"
+    override fun valuesOperation(map: String): String
+            = "$map.values"
 
-    override val keys: String = "keys"
-    override val values: String = "values"
+    override fun getOperation(map: String, key: String): String
+            = "$map.get($key)"
+    override fun putOperation(map: String, key: String, value: String): String
+            = "$map.assoc($key, $value)"
+    override fun removeOperation(map: String, key: String): String
+            = "$map.without($key)"
 }
