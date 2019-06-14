@@ -19,16 +19,7 @@ package generators.immutableListBuilder
 import generators.UtilsSourceGenerator
 import java.io.PrintWriter
 
-interface ListBuilderBenchmarkUtils {
-    val packageName: String
-    fun listBuilderType(T: String): String
-    fun immutableOf(T: String): String
-    val addOperation: String
-    val immutableAddOperation: String
-    fun builderOperation(list: String): String
-}
-
-class ListBuilderUtilsGenerator(private val impl: ListBuilderBenchmarkUtils): UtilsSourceGenerator() {
+class ListBuilderUtilsGenerator(private val impl: ListBuilderImplementation): UtilsSourceGenerator() {
     override fun getPackage(): String = super.getPackage() + ".immutableList." + impl.packageName
 
     override val outputFileName: String = "utils"
@@ -37,17 +28,17 @@ class ListBuilderUtilsGenerator(private val impl: ListBuilderBenchmarkUtils): Ut
 
     override fun generateBody(out: PrintWriter) {
         out.println("""
-fun persistentListBuilderAdd(size: Int, immutablePercentage: Double): ${impl.listBuilderType("String")} {
+fun persistentListBuilderAdd(size: Int, immutablePercentage: Double): ${impl.type()} {
     val immutableSize = immutableSize(size, immutablePercentage)
 
-    var list = ${impl.immutableOf("String")}
+    var list = ${impl.immutableEmpty()}
     repeat(times = immutableSize) {
-        list = list.${impl.immutableAddOperation}("some element")
+        list = ${impl.immutableAddOperation("list", listBuilderNewElement)}
     }
 
     val builder = ${impl.builderOperation("list")}
     repeat(times = size - immutableSize) {
-        builder.${impl.addOperation}("some element")
+        ${impl.addOperation("builder", listBuilderElement)}
     }
 
     return builder

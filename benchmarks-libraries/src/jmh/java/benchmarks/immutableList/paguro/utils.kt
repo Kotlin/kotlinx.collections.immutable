@@ -16,7 +16,7 @@
 
 // Auto-generated file. DO NOT EDIT!
 
-package benchmarks.immutableList.paguroRrbTree
+package benchmarks.immutableList.paguro
 
 
 fun persistentListAdd(size: Int): org.organicdesign.fp.collections.RrbTree.ImRrbt<String> {

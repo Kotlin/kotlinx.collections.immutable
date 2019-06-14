@@ -25,7 +25,7 @@ fun persistentListBuilderAdd(size: Int, immutablePercentage: Double): clojure.la
 
     var list = clojure.lang.PersistentVector.EMPTY
     repeat(times = immutableSize) {
-        list = list.cons("some element")
+        list = list.cons("another element")
     }
 
     val builder = list.asTransient() as clojure.lang.ITransientVector

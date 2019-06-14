@@ -19,10 +19,13 @@ package generators.immutableList.impl
 import generators.immutableList.*
 
 object CyclopsListImplementation: ListImplementation {
-    override val packageName: String = "cyclops"
+    override val packageName: String
+            = "cyclops"
 
-    override fun type(): String = "cyclops.data.Vector<$listElementType>"
-    override fun empty(): String = "cyclops.data.Vector.empty<$listElementType>()"
+    override fun type(): String
+            = "cyclops.data.Vector<$listElementType>"
+    override fun empty(): String
+            = "cyclops.data.Vector.empty<$listElementType>()"
 
     override fun getOperation(list: String, index: String): String
             = "$list.get($index)"

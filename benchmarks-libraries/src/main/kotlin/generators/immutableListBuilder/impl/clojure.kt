@@ -18,28 +18,32 @@ package generators.immutableListBuilder.impl
 
 import generators.immutableListBuilder.*
 
-class ListBuilderClojureBenchmark:
-        ListBuilderAddBenchmark,
-        ListBuilderGetBenchmark,
-        ListBuilderRemoveBenchmark,
-        ListBuilderSetBenchmark,
-        ListBuilderBenchmarkUtils
-{
-    override val packageName: String = "clojure.builder"
+object ClojureListBuilderImplementation: ListBuilderImplementation {
+    override val packageName: String
+            = "clojure.builder"
 
-    override fun listBuilderType(T: String): String = "clojure.lang.ITransientVector"
+    override fun type(): String
+            = "clojure.lang.ITransientVector"
+    override fun empty(): String
+            = "clojure.lang.PersistentVector.EMPTY.asTransient() as clojure.lang.ITransientVector"
 
-    override fun emptyOf(T: String): String = "clojure.lang.PersistentVector.EMPTY.asTransient() as clojure.lang.ITransientVector"
-    override fun immutableOf(T: String): String = "clojure.lang.PersistentVector.EMPTY"
+    override fun getOperation(builder: String, index: String): String
+            = "$builder.valAt($index)"
+    override fun setOperation(builder: String, index: String, newValue: String): String
+            = "$builder.assocN($index, $newValue)"
+    override fun addOperation(builder: String, element: String): String
+            = "$builder.conj($element)"
+    override fun removeLastOperation(builder: String): String
+            = "$builder.pop()"
 
-    override val addOperation: String = "conj"
-    override val immutableAddOperation: String = "cons"
+    override val isIterable: Boolean
+            = false
 
-    override fun removeAtOperation(builder: String): String = "pop()"
+    override fun builderOperation(immutable: String): String
+            = "$immutable.asTransient() as clojure.lang.ITransientVector"
 
-    override val getOperation: String = "valAt"
-
-    override val setOperation: String = "assocN"
-
-    override fun builderOperation(list: String): String = "$list.asTransient() as clojure.lang.ITransientVector"
+    override fun immutableEmpty(): String
+            = "clojure.lang.PersistentVector.EMPTY"
+    override fun immutableAddOperation(immutable: String, element: String): String
+            = "$immutable.cons($element)"
 }

@@ -19,14 +19,7 @@ package generators.immutableListBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface ListBuilderRemoveBenchmark {
-    val packageName: String
-    fun emptyOf(T: String): String
-    fun listBuilderType(T: String): String
-    fun removeAtOperation(builder: String): String
-}
-
-class ListBuilderRemoveBenchmarkGenerator(private val impl: ListBuilderRemoveBenchmark) : BenchmarkSourceGenerator() {
+class ListBuilderRemoveBenchmarkGenerator(private val impl: ListBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Remove"
 
     override fun getPackage(): String {
@@ -43,10 +36,10 @@ open class Remove {
     var immutablePercentage: Double = 0.0
 
     @Benchmark
-    fun addAndRemoveLast(): ${impl.listBuilderType("String")} {
+    fun addAndRemoveLast(): ${impl.type()} {
         val builder = persistentListBuilderAdd(size, immutablePercentage)
         for (i in 0 until size) {
-            builder.${impl.removeAtOperation("builder")}
+            ${impl.removeLastOperation("builder")}
         }
         return builder
     }

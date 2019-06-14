@@ -19,10 +19,13 @@ package generators.immutableList.impl
 import generators.immutableList.*
 
 object ScalaListImplementation: ListImplementation {
-    override val packageName: String = "scala"
+    override val packageName: String
+            = "scala"
 
-    override fun type(): String = "scala.collection.immutable.Vector<$listElementType>"
-    override fun empty(): String = "scala.collection.immutable.`Vector\$`.`MODULE\$`.empty<$listElementType>()"
+    override fun type(): String
+            = "scala.collection.immutable.Vector<$listElementType>"
+    override fun empty(): String
+            = "scala.collection.immutable.`Vector\$`.`MODULE\$`.empty<$listElementType>()"
 
     override fun getOperation(list: String, index: String): String
             = "$list.apply($index)"

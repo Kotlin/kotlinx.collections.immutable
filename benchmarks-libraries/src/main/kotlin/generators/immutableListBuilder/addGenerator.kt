@@ -19,13 +19,7 @@ package generators.immutableListBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface ListBuilderAddBenchmark {
-    val packageName: String
-    fun listBuilderType(T: String): String
-    val getOperation: String
-}
-
-class ListBuilderAddBenchmarkGenerator(private val impl: ListBuilderAddBenchmark) : BenchmarkSourceGenerator() {
+class ListBuilderAddBenchmarkGenerator(private val impl: ListBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Add"
 
     override fun getPackage(): String {
@@ -44,7 +38,7 @@ open class Add {
     var immutablePercentage: Double = 0.0
 
     @Benchmark
-    fun addLast(): ${impl.listBuilderType("String")} {
+    fun addLast(): ${impl.type()} {
         return persistentListBuilderAdd(size, immutablePercentage)
     }
 
@@ -52,11 +46,12 @@ open class Add {
     fun addLastAndGet(bh: Blackhole) {
         val builder = persistentListBuilderAdd(size, immutablePercentage)
         for (i in 0 until size) {
-            bh.consume(builder.${impl.getOperation}(i))
+            bh.consume(${impl.getOperation("builder", "i")})
         }
     }
         """.trimIndent())
-        if (impl is ListBuilderIterateBenchmark) {
+
+        if (impl.isIterable) {
             out.println("""
     @Benchmark
     fun addLastAndIterate(bh: Blackhole) {

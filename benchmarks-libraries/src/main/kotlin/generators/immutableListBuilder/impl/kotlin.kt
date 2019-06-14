@@ -18,29 +18,32 @@ package generators.immutableListBuilder.impl
 
 import generators.immutableListBuilder.*
 
-class ListBuilderKotlinBenchmark:
-        ListBuilderAddBenchmark,
-        ListBuilderGetBenchmark,
-        ListBuilderIterateBenchmark,
-        ListBuilderRemoveBenchmark,
-        ListBuilderSetBenchmark,
-        ListBuilderBenchmarkUtils
-{
-    override val packageName: String = "kotlin.builder"
+object KotlinListBuilderImplementation: ListBuilderImplementation {
+    override val packageName: String
+            = "kotlin.builder"
 
-    override fun listBuilderType(T: String): String = "kotlinx.collections.immutable.PersistentList.Builder<$T>"
+    override fun type(): String
+            = "kotlinx.collections.immutable.PersistentList.Builder<$listBuilderElementType>"
+    override fun empty(): String
+            = "kotlinx.collections.immutable.persistentListOf<$listBuilderElementType>().builder()"
 
-    override fun emptyOf(T: String): String = "kotlinx.collections.immutable.persistentListOf<$T>().builder()"
-    override fun immutableOf(T: String): String = "kotlinx.collections.immutable.persistentListOf<$T>()"
+    override fun getOperation(builder: String, index: String): String
+            = "$builder.get($index)"
+    override fun setOperation(builder: String, index: String, newValue: String): String
+            = "$builder.set($index, $newValue)"
+    override fun addOperation(builder: String, element: String): String
+            = "$builder.add($element)"
+    override fun removeLastOperation(builder: String): String
+            = "$builder.removeAt($builder.size - 1)"
 
-    override val addOperation: String = "add"
-    override val immutableAddOperation: String = "add"
+    override val isIterable: Boolean
+            = true
 
-    override fun removeAtOperation(builder: String): String = "removeAt($builder.size - 1)"
+    override fun builderOperation(immutable: String): String
+            = "$immutable.builder()"
 
-    override val getOperation: String = "get"
-
-    override val setOperation: String = "set"
-
-    override fun builderOperation(list: String): String = "$list.builder()"
+    override fun immutableEmpty(): String
+            = "kotlinx.collections.immutable.persistentListOf<$listBuilderElementType>()"
+    override fun immutableAddOperation(immutable: String, element: String): String
+            = "$immutable.add($element)"
 }
