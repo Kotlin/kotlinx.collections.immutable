@@ -18,25 +18,30 @@ package generators.immutableMapBuilder.impl
 
 import generators.immutableMapBuilder.*
 
-class MapBuilderClojureBenchmark:
-        MapBuilderGetBenchmark,
-        MapBuilderPutBenchmark,
-        MapBuilderRemoveBenchmark,
-        MapBuilderBenchmarkUtils
-{
-    override val packageName: String = "clojure.builder"
+object ClojureMapBuilderImplementation: MapBuilderImplementation {
+    override val packageName: String
+            = "clojure.builder"
 
-    override fun mapBuilderType(K: String, V: String): String = "clojure.lang.ATransientMap"
+    override fun type(): String
+            = "clojure.lang.ATransientMap"
+    override fun empty(): String
+            = "clojure.lang.PersistentHashMap.EMPTY.asTransient() as clojure.lang.ATransientMap"
 
-    override fun emptyOf(K: String, V: String): String = "clojure.lang.PersistentHashMap.EMPTY.asTransient() as clojure.lang.ATransientMap"
-    override fun immutableOf(K: String, V: String): String = "clojure.lang.PersistentHashMap.EMPTY as clojure.lang.IPersistentMap"
+    override fun getOperation(builder: String, key: String): String
+            = "$builder.valAt($key)"
+    override fun putOperation(builder: String, key: String, value: String): String
+            = "$builder.assoc($key, $value)"
+    override fun removeOperation(builder: String, key: String): String
+            = "$builder.without($key)"
 
-    override val getOperation: String = "valAt"
+    override val isIterable: Boolean
+            = false
 
-    override val putOperation: String = "assoc"
-    override val immutablePutOperation: String = "assoc"
+    override fun builderOperation(immutable: String): String
+            = "($immutable as clojure.lang.PersistentHashMap).asTransient() as clojure.lang.ATransientMap"
 
-    override val removeOperation: String = "without"
-
-    override fun builderOperation(map: String): String = "($map as clojure.lang.PersistentHashMap).asTransient() as clojure.lang.ATransientMap"
+    override fun immutableEmpty(): String
+            = "clojure.lang.PersistentHashMap.EMPTY as clojure.lang.IPersistentMap"
+    override fun immutablePutOperation(immutable: String, key: String, value: String): String
+            = "$immutable.assoc($key, $value)"
 }

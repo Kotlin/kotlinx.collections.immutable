@@ -19,38 +19,29 @@ package generators.immutableMapBuilder
 import generators.UtilsSourceGenerator
 import java.io.PrintWriter
 
-interface MapBuilderBenchmarkUtils {
-    val packageName: String
-    fun mapBuilderType(K: String, V: String): String
-    fun immutableOf(K: String, V: String): String
-    val putOperation: String
-    val immutablePutOperation: String
-    fun builderOperation(map: String): String
-}
-
-class MapBuilderUtilsGenerator(private val impl: MapBuilderBenchmarkUtils): UtilsSourceGenerator() {
-    override fun getPackage(): String = super.getPackage() + ".immutableMap." + impl.packageName
-
+class MapBuilderUtilsGenerator(private val impl: MapBuilderImplementation): UtilsSourceGenerator() {
     override val outputFileName: String = "utils"
+
+    override fun getPackage(): String = super.getPackage() + ".immutableMap." + impl.packageName
 
     override val imports: Set<String> = super.imports + "benchmarks.*"
 
     override fun generateBody(out: PrintWriter) {
         out.println("""
 fun persistentMapBuilderPut(
-        keys: List<IntWrapper>,
+        keys: List<$mapBuilderKeyType>,
         immutablePercentage: Double
-): ${impl.mapBuilderType("IntWrapper", "String")} {
+): ${impl.type()} {
     val immutableSize = immutableSize(keys.size, immutablePercentage)
 
-    var map = ${impl.immutableOf("IntWrapper", "String")}
+    var map = ${impl.immutableEmpty()}
     for (index in 0 until immutableSize) {
-        map = map.${impl.immutablePutOperation}(keys[index], "some element")
+        map = ${impl.immutablePutOperation("map", "keys[index]", "\"some element\"")}
     }
 
     val builder = ${impl.builderOperation("map")}
     for (index in immutableSize until keys.size) {
-        builder.${impl.putOperation}(keys[index], "some element")
+        ${impl.putOperation("builder", "keys[index]", "\"some element\"")}
     }
 
     return builder

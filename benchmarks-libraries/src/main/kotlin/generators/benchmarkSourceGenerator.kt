@@ -133,11 +133,11 @@ private val mapImpls = listOf(
         VavrOrderedMapImplementation
 )
 private val mapBuilderImpls = listOf(
-        MapBuilderKotlinBenchmark(),
-        MapBuilderKotlinOrderedBenchmark(),
-        MapBuilderCapsuleBenchmark(),
-        MapBuilderPaguroBenchmark(),
-        MapBuilderClojureBenchmark()
+        KotlinMapBuilderImplementation,
+        KotlinOrderedMapBuilderImplementation,
+        CapsuleMapBuilderImplementation,
+        PaguroMapBuilderImplementation,
+        ClojureMapBuilderImplementation
 )
 
 private val setImpls = listOf(
@@ -208,12 +208,20 @@ fun generateBenchmarks() {
             mapImpls.filterIsInstance<MapPutBenchmark>().map { MapPutBenchmarkGenerator(it) },
             mapImpls.filterIsInstance<MapRemoveBenchmark>().map { MapRemoveBenchmarkGenerator(it) }
     )*/
-    val mapBuilderBenchmarks = listOf(
+    val mapBuilderBenchmarks = mapBuilderImpls.map { listOf(
+            MapBuilderGetBenchmarkGenerator(it),
+            MapBuilderPutBenchmarkGenerator(it),
+            MapBuilderRemoveBenchmarkGenerator(it),
+            MapBuilderUtilsGenerator(it)
+    ) } + mapBuilderImpls.filter(MapBuilderImplementation::isIterable).map { listOf(
+            MapBuilderIterateBenchmarkGenerator(it)
+    ) }
+    /*listOf(
             mapBuilderImpls.filterIsInstance<MapBuilderGetBenchmark>().map { MapBuilderGetBenchmarkGenerator(it) },
             mapBuilderImpls.filterIsInstance<MapBuilderIterateBenchmark>().map { MapBuilderIterateBenchmarkGenerator(it) },
             mapBuilderImpls.filterIsInstance<MapBuilderPutBenchmark>().map { MapBuilderPutBenchmarkGenerator(it) },
             mapBuilderImpls.filterIsInstance<MapBuilderRemoveBenchmark>().map { MapBuilderRemoveBenchmarkGenerator(it) }
-    )
+    )*/
 
     val setBenchmarks = listOf(
             setImpls.filterIsInstance<SetAddBenchmark>().map { SetAddBenchmarkGenerator(it) },
@@ -242,8 +250,6 @@ fun generateBenchmarks() {
 }
 
 fun generateUtils() {
-    val mapBuilderUtils = mapBuilderImpls.filterIsInstance<MapBuilderBenchmarkUtils>().map { MapBuilderUtilsGenerator(it) }
-
     val setUtils = setImpls.filterIsInstance<SetBenchmarkUtils>().map { SetUtilsGenerator(it) }
     val setBuilderUtils = setBuilderImpls.filterIsInstance<SetBuilderBenchmarkUtils>().map { SetBuilderUtilsGenerator(it) }
 
@@ -252,7 +258,7 @@ fun generateUtils() {
             CommonUtilsGenerator()
     )
 
-    val utils = mapBuilderUtils + setUtils + setBuilderUtils + commonUtils
+    val utils = setUtils + setBuilderUtils + commonUtils
 
     utils.forEach { util ->
         val path = util.getPackage().replace('.', '/') + "/" + util.outputFileName + ".kt"

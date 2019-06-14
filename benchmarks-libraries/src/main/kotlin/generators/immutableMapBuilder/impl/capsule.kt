@@ -18,26 +18,30 @@ package generators.immutableMapBuilder.impl
 
 import generators.immutableMapBuilder.*
 
-class MapBuilderCapsuleBenchmark:
-        MapBuilderGetBenchmark,
-        MapBuilderIterateBenchmark,
-        MapBuilderPutBenchmark,
-        MapBuilderRemoveBenchmark,
-        MapBuilderBenchmarkUtils
-{
-    override val packageName: String = "capsule.builder"
+object CapsuleMapBuilderImplementation: MapBuilderImplementation {
+    override val packageName: String
+            = "capsule.builder"
 
-    override fun mapBuilderType(K: String, V: String): String = "io.usethesource.capsule.Map.Transient<$K, $V>"
+    override fun type(): String
+            = "io.usethesource.capsule.Map.Transient<$mapBuilderKeyType, $mapBuilderValueType>"
+    override fun empty(): String
+            = "io.usethesource.capsule.core.PersistentTrieMap.of<$mapBuilderKeyType, $mapBuilderValueType>().asTransient()"
 
-    override fun emptyOf(K: String, V: String): String = "io.usethesource.capsule.core.PersistentTrieMap.of<$K, $V>().asTransient()"
-    override fun immutableOf(K: String, V: String): String = "io.usethesource.capsule.core.PersistentTrieMap.of<$K, $V>()"
+    override fun getOperation(builder: String, key: String): String
+            = "$builder.get($key)"
+    override fun putOperation(builder: String, key: String, value: String): String
+            = "$builder.put($key, $value)"
+    override fun removeOperation(builder: String, key: String): String
+            = "$builder.remove($key)"
 
-    override val putOperation: String = "put"
-    override val immutablePutOperation: String = "__put"
+    override val isIterable: Boolean
+            = true
 
-    override val getOperation: String = "get"
+    override fun builderOperation(immutable: String): String =
+            "$immutable.asTransient()"
 
-    override val removeOperation: String = "remove"
-
-    override fun builderOperation(map: String): String = "$map.asTransient()"
+    override fun immutableEmpty(): String
+            = "io.usethesource.capsule.core.PersistentTrieMap.of<$mapBuilderKeyType, $mapBuilderValueType>()"
+    override fun immutablePutOperation(immutable: String, key: String, value: String): String
+            = "$immutable.__put($key, $value)"
 }

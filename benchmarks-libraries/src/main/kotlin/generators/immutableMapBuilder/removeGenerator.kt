@@ -19,14 +19,7 @@ package generators.immutableMapBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface MapBuilderRemoveBenchmark {
-    val packageName: String
-    fun emptyOf(K: String, V: String): String
-    fun mapBuilderType(K: String, V: String): String
-    val removeOperation: String
-}
-
-class MapBuilderRemoveBenchmarkGenerator(private val impl: MapBuilderRemoveBenchmark) : BenchmarkSourceGenerator() {
+class MapBuilderRemoveBenchmarkGenerator(private val impl: MapBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Remove"
 
     override fun getPackage(): String {
@@ -47,8 +40,8 @@ open class Remove {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var keys = listOf<IntWrapper>()
-    private var keysToRemove = listOf<IntWrapper>()
+    private var keys = listOf<$mapBuilderKeyType>()
+    private var keysToRemove = listOf<$mapBuilderKeyType>()
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -62,10 +55,10 @@ open class Remove {
     }
 
     @Benchmark
-    fun putAndRemove(): ${impl.mapBuilderType("IntWrapper", "String")} {
+    fun putAndRemove(): ${impl.type()} {
         val builder = persistentMapBuilderPut(keys, immutablePercentage)
         repeat(times = size) { index ->
-            builder.${impl.removeOperation}(keysToRemove[index])
+            ${impl.removeOperation("builder", "keysToRemove[index]")}
         }
         return builder
     }

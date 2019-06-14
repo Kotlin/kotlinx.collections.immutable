@@ -19,13 +19,7 @@ package generators.immutableMapBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface MapBuilderGetBenchmark {
-    val packageName: String
-    fun emptyOf(K: String, V: String): String
-    val getOperation: String
-}
-
-class MapBuilderGetBenchmarkGenerator(private val impl: MapBuilderGetBenchmark) : BenchmarkSourceGenerator() {
+class MapBuilderGetBenchmarkGenerator(private val impl: MapBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Get"
 
     override fun getPackage(): String {
@@ -46,8 +40,8 @@ open class Get {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var keys = listOf<IntWrapper>()
-    private var builder = ${impl.emptyOf("IntWrapper", "String")}
+    private var keys = listOf<$mapBuilderKeyType>()
+    private var builder = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {
@@ -61,7 +55,7 @@ open class Get {
     @Benchmark
     fun get(bh: Blackhole) {
         repeat(times = size) { index ->
-            bh.consume(builder.${impl.getOperation}(keys[index]))
+            bh.consume(${impl.getOperation("builder", "keys[index]")})
         }
     }
 }

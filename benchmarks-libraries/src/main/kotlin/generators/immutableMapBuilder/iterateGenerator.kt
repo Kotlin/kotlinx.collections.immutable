@@ -19,12 +19,7 @@ package generators.immutableMapBuilder
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface MapBuilderIterateBenchmark {
-    val packageName: String
-    fun emptyOf(K: String, V: String): String
-}
-
-class MapBuilderIterateBenchmarkGenerator(private val impl: MapBuilderIterateBenchmark) : BenchmarkSourceGenerator() {
+class MapBuilderIterateBenchmarkGenerator(private val impl: MapBuilderImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Iterate"
 
     override fun getPackage(): String {
@@ -45,7 +40,7 @@ open class Iterate {
     @Param("0.0", "50.0")
     var immutablePercentage: Double = 0.0
 
-    private var builder = ${impl.emptyOf("IntWrapper", "String")}
+    private var builder = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {

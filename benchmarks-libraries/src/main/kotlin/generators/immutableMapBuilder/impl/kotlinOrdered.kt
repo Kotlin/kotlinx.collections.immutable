@@ -18,26 +18,30 @@ package generators.immutableMapBuilder.impl
 
 import generators.immutableMapBuilder.*
 
-class MapBuilderKotlinOrderedBenchmark:
-        MapBuilderGetBenchmark,
-        MapBuilderIterateBenchmark,
-        MapBuilderPutBenchmark,
-        MapBuilderRemoveBenchmark,
-        MapBuilderBenchmarkUtils
-{
-    override val packageName: String = "kotlinOrdered.builder"
+object KotlinOrderedMapBuilderImplementation: MapBuilderImplementation {
+    override val packageName: String
+            = "kotlinOrdered.builder"
 
-    override fun mapBuilderType(K: String, V: String): String = "kotlinx.collections.immutable.PersistentMap.Builder<$K, $V>"
+    override fun type(): String
+            = "kotlinx.collections.immutable.PersistentMap.Builder<$mapBuilderKeyType, $mapBuilderValueType>"
+    override fun empty(): String
+            = "kotlinx.collections.immutable.persistentMapOf<$mapBuilderKeyType, $mapBuilderValueType>().builder()"
 
-    override fun emptyOf(K: String, V: String): String = "kotlinx.collections.immutable.persistentMapOf<$K, $V>().builder()"
-    override fun immutableOf(K: String, V: String): String = "kotlinx.collections.immutable.persistentMapOf<$K, $V>()"
+    override fun getOperation(builder: String, key: String): String
+            = "$builder.get($key)"
+    override fun putOperation(builder: String, key: String, value: String): String
+            = "$builder.put($key, $value)"
+    override fun removeOperation(builder: String, key: String): String
+            = "$builder.remove($key)"
 
-    override val putOperation: String = "put"
-    override val immutablePutOperation: String = "put"
+    override val isIterable: Boolean
+            = true
 
-    override val getOperation: String = "get"
+    override fun builderOperation(immutable: String): String =
+            "$immutable.builder()"
 
-    override val removeOperation: String = "remove"
-
-    override fun builderOperation(map: String): String = "$map.builder()"
+    override fun immutableEmpty(): String
+            = "kotlinx.collections.immutable.persistentMapOf<$mapBuilderKeyType, $mapBuilderValueType>()"
+    override fun immutablePutOperation(immutable: String, key: String, value: String): String
+            = "$immutable.put($key, $value)"
 }
