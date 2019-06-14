@@ -18,20 +18,17 @@ package generators.immutableSet.impl
 
 import generators.immutableSet.*
 
-class SetCyclopsBenchmark:
-        SetContainsBenchmark,
-        SetIterateBenchmark,
-        SetAddBenchmark,
-        SetRemoveBenchmark,
-        SetBenchmarkUtils
-{
-    override val packageName: String = "cyclops"
+object CyclopsSetImplementation: SetImplementation {
+    override val packageName: String
+            = "cyclops"
 
-    override fun setType(E: String): String = "cyclops.data.HashSet<$E>"
+    override fun type(): String
+            = "cyclops.data.HashSet<$setElementType>"
+    override fun empty(): String
+            = "cyclops.data.HashSet.empty<$setElementType>()"
 
-    override fun emptyOf(E: String): String = "cyclops.data.HashSet.empty<$E>()"
-
-    override fun addOperation(set: String, element: String): String = "$set.add($element)"
-
-    override fun removeOperation(set: String, element: String): String = "$set.removeValue($element)"
+    override fun addOperation(set: String, element: String): String
+            = "$set.add($element)"
+    override fun removeOperation(set: String, element: String): String
+            = "$set.removeValue($element)"
 }

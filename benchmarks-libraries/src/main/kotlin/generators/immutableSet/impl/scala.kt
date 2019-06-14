@@ -18,20 +18,17 @@ package generators.immutableSet.impl
 
 import generators.immutableSet.*
 
-class SetScalaBenchmark:
-        SetContainsBenchmark,
-        SetIterateBenchmark,
-        SetAddBenchmark,
-        SetRemoveBenchmark,
-        SetBenchmarkUtils
-{
-    override val packageName: String = "scala"
+object ScalaSetImplementation: SetImplementation {
+    override val packageName: String
+            = "scala"
 
-    override fun setType(E: String): String = "scala.collection.immutable.HashSet<$E>"
+    override fun type(): String
+            = "scala.collection.immutable.HashSet<$setElementType>"
+    override fun empty(): String
+            = "scala.collection.immutable.`HashSet\$`.`MODULE$`.empty<$setElementType>()"
 
-    override fun emptyOf(E: String): String = "scala.collection.immutable.`HashSet\$`.`MODULE$`.empty<$E>()"
-
-    override fun addOperation(set: String, element: String): String = "$set.incl($element)"
-
-    override fun removeOperation(set: String, element: String): String = "$set.excl($element)"
+    override fun addOperation(set: String, element: String): String
+            = "$set.incl($element)"
+    override fun removeOperation(set: String, element: String): String
+            = "$set.excl($element)"
 }

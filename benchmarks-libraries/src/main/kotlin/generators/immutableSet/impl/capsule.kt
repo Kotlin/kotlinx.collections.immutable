@@ -18,20 +18,17 @@ package generators.immutableSet.impl
 
 import generators.immutableSet.*
 
-class SetCapsuleBenchmark:
-        SetContainsBenchmark,
-        SetIterateBenchmark,
-        SetAddBenchmark,
-        SetRemoveBenchmark,
-        SetBenchmarkUtils
-{
-    override val packageName: String = "capsule"
+object CapsuleSetImplementation: SetImplementation {
+    override val packageName: String
+            = "capsule"
 
-    override fun setType(E: String): String = "io.usethesource.capsule.Set.Immutable<$E>"
+    override fun type(): String
+            = "io.usethesource.capsule.Set.Immutable<$setElementType>"
+    override fun empty(): String
+            = "io.usethesource.capsule.core.PersistentTrieSet.of<$setElementType>()"
 
-    override fun emptyOf(E: String): String = "io.usethesource.capsule.core.PersistentTrieSet.of<$E>()"
-
-    override fun addOperation(set: String, element: String): String = "$set.__insert($element)"
-
-    override fun removeOperation(set: String, element: String): String = "$set.__remove($element)"
+    override fun addOperation(set: String, element: String): String
+            = "$set.__insert($element)"
+    override fun removeOperation(set: String, element: String): String
+            = "$set.__remove($element)"
 }

@@ -19,12 +19,7 @@ package generators.immutableSet
 import generators.BenchmarkSourceGenerator
 import java.io.PrintWriter
 
-interface SetIterateBenchmark {
-    val packageName: String
-    fun emptyOf(E: String): String
-}
-
-class SetIterateBenchmarkGenerator(private val impl: SetIterateBenchmark) : BenchmarkSourceGenerator() {
+class SetIterateBenchmarkGenerator(private val impl: SetImplementation) : BenchmarkSourceGenerator() {
     override val outputFileName: String = "Iterate"
 
     override fun getPackage(): String {
@@ -42,7 +37,7 @@ open class Iterate {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE)
     var hashCodeType = ""
 
-    private var persistentSet = ${impl.emptyOf("IntWrapper")}
+    private var persistentSet = ${impl.empty()}
 
     @Setup(Level.Trial)
     fun prepare() {
