@@ -17,6 +17,7 @@
 package generators.immutableListBuilder
 
 import generators.BenchmarkSourceGenerator
+import generators.immutableListBuilder.impl.ListBuilderImplementation
 import java.io.PrintWriter
 
 class ListBuilderAddBenchmarkGenerator(private val impl: ListBuilderImplementation) : BenchmarkSourceGenerator() {

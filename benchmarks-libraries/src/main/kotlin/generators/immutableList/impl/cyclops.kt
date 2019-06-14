@@ -16,8 +16,6 @@
 
 package generators.immutableList.impl
 
-import generators.immutableList.*
-
 object CyclopsListImplementation: ListImplementation {
     override val packageName: String
             = "cyclops"

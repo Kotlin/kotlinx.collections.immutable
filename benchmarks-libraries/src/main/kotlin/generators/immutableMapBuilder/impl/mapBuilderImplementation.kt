@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package generators.immutableMapBuilder
+package generators.immutableMapBuilder.impl
 
 interface MapBuilderImplementation {
     val packageName: String

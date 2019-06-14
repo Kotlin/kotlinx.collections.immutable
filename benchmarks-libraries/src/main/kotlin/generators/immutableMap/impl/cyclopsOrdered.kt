@@ -16,8 +16,6 @@
 
 package generators.immutableMap.impl
 
-import generators.immutableMap.*
-
 object CyclopsOrderedMapImplementation: MapImplementation {
     override val packageName: String
             = "cyclopsOrdered"

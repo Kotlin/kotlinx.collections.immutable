@@ -17,6 +17,9 @@
 package generators.immutableListBuilder
 
 import generators.UtilsSourceGenerator
+import generators.immutableListBuilder.impl.ListBuilderImplementation
+import generators.immutableListBuilder.impl.listBuilderElement
+import generators.immutableListBuilder.impl.listBuilderNewElement
 import java.io.PrintWriter
 
 class ListBuilderUtilsGenerator(private val impl: ListBuilderImplementation): UtilsSourceGenerator() {

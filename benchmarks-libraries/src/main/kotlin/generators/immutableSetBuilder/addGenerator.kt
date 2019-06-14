@@ -17,6 +17,8 @@
 package generators.immutableSetBuilder
 
 import generators.BenchmarkSourceGenerator
+import generators.immutableSetBuilder.impl.SetBuilderImplementation
+import generators.immutableSetBuilder.impl.setBuilderElementType
 import java.io.PrintWriter
 
 class SetBuilderAddBenchmarkGenerator(private val impl: SetBuilderImplementation) : BenchmarkSourceGenerator() {

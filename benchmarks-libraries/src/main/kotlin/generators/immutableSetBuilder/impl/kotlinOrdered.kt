@@ -16,9 +16,7 @@
 
 package generators.immutableSetBuilder.impl
 
-import generators.immutableSetBuilder.*
-
-object KotlinOrderedSetBuilderImplementation: SetBuilderImplementation{
+object KotlinOrderedSetBuilderImplementation: SetBuilderImplementation {
     override val packageName: String
             = "kotlinOrdered.builder"
 

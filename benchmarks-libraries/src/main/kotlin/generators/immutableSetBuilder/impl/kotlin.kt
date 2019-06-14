@@ -16,9 +16,7 @@
 
 package generators.immutableSetBuilder.impl
 
-import generators.immutableSetBuilder.*
-
-object KotlinSetBuilderImplementation: SetBuilderImplementation{
+object KotlinSetBuilderImplementation: SetBuilderImplementation {
     override val packageName: String
             = "kotlin.builder"
 

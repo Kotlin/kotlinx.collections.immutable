@@ -16,8 +16,6 @@
 
 package generators.immutableSet.impl
 
-import generators.immutableSet.*
-
 object VavrOrderedSetImplementation: SetImplementation {
     override val packageName: String
             = "vavrOrdered"

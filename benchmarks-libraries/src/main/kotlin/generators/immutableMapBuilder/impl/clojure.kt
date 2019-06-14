@@ -16,8 +16,6 @@
 
 package generators.immutableMapBuilder.impl
 
-import generators.immutableMapBuilder.*
-
 object ClojureMapBuilderImplementation: MapBuilderImplementation {
     override val packageName: String
             = "clojure.builder"

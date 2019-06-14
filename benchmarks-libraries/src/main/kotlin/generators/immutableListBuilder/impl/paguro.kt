@@ -16,8 +16,6 @@
 
 package generators.immutableListBuilder.impl
 
-import generators.immutableListBuilder.*
-
 object PaguroListBuilderImplementation: ListBuilderImplementation {
     override val packageName: String
             = "paguro.builder"

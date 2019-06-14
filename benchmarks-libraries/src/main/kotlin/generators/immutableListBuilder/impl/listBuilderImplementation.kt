@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package generators.immutableListBuilder
+package generators.immutableListBuilder.impl
 
 interface ListBuilderImplementation {
     val packageName: String

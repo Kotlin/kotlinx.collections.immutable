@@ -16,8 +16,6 @@
 
 package generators.immutableListBuilder.impl
 
-import generators.immutableListBuilder.*
-
 object KotlinListBuilderImplementation: ListBuilderImplementation {
     override val packageName: String
             = "kotlin.builder"

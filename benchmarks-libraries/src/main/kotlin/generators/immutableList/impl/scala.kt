@@ -16,8 +16,6 @@
 
 package generators.immutableList.impl
 
-import generators.immutableList.*
-
 object ScalaListImplementation: ListImplementation {
     override val packageName: String
             = "scala"
