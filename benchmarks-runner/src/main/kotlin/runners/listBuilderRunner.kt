@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
+package runners
+
+import listBuilderOutputFilePath
+import listBuilderReferenceFilePath
+import runBenchmarks
+
 
 fun main(args: Array<String>) {
-    runBenchmarks(hashSetBuilderOutputFilePath, hashSetBuilderReferenceFilePath) { this
-            .include("immutableSet.builder")
-            .param(implementationParam, "hash")
+    runBenchmarks(listBuilderOutputFilePath, listBuilderReferenceFilePath) { this
+            .include("immutableList.builder")
     }
 }

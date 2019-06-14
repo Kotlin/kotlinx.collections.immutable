@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
+package runners
+
+import listOutputFilePath
+import listReferenceFilePath
+import runBenchmarks
+
 
 fun main(args: Array<String>) {
-    runBenchmarks(orderedSetBuilderOutputFilePath, orderedSetBuilderReferenceFilePath) { this
-            .include("immutableSet.builder")
-            .param(implementationParam, "ordered")
+    runBenchmarks(listOutputFilePath, listReferenceFilePath) { this
+            .include("immutableList")
+            .exclude("builder")
     }
 }
