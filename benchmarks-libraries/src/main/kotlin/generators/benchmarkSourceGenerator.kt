@@ -36,6 +36,10 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import javax.xml.xpath.XPathFactory
 
+
+private const val BENCHMARKS_ROOT = "src/jmh/java/"
+
+
 abstract class SourceGenerator {
     abstract val outputFileName: String
     open fun getPackage(): String = "benchmarks"
@@ -58,6 +62,17 @@ abstract class SourceGenerator {
 
     protected abstract val imports: Set<String>
     protected abstract fun generateBody(out: PrintWriter): Unit
+}
+
+fun readCopyrightNoticeFromProfile(copyrightProfile: File): String {
+    val template = copyrightProfile.reader().use { reader ->
+        XPathFactory.newInstance().newXPath().evaluate("/component/copyright/option[@name='notice']/@value", InputSource(reader))
+    }
+    val yearTemplate = "&#36;today.year"
+    val year = java.time.LocalDate.now().year.toString()
+    assert(yearTemplate in template)
+
+    return template.replace(yearTemplate, year).lines().joinToString("", prefix = "/*\n", postfix = " */\n") { " * $it\n" }
 }
 
 
@@ -86,19 +101,6 @@ abstract class BenchmarkSourceGenerator: SourceGenerator() {
 abstract class UtilsSourceGenerator: SourceGenerator() {
     override val imports: Set<String> = setOf()
 }
-
-fun readCopyrightNoticeFromProfile(copyrightProfile: File): String {
-    val template = copyrightProfile.reader().use { reader ->
-        XPathFactory.newInstance().newXPath().evaluate("/component/copyright/option[@name='notice']/@value", InputSource(reader))
-    }
-    val yearTemplate = "&#36;today.year"
-    val year = java.time.LocalDate.now().year.toString()
-    assert(yearTemplate in template)
-
-    return template.replace(yearTemplate, year).lines().joinToString("", prefix = "/*\n", postfix = " */\n") { " * $it\n" }
-}
-
-private const val BENCHMARKS_ROOT = "src/jmh/java/"
 
 
 private val listImpls = listOf(
@@ -171,13 +173,6 @@ fun generateBenchmarks() {
             ListSetBenchmarkGenerator(it),
             ListUtilsGenerator(it)
     ) }
-    /*listOf(
-            listImpls.filterIsInstance<ListAddBenchmark>().map { ListAddBenchmarkGenerator(it) },
-            listImpls.filterIsInstance<ListGetBenchmark>().map { ListGetBenchmarkGenerator(it) },
-            listImpls.filterIsInstance<ListIterateBenchmark>().map { ListIterateBenchmarkGenerator(it) },
-            listImpls.filterIsInstance<ListRemoveBenchmark>().map { ListRemoveBenchmarkGenerator(it) },
-            listImpls.filterIsInstance<ListSetBenchmark>().map { ListSetBenchmarkGenerator(it) }
-    )*/
     val listBuilderBenchmarks = listBuilderImpls.map { listOf(
             ListBuilderAddBenchmarkGenerator(it),
             ListBuilderGetBenchmarkGenerator(it),
@@ -187,13 +182,6 @@ fun generateBenchmarks() {
     ) } + listBuilderImpls.filter(ListBuilderImplementation::isIterable).map { listOf(
             ListBuilderIterateBenchmarkGenerator(it)
     ) }
-    /*listOf(
-            listBuilderImpls.filterIsInstance<ListBuilderAddBenchmark>().map { ListBuilderAddBenchmarkGenerator(it) },
-            listBuilderImpls.filterIsInstance<ListBuilderGetBenchmark>().map { ListBuilderGetBenchmarkGenerator(it) },
-            listBuilderImpls.filterIsInstance<ListBuilderIterateBenchmark>().map { ListBuilderIterateBenchmarkGenerator(it) },
-            listBuilderImpls.filterIsInstance<ListBuilderRemoveBenchmark>().map { ListBuilderRemoveBenchmarkGenerator(it) },
-            listBuilderImpls.filterIsInstance<ListBuilderSetBenchmark>().map { ListBuilderSetBenchmarkGenerator(it) }
-    )*/
 
     val mapBenchmarks = mapImpls.map { listOf(
             MapGetBenchmarkGenerator(it),
@@ -202,12 +190,6 @@ fun generateBenchmarks() {
             MapRemoveBenchmarkGenerator(it),
             MapUtilsGenerator(it)
     ) }
-    /*listOf(
-            mapImpls.filterIsInstance<MapGetBenchmark>().map { MapGetBenchmarkGenerator(it) },
-            mapImpls.filterIsInstance<MapIterateBenchmark>().map { MapIterateBenchmarkGenerator(it) },
-            mapImpls.filterIsInstance<MapPutBenchmark>().map { MapPutBenchmarkGenerator(it) },
-            mapImpls.filterIsInstance<MapRemoveBenchmark>().map { MapRemoveBenchmarkGenerator(it) }
-    )*/
     val mapBuilderBenchmarks = mapBuilderImpls.map { listOf(
             MapBuilderGetBenchmarkGenerator(it),
             MapBuilderPutBenchmarkGenerator(it),
@@ -216,12 +198,6 @@ fun generateBenchmarks() {
     ) } + mapBuilderImpls.filter(MapBuilderImplementation::isIterable).map { listOf(
             MapBuilderIterateBenchmarkGenerator(it)
     ) }
-    /*listOf(
-            mapBuilderImpls.filterIsInstance<MapBuilderGetBenchmark>().map { MapBuilderGetBenchmarkGenerator(it) },
-            mapBuilderImpls.filterIsInstance<MapBuilderIterateBenchmark>().map { MapBuilderIterateBenchmarkGenerator(it) },
-            mapBuilderImpls.filterIsInstance<MapBuilderPutBenchmark>().map { MapBuilderPutBenchmarkGenerator(it) },
-            mapBuilderImpls.filterIsInstance<MapBuilderRemoveBenchmark>().map { MapBuilderRemoveBenchmarkGenerator(it) }
-    )*/
 
     val setBenchmarks = setImpls.map { listOf(
             SetAddBenchmarkGenerator(it),
@@ -230,12 +206,6 @@ fun generateBenchmarks() {
             SetRemoveBenchmarkGenerator(it),
             SetUtilsGenerator(it)
     ) }
-    /*listOf(
-            setImpls.filterIsInstance<SetAddBenchmark>().map { SetAddBenchmarkGenerator(it) },
-            setImpls.filterIsInstance<SetContainsBenchmark>().map { SetContainsBenchmarkGenerator(it) },
-            setImpls.filterIsInstance<SetIterateBenchmark>().map { SetIterateBenchmarkGenerator(it) },
-            setImpls.filterIsInstance<SetRemoveBenchmark>().map { SetRemoveBenchmarkGenerator(it) }
-    )*/
     val setBuilderBenchmarks = setBuilderImpls.map { listOf(
             SetBuilderAddBenchmarkGenerator(it),
             SetBuilderContainsBenchmarkGenerator(it),
@@ -244,41 +214,32 @@ fun generateBenchmarks() {
     ) } + setBuilderImpls.filter(SetBuilderImplementation::isIterable).map { listOf(
             SetBuilderIterateBenchmarkGenerator(it)
     ) }
-    /*listOf(
-            setBuilderImpls.filterIsInstance<SetBuilderAddBenchmark>().map { SetBuilderAddBenchmarkGenerator(it) },
-            setBuilderImpls.filterIsInstance<SetBuilderContainsBenchmark>().map { SetBuilderContainsBenchmarkGenerator(it) },
-            setBuilderImpls.filterIsInstance<SetBuilderIterateBenchmark>().map { SetBuilderIterateBenchmarkGenerator(it) },
-            setBuilderImpls.filterIsInstance<SetBuilderRemoveBenchmark>().map { SetBuilderRemoveBenchmarkGenerator(it) }
-    )*/
 
-
-    val allBenchmarks = (listBenchmarks + listBuilderBenchmarks + mapBenchmarks + mapBuilderBenchmarks + setBenchmarks + setBuilderBenchmarks).flatten()
-
-    allBenchmarks.forEach { benchmark ->
-        val path = benchmark.getPackage().replace('.', '/') + "/" + benchmark.outputFileName + ".kt"
-        val file = File(BENCHMARKS_ROOT + path)
-        file.parentFile?.mkdirs()
-        val out = PrintWriter(file)
-        benchmark.generate(out)
-        out.flush()
-    }
-}
-
-fun generateUtils() {
     val commonUtils = listOf(
             IntWrapperGenerator(),
             CommonUtilsGenerator()
     )
 
-    commonUtils.forEach { util ->
-        val path = util.getPackage().replace('.', '/') + "/" + util.outputFileName + ".kt"
+
+    val allGenerators = commonUtils + listOf(
+            listBenchmarks,
+            listBuilderBenchmarks,
+            mapBenchmarks,
+            mapBuilderBenchmarks,
+            setBenchmarks,
+            setBuilderBenchmarks
+    ).flatten().flatten()
+
+    allGenerators.forEach { generator ->
+        val path = generator.getPackage().replace('.', '/') + "/" + generator.outputFileName + ".kt"
         val file = File(BENCHMARKS_ROOT + path)
         file.parentFile?.mkdirs()
         val out = PrintWriter(file)
-        util.generate(out)
+        generator.generate(out)
         out.flush()
     }
 }
+
 
 fun main() {
     Files.walk(Paths.get(BENCHMARKS_ROOT))
@@ -286,6 +247,5 @@ fun main() {
             .map(Path::toFile)
             .forEach { it.delete() }
 
-    generateUtils()
     generateBenchmarks()
 }
