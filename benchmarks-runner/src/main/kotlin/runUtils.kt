@@ -20,22 +20,22 @@ import org.openjdk.jmh.runner.options.OptionsBuilder
 import org.openjdk.jmh.runner.options.TimeValue
 
 
-private fun <T> env(name: String, transform: String.() -> T): T?
-        = System.getenv(name)?.transform()
+private fun <T> systemProperty(name: String, transform: String.() -> T): T?
+        = System.getProperty(name)?.transform()
 
-private fun timeEnv(name: String): TimeValue?
-        = env(name) { toLong().let { TimeValue.milliseconds(it) } }
+private fun timeSystemProperty(name: String): TimeValue?
+        = systemProperty(name) { toLong().let { TimeValue.milliseconds(it) } }
 
-private fun intEnv(name: String): Int?
-        = env(name) { toInt() }
+private fun intSystemProperty(name: String): Int?
+        = systemProperty(name) { toInt() }
 
-private fun arrayEnv(name: String): Array<String>?
-        = env(name) { split(",").toTypedArray() }
+private fun arraySystemProperty(name: String): Array<String>?
+        = systemProperty(name) { split(",").toTypedArray() }
 
-private val isRemoteEnv: Boolean
-        = env("remote") { toBoolean() } ?: false
+private val isRemoteSystemProperty: Boolean
+        = systemProperty("remote") { toBoolean() } ?: false
 
-val referenceBenchmarkResultsDirectory: String = if (isRemoteEnv)
+val referenceBenchmarkResultsDirectory: String = if (isRemoteSystemProperty)
     remoteReferenceBenchmarkResultsDirectory
 else
     localReferenceBenchmarkResultsDirectory
@@ -43,14 +43,14 @@ else
 fun ChainedOptionsBuilder.defaultOptions(): ChainedOptionsBuilder = this
         .jvmArgs(*jvmArgs)
         .addProfiler("gc")
-        .param(sizeParam, *(arrayEnv(sizeParam) ?: sizeParamValues))
-        .param(hashCodeTypeParam, *(arrayEnv(hashCodeTypeParam) ?: hashCodeTypeParamValues))
-        .param(immutablePercentageParam, *(arrayEnv(immutablePercentageParam) ?: immutablePercentageParamValues))
-        .forks(intEnv("forks") ?: forks)
-        .warmupIterations(intEnv("wi") ?: warmupIterations)
-        .measurementIterations(intEnv("i") ?: measurementIterations)
-        .warmupTime(timeEnv("w") ?: warmupTime)
-        .measurementTime(timeEnv("r") ?: measurementTime)
+        .param(sizeParam, *(arraySystemProperty(sizeParam) ?: sizeParamValues))
+        .param(hashCodeTypeParam, *(arraySystemProperty(hashCodeTypeParam) ?: hashCodeTypeParamValues))
+        .param(immutablePercentageParam, *(arraySystemProperty(immutablePercentageParam) ?: immutablePercentageParamValues))
+        .forks(intSystemProperty("forks") ?: forks)
+        .warmupIterations(intSystemProperty("warmupIterations") ?: warmupIterations)
+        .measurementIterations(intSystemProperty("measurementIterations") ?: measurementIterations)
+        .warmupTime(timeSystemProperty("warmupTime") ?: warmupTime)
+        .measurementTime(timeSystemProperty("measurementTime") ?: measurementTime)
 
 inline fun runBenchmarks(outputFileName: String, configure: ChainedOptionsBuilder.() -> ChainedOptionsBuilder) {
     val options = OptionsBuilder()
