@@ -108,6 +108,20 @@ task benchmarkAll(group: "Benchmark") {
 
 
 // configure runner tasks
+
+def jmhParams = [
+        'f':'forks',
+        'i':'measurementIterations', 
+        'r':'measurementTime', 
+        'wi':'warmupIterations', 
+        'w':'warmupTime',
+//        'e':'exclude',
+//        'incl':'include',
+        'size':'size',
+        'hashCodeType':'hashCodeType',
+        'immutablePercentage':'immutablePercentage'
+]
+
 tasks.withType(JavaExec) {
     if (group == "Benchmark") {
         dependsOn copyBenchmarkList
@@ -116,5 +130,11 @@ tasks.withType(JavaExec) {
         classpath = sourceSets.main.runtimeClasspath
         classpath += files("../benchmarks-mpp/build/benchmarks/jvm/classes")
         classpath += files("../benchmarks-mpp/build/classes/kotlin/jvm/main")
+        
+        jmhParams.forEach { commandLineParam, envParam ->
+            if (project.hasProperty(commandLineParam)) {
+                environment(envParam, project.property(commandLineParam))
+            }
+        }
     }
 }

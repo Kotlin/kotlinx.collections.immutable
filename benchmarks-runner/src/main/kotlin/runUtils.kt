@@ -17,18 +17,32 @@
 import org.openjdk.jmh.runner.Runner
 import org.openjdk.jmh.runner.options.ChainedOptionsBuilder
 import org.openjdk.jmh.runner.options.OptionsBuilder
+import org.openjdk.jmh.runner.options.TimeValue
 
+
+private fun <T> env(name: String, transform: String.() -> T): T?
+        = System.getenv(name)?.transform()
+
+private fun timeEnv(name: String): TimeValue?
+        = env(name) { toLong().let { TimeValue.milliseconds(it) } }
+
+private fun intEnv(name: String): Int?
+        = env(name) { toInt() }
+
+private fun arrayEnv(name: String): Array<String>?
+        = env(name) { split(",").toTypedArray() }
 
 fun ChainedOptionsBuilder.defaultOptions(): ChainedOptionsBuilder = this
         .jvmArgs(*jvmArgs)
         .addProfiler("gc")
-        .param(sizeParam, *sizeParamValues)
-        .param(hashCodeTypeParam, *hashCodeTypeParamValues)
-        .param(immutablePercentageParam, *immutablePercentageParamValues)
-        .warmupIterations(warmupIterations)
-        .measurementIterations(measurementIterations)
-        .warmupTime(warmupTime)
-        .measurementTime(measurementTime)
+        .param(sizeParam, *(arrayEnv(sizeParam) ?: sizeParamValues))
+        .param(hashCodeTypeParam, *(arrayEnv(hashCodeTypeParam) ?: hashCodeTypeParamValues))
+        .param(immutablePercentageParam, *(arrayEnv(immutablePercentageParam) ?: immutablePercentageParamValues))
+        .forks(intEnv("forks") ?: forks)
+        .warmupIterations(intEnv("wi") ?: warmupIterations)
+        .measurementIterations(intEnv("i") ?: measurementIterations)
+        .warmupTime(timeEnv("w") ?: warmupTime)
+        .measurementTime(timeEnv("r") ?: measurementTime)
 
 inline fun runBenchmarks(outputPath: String, regressionReferencePath: String, configure: ChainedOptionsBuilder.() -> ChainedOptionsBuilder) {
     val options = OptionsBuilder()
