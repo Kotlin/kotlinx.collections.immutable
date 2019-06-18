@@ -57,6 +57,7 @@ const val immutablePercentageParam = "immutablePercentage"
 
 val jvmArgs = arrayOf("-Xms2048m", "-Xmx2048m")
 
+const val forks = 1
 const val warmupIterations = 20
 const val measurementIterations = 20
 val warmupTime = TimeValue.milliseconds(1000)!!
