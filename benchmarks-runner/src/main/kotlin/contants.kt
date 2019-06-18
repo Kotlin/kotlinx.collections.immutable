@@ -21,18 +21,18 @@ const val localReferenceBenchmarkResultsDirectory = "localReferenceBenchmarkResu
 const val remoteReferenceBenchmarkResultsDirectory = "remoteReferenceBenchmarkResults"
 const val benchmarkResultsDirectory = "benchmarkResults"
 
-const val hashMapOutputFileName = "hashMap.cvs"
-const val hashMapBuilderOutputFileName = "hashMapBuilder.cvs"
-const val orderedMapOutputFileName = "orderedMap.cvs"
-const val orderedMapBuilderOutputFileName = "orderedMapBuilder.cvs"
+const val hashMapOutputFileName = "hashMap.csv"
+const val hashMapBuilderOutputFileName = "hashMapBuilder.csv"
+const val orderedMapOutputFileName = "orderedMap.csv"
+const val orderedMapBuilderOutputFileName = "orderedMapBuilder.csv"
 
-const val hashSetOutputFileName = "hashSet.cvs"
-const val hashSetBuilderOutputFileName = "hashSetBuilder.cvs"
-const val orderedSetOutputFileName = "orderedSet.cvs"
-const val orderedSetBuilderOutputFileName = "orderedSetBuilder.cvs"
+const val hashSetOutputFileName = "hashSet.csv"
+const val hashSetBuilderOutputFileName = "hashSetBuilder.csv"
+const val orderedSetOutputFileName = "orderedSet.csv"
+const val orderedSetBuilderOutputFileName = "orderedSetBuilder.csv"
 
-const val listOutputFileName = "list.cvs"
-const val listBuilderOutputFileName = "listBuilder.cvs"
+const val listOutputFileName = "list.csv"
+const val listBuilderOutputFileName = "listBuilder.csv"
 
 
 const val benchmarkMethod = "Benchmark"
