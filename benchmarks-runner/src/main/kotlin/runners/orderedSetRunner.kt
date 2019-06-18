@@ -17,13 +17,12 @@
 package runners
 
 import implementationParam
-import orderedSetOutputFilePath
-import orderedSetReferenceFilePath
+import orderedSetOutputFileName
 import runBenchmarks
 
 
 fun main(args: Array<String>) {
-    runBenchmarks(orderedSetOutputFilePath, orderedSetReferenceFilePath) { this
+    runBenchmarks(orderedSetOutputFileName) { this
             .include("immutableSet")
             .exclude("builder")
             .param(implementationParam, "ordered")

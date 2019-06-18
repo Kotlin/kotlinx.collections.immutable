@@ -16,13 +16,12 @@
 
 package runners
 
-import listOutputFilePath
-import listReferenceFilePath
+import listOutputFileName
 import runBenchmarks
 
 
 fun main(args: Array<String>) {
-    runBenchmarks(listOutputFilePath, listReferenceFilePath) { this
+    runBenchmarks(listOutputFileName) { this
             .include("immutableList")
             .exclude("builder")
     }

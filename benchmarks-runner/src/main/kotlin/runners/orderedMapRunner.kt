@@ -17,13 +17,12 @@
 package runners
 
 import implementationParam
-import orderedMapOutputFilePath
-import orderedMapReferenceFilePath
+import orderedMapOutputFileName
 import runBenchmarks
 
 
 fun main(args: Array<String>) {
-    runBenchmarks(orderedMapOutputFilePath, orderedMapReferenceFilePath) { this
+    runBenchmarks(orderedMapOutputFileName) { this
             .include("immutableMap")
             .exclude("builder")
             .param(implementationParam, "ordered")

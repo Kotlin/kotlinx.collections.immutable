@@ -32,6 +32,14 @@ private fun intEnv(name: String): Int?
 private fun arrayEnv(name: String): Array<String>?
         = env(name) { split(",").toTypedArray() }
 
+private val isRemoteEnv: Boolean
+        = env("remote") { toBoolean() } ?: false
+
+val referenceBenchmarkResultsDirectory: String = if (isRemoteEnv)
+    remoteReferenceBenchmarkResultsDirectory
+else
+    localReferenceBenchmarkResultsDirectory
+
 fun ChainedOptionsBuilder.defaultOptions(): ChainedOptionsBuilder = this
         .jvmArgs(*jvmArgs)
         .addProfiler("gc")
@@ -44,11 +52,14 @@ fun ChainedOptionsBuilder.defaultOptions(): ChainedOptionsBuilder = this
         .warmupTime(timeEnv("w") ?: warmupTime)
         .measurementTime(timeEnv("r") ?: measurementTime)
 
-inline fun runBenchmarks(outputPath: String, regressionReferencePath: String, configure: ChainedOptionsBuilder.() -> ChainedOptionsBuilder) {
+inline fun runBenchmarks(outputFileName: String, configure: ChainedOptionsBuilder.() -> ChainedOptionsBuilder) {
     val options = OptionsBuilder()
             .defaultOptions()
             .configure()
             .build()
+
+    val outputPath = "$benchmarkResultsDirectory/$outputFileName"
+    val regressionReferencePath = "$referenceBenchmarkResultsDirectory/$outputFileName"
 
     Runner(options).run()
             .also { printCsvResults(it, outputPath) }
