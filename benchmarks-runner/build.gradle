@@ -109,18 +109,18 @@ task benchmarkAll(group: "Benchmark") {
 
 // configure runner tasks
 
-def jmhParams = [
-        'remote':'remote',
-        'f':'forks',
-        'i':'measurementIterations', 
-        'r':'measurementTime', 
-        'wi':'warmupIterations', 
-        'w':'warmupTime',
-//        'e':'exclude',
-//        'incl':'include',
-        'size':'size',
-        'hashCodeType':'hashCodeType',
-        'immutablePercentage':'immutablePercentage'
+def benchmarkParams = [
+        'remote',
+        'forks',
+        'measurementIterations', 
+        'measurementTime', 
+        'warmupIterations', 
+        'warmupTime',
+//      'exclude',
+//      'include',
+        'size',
+        'hashCodeType',
+        'immutablePercentage'
 ]
 
 tasks.withType(JavaExec) {
@@ -132,9 +132,9 @@ tasks.withType(JavaExec) {
         classpath += files("../benchmarks-mpp/build/benchmarks/jvm/classes")
         classpath += files("../benchmarks-mpp/build/classes/kotlin/jvm/main")
         
-        jmhParams.forEach { commandLineParam, envParam ->
-            if (project.hasProperty(commandLineParam)) {
-                environment(envParam, project.property(commandLineParam))
+        benchmarkParams.forEach { param ->
+            if (project.hasProperty(param)) {
+                systemProperty(param, project.property(param))
             }
         }
     }
