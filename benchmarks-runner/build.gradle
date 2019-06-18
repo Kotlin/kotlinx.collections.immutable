@@ -110,6 +110,7 @@ task benchmarkAll(group: "Benchmark") {
 // configure runner tasks
 
 def jmhParams = [
+        'remote':'remote',
         'f':'forks',
         'i':'measurementIterations', 
         'r':'measurementTime', 

@@ -17,31 +17,22 @@
 import org.openjdk.jmh.runner.options.TimeValue
 
 
-const val hashMapReferenceFilePath = "referenceBenchmarkResults/hashMap.cvs"
-const val hashMapBuilderReferenceFilePath = "referenceBenchmarkResults/hashMapBuilder.cvs"
-const val orderedMapReferenceFilePath = "referenceBenchmarkResults/orderedMap.cvs"
-const val orderedMapBuilderReferenceFilePath = "referenceBenchmarkResults/orderedMapBuilder.cvs"
+const val localReferenceBenchmarkResultsDirectory = "localReferenceBenchmarkResults"
+const val remoteReferenceBenchmarkResultsDirectory = "remoteReferenceBenchmarkResults"
+const val benchmarkResultsDirectory = "benchmarkResults"
 
-const val hashMapOutputFilePath = "benchmarkResults/hashMap.cvs"
-const val hashMapBuilderOutputFilePath = "benchmarkResults/hashMapBuilder.cvs"
-const val orderedMapOutputFilePath = "benchmarkResults/orderedMap.cvs"
-const val orderedMapBuilderOutputFilePath = "benchmarkResults/orderedMapBuilder.cvs"
+const val hashMapOutputFileName = "hashMap.cvs"
+const val hashMapBuilderOutputFileName = "hashMapBuilder.cvs"
+const val orderedMapOutputFileName = "orderedMap.cvs"
+const val orderedMapBuilderOutputFileName = "orderedMapBuilder.cvs"
 
-const val hashSetReferenceFilePath = "referenceBenchmarkResults/hashSet.cvs"
-const val hashSetBuilderReferenceFilePath = "referenceBenchmarkResults/hashSetBuilder.cvs"
-const val orderedSetReferenceFilePath = "referenceBenchmarkResults/orderedSet.cvs"
-const val orderedSetBuilderReferenceFilePath = "referenceBenchmarkResults/orderedSetBuilder.cvs"
+const val hashSetOutputFileName = "hashSet.cvs"
+const val hashSetBuilderOutputFileName = "hashSetBuilder.cvs"
+const val orderedSetOutputFileName = "orderedSet.cvs"
+const val orderedSetBuilderOutputFileName = "orderedSetBuilder.cvs"
 
-const val hashSetOutputFilePath = "benchmarkResults/hashSet.cvs"
-const val hashSetBuilderOutputFilePath = "benchmarkResults/hashSetBuilder.cvs"
-const val orderedSetOutputFilePath = "benchmarkResults/orderedSet.cvs"
-const val orderedSetBuilderOutputFilePath = "benchmarkResults/orderedSetBuilder.cvs"
-
-const val listReferenceFilePath = "referenceBenchmarkResults/list.cvs"
-const val listBuilderReferenceFilePath = "referenceBenchmarkResults/listBuilder.cvs"
-
-const val listOutputFilePath = "benchmarkResults/list.cvs"
-const val listBuilderOutputFilePath = "benchmarkResults/listBuilder.cvs"
+const val listOutputFileName = "list.cvs"
+const val listBuilderOutputFileName = "listBuilder.cvs"
 
 
 const val benchmarkMethod = "Benchmark"

@@ -16,15 +16,14 @@
 
 package runners
 
-import hashMapOutputFilePath
-import hashMapReferenceFilePath
+import hashMapOutputFileName
 import implementationParam
 import runBenchmarks
 
 
 fun main(args: Array<String>) {
-    runBenchmarks(hashMapOutputFilePath, hashMapReferenceFilePath) { this
-            .include("immutableMap")
+    runBenchmarks(hashMapOutputFileName) { this
+            .include("immutableMap.Put.put$")
             .exclude("builder")
             .param(implementationParam, "hash")
     }

@@ -16,14 +16,13 @@
 
 package runners
 
-import hashSetBuilderOutputFilePath
-import hashSetBuilderReferenceFilePath
+import hashSetBuilderOutputFileName
 import implementationParam
 import runBenchmarks
 
 
 fun main(args: Array<String>) {
-    runBenchmarks(hashSetBuilderOutputFilePath, hashSetBuilderReferenceFilePath) { this
+    runBenchmarks(hashSetBuilderOutputFileName) { this
             .include("immutableSet.builder")
             .param(implementationParam, "hash")
     }
