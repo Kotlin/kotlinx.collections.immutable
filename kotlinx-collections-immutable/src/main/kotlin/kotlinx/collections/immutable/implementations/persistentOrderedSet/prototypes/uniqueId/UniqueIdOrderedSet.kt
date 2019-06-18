@@ -241,3 +241,7 @@ internal class UniqueIdOrderedSet<E>(
         internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
     }
 }
+
+public fun <E> uniqueIdOrderedSetOf(): PersistentSet<E> {
+    return UniqueIdOrderedSet.emptyOf()
+}

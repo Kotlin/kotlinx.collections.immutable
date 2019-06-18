@@ -18,13 +18,14 @@ package benchmarks.immutableSet
 
 import benchmarks.*
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.implementations.persistentOrderedSet.prototypes.uniqueId.uniqueIdOrderedSetOf
 import kotlinx.collections.immutable.persistentHashSetOf
-import kotlinx.collections.immutable.persistentSetOf
+//import kotlinx.collections.immutable.persistentSetOf
 
 
 fun <E> emptyPersistentSet(implementation: String): PersistentSet<E> = when (implementation) {
     HASH_IMPL -> persistentHashSetOf()
-    ORDERED_IMPL -> persistentSetOf()
+    ORDERED_IMPL -> /*persistentSetOf()*/uniqueIdOrderedSetOf()
     else -> throw AssertionError("Unknown PersistentSet implementation: $implementation")
 }
 
