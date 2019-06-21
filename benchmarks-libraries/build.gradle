@@ -36,18 +36,24 @@ task generateBenchmarkSources(type: JavaExec) {
 }
 
 jmh {
-    include = ['immutableList', 'immutableMap', 'immutableSet']
-    exclude = ['builder']
+//    include = ['immutableList.*.Add', 'immutableMap', 'immutableSet']
+//    exclude = ['builder']
 
-    warmup = '1s'
-    warmupIterations = 5
-    timeOnIteration = '1s'
-    iterations = 5
+    profilers = ['gc']
+
+    resultFormat = "csv"
+
+    warmup = '500ms'
+    warmupIterations = 10
+    timeOnIteration = '1000ms'
+    iterations = 20
+
     benchmarkMode = ['avgt']
+
     benchmarkParameters = [
-            'size':['10000'], 
-            'implementation': ['hash'], 
-            'hashCodeType':['random'], 
-            'immutablePercentage':['0']
+            'size':['1', '10', '100', '1000', '10000'], 
+//            'implementation': ['hash'], 
+            'hashCodeType':['random', 'collision'], 
+            'immutablePercentage':['0.0', '50.0', '80.0']
     ]
 }
