@@ -63,6 +63,7 @@ inline fun runBenchmarks(outputFileName: String, configure: ChainedOptionsBuilde
 
     Runner(options).run().toBenchmarkResults()
             .also { printCsvResults(it, "$outputPath.csv") }
+            .also { printInfluxResults(it, "$outputPath.influx") }
             .let { calculateRegression(it, "$regressionReferencePath.csv") }
             ?.also { printReport(it, System.out, descendingScoreRegress = true) }
             ?.also { printCsvResults(it, "$outputPath-regression.csv") }
