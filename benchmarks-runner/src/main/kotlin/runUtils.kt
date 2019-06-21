@@ -61,7 +61,9 @@ inline fun runBenchmarks(outputFileName: String, configure: ChainedOptionsBuilde
     val outputPath = "$benchmarkResultsDirectory/$outputFileName"
     val regressionReferencePath = "$referenceBenchmarkResultsDirectory/$outputFileName"
 
-    Runner(options).run()
-            .also { printCsvResults(it, outputPath) }
-            .also { calculateRegression(regressionReferencePath, outputPath) }
+    Runner(options).run().toBenchmarkResults()
+            .also { printCsvResults(it, "$outputPath.csv") }
+            .let { calculateRegression(it, "$regressionReferencePath.csv") }
+            ?.also { printReport(it, System.out, descendingScoreRegress = true) }
+            ?.also { printCsvResults(it, "$outputPath-regression.csv") }
 }

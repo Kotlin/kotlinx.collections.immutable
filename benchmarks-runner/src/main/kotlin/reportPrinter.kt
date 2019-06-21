@@ -19,44 +19,31 @@ import java.io.PrintStream
 
 private const val COLUMN_PAD = 2
 
-fun printReport(regression: List<List<String>>, out: PrintStream, descendingScore: Boolean) {
-    val header = regression.first()
-
-    val scoreColumn = header.indexOf(benchmarkScore)
-    val runResults = regression.drop(1).let { res ->
-        if (descendingScore) res.sortedByDescending { it[scoreColumn].toDouble() } else res
+fun printReport(regression: BenchmarkResults, out: PrintStream, descendingScoreRegress: Boolean) {
+    val runResults = if (descendingScoreRegress) {
+        regression.runResults.sortedByDescending { it.paramValue(benchmarkScoreRegressPercent).toDouble() }
+    } else {
+        regression.runResults
     }
 
-    // determine name column length
-    val nameColumn = header.indexOf(benchmarkMethod)
+    // determine columns lengths
     var nameLen = benchmarkMethod.length
-    for (prefix in regression.map { it[nameColumn] }) {
-        nameLen = Math.max(nameLen, prefix.length)
-    }
-
-    // determine param lengths
-    val params = header.withIndex().filter {
-        it.value !in listOf(benchmarkMethod, benchmarkScore, benchmarkScoreError, benchmarkAllocRate)
-    }
-    val paramLengths = params.associate { it.value to "(${it.value})".length + COLUMN_PAD }.toMutableMap()
-
-    for (res in runResults) {
-        for (p in params) {
-            paramLengths[p.value] = Math.max(paramLengths[p.value]!!, res[p.index].length + COLUMN_PAD)
-        }
-    }
-
-    // determine column lengths for other columns
     var scoreLen = benchmarkScore.length
-    val scoreErrColumn = header.indexOf(benchmarkScoreError)
     var scoreErrLen = benchmarkScoreError.length
-    val allocRateColumn = header.indexOf(benchmarkAllocRate)
     var allocRateLen = benchmarkAllocRate.length
 
+    val paramsNames = regression.paramsNames
+    val paramsLengths = paramsNames.associate { it to it.length + COLUMN_PAD }.toMutableMap()
+
     for (res in runResults) {
-        scoreLen = Math.max(scoreLen, res[scoreColumn].length)
-        scoreErrLen = Math.max(scoreErrLen, res[scoreErrColumn].length)
-        allocRateLen = Math.max(allocRateLen, res[allocRateColumn].length)
+        nameLen = Math.max(nameLen, res.benchmark.length)
+        scoreLen = Math.max(scoreLen, res.score.formatted().length)
+        scoreErrLen = Math.max(scoreErrLen, res.scoreError.formatted().length)
+        allocRateLen = Math.max(allocRateLen, res.allocRate.formatted().length)
+
+        for (p in paramsNames) {
+            paramsLengths[p] = Math.max(paramsLengths[p]!!, res.paramValue(p).length + COLUMN_PAD)
+        }
     }
     scoreLen += COLUMN_PAD
     scoreErrLen += COLUMN_PAD - 1 // digest a single character for +- separator
@@ -64,8 +51,8 @@ fun printReport(regression: List<List<String>>, out: PrintStream, descendingScor
 
     // print header
     out.printf("%-" + nameLen + "s", benchmarkMethod)
-    for (p in params) {
-        out.printf("%" + paramLengths[p.value] + "s", "(${p.value})")
+    for (p in paramsNames) {
+        out.printf("%" + paramsLengths[p] + "s", p)
     }
 
     out.printf("%" + scoreLen + "s", benchmarkScore)
@@ -76,18 +63,18 @@ fun printReport(regression: List<List<String>>, out: PrintStream, descendingScor
 
     // print benchmark results
     for (res in runResults) {
-        out.printf("%-" + nameLen + "s", res[nameColumn])
+        out.printf("%-" + nameLen + "s", res.benchmark)
 
-        for (p in params) {
-            out.printf("%" + paramLengths[p.value] + "s", res[p.index])
+        for (p in res.params) {
+            out.printf("%" + paramsLengths[p.key] + "s", p.value)
         }
 
-        out.printf("%" + scoreLen + "s", res[scoreColumn])
+        out.printf("%" + scoreLen + "s", res.score.formatted())
 
         out.print(" \u00B1")
-        out.printf("%" + scoreErrLen + "s", res[scoreErrColumn])
+        out.printf("%" + scoreErrLen + "s", res.scoreError.formatted())
 
-        out.printf("%" + allocRateLen + "s", res[allocRateColumn])
+        out.printf("%" + allocRateLen + "s", res.allocRate.formatted())
         out.println()
     }
 }

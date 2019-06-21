@@ -21,24 +21,28 @@ const val localReferenceBenchmarkResultsDirectory = "localReferenceBenchmarkResu
 const val remoteReferenceBenchmarkResultsDirectory = "remoteReferenceBenchmarkResults"
 const val benchmarkResultsDirectory = "benchmarkResults"
 
-const val hashMapOutputFileName = "hashMap.csv"
-const val hashMapBuilderOutputFileName = "hashMapBuilder.csv"
-const val orderedMapOutputFileName = "orderedMap.csv"
-const val orderedMapBuilderOutputFileName = "orderedMapBuilder.csv"
+const val hashMapOutputFileName = "hashMap"
+const val hashMapBuilderOutputFileName = "hashMapBuilder"
+const val orderedMapOutputFileName = "orderedMap"
+const val orderedMapBuilderOutputFileName = "orderedMapBuilder"
 
-const val hashSetOutputFileName = "hashSet.csv"
-const val hashSetBuilderOutputFileName = "hashSetBuilder.csv"
-const val orderedSetOutputFileName = "orderedSet.csv"
-const val orderedSetBuilderOutputFileName = "orderedSetBuilder.csv"
+const val hashSetOutputFileName = "hashSet"
+const val hashSetBuilderOutputFileName = "hashSetBuilder"
+const val orderedSetOutputFileName = "orderedSet"
+const val orderedSetBuilderOutputFileName = "orderedSetBuilder"
 
-const val listOutputFileName = "list.csv"
-const val listBuilderOutputFileName = "listBuilder.csv"
+const val listOutputFileName = "list"
+const val listBuilderOutputFileName = "listBuilder"
 
 
 const val benchmarkMethod = "Benchmark"
 const val benchmarkScore = "Score(ns/op)"
 const val benchmarkScoreError = "ScoreError(ns/op)"
 const val benchmarkAllocRate = "AllocRate(B/op)"
+
+const val benchmarkScoreRegressPercent = "Score(%)"
+const val benchmarkAllocRateRegressPercent = "AllocRate(%)"
+
 
 const val sizeParam = "size"
 const val hashCodeTypeParam = "hashCodeType"
@@ -49,9 +53,9 @@ const val immutablePercentageParam = "immutablePercentage"
 val jvmArgs = arrayOf("-Xms2048m", "-Xmx2048m")
 
 const val forks = 1
-const val warmupIterations = 20
+const val warmupIterations = 10
 const val measurementIterations = 20
-val warmupTime = TimeValue.milliseconds(1000)!!
+val warmupTime = TimeValue.milliseconds(500)!!
 val measurementTime = TimeValue.milliseconds(1000)!!
 
 val sizeParamValues = arrayOf("1", "10", "100", "1000", "10000", "100000", "1000000")
