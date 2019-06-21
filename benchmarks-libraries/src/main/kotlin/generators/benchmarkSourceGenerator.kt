@@ -46,8 +46,6 @@ abstract class SourceGenerator {
 
     fun generate(out: PrintWriter) {
         out.println(readCopyrightNoticeFromProfile(File(".idea/copyright/apache_2_0.xml")))
-        // Don't include generator class name in the message: these are built-in sources,
-        // and we don't want to scare users with any internal information about our project
         out.println("// Auto-generated file. DO NOT EDIT!")
         out.println()
         out.println("package ${getPackage()}")

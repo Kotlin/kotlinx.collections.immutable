@@ -44,9 +44,9 @@ jmh {
     resultFormat = "csv"
 
     warmup = '500ms'
-    warmupIterations = 10
-    timeOnIteration = '1000ms'
-    iterations = 20
+    warmupIterations = 7
+    timeOnIteration = '500ms'
+    iterations = 10
 
     benchmarkMode = ['avgt']
 
@@ -54,6 +54,6 @@ jmh {
             'size':['1', '10', '100', '1000', '10000'], 
 //            'implementation': ['hash'], 
             'hashCodeType':['random', 'collision'], 
-            'immutablePercentage':['0.0', '50.0', '80.0']
+            'immutablePercentage':['0.0', '80.0']
     ]
 }
