@@ -79,27 +79,24 @@ fun readCopyrightNoticeFromProfile(copyrightProfile: File): String {
 abstract class BenchmarkSourceGenerator: SourceGenerator() {
     override val imports: Set<String> = setOf(
             "org.openjdk.jmh.annotations.*",
-            "java.util.concurrent.TimeUnit"
+            "java.util.concurrent.TimeUnit",
+            "org.openjdk.jmh.infra.Blackhole",
+            "benchmarks.*"
     )
 
     override fun generateBody(out: PrintWriter) {
-        out.println("""
+        val header = """
 @Fork(1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 5)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
-@State(Scope.Thread)
-        """.trimIndent()
-        )
-        generateBenchmark(out)
+@State(Scope.Thread)"""
+
+        generateBenchmark(out, header)
     }
 
-    protected abstract fun generateBenchmark(out: PrintWriter)
-}
-
-abstract class UtilsSourceGenerator: SourceGenerator() {
-    override val imports: Set<String> = setOf()
+    protected abstract fun generateBenchmark(out: PrintWriter, header: String)
 }
 
 
@@ -165,55 +162,26 @@ private val setBuilderImpls = listOf(
 )
 
 fun generateBenchmarks() {
-    val listBenchmarks = listImpls.map { listOf(
-            ListAddBenchmarkGenerator(it),
-            ListGetBenchmarkGenerator(it),
-            ListIterateBenchmarkGenerator(it),
-            ListRemoveBenchmarkGenerator(it),
-            ListSetBenchmarkGenerator(it),
-            ListUtilsGenerator(it)
-    ) }
-    val listBuilderBenchmarks = listBuilderImpls.map { listOf(
-            ListBuilderAddBenchmarkGenerator(it),
-            ListBuilderGetBenchmarkGenerator(it),
-            ListBuilderRemoveBenchmarkGenerator(it),
-            ListBuilderSetBenchmarkGenerator(it),
-            ListBuilderUtilsGenerator(it)
-    ) } + listBuilderImpls.filter(ListBuilderImplementation::isIterable).map { listOf(
-            ListBuilderIterateBenchmarkGenerator(it)
-    ) }
+    val listBenchmarks = listImpls.map {
+        ListBenchmarksGenerator(it)
+    }
+    val listBuilderBenchmarks = listBuilderImpls.map {
+        ListBuilderBenchmarksGenerator(it)
+    }
 
-    val mapBenchmarks = mapImpls.map { listOf(
-            MapGetBenchmarkGenerator(it),
-            MapIterateBenchmarkGenerator(it),
-            MapPutBenchmarkGenerator(it),
-            MapRemoveBenchmarkGenerator(it),
-            MapUtilsGenerator(it)
-    ) }
-    val mapBuilderBenchmarks = mapBuilderImpls.map { listOf(
-            MapBuilderGetBenchmarkGenerator(it),
-            MapBuilderPutBenchmarkGenerator(it),
-            MapBuilderRemoveBenchmarkGenerator(it),
-            MapBuilderUtilsGenerator(it)
-    ) } + mapBuilderImpls.filter(MapBuilderImplementation::isIterable).map { listOf(
-            MapBuilderIterateBenchmarkGenerator(it)
-    ) }
+    val mapBenchmarks = mapImpls.map {
+        MapBenchmarksGenerator(it)
+    }
+    val mapBuilderBenchmarks = mapBuilderImpls.map {
+        MapBuilderBenchmarksGenerator(it)
+    }
 
-    val setBenchmarks = setImpls.map { listOf(
-            SetAddBenchmarkGenerator(it),
-            SetContainsBenchmarkGenerator(it),
-            SetIterateBenchmarkGenerator(it),
-            SetRemoveBenchmarkGenerator(it),
-            SetUtilsGenerator(it)
-    ) }
-    val setBuilderBenchmarks = setBuilderImpls.map { listOf(
-            SetBuilderAddBenchmarkGenerator(it),
-            SetBuilderContainsBenchmarkGenerator(it),
-            SetBuilderRemoveBenchmarkGenerator(it),
-            SetBuilderUtilsGenerator(it)
-    ) } + setBuilderImpls.filter(SetBuilderImplementation::isIterable).map { listOf(
-            SetBuilderIterateBenchmarkGenerator(it)
-    ) }
+    val setBenchmarks = setImpls.map {
+        SetBenchmarksGenerator(it)
+    }
+    val setBuilderBenchmarks = setBuilderImpls.map {
+        SetBuilderBenchmarksGenerator(it)
+    }
 
     val commonUtils = listOf(
             IntWrapperGenerator(),
@@ -221,14 +189,15 @@ fun generateBenchmarks() {
     )
 
 
-    val allGenerators = commonUtils + listOf(
+    val allGenerators = listOf(
+            commonUtils,
             listBenchmarks,
             listBuilderBenchmarks,
             mapBenchmarks,
             mapBuilderBenchmarks,
             setBenchmarks,
             setBuilderBenchmarks
-    ).flatten().flatten()
+    ).flatten()
 
     allGenerators.forEach { generator ->
         val path = generator.getPackage().replace('.', '/') + "/" + generator.outputFileName + ".kt"

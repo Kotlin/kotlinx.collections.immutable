@@ -18,8 +18,10 @@ package generators
 
 import java.io.PrintWriter
 
-class CommonUtilsGenerator: UtilsSourceGenerator() {
+class CommonUtilsGenerator: SourceGenerator() {
     override val outputFileName: String = "utils"
+
+    override val imports: Set<String> = setOf()
 
     override fun generateBody(out: PrintWriter) {
         out.println("""

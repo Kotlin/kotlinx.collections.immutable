@@ -18,8 +18,10 @@ package generators
 
 import java.io.PrintWriter
 
-class IntWrapperGenerator: UtilsSourceGenerator() {
+class IntWrapperGenerator: SourceGenerator() {
     override val outputFileName: String = "IntWrapper"
+
+    override val imports: Set<String> = setOf()
 
     override fun generateBody(out: PrintWriter) {
         out.println("""
