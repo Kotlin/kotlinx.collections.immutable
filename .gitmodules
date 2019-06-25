@@ -1,4 +1,0 @@
-[submodule "pcollections"]
-	path = pcollections
-	url = https://github.com/ilya-g/pcollections.git
-	branch = dev

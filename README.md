@@ -6,8 +6,6 @@ Immutable collection interfaces and implementation prototypes for Kotlin.
 
 For further details see the [proposal](proposal.md).
 
-Prototype implementation is based on [pcollections](http://pcollections.org/) (Copyright 2015 The pcollections Authors.)
-
 ## What's in this library
 ### Interfaces and implementations
 
@@ -119,11 +117,6 @@ compile 'org.jetbrains.kotlinx:kotlinx-collections-immutable:0.1'
 
 ## Building from source
 
-To initialize submodules after checkout, use the following commands:
-
-    git submodule init
-    git submodule update
-
-Then you can build and install artifacts to maven local with:
+You can build and install artifacts to maven local with:
 
     gradlew build install
