@@ -14,7 +14,7 @@ description 'Kotlin experimental immutable collection interfaces and implementat
 allprojects {
     apply plugin: 'kotlin'
     group = 'org.jetbrains.kotlinx'
-    version = project.properties["deployVersion"] ?: '0.1-SNAPSHOT'
+    version = project.properties["deployVersion"] ?: '0.2-SNAPSHOT'
 
     repositories {
         mavenCentral()
