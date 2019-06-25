@@ -54,37 +54,25 @@ class PersistentListGenerator {
 
         object HeadSubList : TestStringListGenerator() {
             override fun create(elements: Array<out String>): List<String> {
-                val suffix = arrayOf("f", "g")
-                val all = Array(elements.size + suffix.size) {
-                    if (it < elements.size) elements[it] else suffix[it - elements.size]
-                }
-                return persistentListOf<String>().addAll(all.toList())
+                return persistentListOf<String>()
+                        .addAll(listOf(*elements, "f", "g"))
                         .subList(0, elements.size)
             }
         }
 
         object TailSubList : TestStringListGenerator() {
             override fun create(elements: Array<String>): List<String> {
-                val prefix = arrayOf("f", "g")
-                val all = Array(elements.size + prefix.size) {
-                    if (it < prefix.size) prefix[it] else elements[it - prefix.size]
-                }
-                return persistentListOf<String>().addAll(all.toList())
+                return persistentListOf<String>()
+                        .addAll(listOf("f", "g", *elements))
                         .subList(2, elements.size + 2)
             }
         }
 
         object MiddleSubList : TestStringListGenerator() {
             override fun create(elements: Array<String>): List<String> {
-                val prefix = arrayOf("f", "g")
-                val suffix = arrayOf("h", "i")
 
-                val all = arrayOfNulls<String>(2 + elements.size + 2)
-                System.arraycopy(prefix, 0, all, 0, 2)
-                System.arraycopy(elements, 0, all, 2, elements.size)
-                System.arraycopy(suffix, 0, all, 2 + elements.size, 2)
-
-                return persistentListOf<String>().addAll(all.toList() as List<String>)
+                return persistentListOf<String>()
+                        .addAll(listOf("f", "g", *elements, "h", "i"))
                         .subList(2, elements.size + 2)
             }
         }
@@ -125,37 +113,24 @@ class PersistentListGenerator {
 
             object HeadSubList : TestStringListGenerator() {
                 override fun create(elements: Array<out String>): MutableList<String> {
-                    val suffix = arrayOf("f", "g")
-                    val all = Array(elements.size + suffix.size) {
-                        if (it < elements.size) elements[it] else suffix[it - elements.size]
-                    }
-                    return persistentListOf<String>().builder().apply { addAll(all.toList()) }
+                    return persistentListOf<String>().builder()
+                            .apply { addAll(listOf(*elements, "f", "g")) }
                             .subList(0, elements.size)
                 }
             }
 
             object TailSubList : TestStringListGenerator() {
                 override fun create(elements: Array<String>): MutableList<String> {
-                    val prefix = arrayOf("f", "g")
-                    val all = Array(elements.size + prefix.size) {
-                        if (it < prefix.size) prefix[it] else elements[it - prefix.size]
-                    }
-                    return persistentListOf<String>().builder().apply { addAll(all.toList()) }
+                    return persistentListOf<String>().builder()
+                            .apply { addAll(listOf("f", "g", *elements)) }
                             .subList(2, elements.size + 2)
                 }
             }
 
             object MiddleSubList : TestStringListGenerator() {
                 override fun create(elements: Array<String>): MutableList<String> {
-                    val prefix = arrayOf("f", "g")
-                    val suffix = arrayOf("h", "i")
-
-                    val all = arrayOfNulls<String>(2 + elements.size + 2)
-                    System.arraycopy(prefix, 0, all, 0, 2)
-                    System.arraycopy(elements, 0, all, 2, elements.size)
-                    System.arraycopy(suffix, 0, all, 2 + elements.size, 2)
-
-                    return persistentListOf<String>().builder().apply { addAll(all.toList() as List<String>) }
+                    return persistentListOf<String>().builder()
+                            .apply { addAll(listOf("f", "g", *elements, "h", "i")) }
                             .subList(2, elements.size + 2)
                 }
             }
