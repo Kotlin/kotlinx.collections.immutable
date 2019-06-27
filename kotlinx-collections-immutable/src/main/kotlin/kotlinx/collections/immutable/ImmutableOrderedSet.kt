@@ -20,7 +20,7 @@ import org.pcollections.OrderedPSet
 import org.pcollections.POrderedSet
 import org.pcollections.PSet
 
-internal class ImmutableOrderedSet<out E> private constructor(impl: POrderedSet<E>) : AbstractImmutableSet<E>(impl) {
+public class ImmutableOrderedSet<out E> private constructor(impl: POrderedSet<E>) : AbstractImmutableSet<E>(impl) {
     override fun wrap(impl: PSet<@UnsafeVariance E>): ImmutableOrderedSet<E>
             = if (impl === this.impl) this else ImmutableOrderedSet(impl as POrderedSet)
 

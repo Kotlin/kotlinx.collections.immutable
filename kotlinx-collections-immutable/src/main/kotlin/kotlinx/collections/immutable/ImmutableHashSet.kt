@@ -19,7 +19,7 @@ package kotlinx.collections.immutable
 import org.pcollections.HashTreePSet
 import org.pcollections.PSet
 
-internal class ImmutableHashSet<out E> private constructor(impl: PSet<E>) : AbstractImmutableSet<E>(impl) {
+public class ImmutableHashSet<out E> private constructor(impl: PSet<E>) : AbstractImmutableSet<E>(impl) {
     override fun wrap(impl: PSet<@UnsafeVariance E>): ImmutableHashSet<E>
         = if (impl === this.impl) this else ImmutableHashSet(impl)
 

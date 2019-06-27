@@ -21,10 +21,10 @@ import org.pcollections.PMap
 import java.util.ConcurrentModificationException
 
 
-internal class ImmutableOrderedMap<K, out V> private constructor(private val impl: PMap<K, LinkedEntry<K, V>>) : AbstractMap<K, V>(), PersistentMap<K, V> {
+public class ImmutableOrderedMap<K, out V> private constructor(private val impl: PMap<K, LinkedEntry<K, V>>) : AbstractMap<K, V>(), PersistentMap<K, V> {
     // TODO: Keep reference to first/last entry
 
-    protected class LinkedEntry<out K, out V>(val key: K, val value: @UnsafeVariance V, val prevKey: Any?, val nextKey: Any?) {
+    class LinkedEntry<out K, out V>(val key: K, val value: @UnsafeVariance V, val prevKey: Any?, val nextKey: Any?) {
         // has referential equality/hashCode
 
         fun copy(value: @UnsafeVariance V = this.value, prevKey: Any? = this.prevKey, nextKey: Any? = this.nextKey) =
@@ -85,7 +85,7 @@ internal class ImmutableOrderedMap<K, out V> private constructor(private val imp
     }
 
 
-    protected class Builder<K, V>(protected var value: ImmutableOrderedMap<K, V>, protected var impl: PMap<K, LinkedEntry<K, V>>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+    class Builder<K, V>(protected var value: ImmutableOrderedMap<K, V>, protected var impl: PMap<K, LinkedEntry<K, V>>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
         override fun build(): PersistentMap<K, V> = value.wrap(impl).apply { value = this }
 
         override val size: Int get() = impl.size

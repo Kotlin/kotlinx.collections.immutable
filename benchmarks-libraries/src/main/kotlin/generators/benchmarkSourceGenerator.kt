@@ -100,6 +100,7 @@ abstract class BenchmarkSourceGenerator: SourceGenerator() {
 
 private val listImpls = listOf(
         KotlinListImplementation,
+        KotlinPCollectionListImplementation,
         PaguroListImplementation,
         CyclopsListImplementation,
         ClojureListImplementation,
@@ -108,6 +109,7 @@ private val listImpls = listOf(
 )
 private val listBuilderImpls = listOf(
         KotlinListBuilderImplementation,
+        KotlinPCollectionListBuilderImplementation,
         PaguroListBuilderImplementation,
         ClojureListBuilderImplementation
 )
@@ -115,6 +117,8 @@ private val listBuilderImpls = listOf(
 private val mapImpls = listOf(
         KotlinMapImplementation,
         KotlinOrderedMapImplementation,
+        KotlinPCollectionMapImplementation,
+        KotlinPCollectionOrderedMapImplementation,
         CapsuleMapImplementation,
         PaguroMapImplementation,
         PaguroSortedMapImplementation,
@@ -132,6 +136,8 @@ private val mapImpls = listOf(
 private val mapBuilderImpls = listOf(
         KotlinMapBuilderImplementation,
         KotlinOrderedMapBuilderImplementation,
+        KotlinPCollectionMapBuilderImplementation,
+        KotlinPCollectionOrderedMapBuilderImplementation,
         CapsuleMapBuilderImplementation,
         PaguroMapBuilderImplementation,
         ClojureMapBuilderImplementation
@@ -140,6 +146,8 @@ private val mapBuilderImpls = listOf(
 private val setImpls = listOf(
         KotlinSetImplementation,
         KotlinOrderedSetImplementation,
+        KotlinPCollectionSetImplementation,
+        KotlinPCollectionOrderedSetImplementation,
         CapsuleSetImplementation,
         CyclopsSetImplementation,
         CyclopsTrieSetImplementation,
@@ -155,6 +163,8 @@ private val setImpls = listOf(
 private val setBuilderImpls = listOf(
         KotlinSetBuilderImplementation,
         KotlinOrderedSetBuilderImplementation,
+        KotlinPCollectionSetBuilderImplementation,
+        KotlinPCollectionOrderedSetBuilderImplementation,
         CapsuleSetBuilderImplementation,
         ClojureSetBuilderImplementation
 )

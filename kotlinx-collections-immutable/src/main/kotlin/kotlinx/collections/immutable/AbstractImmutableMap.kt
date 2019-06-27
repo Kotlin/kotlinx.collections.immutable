@@ -21,7 +21,7 @@ import kotlinx.collections.immutable.adapters.ImmutableSetAdapter
 import org.pcollections.PMap
 import java.util.ConcurrentModificationException
 
-internal abstract class AbstractImmutableMap<K, out V> protected constructor(protected val impl: PMap<K, @UnsafeVariance V>) : PersistentMap<K, V> {
+public abstract class AbstractImmutableMap<K, out V> protected constructor(protected val impl: PMap<K, @UnsafeVariance V>) : PersistentMap<K, V> {
 
     abstract class AbstractImmutableEntry<out K, out V> : Map.Entry<K, V> {
         override fun equals(other: Any?): Boolean = other is Map.Entry<*,*> && other.key == key && other.value == value

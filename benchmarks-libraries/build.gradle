@@ -36,7 +36,7 @@ task generateBenchmarkSources(type: JavaExec) {
 }
 
 jmh {
-//    include = ['immutableList.*.Add', 'immutableMap', 'immutableSet']
+    include = ['benchmarks.*.kotlin']
 //    exclude = ['builder']
 
     profilers = ['gc']
