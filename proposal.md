@@ -199,18 +199,73 @@ implementing such methods.
 
 ### Persistent collection implementations
 
-TODO: describe some implementation details and performance characteristics of our persistent collection impls.
-
 #### Default persistent list
 
-#### Default persistent ordered hash set
+It's backed by a bit-mapped trie with branching factor of 32.
+
+Time complexity of operations:
+- `get(index)`, `set(index, element)` - O(log<sub>32</sub>N), where N is the size of the instance the operations are applied on.
+- `add(index, element)`, `removeAt(index)`, `remove(element)` - O(N).
+- `addAll(elements)` - O(N).
+- `addAll(index, elements)`, `removeAll(elements)`, `removeAll(predicate)` - O(N M), optimizable to O(N+M), where M is the number of elements to be inserted/removed.
+- Iterating elements - O(N).
+
+To optimize frequently used `add(element)` and `removeAt(size - 1)` operations rightmost leaf is referenced directly from the persistent list instance.
+This allows to avoid path-copying and gives O(1) time complexity for these two operations.
+
+Small persistent lists, with up to 32 elements, are backed by arrays of corresponding size.
 
 #### Persistent unordered hash set
 
-#### Default persistent ordered hash map
+It's backed by a hash array mapped trie (a.k.a HAMT). Every node has up to 32 children or elements.
+
+Time complexity of operations:
+- `add(element)`, `remove(element)`, `contains(element)` - O(log<sub>32</sub>N) in general, but strongly depends on hash codes of the stored elements.
+- `addAll(elements)`, `removeAll(elements)`, `removeAll(predicate)`, `containsAll(elements)` - O(M log<sub>32</sub>N) in general.
+- Iterating elements - O(N).
 
 #### Persistent unordered hash map
 
+It's backed by a compressed hash-array mapped prefix-tree (a.k.a CHAMP). Every node has up to 32 children or entries.
+
+Time complexity of operations:
+- `get(key)`, `put(key, value)`, `remove(key)`, `remove(key, value)`, `containsKey(key)` - O(log<sub>32</sub>N) in average, but strongly depends on hash codes of the stored keys.
+- `containsValue(value)` - O(N).
+- `putAll(map)` - O(M log<sub>32</sub>N), where M is the number of elements added.
+- Iterating `keys`, `values`, `entries` - O(N).
+
+#### Default persistent ordered hash set
+
+It's backed by the _persistent unordered hash map_, which maps every element in this set to the previous and next elements in insertion order.
+
+Every operation on this set turns into one or more operations on the backing map, e.g.:
+- `add(element)` turns into updating the next reference of the last element (new element becomes the next) and putting new entry with key equal to the specified element.
+- `remove(element)` turns into removing the entry with the key equal to the specified element and updating values for the next and previous elements.
+- `contains(element)` turns into `containsKey(element)`.
+
+Iterating elements in this set takes O(N log<sub>32</sub>N) time.
+
+#### Default persistent ordered hash map
+
+It is implemented the same way as the _persistent ordered hash set_, 
+except that the backing map stores also value beside next and previous keys.
+
+#### Builders
+
+Builders of the _persistent list_, _persistent unordered hash set_, and _persistent unordered hash map_ 
+are backed by the same backing data structures as the corresponding persistent collections. 
+Thus, `persistentCollection.builder()` takes constant time consisting of passing backing storage to the new builder instance.
+But instead of copying every node to be modified, builder makes sure the node has not already been 
+copied by marking copies it makes with its unique identifier. Nodes marked by the builder's identifier can be 
+modified in-place by that builder.
+`builder.build()` also takes constant time, it consists of passing backing storage to the new persistent collection instance 
+and updating builder's identifier, as nodes marked by the current identifier are reachable from the built instance and 
+cannot by modified in-place any more.
+
+Builders of the _persistent ordered hash set_ and _persistent ordered hash map_ are backed by the builder of the backing map.
+
+Although time complexity of all operations on a builder is the same as in its corresponding persistent collection, 
+avoiding memory allocations in modification operations leads to significant performance improvement in practice.
 
 ### Extension functions
 
