@@ -18,7 +18,7 @@ package kotlinx.collections.immutable
 
 import org.pcollections.*
 
-internal class ImmutableVectorList<out E> private constructor(private val impl: PVector<E>) : ImmutableList<E> {
+internal class ImmutableVectorList<out E> private constructor(private val impl: PVector<E>) : PersistentList<E> {
 
     // delegating to impl
     override val size: Int get() = impl.size
@@ -37,30 +37,28 @@ internal class ImmutableVectorList<out E> private constructor(private val impl: 
 
 
 
-    override fun add(element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.plus(element))
+    override fun add(element: @UnsafeVariance E): PersistentList<E> = wrap(impl.plus(element))
 
-    override fun add(index: Int, element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.plus(index, element))
+    override fun add(index: Int, element: @UnsafeVariance E): PersistentList<E> = wrap(impl.plus(index, element))
 
-    override fun addAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> = wrap(impl.plusAll(elements))
+    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = wrap(impl.plusAll(elements))
 
-    override fun addAll(index: Int, c: Collection<@UnsafeVariance E>): ImmutableList<E> = wrap(impl.plusAll(index, c))
+    override fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> = wrap(impl.plusAll(index, c))
 
-    override fun remove(element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.minus(element))
+    override fun remove(element: @UnsafeVariance E): PersistentList<E> = wrap(impl.minus(element))
 
     // not minusAll
-    override fun removeAll(elements: Collection<@UnsafeVariance E>): ImmutableList<E> = mutate { it.removeAll(elements) }
+    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = mutate { it.removeAll(elements) }
 
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableList<E> = mutate { it.removeAll(predicate) }
+    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> = mutate { it.removeAll(predicate) }
 
-    //    override fun retainAll(c: Collection<@UnsafeVariance E>): ImmutableList<E> = builder().apply { retainAll(c) }.build()
+    //    override fun retainAll(c: Collection<@UnsafeVariance E>): PersistentList<E> = builder().apply { retainAll(c) }.build()
 
-    override fun set(index: Int, element: @UnsafeVariance E): ImmutableList<E> = wrap(impl.with(index, element))
+    override fun set(index: Int, element: @UnsafeVariance E): PersistentList<E> = wrap(impl.with(index, element))
 
-    override fun removeAt(index: Int): ImmutableList<E> = wrap(impl.minus(index))
+    override fun removeAt(index: Int): PersistentList<E> = wrap(impl.minus(index))
 
-    override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = wrap(impl.subList(fromIndex, toIndex))
-
-    override fun clear(): ImmutableList<E> = EMPTY
+    override fun clear(): PersistentList<E> = EMPTY
 
     override fun builder(): Builder<@UnsafeVariance E> = Builder(this, impl)
 
@@ -74,7 +72,7 @@ internal class ImmutableVectorList<out E> private constructor(private val impl: 
         public fun <T> emptyOf(): ImmutableVectorList<T> = EMPTY
     }
 
-    class Builder<E> internal constructor(private var value: ImmutableVectorList<E>, private var impl: PVector<E>) : AbstractMutableList<E>(), ImmutableList.Builder<E> {
+    class Builder<E> internal constructor(private var value: ImmutableVectorList<E>, private var impl: PVector<E>) : AbstractMutableList<E>(), PersistentList.Builder<E> {
         override fun build(): ImmutableVectorList<E> = value.wrap(impl).apply { value = this }
         // delegating to impl
         override val size: Int get() = impl.size

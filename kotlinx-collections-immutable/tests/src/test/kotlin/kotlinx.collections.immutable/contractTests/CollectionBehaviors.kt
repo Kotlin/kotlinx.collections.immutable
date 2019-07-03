@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2016-2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package test.collections.behaviors
-
-import test.collections.CompareContext
+package kotlinx.collections.immutable.contractTests
 
 public fun <T> CompareContext<List<T>>.listBehavior() {
     equalityBehavior()

@@ -16,21 +16,24 @@
 
 package kotlinx.collections.immutable
 
-public interface ImmutableSet<out E>: Set<E>, ImmutableCollection<E> {
-    override fun add(element: @UnsafeVariance E): ImmutableSet<E>
+public interface ImmutableSet<out E>: Set<E>, ImmutableCollection<E>
 
-    override fun addAll(elements: Collection<@UnsafeVariance E>): ImmutableSet<E>
+public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E> {
+    override fun add(element: @UnsafeVariance E): PersistentSet<E>
 
-    override fun remove(element: @UnsafeVariance E): ImmutableSet<E>
+    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
 
-    override fun removeAll(elements: Collection<@UnsafeVariance E>): ImmutableSet<E>
+    override fun remove(element: @UnsafeVariance E): PersistentSet<E>
 
-    override fun removeAll(predicate: (E) -> Boolean): ImmutableSet<E>
+    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
 
-    override fun clear(): ImmutableSet<E>
+    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E>
 
-    interface Builder<E>: MutableSet<E>, ImmutableCollection.Builder<E> {
-        override fun build(): ImmutableSet<E>
+    override fun clear(): PersistentSet<E>
+
+
+    interface Builder<E>: MutableSet<E>, PersistentCollection.Builder<E> {
+        override fun build(): PersistentSet<E>
     }
 
     override fun builder(): Builder<@UnsafeVariance E>

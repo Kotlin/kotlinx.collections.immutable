@@ -18,144 +18,196 @@
 
 package kotlinx.collections.immutable
 
+import kotlinx.collections.immutable.implementations.immutableList.persistentVectorOf
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
+import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
+import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSetBuilder
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
+import kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSet
+
 //@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 //inline fun <T> @kotlin.internal.Exact ImmutableCollection<T>.mutate(mutator: (MutableCollection<T>) -> Unit): ImmutableCollection<T> = builder().apply(mutator).build()
 // it or this?
-inline fun <T> ImmutableSet<T>.mutate(mutator: (MutableSet<T>) -> Unit): ImmutableSet<T> = builder().apply(mutator).build()
-inline fun <T> ImmutableList<T>.mutate(mutator: (MutableList<T>) -> Unit): ImmutableList<T> = builder().apply(mutator).build()
+inline fun <T> PersistentSet<T>.mutate(mutator: (MutableSet<T>) -> Unit): PersistentSet<T> = builder().apply(mutator).build()
+inline fun <T> PersistentList<T>.mutate(mutator: (MutableList<T>) -> Unit): PersistentList<T> = builder().apply(mutator).build()
 
-inline fun <K, V> ImmutableMap<K, V>.mutate(mutator: (MutableMap<K, V>) -> Unit): ImmutableMap<K, V> = builder().apply(mutator).build()
-
-
-inline operator fun <E> ImmutableCollection<E>.plus(element: E): ImmutableCollection<E> = add(element)
-inline operator fun <E> ImmutableCollection<E>.minus(element: E): ImmutableCollection<E> = remove(element)
+inline fun <K, V> PersistentMap<out K, V>.mutate(mutator: (MutableMap<K, V>) -> Unit): PersistentMap<K, V> =
+        (this as PersistentMap<K, V>).builder().apply(mutator).build()
 
 
-operator fun <E> ImmutableCollection<E>.plus(elements: Iterable<E>): ImmutableCollection<E>
+inline operator fun <E> PersistentCollection<E>.plus(element: E): PersistentCollection<E> = add(element)
+inline operator fun <E> PersistentCollection<E>.minus(element: E): PersistentCollection<E> = remove(element)
+
+
+operator fun <E> PersistentCollection<E>.plus(elements: Iterable<E>): PersistentCollection<E>
         = if (elements is Collection) addAll(elements) else builder().also { it.addAll(elements) }.build()
-operator fun <E> ImmutableCollection<E>.plus(elements: Array<out E>): ImmutableCollection<E>
+operator fun <E> PersistentCollection<E>.plus(elements: Array<out E>): PersistentCollection<E>
         = builder().also { it.addAll(elements) }.build()
-operator fun <E> ImmutableCollection<E>.plus(elements: Sequence<E>): ImmutableCollection<E>
+operator fun <E> PersistentCollection<E>.plus(elements: Sequence<E>): PersistentCollection<E>
         = builder().also { it.addAll(elements) }.build()
 
 
-operator fun <E> ImmutableCollection<E>.minus(elements: Iterable<E>): ImmutableCollection<E>
+operator fun <E> PersistentCollection<E>.minus(elements: Iterable<E>): PersistentCollection<E>
         = if (elements is Collection) removeAll(elements) else builder().also { it.removeAll(elements) }.build()
-operator fun <E> ImmutableCollection<E>.minus(elements: Array<out E>): ImmutableCollection<E>
+operator fun <E> PersistentCollection<E>.minus(elements: Array<out E>): PersistentCollection<E>
         = builder().also { it.removeAll(elements) }.build()
-operator fun <E> ImmutableCollection<E>.minus(elements: Sequence<E>): ImmutableCollection<E>
+operator fun <E> PersistentCollection<E>.minus(elements: Sequence<E>): PersistentCollection<E>
         =  builder().also { it.removeAll(elements) }.build()
 
 
-inline operator fun <E> ImmutableList<E>.plus(element: E): ImmutableList<E> = add(element)
-inline operator fun <E> ImmutableList<E>.minus(element: E): ImmutableList<E> = remove(element)
+inline operator fun <E> PersistentList<E>.plus(element: E): PersistentList<E> = add(element)
+inline operator fun <E> PersistentList<E>.minus(element: E): PersistentList<E> = remove(element)
 
 
-operator fun <E> ImmutableList<E>.plus(elements: Iterable<E>): ImmutableList<E>
+operator fun <E> PersistentList<E>.plus(elements: Iterable<E>): PersistentList<E>
         = if (elements is Collection) addAll(elements) else mutate { it.addAll(elements) }
-operator fun <E> ImmutableList<E>.plus(elements: Array<out E>): ImmutableList<E>
+operator fun <E> PersistentList<E>.plus(elements: Array<out E>): PersistentList<E>
         = mutate { it.addAll(elements) }
-operator fun <E> ImmutableList<E>.plus(elements: Sequence<E>): ImmutableList<E>
+operator fun <E> PersistentList<E>.plus(elements: Sequence<E>): PersistentList<E>
         = mutate { it.addAll(elements) }
 
 
-operator fun <E> ImmutableList<E>.minus(elements: Iterable<E>): ImmutableList<E>
+operator fun <E> PersistentList<E>.minus(elements: Iterable<E>): PersistentList<E>
         = if (elements is Collection) removeAll(elements) else mutate { it.removeAll(elements) }
-operator fun <E> ImmutableList<E>.minus(elements: Array<out E>): ImmutableList<E>
+operator fun <E> PersistentList<E>.minus(elements: Array<out E>): PersistentList<E>
         = mutate { it.removeAll(elements) }
-operator fun <E> ImmutableList<E>.minus(elements: Sequence<E>): ImmutableList<E>
+operator fun <E> PersistentList<E>.minus(elements: Sequence<E>): PersistentList<E>
         = mutate { it.removeAll(elements) }
 
 
-inline operator fun <E> ImmutableSet<E>.plus(element: E): ImmutableSet<E> = add(element)
-inline operator fun <E> ImmutableSet<E>.minus(element: E): ImmutableSet<E> = remove(element)
+inline operator fun <E> PersistentSet<E>.plus(element: E): PersistentSet<E> = add(element)
+inline operator fun <E> PersistentSet<E>.minus(element: E): PersistentSet<E> = remove(element)
 
-operator fun <E> ImmutableSet<E>.plus(elements: Iterable<E>): ImmutableSet<E>
+operator fun <E> PersistentSet<E>.plus(elements: Iterable<E>): PersistentSet<E>
         = if (elements is Collection) addAll(elements) else mutate { it.addAll(elements) }
-operator fun <E> ImmutableSet<E>.plus(elements: Array<out E>): ImmutableSet<E>
+operator fun <E> PersistentSet<E>.plus(elements: Array<out E>): PersistentSet<E>
         = mutate { it.addAll(elements) }
-operator fun <E> ImmutableSet<E>.plus(elements: Sequence<E>): ImmutableSet<E>
+operator fun <E> PersistentSet<E>.plus(elements: Sequence<E>): PersistentSet<E>
         = mutate { it.addAll(elements) }
 
 
-operator fun <E> ImmutableSet<E>.minus(elements: Iterable<E>): ImmutableSet<E>
+operator fun <E> PersistentSet<E>.minus(elements: Iterable<E>): PersistentSet<E>
         = if (elements is Collection) removeAll(elements) else mutate { it.removeAll(elements) }
-operator fun <E> ImmutableSet<E>.minus(elements: Array<out E>): ImmutableSet<E>
+operator fun <E> PersistentSet<E>.minus(elements: Array<out E>): PersistentSet<E>
         = mutate { it.removeAll(elements) }
-operator fun <E> ImmutableSet<E>.minus(elements: Sequence<E>): ImmutableSet<E>
+operator fun <E> PersistentSet<E>.minus(elements: Sequence<E>): PersistentSet<E>
         = mutate { it.removeAll(elements) }
 
 
-inline operator fun <K, V> ImmutableMap<out K, V>.plus(pair: Pair<K, V>): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).put(pair.first, pair.second)
-inline operator fun <K, V> ImmutableMap<out K, V>.plus(pairs: Iterable<Pair<K, V>>): ImmutableMap<K, V> = putAll(pairs)
-inline operator fun <K, V> ImmutableMap<out K, V>.plus(pairs: Array<out Pair<K, V>>): ImmutableMap<K, V> = putAll(pairs)
-inline operator fun <K, V> ImmutableMap<out K, V>.plus(pairs: Sequence<Pair<K, V>>): ImmutableMap<K, V> = putAll(pairs)
-inline operator fun <K, V> ImmutableMap<out K, V>.plus(map: Map<out K, V>): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).putAll(map)
+inline operator fun <K, V> PersistentMap<out K, V>.plus(pair: Pair<K, V>): PersistentMap<K, V>
+        = (this as PersistentMap<K, V>).put(pair.first, pair.second)
+inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V> = putAll(pairs)
+inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Array<out Pair<K, V>>): PersistentMap<K, V> = putAll(pairs)
+inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V> = putAll(pairs)
+inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V>): PersistentMap<K, V> = putAll(map)
 
-public fun <K, V> ImmutableMap<out K, V>.putAll(pairs: Iterable<Pair<K, V>>): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).mutate { it.putAll(pairs) }
+public fun <K, V> PersistentMap<out K, V>.putAll(map: Map<out K, V>): PersistentMap<K, V> =
+        (this as PersistentMap<K, V>).putAll(map)
 
-public fun <K, V> ImmutableMap<out K, V>.putAll(pairs: Array<out Pair<K, V>>): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).mutate { it.putAll(pairs) }
+public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V>
+        = mutate { it.putAll(pairs) }
 
-public fun <K, V> ImmutableMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).mutate { it.putAll(pairs) }
+public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Array<out Pair<K, V>>): PersistentMap<K, V>
+        = mutate { it.putAll(pairs) }
 
-
-public operator fun <K, V> ImmutableMap<out K, V>.minus(key: K): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).remove(key)
-
-public operator fun <K, V> ImmutableMap<out K, V>.minus(keys: Iterable<K>): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).mutate { it.minusAssign(keys) }
-
-public operator fun <K, V> ImmutableMap<out K, V>.minus(keys: Array<out K>): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).mutate { it.minusAssign(keys) }
-
-public operator fun <K, V> ImmutableMap<out K, V>.minus(keys: Sequence<K>): ImmutableMap<K, V>
-        = (this as ImmutableMap<K, V>).mutate { it.minusAssign(keys) }
+public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V>
+        = mutate { it.putAll(pairs) }
 
 
-fun <E> immutableListOf(vararg elements: E): ImmutableList<E> = ImmutableVectorList.emptyOf<E>().addAll(elements.asList())
-fun <E> immutableListOf(): ImmutableList<E> = ImmutableVectorList.emptyOf<E>()
+public operator fun <K, V> PersistentMap<out K, V>.minus(key: K): PersistentMap<K, V>
+        = (this as PersistentMap<K, V>).remove(key)
 
-fun <E> immutableSetOf(vararg elements: E): ImmutableSet<E> = ImmutableOrderedSet.emptyOf<E>().addAll(elements.asList())
-fun <E> immutableSetOf(): ImmutableSet<E> = ImmutableOrderedSet.emptyOf<E>()
+public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Iterable<K>): PersistentMap<K, V>
+        = mutate { it.minusAssign(keys) }
 
-fun <E> immutableHashSetOf(vararg elements: E): ImmutableSet<E> = ImmutableHashSet.emptyOf<E>().addAll(elements.asList())
+public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Array<out K>): PersistentMap<K, V>
+        = mutate { it.minusAssign(keys) }
 
-fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = ImmutableOrderedMap.emptyOf<K,V>().mutate { it += pairs }
-fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): ImmutableMap<K, V> = ImmutableHashMap.emptyOf<K,V>().mutate { it += pairs }
+public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): PersistentMap<K, V>
+        = mutate { it.minusAssign(keys) }
+
+
+fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persistentVectorOf<E>().addAll(elements.asList())
+fun <E> persistentListOf(): PersistentList<E> = persistentVectorOf()
+
+fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>().addAll(elements.asList())
+fun <E> persistentSetOf(): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>()
+
+fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHashSet.emptyOf<E>().addAll(elements.asList())
+
+fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = PersistentOrderedMap.emptyOf<K,V>().mutate { it += pairs }
+fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = PersistentHashMap.emptyOf<K,V>().mutate { it += pairs }
+
+@Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf(*elements)"))
+fun <E> immutableListOf(vararg elements: E): PersistentList<E> = persistentListOf(*elements)
+@Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf()"))
+fun <E> immutableListOf(): PersistentList<E> = persistentListOf()
+
+@Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf(*elements)"))
+fun <E> immutableSetOf(vararg elements: E): PersistentSet<E> = persistentSetOf(*elements)
+@Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf()"))
+fun <E> immutableSetOf(): PersistentSet<E> = persistentSetOf()
+
+@Deprecated("Use persistentHashSetOf instead.", ReplaceWith("persistentHashSetOf(*elements)"))
+fun <E> immutableHashSetOf(vararg elements: E): PersistentSet<E> = persistentHashSetOf(*elements)
+
+@Deprecated("Use persistentMapOf instead.", ReplaceWith("persistentMapOf(*pairs)"))
+fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
+@Deprecated("Use persistentHashMapOf instead.", ReplaceWith("persistentHashMapOf(*pairs)"))
+fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentHashMapOf(*pairs)
+
+
 
 fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> =
         this as? ImmutableList
-        ?: (this as? ImmutableList.Builder)?.build()
-        ?: immutableListOf<T>() + this
+        ?: this.toPersistentList()
+
+fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
+        this as? PersistentList
+        ?: (this as? PersistentList.Builder)?.build()
+        ?: persistentListOf<T>() + this
 
 
 // fun <T> Array<T>.toImmutableList(): ImmutableList<T> = immutableListOf<T>() + this.asList()
 
-fun CharSequence.toImmutableList(): ImmutableList<Char> =
-        immutableListOf<Char>().mutate { this.toCollection(it) }
+fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentList()
+
+fun CharSequence.toPersistentList(): PersistentList<Char> =
+    persistentListOf<Char>().mutate { this.toCollection(it) }
+
+fun CharSequence.toPersistentSet(): PersistentSet<Char> =
+    persistentSetOf<Char>().mutate { this.toCollection(it) }
+
 
 fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
         this as? ImmutableSet<T>
-        ?: (this as? ImmutableSet.Builder)?.build()
-        ?: immutableSetOf<T>() + this
+        ?: (this as? PersistentSet.Builder)?.build()
+        ?: persistentSetOf<T>() + this
 
-fun <T> Set<T>.toImmutableHashSet(): ImmutableSet<T>
-    = this as? ImmutableHashSet
-        ?: (this as? ImmutableHashSet.Builder)?.build()
-        ?: ImmutableHashSet.emptyOf<T>() + this
+fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
+        this as? PersistentSet<T>
+        ?: (this as? PersistentSet.Builder)?.build()
+        ?: persistentSetOf<T>() + this
+
+fun <T> Set<T>.toPersistentHashSet(): PersistentSet<T>
+    = this as? PersistentHashSet
+        ?: (this as? PersistentHashSetBuilder<T>)?.build()
+        ?: PersistentHashSet.emptyOf<T>() + this
 
 
 fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
     = this as? ImmutableMap
-        ?: (this as? ImmutableMap.Builder)?.build()
-        ?: ImmutableOrderedMap.emptyOf<K, V>().putAll(this)
+        ?: (this as? PersistentMap.Builder)?.build()
+        ?: PersistentOrderedMap.emptyOf<K, V>().putAll(this)
 
-fun <K, V> Map<K, V>.toImmutableHashMap(): ImmutableMap<K, V>
-    = this as? ImmutableMap
-        ?: (this as? ImmutableHashMap.Builder)?.build()
-        ?: ImmutableHashMap.emptyOf<K, V>().putAll(this)
+
+fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
+    = this as? PersistentMap<K, V>
+        ?: (this as? PersistentMap.Builder<K, V>)?.build()
+        ?: PersistentOrderedMap.emptyOf<K, V>().putAll(this)
+
+fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
+        = this as? PersistentMap
+        ?: (this as? PersistentHashMapBuilder<K, V>)?.build()
+        ?: PersistentHashMap.emptyOf<K, V>().putAll(this)

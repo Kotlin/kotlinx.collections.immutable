@@ -1,8 +1,25 @@
-package kotlinx.collections.immutable
+/*
+ * Copyright 2016-2019 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package kotlinx.collections.immutable.contractTests.immutableList
+
+import kotlinx.collections.immutable.*
+import kotlinx.collections.immutable.contractTests.compare
+import kotlinx.collections.immutable.contractTests.listBehavior
 import org.junit.Test
-import test.collections.behaviors.listBehavior
-import test.collections.compare
 import kotlin.test.*
 
 class ImmutableListTest {
@@ -11,8 +28,8 @@ class ImmutableListTest {
 
 
     @Test fun empty() {
-        val empty1 = immutableListOf<Int>()
-        val empty2 = immutableListOf<String>()
+        val empty1 = persistentListOf<Int>()
+        val empty2 = persistentListOf<String>()
         assertEquals<ImmutableList<Any>>(empty1, empty2)
         assertEquals<List<Any>>(listOf(), empty1)
         assertTrue(empty1 === empty2)
@@ -25,8 +42,8 @@ class ImmutableListTest {
 
     @Test fun ofElements() {
         val list0 = listOf("a", "d", 1, null)
-        val list1 = immutableListOf("a", "d", 1, null)
-        val list2 = immutableListOf("a", "d", 1, null)
+        val list1 = persistentListOf("a", "d", 1, null)
+        val list2 = persistentListOf("a", "d", 1, null)
 
         compareLists(list0, list1)
         assertEquals(list1, list2)
@@ -45,12 +62,12 @@ class ImmutableListTest {
         list.removeAt(0)
         assertNotEquals<List<*>>(list, immList)
 
-        immList = immList.removeAt(0)
+        immList = immList.toPersistentList().removeAt(0)
         compareLists(list, immList)
     }
 
     @Test fun addElements() {
-        var list = immutableListOf<String>()
+        var list = persistentListOf<String>()
         list = list.add("x")
         list = list.add(0, "a")
         list = list.addAll(list)
@@ -62,7 +79,7 @@ class ImmutableListTest {
     }
 
     @Test fun replaceElements() {
-        var list = "abcxaxab12".toImmutableList()
+        var list = "abcxaxab12".toImmutableList().toPersistentList()
 
         for (i in list.indices) {
             list = list.set(i, list[i] as Char + i)
@@ -74,7 +91,7 @@ class ImmutableListTest {
     }
 
     @Test fun removeElements() {
-        val list = "abcxaxyz12".toImmutableList()
+        val list = "abcxaxyz12".toImmutableList().toPersistentList()
         fun expectList(content: String, list: ImmutableList<Char>) {
             compareLists(content.toList(), list)
         }
@@ -101,7 +118,7 @@ class ImmutableListTest {
     }
 
     @Test fun builder() {
-        val builder = immutableListOf<Char>().builder()
+        val builder = persistentListOf<Char>().builder()
         "abcxaxyz12".toCollection(builder)
         val list = builder.build()
         assertEquals<List<*>>(list, builder)
@@ -127,9 +144,19 @@ class ImmutableListTest {
     }
 
     @Test fun subListOfBuilder() {
-        val list = "abcxaxyz12".toImmutableList()
+        val list = "abcxaxyz12".toImmutableList().toPersistentList()
         val builder = list.builder()
-        val subList = builder.subList(2, 5)
+
+        // builder needs to recreate the inner trie to apply the modification.
+        // So, structural changes in builder causes CME on subList iteration.
+        var subList = builder.subList(2, 5)
+        builder[4] = 'x'
+        assertFailsWith<ConcurrentModificationException> { subList.joinToString("") }
+
+        // builder is the exclusive owner of the inner trie.
+        // So, `set(index, value)` doesn't lead to structural changes.
+        subList = builder.subList(2, 5)
+        assertEquals("cxx", subList.joinToString(""))
         builder[4] = 'b'
         assertEquals("cxb", subList.joinToString(""))
         subList.removeAt(0)
@@ -137,7 +164,7 @@ class ImmutableListTest {
         assertEquals("abxbxyz12", builder.joinToString(""))
     }
 
-    fun <T> ImmutableList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
+    fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
         val mutable = this.toMutableList()
         val builder = this.builder()
 
@@ -149,9 +176,9 @@ class ImmutableListTest {
     }
 
     @Test fun noOperation() {
-        immutableListOf<Int>().testNoOperation({ clear() }, { clear() })
+        persistentListOf<Int>().testNoOperation({ clear() }, { clear() })
 
-        val list = "abcxaxyz12".toImmutableList()
+        val list = "abcxaxyz12".toPersistentList()
         with(list) {
             testNoOperation({ remove('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
@@ -159,7 +186,7 @@ class ImmutableListTest {
         }
     }
 
-    fun <T> ImmutableList<T>.testNoOperation(persistent: ImmutableList<T>.() -> ImmutableList<T>, mutating: MutableList<T>.() -> Unit) {
+    fun <T> PersistentList<T>.testNoOperation(persistent: PersistentList<T>.() -> PersistentList<T>, mutating: MutableList<T>.() -> Unit) {
         val result = this.persistent()
         val buildResult = this.mutate(mutating)
         // Ensure non-mutating operations return the same instance
@@ -168,11 +195,11 @@ class ImmutableListTest {
     }
 
     @Test fun covariantTyping() {
-        val listNothing = immutableListOf<Nothing>()
+        val listNothing = persistentListOf<Nothing>()
 
-        val listS: ImmutableList<String> = listNothing + "x"
-        val listSN: ImmutableList<String?> = listS + (null as String?)
-        val listAny: ImmutableList<Any?> = listSN + 1
+        val listS: PersistentList<String> = listNothing + "x"
+        val listSN: PersistentList<String?> = listS + (null as String?)
+        val listAny: PersistentList<Any?> = listSN + 1
 
         assertEquals(listOf("x", null, 1), listAny)
     }
