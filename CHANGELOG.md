@@ -25,10 +25,10 @@
     * `add(element: E)` and `removeAt(size - 1)` operations take O(1) time, down from O(log<sub>2</sub>n)
     * `get` and `set` operations take O(log<sub>32</sub>n), down from O(log<sub>2</sub>n) (though the same asymptotic)
     * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality
- - Unordered `PersistentSet` implementation is backed by a hash-array mapped trie (a.k.a. HAMT) with upto 32 children or elements in a node
+ - Unordered `PersistentSet` implementation is backed by a hash-array mapped trie (a.k.a. HAMT) with up to 32 children or elements in a node
     * `contains`, `add` and `remove` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n)
     * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality
- - Unordered `PersistentMap` implementation is backed by a compressed hash-array mapped prefix-tree (a.k.a. CHAMP) with upto 32 children or entries in a node
+ - Unordered `PersistentMap` implementation is backed by a compressed hash-array mapped prefix-tree (a.k.a. CHAMP) with up to 32 children or entries in a node
     * `contains`, `get`, `put` and `remove` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n)
     * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality
  - Ordered `PersistentSet` implementation is backed by the unordered `PersistentMap` which maps elements in this set to next and previous elements in insertion order
