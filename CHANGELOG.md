@@ -22,22 +22,22 @@
 #### Replace PCollection-based prototypes with custom performant implementations
 
  - `PersistentList` implementation is backed by a bit-mapped trie with branching factor of 32
-    * `add(element: E)` and `removeAt(size - 1)` operations take O(1) time, down from O(log<sub>2</sub>n)
-    * `get` and `set` operations take O(log<sub>32</sub>n), down from O(log<sub>2</sub>n) (though the same asymptotic)
-    * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality
+    * `add(element: E)` and `removeAt(size - 1)` operations take O(1) time, down from O(log<sub>2</sub>n) :chart_with_downwards_trend:
+    * `get` and `set` operations take O(log<sub>32</sub>n), down from O(log<sub>2</sub>n) (though the same asymptotic) :chart_with_downwards_trend:
+    * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality :chart_with_downwards_trend:
  - Unordered `PersistentSet` implementation is backed by a hash-array mapped trie (a.k.a. HAMT) with up to 32 children or elements in a node
-    * `contains`, `add` and `remove` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n)
-    * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality
+    * `contains`, `add` and `remove` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n) :chart_with_downwards_trend:
+    * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality :chart_with_downwards_trend:
  - Unordered `PersistentMap` implementation is backed by a compressed hash-array mapped prefix-tree (a.k.a. CHAMP) with up to 32 children or entries in a node
-    * `contains`, `get`, `put` and `remove` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n)
-    * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality
+    * `contains`, `get`, `put` and `remove` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n) :chart_with_downwards_trend:
+    * Iteration has the same time complexity of O(n), but much faster in practice due to the better reference locality :chart_with_downwards_trend:
  - Ordered `PersistentSet` implementation is backed by the unordered `PersistentMap` which maps elements in this set to next and previous elements in insertion order
-    * `contains`, `get` and `put` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n)
-    * `remove` operation takes O(log<sub>32</sub>n) time, down from O(n)
-    * Iteration takes O(n log<sub>32</sub>n) time, up from O(n)
+    * `contains`, `get` and `put` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n) :chart_with_downwards_trend:
+    * `remove` operation takes O(log<sub>32</sub>n) time, down from O(n) :chart_with_downwards_trend:
+    * Iteration takes O(n log<sub>32</sub>n) time, up from O(n) :chart_with_upwards_trend:
  - Ordered `PersistentMap` implementation is backed by the unordered `PersistentMap` which maps keys in this map to values, next and previous keys in insertion order
-    * `contains`, `get` and `put` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n)
-    * `remove` operation takes O(log<sub>32</sub>n) time, down from O(n)
-    * Iteration takes O(n log<sub>32</sub>n) time, up from O(n)
+    * `contains`, `get` and `put` operations take O(log<sub>32</sub>n) time, down from O(log<sub>2</sub>n) :chart_with_downwards_trend:
+    * `remove` operation takes O(log<sub>32</sub>n) time, down from O(n) :chart_with_downwards_trend:
+    * Iteration takes O(n log<sub>32</sub>n) time, up from O(n) :chart_with_upwards_trend:
  - Builders are backed by the same backing storage as the corresponding persistent collections, but apply modifications in-place if the node has already been copied
-    * Time complexities of all operations are the same as of the corresponding persistent collections. However, avoiding memory allocations leads to significant performance improvement
+    * Time complexities of all operations are the same as of the corresponding persistent collections. However, avoiding memory allocations leads to significant performance improvement :chart_with_downwards_trend:
