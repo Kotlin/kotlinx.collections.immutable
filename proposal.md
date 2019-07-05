@@ -41,7 +41,7 @@ For persistent collection interfaces there shall be provided the following imple
 * Avoiding defensive copying of collection passed as a parameter
   when you need an unchangeable snapshot and you're unsure whether the collection could be changed later.
 
-    ```
+    ```kotlin
     class Query(val parameters: ImmutableList<Parameter>)
 
     // or
@@ -105,13 +105,13 @@ It can be done by the following means:
 
 - chaining operations together
 
-    ```
+    ```kotlin
     collection = collection.add(element).add(anotherElement)
     ```
     
 - applying operations one by one
 
-    ```
+    ```kotlin
     collection += element
     collection += anotherElement
     ```
@@ -125,7 +125,7 @@ For example, `PersistentSet.Builder<T>` extends `MutableSet<T>`.
 A builder can be obtained from a persistent collection with `builder()` method, and then that builder could be
 transformed back to a persistent collection with its `build()` method.
 
-```
+```kotlin
 val builder = persistentList.builder()
 builder.removeAll { it.value > treshold }
 if (builder.isEmpty()) {
@@ -274,8 +274,10 @@ avoiding memory allocations in modification operations leads to significant perf
 Converts a read-only or mutable collection to immutable one.
 If the receiver is already immutable and has the required type, returns it as is.
 
-    fun Iterable<T>.toImmutableList(): ImmutableList<T>
-    fun Iterable<T>.toImmutableSet(): ImmutableSet<T>
+```kotlin
+fun Iterable<T>.toImmutableList(): ImmutableList<T>
+fun Iterable<T>.toImmutableSet(): ImmutableSet<T>
+```
 
 #### toPersistentList/Set/Map
 
@@ -283,8 +285,10 @@ Converts a read-only or mutable collection to persistent one.
 If the receiver is already persistent and has the required type, returns it as is.
 If the receiver is a builder of the required persistent collection type, calls `build` on it and returns the result.
 
-    fun Iterable<T>.toPersistentList(): PersistentList<T>
-    fun Iterable<T>.toPersistentSet(): PersistentSet<T>
+```kotlin
+fun Iterable<T>.toPersistentList(): PersistentList<T>
+fun Iterable<T>.toPersistentSet(): PersistentSet<T>
+```
 
 #### `+` and `-` operators
 
@@ -295,11 +299,13 @@ If the receiver is a builder of the required persistent collection type, calls `
 A quite common pattern with builders arises: get a builder, apply some mutating operations on it,
 transform it back to an immutable collection:
 
-    collection.builder().apply { some_actions_on(this) }.build()
+```kotlin
+collection.builder().apply { some_actions_on(this) }.build()
+```
 
 This pattern could be extracted to an extension function.
 
-```
+```kotlin
 fun <T> PersitentList<T>.mutate(action: (MutableList<T>) -> Unit): PersitentList<T> =
     builder().apply { action(this) }.build()
 ```
