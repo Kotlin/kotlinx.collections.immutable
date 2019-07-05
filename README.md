@@ -9,40 +9,77 @@ For further details see the [proposal](proposal.md).
 ## What's in this library
 ### Interfaces and implementations
 
-This library provides interfaces for immutable persistent collections:
-    
-| Interface | Bases | Implementations |
-| ----------| ----- | --------------- |
-| `ImmutableCollection` | `Collection`
-| `ImmutableList` | `ImmutableCollection`, `List` | `immutableListOf` |
-| `ImmutableSet` | `ImmutableCollection`, `Set` | `immutableSetOf`, `immutableHashSetOf` |
-| `ImmutableMap` | `Map` | `immutableMapOf`, `immutableHashMapOf` |
+This library provides interfaces for immutable and persistent collections.
 
-The default implementations of `ImmutableSet` and `ImmutableMap`, which are returned by `immutableSetOf` and `immutableMapOf`
+#### Immutable collection interfaces    
+ 
+| Interface | Bases 
+| ----------| ----- 
+| `ImmutableCollection` | `Collection` |
+| `ImmutableList` | `ImmutableCollection`, `List` | 
+| `ImmutableSet` | `ImmutableCollection`, `Set` | 
+| `ImmutableMap` | `Map` |
+
+#### Persistent collection interfaces
+
+| Interface | Bases 
+| ----------| ----- 
+| `PersistentCollection` | `ImmutableCollection` | 
+| `PersistentList` | `PersistentCollection`, `ImmutableList` | 
+| `PersistentSet` | `PersistentCollection`, `ImmutableSet` | 
+| `PersistentMap` | `ImmutableMap` |
+
+#### Persistent collection builder interfaces
+
+| Interface | Bases 
+| ----------| ----- 
+| `PersistentCollection.Builder` | `MutableCollection` | 
+| `PersistentList.Builder` | `PersistentCollection.Builder`, `MutableList` | 
+| `PersistentSet.Builder` | `PersistentCollection.Builder`, `MutableSet` | 
+| `PersistentMap.Builder` | `MutableMap` |
+
+
+To instantiate an empty persistent collection or a collection with the specified elements the functions 
+`persistentListOf`, `persistentSetOf`, and `persistentMapOf` can be used.
+
+The default implementations of `PersistentSet` and `PersistentMap`, which are returned by `persistentSetOf` and `persistentMapOf`,
 preserve the element insertion order during iteration. This comes at expense of maintaining more complex data structures.
-If the order of elements doesn't matter, more efficient `immutableHashSetOf` and `immutableHashMapOf` could be used.
+If the order of elements doesn't matter, the more efficient implementations returned by the functions 
+`persistentHashSetOf` and `persistentHashMapOf` could be used.
 
 ### Operations
 
 #### toImmutableList/Set/Map
+
 Converts a read-only or mutable collection to an immutable one.
-If the receiver is already immutable and has the required type, returns itself.
+If the receiver is already immutable and has the required type, returns it as is.
 
 ```kotlin
 fun Iterable<T>.toImmutableList(): ImmutableList<T>
 fun Iterable<T>.toImmutableSet(): ImmutableSet<T>
 ```
 
+#### toPersistentList/Set/Map
+
+Converts a read-only or mutable collection to a persistent one.
+If the receiver is already persistent and has the required type, returns it as is.
+If the receiver is a builder of the required persistent collection type, calls `build` on it and returns the result.
+
+```kotlin
+fun Iterable<T>.toPersistentList(): PersistentList<T>
+fun Iterable<T>.toPersistentSet(): PersistentSet<T>
+```
+
 #### `+` and `-` operators
 
-`plus` and `minus` operators on immutable collections exploit their immutability
+`plus` and `minus` operators on persistent collections exploit their immutability
 and delegate the implementation to the collections themselves. 
 The operation is performed with persistence in mind: the returned immutable collection may share storage 
 with the original collection.
 
 ```kotlin
-val newList = immutableListOf("a", "b") + "c"
-// newList is also ImmutableList
+val newList = persistentListOf("a", "b") + "c"
+// newList is also a PersistentList
 ```
 
 > **Note:** you need to import these operators from `kotlinx.collections.immutable` package
@@ -55,8 +92,8 @@ import kotlinx.collections.immutable.*
    
 #### Mutate
 
-`mutate` extension function simplifies quite common pattern of immutable collection modification: 
-get a builder, apply some mutating operations on it, transform it back to an immutable collection:
+`mutate` extension function simplifies quite common pattern of persistent collection modification: 
+get a builder, apply some mutating operations on it, transform it back to a persistent collection:
 
 ```kotlin
 collection.builder().apply { some_actions_on(this) }.build()
@@ -70,12 +107,11 @@ collection.mutate { some_actions_on(it) }
 
 ## Using in your projects
 
-> Note that these libraries are experimental and are subject to change.
+> Note that the library is experimental and the API is subject to change.
 
-The libraries are published to [kotlinx](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable) bintray repository.
+The library is published to [kotlinx](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable) bintray repository.
 
-These libraries require kotlin compiler version to be at least `1.1.0` and 
-require kotlin runtime of the same version as a dependency.
+The library depends on the Kotlin Standard Library of the version at least `1.3.30`.
 
 ### Maven
 
@@ -98,7 +134,7 @@ Add dependencies (you can also add other modules that you need):
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
     <artifactId>kotlinx-collections-immutable</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
 </dependency>
 ```
 
@@ -117,7 +153,7 @@ repositories {
 Add the dependency:
 
 ```groovy
-compile 'org.jetbrains.kotlinx:kotlinx-collections-immutable:0.1'
+compile 'org.jetbrains.kotlinx:kotlinx-collections-immutable:0.2'
 ```
 
 
