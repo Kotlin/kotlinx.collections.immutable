@@ -210,7 +210,8 @@ Time complexity of operations:
 - `addAll(index, elements)`, `removeAll(elements)`, `removeAll(predicate)` - O(N M), optimizable to O(N+M), where M is the number of elements to be inserted/removed.
 - Iterating elements - O(N).
 
-To optimize frequently used `add(element)` and `removeAt(size - 1)` operations rightmost leaf is referenced directly from the persistent list instance.
+To optimize frequently used `add(element)` and `removeAt(size - 1)` operations rightmost leaf
+is stored out of the trie structure and referenced directly from the persistent list instance.
 This allows to avoid path-copying and gives O(1) time complexity for these two operations.
 
 Small persistent lists, with up to 32 elements, are backed by arrays of corresponding size.
@@ -234,21 +235,26 @@ Time complexity of operations:
 - `putAll(map)` - O(M log<sub>32</sub>N), where M is the number of elements added.
 - Iterating `keys`, `values`, `entries` - O(N).
 
-#### Default persistent ordered hash set
-
-It's backed by the _persistent unordered hash map_, which maps every element in this set to the previous and next elements in insertion order.
-
-Every operation on this set turns into one or more operations on the backing map, e.g.:
-- `add(element)` turns into updating the next reference of the last element (new element becomes the next) and putting new entry with key equal to the specified element.
-- `remove(element)` turns into removing the entry with the key equal to the specified element and updating values for the next and previous elements.
-- `contains(element)` turns into `containsKey(element)`.
-
-Iterating elements in this set takes O(N log<sub>32</sub>N) time.
-
 #### Default persistent ordered hash map
 
-It is implemented the same way as the _persistent ordered hash set_, 
-except that the backing map stores also value beside next and previous keys.
+It's backed by the _persistent unordered hash map_, which maps every key in this map to a 
+triple containing the corresponding value, the previous and the next keys in insertion order.
+
+Every operation on this map turns into one or more operations on the backing map, e.g.:
+- `put(key, value)` turns into updating the next of the last key (the new key becomes the next), and putting a new entry 
+with the specified key and with value equal to a triple containing the specified value, the last key (as previous key) and null next key.
+- `remove(key)` turns into removing the entry with the specified key, and updating values for the next and previous keys.
+- `get(key)` gets delegated to the backing map.
+
+Time complexity of all operations on this map, except iteration, is the same as in 
+backing _persistent unordered hash map_, 
+though with a bigger constant factor in case of modification operations. 
+Iterating entries, keys, or values of this map takes O(N log<sub>32</sub>N) time.
+
+#### Default persistent ordered hash set
+
+It is implemented the same way as the _persistent ordered hash map_, 
+except that the backing map maps every element to a pair containing the previous and the next elements.
 
 #### Builders
 
