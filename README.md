@@ -111,7 +111,7 @@ collection.mutate { some_actions_on(it) }
 
 The library is published to [kotlinx](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable) bintray repository.
 
-The library depends on the Kotlin Standard Library of the version at least `1.3.30`.
+The library depends on the Kotlin Standard Library of the version at least `1.3.40`.
 
 ### Maven
 

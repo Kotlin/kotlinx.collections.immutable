@@ -1,11 +1,15 @@
 pluginManagement {
     repositories {
         maven { url 'https://dl.bintray.com/orangy/maven' }
+        maven { url 'https://dl.bintray.com/kotlin/kotlinx' }
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
         gradlePluginPortal()
     }
 }
 
 rootProject.name = 'Kotlin Immutable Collections'
+
 include ':kotlinx-collections-immutable'
 include ':kotlinx-collections-immutable:tests'
 include ':benchmarks-mpp'
+include ':benchmarks-runner'
