@@ -36,6 +36,10 @@ project('tests') {
         implementation project(path: ':kotlinx-collections-immutable')
         testImplementation 'com.google.guava:guava-testlib:18.0'
     }
+
+    test {
+        maxHeapSize = "1024m"
+    }
 }
 
 compileKotlin {
