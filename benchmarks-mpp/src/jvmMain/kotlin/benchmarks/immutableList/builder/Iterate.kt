@@ -36,6 +36,12 @@ open class Iterate {
         builder = persistentListBuilderAdd(size, immutablePercentage)
     }
 
+    /**
+     * Iterates every element starting from first to last.
+     *
+     * Expected time: nearly constant
+     * Expected memory: none once iterator created
+     */
     @Benchmark
     fun firstToLast(bh: Blackhole) {
         for (e in builder) {
@@ -43,6 +49,12 @@ open class Iterate {
         }
     }
 
+    /**
+     * Iterates every element starting from last to first.
+     *
+     * Expected time: nearly constant
+     * Expected memory: none once iterator created
+     */
     @Benchmark
     fun lastToFirst(bh: Blackhole) {
         val iterator = builder.listIterator(size)

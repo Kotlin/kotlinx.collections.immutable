@@ -29,11 +29,23 @@ open class Add {
     @Param(IP_100, IP_99_09, IP_95, IP_70, IP_50, IP_30, IP_0)
     var immutablePercentage: Double = 0.0
 
+    /**
+     * Adds [size] elements to an empty persistent list builder.
+     *
+     * Expected time: nearly constant.
+     * Expected memory: nearly constant.
+     */
     @Benchmark
     fun addLast(): PersistentList.Builder<String> {
         return persistentListBuilderAdd(size, immutablePercentage)
     }
 
+    /**
+     * Adds [size] elements to an empty persistent list builder and then iterates all elements from first to last.
+     *
+     * Expected time: [addLast] + [Iterate.firstToLast]
+     * Expected memory: [addLast] + [Iterate.firstToLast]
+     */
     @Benchmark
     fun addLastAndIterate(bh: Blackhole) {
         val builder = persistentListBuilderAdd(size, immutablePercentage)
@@ -42,6 +54,12 @@ open class Add {
         }
     }
 
+    /**
+     * Adds [size] elements to an empty persistent list builder and then gets all elements by index from first to last.
+     *
+     * Expected time: [addLast] + [Get.getByIndex]
+     * Expected memory: [addLast] + [Get.getByIndex]
+     */
     @Benchmark
     fun addLastAndGet(bh: Blackhole) {
         val builder = persistentListBuilderAdd(size, immutablePercentage)

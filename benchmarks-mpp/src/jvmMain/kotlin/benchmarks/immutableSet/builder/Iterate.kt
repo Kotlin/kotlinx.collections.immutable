@@ -43,6 +43,12 @@ open class Iterate {
         builder = persistentSetBuilderAdd(implementation, elements, immutablePercentage)
     }
 
+    /**
+     * Iterates all elements.
+     *
+     * Expected time: nearly constant (logarithmic for ordered persistent map)
+     * Expected memory: none once iterator is created.
+     */
     @Benchmark
     fun iterate(bh: Blackhole) {
         for (e in builder) {

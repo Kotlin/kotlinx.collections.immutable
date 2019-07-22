@@ -39,11 +39,23 @@ open class Put {
         keys = generateKeys(hashCodeType, size)
     }
 
+    /**
+     * Adds [size] entries to an empty persistent map.
+     *
+     * Expected time: logarithmic
+     * Expected memory: logarithmic
+     */
     @Benchmark
     fun put(): PersistentMap<IntWrapper, String> {
         return persistentMapPut(implementation, keys)
     }
 
+    /**
+     * Adds [size] entries to an empty persistent map and then gets every value by key.
+     *
+     * Expected time: [put] + [Get.get]
+     * Expected memory: [put] + [Get.get]
+     */
     @Benchmark
     fun putAndGet(bh: Blackhole) {
         val map = persistentMapPut(implementation, keys)
@@ -52,6 +64,12 @@ open class Put {
         }
     }
 
+    /**
+     * Adds [size] entries to an empty persistent map and then iterates all keys.
+     *
+     * Expected time: [put] + [Iterate.iterateKeys]
+     * Expected memory: [put] + [Iterate.iterateKeys]
+     */
     @Benchmark
     fun putAndIterateKeys(bh: Blackhole) {
         val map = persistentMapPut(implementation, keys)

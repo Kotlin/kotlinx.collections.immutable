@@ -47,6 +47,12 @@ open class Contains {
             elements = generateElements(hashCodeType, size)
     }
 
+    /**
+     * Requests if every element is contained.
+     *
+     * Expected time: logarithmic
+     * Expected memory: none
+     */
     @Benchmark
     fun contains(bh: Blackhole) {
         repeat(times = size) { index ->

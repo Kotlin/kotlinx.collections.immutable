@@ -48,6 +48,12 @@ open class Remove {
         }
     }
 
+    /**
+     * Adds [size] elements to an empty persistent set builder and then removes each element.
+     *
+     * Expected time: [Add.add] + logarithmic
+     * Expected memory: [Add.add] + logarithmic
+     */
     @Benchmark
     fun addAndRemove(): PersistentSet.Builder<IntWrapper> {
         val builder = persistentSetBuilderAdd(implementation, elements, immutablePercentage)

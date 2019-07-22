@@ -44,6 +44,12 @@ open class Get {
             keys = generateKeys(hashCodeType, size)
     }
 
+    /**
+     * Gets every value by key.
+     *
+     * Expected time: logarithmic
+     * Expected memory: none
+     */
     @Benchmark
     fun get(bh: Blackhole) {
         repeat(times = size) { index ->

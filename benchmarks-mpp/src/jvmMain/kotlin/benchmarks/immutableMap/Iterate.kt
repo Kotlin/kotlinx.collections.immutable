@@ -39,6 +39,12 @@ open class Iterate {
         persistentMap = persistentMapPut(implementation, generateKeys(hashCodeType, size))
     }
 
+    /**
+     * Iterates all keys.
+     *
+     * Expected time: nearly constant (logarithmic for ordered persistent map)
+     * Expected memory: none once iterator is created.
+     */
     @Benchmark
     fun iterateKeys(bh: Blackhole) {
         for (k in persistentMap.keys) {
@@ -46,6 +52,12 @@ open class Iterate {
         }
     }
 
+    /**
+     * Iterates all values.
+     *
+     * Expected time: nearly constant (logarithmic for ordered persistent map)
+     * Expected memory: none once iterator is created.
+     */
     @Benchmark
     fun iterateValues(bh: Blackhole) {
         for (v in persistentMap.values) {
@@ -53,6 +65,12 @@ open class Iterate {
         }
     }
 
+    /**
+     * Iterates all entries.
+     *
+     * Expected time: nearly constant (logarithmic for ordered persistent map)
+     * Expected memory: constant.
+     */
     @Benchmark
     fun iterateEntries(bh: Blackhole) {
         for (e in persistentMap) {

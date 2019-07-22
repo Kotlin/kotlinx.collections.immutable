@@ -26,11 +26,23 @@ open class Add {
     @Param(BM_1, BM_10, BM_100, BM_1000, BM_10000, BM_100000, BM_1000000, BM_10000000)
     var size: Int = 0
 
+    /**
+     * Adds [size] elements to an empty persistent list.
+     *
+     * Expected time: nearly constant.
+     * Expected memory: for size in 1..32 - O(size), nearly constant otherwise.
+     */
     @Benchmark
     fun addLast(): ImmutableList<String> {
         return persistentListAdd(size)
     }
 
+    /**
+     * Adds [size] elements to an empty persistent list and then iterates all elements from first to last.
+     *
+     * Expected time: [addLast] + [Iterate.firstToLast]
+     * Expected memory: [addLast] + [Iterate.firstToLast]
+     */
     @Benchmark
     fun addLastAndIterate(bh: Blackhole) {
         val list = persistentListAdd(size)
@@ -39,6 +51,12 @@ open class Add {
         }
     }
 
+    /**
+     * Adds [size] elements to an empty persistent list and then gets all elements by index from first to last.
+     *
+     * Expected time: [addLast] + [Get.getByIndex]
+     * Expected memory: [addLast] + [Get.getByIndex]
+     */
     @Benchmark
     fun addLastAndGet(bh: Blackhole) {
         val list = persistentListAdd(size)

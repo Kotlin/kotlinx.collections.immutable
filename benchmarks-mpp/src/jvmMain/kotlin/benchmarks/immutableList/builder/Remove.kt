@@ -28,6 +28,12 @@ open class Remove {
     @Param(IP_100, IP_99_09, IP_95, IP_70, IP_50, IP_30, IP_0)
     var immutablePercentage: Double = 0.0
 
+    /**
+     * Adds [size] elements to an empty persistent list builder and then removes each element by index starting from last to first.
+     *
+     * Expected time: [Add.addLast] + nearly constant.
+     * Expected memory: [Add.addLast] + nearly constant.
+     */
     @Benchmark
     fun addAndRemoveLast(): PersistentList.Builder<String> {
         val builder = persistentListBuilderAdd(size, immutablePercentage)
