@@ -14,10 +14,11 @@
     * `PersistentList` extends `ImmutableList` and `PersistentCollection`, and provides modification operations
     * `PersistentSet` extends `ImmutableSet` and `PersistentCollection`, and provides modification operations
     * `PersistentMap` extends `ImmutableMap`, and provides modification operations and builder
-- `plus`, `minus` and `mutate` extension functions are available only persistent collections
+- `plus`, `minus` and `mutate` extension functions are available only for persistent collections
 - Deprecate `immutableXOf()` top-level functions and introduce `persistentXOf()` 
 - `toImmutableX()` extension functions return `ImmutableX`
 - Introduce `toPersistentX()` extension functions that return `PersistentX`
+- Document public API
 
 #### Replace PCollection-based prototypes with custom performant implementations
 

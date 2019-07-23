@@ -39,13 +39,13 @@ This library provides interfaces for immutable and persistent collections.
 | `PersistentMap.Builder` | `MutableMap` |
 
 
-To instantiate an empty persistent collection or a collection with the specified elements the functions 
-`persistentListOf`, `persistentSetOf`, and `persistentMapOf` can be used.
+To instantiate an empty persistent collection or a collection with the specified elements use the functions 
+`persistentListOf`, `persistentSetOf`, and `persistentMapOf`.
 
 The default implementations of `PersistentSet` and `PersistentMap`, which are returned by `persistentSetOf` and `persistentMapOf`,
 preserve the element insertion order during iteration. This comes at expense of maintaining more complex data structures.
 If the order of elements doesn't matter, the more efficient implementations returned by the functions 
-`persistentHashSetOf` and `persistentHashMapOf` could be used.
+`persistentHashSetOf` and `persistentHashMapOf` can be used.
 
 ### Operations
 
