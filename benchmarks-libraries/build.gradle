@@ -52,6 +52,8 @@ jmh {
     benchmarkMode = ['avgt']
     timeUnit = "us"
 
+    include = ["immutableList"]
+
     benchmarkParameters = [
             'size':['1', '10', '100', '1000', '10000'], 
 //            'implementation': ['hash'], 
