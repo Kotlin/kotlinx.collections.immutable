@@ -153,7 +153,7 @@ repositories {
 Add the dependency:
 
 ```groovy
-compile 'org.jetbrains.kotlinx:kotlinx-collections-immutable:0.2'
+implementation 'org.jetbrains.kotlinx:kotlinx-collections-immutable:0.2'
 ```
 
 
