@@ -47,6 +47,8 @@ open class Get {
     /**
      * Gets every value by key.
      *
+     * Measures mean time and memory spent per `get` operation.
+     *
      * Expected time: logarithmic
      * Expected memory: none
      */

@@ -39,6 +39,8 @@ open class Set {
     /**
      * Updates each element by index starting from first to last.
      *
+     * Measures mean time and memory spent per `set` operation.
+     *
      * Expected time: logarithmic
      * Expected memory: logarithmic
      */
@@ -52,6 +54,8 @@ open class Set {
 
     /**
      * Updates each element by index randomly.
+     *
+     * Measures mean time and memory spent per `set` operation.
      *
      * Expected time: logarithmic
      * Expected memory: logarithmic

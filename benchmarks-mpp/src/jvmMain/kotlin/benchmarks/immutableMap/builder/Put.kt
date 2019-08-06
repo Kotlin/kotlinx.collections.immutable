@@ -45,6 +45,8 @@ open class Put {
     /**
      * Adds [size] entries to an empty persistent map builder.
      *
+     * Measures mean time and memory spent per `put` operation.
+     *
      * Expected time: logarithmic
      * Expected memory: logarithmic
      */
@@ -55,6 +57,8 @@ open class Put {
 
     /**
      * Adds [size] entries to an empty persistent map builder and then gets every value by key.
+     *
+     * Measures mean time and memory spent per `put` and `get` operations.
      *
      * Expected time: [put] + [Get.get]
      * Expected memory: [put] + [Get.get]
@@ -69,6 +73,8 @@ open class Put {
 
     /**
      * Adds [size] entries to an empty persistent map builder and then iterates all keys.
+     *
+     * Measures mean time and memory spent per `put` and `next` operations.
      *
      * Expected time: [put] + [Iterate.iterateKeys]
      * Expected memory: [put] + [Iterate.iterateKeys]

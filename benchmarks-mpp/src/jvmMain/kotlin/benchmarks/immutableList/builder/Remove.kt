@@ -31,6 +31,8 @@ open class Remove {
     /**
      * Adds [size] elements to an empty persistent list builder and then removes each element by index starting from last to first.
      *
+     * Measures mean time and memory spent per `add` and `removeAt` operations.
+     *
      * Expected time: [Add.addLast] + nearly constant.
      * Expected memory: [Add.addLast] + nearly constant.
      */

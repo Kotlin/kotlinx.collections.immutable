@@ -37,6 +37,8 @@ open class Remove {
     /**
      * Removes all elements by index starting from last to first.
      *
+     * Measures mean time and memory spent per `removeAt` operation.
+     *
      * Expected time: nearly constant.
      * Expected memory: for size in 1..32 - O(size), nearly constant otherwise.
      */

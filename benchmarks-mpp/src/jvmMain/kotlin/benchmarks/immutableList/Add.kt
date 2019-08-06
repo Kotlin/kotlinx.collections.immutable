@@ -29,6 +29,8 @@ open class Add {
     /**
      * Adds [size] elements to an empty persistent list.
      *
+     * Measures mean time and memory spent per `add` operation.
+     *
      * Expected time: nearly constant.
      * Expected memory: for size in 1..32 - O(size), nearly constant otherwise.
      */
@@ -39,6 +41,8 @@ open class Add {
 
     /**
      * Adds [size] elements to an empty persistent list and then iterates all elements from first to last.
+     *
+     * Measures mean time and memory spent per `add` and `next` operations.
      *
      * Expected time: [addLast] + [Iterate.firstToLast]
      * Expected memory: [addLast] + [Iterate.firstToLast]
@@ -53,6 +57,8 @@ open class Add {
 
     /**
      * Adds [size] elements to an empty persistent list and then gets all elements by index from first to last.
+     *
+     * Measures mean time and memory spent per `add` and `get` operations.
      *
      * Expected time: [addLast] + [Get.getByIndex]
      * Expected memory: [addLast] + [Get.getByIndex]

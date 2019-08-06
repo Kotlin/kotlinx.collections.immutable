@@ -37,6 +37,8 @@ open class Iterate {
     /**
      * Iterates every element starting from first to last.
      *
+     * Measures mean time and memory spent per `next` operation.
+     *
      * Expected time: nearly constant
      * Expected memory: none once iterator created
      */
@@ -49,6 +51,8 @@ open class Iterate {
 
     /**
      * Iterates every element starting from last to first.
+     *
+     * Measures mean time and memory spent per `previous` operation.
      *
      * Expected time: nearly constant
      * Expected memory: none once iterator created

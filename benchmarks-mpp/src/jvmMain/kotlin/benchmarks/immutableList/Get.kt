@@ -37,6 +37,8 @@ open class Get {
     /**
      * Gets every element by index starting from first to last.
      *
+     * Measures mean time and memory spent per `get` operation.
+     *
      * Expected time: logarithmic
      * Expected memory: none
      */

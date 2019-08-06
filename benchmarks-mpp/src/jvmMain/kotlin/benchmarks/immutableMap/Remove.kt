@@ -47,6 +47,8 @@ open class Remove {
     /**
      * Removes each entry by key.
      *
+     * Measures mean time and memory spent per `remove` operation.
+     *
      * Expected time: logarithmic
      * Expected memory: logarithmic
      */

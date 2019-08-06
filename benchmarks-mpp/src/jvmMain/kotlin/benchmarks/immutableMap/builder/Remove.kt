@@ -51,6 +51,8 @@ open class Remove {
     /**
      * Adds [size] entries to an empty persistent map builder and then removes each entry by key.
      *
+     * Measures mean time and memory spent per `put` and `remove` operations.
+     *
      * Expected time: [Put.put] + logarithmic
      * Expected memory: [Put.put] + logarithmic
      */

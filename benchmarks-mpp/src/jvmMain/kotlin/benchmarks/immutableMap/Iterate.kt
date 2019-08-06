@@ -42,6 +42,8 @@ open class Iterate {
     /**
      * Iterates all keys.
      *
+     * Measures mean time and memory spent per `next` operation.
+     *
      * Expected time: nearly constant (logarithmic for ordered persistent map)
      * Expected memory: none once iterator is created.
      */
@@ -55,6 +57,8 @@ open class Iterate {
     /**
      * Iterates all values.
      *
+     * Measures mean time and memory spent per `next` operation.
+     *
      * Expected time: nearly constant (logarithmic for ordered persistent map)
      * Expected memory: none once iterator is created.
      */
@@ -67,6 +71,8 @@ open class Iterate {
 
     /**
      * Iterates all entries.
+     *
+     * Measures mean time and memory spent per `next` operation.
      *
      * Expected time: nearly constant (logarithmic for ordered persistent map)
      * Expected memory: constant.

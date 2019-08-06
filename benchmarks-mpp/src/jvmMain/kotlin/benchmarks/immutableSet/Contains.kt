@@ -47,6 +47,8 @@ open class Contains {
     /**
      * Requests if every element is contained.
      *
+     * Measures mean time and memory spent per `contains` operation.
+     *
      * Expected time: logarithmic
      * Expected memory: none
      */
