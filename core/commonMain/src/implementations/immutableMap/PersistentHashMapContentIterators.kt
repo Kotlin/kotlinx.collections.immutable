@@ -116,7 +116,7 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K,
         }
         if (path[pathIndex].hasNextNode()) {
             val node = path[pathIndex].currentNode()
-            if (pathIndex == TRIE_MAX_HEIGHT - 1) {     // collision
+            if (node.isCollision()) {
                 path[pathIndex + 1].reset(node.buffer, node.buffer.size)
             } else {
                 path[pathIndex + 1].reset(node.buffer, ENTRY_SIZE * node.entryCount())

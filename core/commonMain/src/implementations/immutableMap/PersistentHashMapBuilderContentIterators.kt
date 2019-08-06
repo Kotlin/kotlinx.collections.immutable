@@ -79,7 +79,7 @@ internal abstract class PersistentHashMapBuilderBaseIterator<K, V, T>(private va
 
         val nodeIndex = node.nodeIndex(keyPositionMask)
         val targetNode = node.nodeAtIndex(nodeIndex)
-        if (shift == MAX_SHIFT) {   // collision
+        if (targetNode.isCollision()) {
             path[pathIndex].reset(node.buffer, node.buffer.size, 0)
             while (path[pathIndex].currentKey() != key) {
                 path[pathIndex].moveToNextKey()
