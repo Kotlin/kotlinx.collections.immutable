@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.mutate
 
 /**
  * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having
@@ -77,7 +78,6 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         }
         return newRootNode
     }
-
 
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
@@ -259,7 +259,11 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    override fun builder(): PersistentList.Builder<E> {
+    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
+        return builder().also { it.removeAllWithPredicate(predicate) }.build()
+    }
+
+    override fun builder(): PersistentVectorBuilder<E> {
         return PersistentVectorBuilder(this, root, tail, rootShift)
     }
 

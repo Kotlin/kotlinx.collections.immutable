@@ -5,10 +5,9 @@
 
 package tests.contract
 
-import com.google.common.collect.testing.testers.CollectionClearTester
-import com.google.common.collect.testing.testers.ListRemoveAtIndexTester
-import com.google.common.collect.testing.testers.ListSubListTester
+import com.google.common.collect.testing.testers.*
 import junit.framework.*
+import java.lang.IllegalArgumentException
 
 open class GuavaImmutableCollectionBaseTest: TestListener {
     override fun addFailure(test: Test, e: AssertionFailedError) = throw e
@@ -35,6 +34,17 @@ open class GuavaImmutableCollectionBaseTest: TestListener {
             // `AbstractList` implementation of sublist iterator is not fail-fast.
             // Seems we need to override the `subList()` method in `PersistentVectorBuilder`
             // to return custom sublist implementation with fail-fast iterator.
+            return
+        }
+        if (e is IllegalArgumentException
+                && (test is CollectionAddAllTester<*> && test.testMethodName == "testAddAll_nullCollectionReference"
+                        || test is CollectionRemoveAllTester<*> && test.testMethodName == "testRemoveAll_nullCollectionReferenceEmptySubject"
+                        || test is CollectionRemoveAllTester<*> && test.testMethodName == "testRemoveAll_nullCollectionReferenceNonEmptySubject"
+                        || test is ListAddAllAtIndexTester<*> && test.testMethodName == "testAddAllAtIndex_nullCollectionReference")) {
+            // These test cases check that `addAll(elements)`, `addAll(index, elements)` and `removeAll(elements)`
+            // throw `NullPointerException` when null collection is passed.
+            //
+            // Kotlin throws IllegalArgumentException as those methods has Non-Null collection type parameter.
             return
         }
         throw e

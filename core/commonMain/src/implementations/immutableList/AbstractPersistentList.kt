@@ -31,11 +31,7 @@ abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractList<E>() 
     }
 
     override fun removeAll(elements: Collection<E>): PersistentList<E> {
-        return mutate { it.removeAll(elements) }
-    }
-
-    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
-        return mutate { it.removeAll(predicate) }
+        return removeAll { elements.contains(it) }
     }
 
     override fun clear(): PersistentList<E> {
