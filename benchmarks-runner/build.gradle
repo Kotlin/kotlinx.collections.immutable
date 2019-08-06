@@ -64,6 +64,14 @@ task benchmarkAllSets(group: "Benchmark") {
     dependsOn benchmarkOrderedSetBuilder
 }
 
+// hash based
+task benchmarkAllHashBaseds(group: "Benchmark") {
+    dependsOn benchmarkHashSet
+    dependsOn benchmarkHashSetBuilder
+    dependsOn benchmarkHashMap
+    dependsOn benchmarkHashMapBuilder
+}
+
 // list
 task benchmarkList(type: JavaExec, group: "Benchmark") {
     main = 'runners.ListRunnerKt'

@@ -43,10 +43,10 @@ val jvmArgs = arrayOf("-Xms2048m", "-Xmx2048m")
 
 const val forks = 1
 const val warmupIterations = 10
-const val measurementIterations = 20
-val warmupTime = TimeValue.milliseconds(500)!!
-val measurementTime = TimeValue.milliseconds(1000)!!
+const val measurementIterations = 10
+val warmupTime = TimeValue.milliseconds(200)!!
+val measurementTime = TimeValue.milliseconds(200)!!
 
 val sizeParamValues = arrayOf("1", "10", "100", "1000", "10000", "100000", "1000000")
-val hashCodeTypeParamValues = arrayOf("ascending", "random", "collision", "nonExisting")
-val immutablePercentageParamValues = arrayOf("0.0", "20.0", "50.0", "90.0")
+val hashCodeTypeParamValues = arrayOf(/*"ascending", */"random", "collision"/*, "nonExisting"*/)
+val immutablePercentageParamValues = arrayOf("0.0"/*, "20.0", "50.0", "90.0"*/)
