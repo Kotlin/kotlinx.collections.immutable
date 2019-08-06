@@ -31,4 +31,32 @@ open class Remove {
         }
         return list
     }
+
+    /**
+     * Removes one element from the beginning.
+     *
+     * Measures (time and memory spent on `removeAt` operation) / size.
+     *
+     * Expected time: nearly constant.
+     * Expected memory: nearly constant.
+     */
+    @Benchmark
+    fun removeFirst(): ImmutableList<String> {
+        val list = persistentList
+        return list.removeAt(0)
+    }
+
+    /**
+     * Removes one element from the middle.
+     *
+     * Measures (time and memory spent on `removeAt` operation) / size.
+     *
+     * Expected time: nearly constant.
+     * Expected memory: nearly constant.
+     */
+    @Benchmark
+    fun removeMiddle(): ImmutableList<String> {
+        val list = persistentList
+        return list.removeAt(size / 2)
+    }
 }

@@ -25,4 +25,34 @@ open class Remove {
         }
         return builder
     }
+
+    /**
+     * Adds [size] elements to an empty persistent list builder
+     * and then removes one element from the beginning.
+     *
+     * Measures (mean time and memory spent per `add` operation) + (time and memory spent on `removeAt` operation) / size.
+     *
+     * Expected time: [Add.addLast] + nearly constant.
+     * Expected memory: [Add.addLast] + nearly constant.
+     */
+    @Benchmark
+    fun addAndRemoveFirst(): String {
+        val builder = persistentListBuilderAdd(size, immutablePercentage)
+        return builder.removeAt(0)
+    }
+
+    /**
+     * Adds [size] elements to an empty persistent list builder
+     * and then removes one element from the middle.
+     *
+     * Measures (mean time and memory spent per `add` operation) + (time and memory spent on `removeAt` operation) / size.
+     *
+     * Expected time: [Add.addLast] + nearly constant.
+     * Expected memory: [Add.addLast] + nearly constant.
+     */
+    @Benchmark
+    fun addAndRemoveMiddle(): String {
+        val builder = persistentListBuilderAdd(size, immutablePercentage)
+        return builder.removeAt(size / 2)
+    }
 }

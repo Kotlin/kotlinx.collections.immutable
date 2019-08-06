@@ -483,6 +483,97 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
+    fun addAllAtIndexTests() {
+        val maxBufferSize = 32
+
+        val listSizes = listOf(0, 1, 10, 31, 32, 33, 64, 65, 100, 1024, 1056, 1057, 10000, 100000).filter {
+            it <= NForAlgorithmComplexity.O_NN
+        }
+
+        for (initialSize in listSizes) {
+
+            val initialElements = List(initialSize) { it }
+            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.add(element) }
+
+            val addIndex = mutableListOf(
+                    initialSize // append
+            )
+            if (initialSize > 0) {
+                addIndex.add(0) // prepend
+                addIndex.add(Random.nextInt(initialSize)) // at random index
+            }
+            if (initialSize > maxBufferSize) {
+                val rootSize = (initialSize - 1) and (maxBufferSize - 1).inv()
+                val tailSize = initialSize - rootSize
+                addIndex.add(Random.nextInt(maxBufferSize)) // first leaf
+                addIndex.add(rootSize + Random.nextInt(tailSize)) // tail
+                addIndex.add(rootSize - Random.nextInt(maxBufferSize)) // last leaf
+                addIndex.add(rootSize) // after the last leaf
+            }
+
+            val addSize = Random.nextInt(maxBufferSize * 2)
+
+            for (index in addIndex) {
+                for (size in addSize..(addSize + maxBufferSize)) {
+
+                    val elementsToAdd = List(size) { initialSize + it }
+                    val builder = list.builder().also { it.addAll(index, elementsToAdd) }
+
+                    val expected = initialElements.toMutableList().also { it.addAll(index, elementsToAdd) }
+                    assertEquals(expected, builder)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun removeAllTests() {
+        val maxBufferSize = 32
+
+        val listSizes = listOf(0, 1, 10, 31, 32, 33, 64, 65, 100, 1024, 1056, 1057, 10000, 33000).filter {
+            it <= NForAlgorithmComplexity.O_NN
+        }
+
+        for (initialSize in listSizes) {
+
+            val initialElements = List(initialSize) { it }
+            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.add(element) }
+
+            val removeElements = mutableListOf(
+                    initialElements // all
+            )
+            if (initialSize > 0) {
+                removeElements.add(emptyList()) // none
+                removeElements.add(List(1) { Random.nextInt(initialSize) }) // a random element
+                removeElements.add(List(maxBufferSize) { Random.nextInt(initialSize) }) // random elements
+                removeElements.add(List(initialSize / 2) { Random.nextInt(initialSize) }) // ~half elements
+                removeElements.add(List(initialSize) { Random.nextInt(initialSize) }) // ~all elements
+            }
+            if (initialSize > maxBufferSize) {
+                val rootSize = (initialSize - 1) and (maxBufferSize - 1).inv()
+                val tailSize = initialSize - rootSize
+                removeElements.add(List(maxBufferSize) { it }) // first leaf
+                removeElements.add(List(tailSize) { rootSize + it }) // tail
+                removeElements.add(List(maxBufferSize) { rootSize - it }) // last leaf
+            }
+
+            for (elements in removeElements) {
+                val expected = initialElements.toMutableList().also { it.removeAll(elements) }
+
+                val builder = list.builder().also { it.removeAll(elements) }
+
+                val builderPredicate = list.builder().also {
+                    val hashSet = elements.toHashSet()
+                    it.removeAll { e -> hashSet.contains(e) }
+                }
+
+                assertEquals(expected, builder)
+                assertEquals(expected, builderPredicate)
+            }
+        }
+    }
+
+    @Test
     fun randomOperationsTests() {
         val vectorGen = mutableListOf(List(20) { persistentListOf<Int>() })
         val expected = mutableListOf(List(20) { listOf<Int>() })

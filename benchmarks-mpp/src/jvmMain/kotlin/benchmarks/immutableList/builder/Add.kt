@@ -38,4 +38,36 @@ open class Add {
             bh.consume(builder[i])
         }
     }
+
+    /**
+     * Adds [size] - 1 elements to an empty persistent list builder
+     * and then inserts one element at the beginning.
+     *
+     * Measures mean time and memory spent per `add` operation.
+     *
+     * Expected time: nearly constant.
+     * Expected memory: nearly constant.
+     */
+    @Benchmark
+    fun addFirst(): PersistentList.Builder<String> {
+        val builder = persistentListBuilderAdd(size - 1, immutablePercentage)
+        builder.add(0, "another element")
+        return builder
+    }
+
+    /**
+     * Adds [size] - 1 elements to an empty persistent list builder
+     * and then inserts one element at the middle.
+     *
+     * Measures mean time and memory spent per `add` operation.
+     *
+     * Expected time: nearly constant.
+     * Expected memory: nearly constant.
+     */
+    @Benchmark
+    fun addMiddle(): PersistentList.Builder<String> {
+        val builder = persistentListBuilderAdd(size - 1, immutablePercentage)
+        builder.add(size / 2, "another element")
+        return builder
+    }
 }

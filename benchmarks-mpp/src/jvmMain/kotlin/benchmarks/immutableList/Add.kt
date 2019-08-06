@@ -35,4 +35,32 @@ open class Add {
             bh.consume(list[i])
         }
     }
+
+    /**
+     * Adds [size] - 1 elements to an empty persistent list
+     * and then inserts one element at the beginning.
+     *
+     * Measures mean time and memory spent per `add` operation.
+     *
+     * Expected time: nearly constant.
+     * Expected memory: nearly constant.
+     */
+    @Benchmark
+    fun addFirst(): ImmutableList<String> {
+        return persistentListAdd(size - 1).add(0, "another element")
+    }
+
+    /**
+     * Adds [size] - 1 elements to an empty persistent list
+     * and then inserts one element at the middle.
+     *
+     * Measures mean time and memory spent per `add` operation.
+     *
+     * Expected time: nearly constant.
+     * Expected memory: nearly constant.
+     */
+    @Benchmark
+    fun addMiddle(): ImmutableList<String> {
+        return persistentListAdd(size - 1).add(size / 2, "another element")
+    }
 }
