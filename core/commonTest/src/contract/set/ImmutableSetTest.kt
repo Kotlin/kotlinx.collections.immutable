@@ -14,15 +14,22 @@ import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {
     override fun <T> immutableSetOf(vararg elements: T) = persistentHashSetOf(*elements)
+    override fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>) {
+        assertNotSame(builder.build(), builder.toPersistentSet(), "toPersistent shouldn't call build()")
+    }
 }
 class ImmutableOrderedSetTest : ImmutableSetTestBase() {
     override fun <T> immutableSetOf(vararg elements: T) = persistentSetOf(*elements)
     override fun <T> compareSets(expected: Set<T>, actual: Set<T>) = compare(expected, actual) { setBehavior(ordered = true) }
+    override fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>) {
+        assertSame(builder.build(), builder.toPersistentSet(), "toPersistent should call build()")
+    }
 }
 
 abstract class ImmutableSetTestBase {
-
     abstract fun <T> immutableSetOf(vararg elements: T): PersistentSet<T>
+    abstract fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>)
+
     fun <T> immutableSetOf(elements: Collection<T>) = immutableSetOf<T>() + elements
 
     open fun <T> compareSets(expected: Set<T>, actual: Set<T>) = compareSetsUnordered(expected, actual)
@@ -103,8 +110,8 @@ abstract class ImmutableSetTestBase {
 
         val set2 = builder.toImmutableSet()
         assertTrue(set2 === set, "toImmutable calls build()")
-        val set3 = builder.toPersistentSet()
-        assertTrue(set3 === set, "toPersistent calls build()")
+
+        testBuilderToPersistentSet(builder)
 
         with(set) {
             testMutation { add('K') }

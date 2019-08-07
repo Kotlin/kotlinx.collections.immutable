@@ -13,7 +13,9 @@ import kotlinx.collections.immutable.implementations.immutableMap.PersistentHash
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSetBuilder
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
 import kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSet
+import kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSetBuilder
 
 //@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 //inline fun <T> @kotlin.internal.Exact ImmutableCollection<T>.mutate(mutator: (MutableCollection<T>) -> Unit): ImmutableCollection<T> = builder().apply(mutator).build()
@@ -593,9 +595,9 @@ fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
  * Elements of the returned set are iterated in the same order as in this collection
  */
 fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
-        this as? PersistentSet<T>
-        ?: (this as? PersistentSet.Builder)?.build()
-        ?: persistentSetOf<T>() + this
+        this as? PersistentOrderedSet<T>
+        ?: (this as? PersistentOrderedSetBuilder)?.build()
+        ?: PersistentOrderedSet.emptyOf<T>() + this
 
 /**
  * Returns a persistent set containing all elements from this set.
@@ -621,7 +623,7 @@ fun <T> Set<T>.toPersistentHashSet(): PersistentSet<T>
 fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
     = this as? ImmutableMap
         ?: (this as? PersistentMap.Builder)?.build()
-        ?: PersistentOrderedMap.emptyOf<K, V>().putAll(this)
+        ?: persistentMapOf<K, V>().putAll(this)
 
 /**
  * Returns a persistent map containing all entries from this map.
@@ -632,8 +634,8 @@ fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
  * Entries of the returned map are iterated in the same order as in this map.
  */
 fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
-    = this as? PersistentMap<K, V>
-        ?: (this as? PersistentMap.Builder<K, V>)?.build()
+    = this as? PersistentOrderedMap<K, V>
+        ?: (this as? PersistentOrderedMapBuilder<K, V>)?.build()
         ?: PersistentOrderedMap.emptyOf<K, V>().putAll(this)
 
 /**
@@ -645,6 +647,6 @@ fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
  * Order of the entries in the returned map is unspecified.
  */
 fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
-        = this as? PersistentMap
+        = this as? PersistentHashMap
         ?: (this as? PersistentHashMapBuilder<K, V>)?.build()
         ?: PersistentHashMap.emptyOf<K, V>().putAll(this)
