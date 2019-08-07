@@ -46,13 +46,13 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
     override fun remove(element: E): Boolean {
         val size = this.size
         @Suppress("UNCHECKED_CAST")
-        node = node.mutableRemove(element.hashCode(), element, 0, this) ?: TrieNode.EMPTY as TrieNode<E>
+        node = node.mutableRemove(element.hashCode(), element, 0, this) ?: CompactTrieNode.EMPTY as TrieNode<E>
         return size != this.size
     }
 
     override fun clear() {
         @Suppress("UNCHECKED_CAST")
-        node = TrieNode.EMPTY as TrieNode<E>
+        node = CompactTrieNode.EMPTY as TrieNode<E>
         size = 0
     }
 

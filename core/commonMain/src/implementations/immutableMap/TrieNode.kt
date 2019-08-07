@@ -12,7 +12,6 @@ internal const val MAX_BRANCHING_FACTOR = 32
 internal const val LOG_MAX_BRANCHING_FACTOR = 5
 internal const val MAX_BRANCHING_FACTOR_MINUS_ONE = MAX_BRANCHING_FACTOR - 1
 internal const val ENTRY_SIZE = 2
-internal const val MAX_SHIFT = 30
 
 /**
  * Gets trie index segment of the specified [index] at the level specified by [shift].
