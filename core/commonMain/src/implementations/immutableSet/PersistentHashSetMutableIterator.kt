@@ -48,7 +48,7 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
 
         val position = 1 shl ((hashCode shr (pathIndex * LOG_MAX_BRANCHING_FACTOR)) and MAX_BRANCHING_FACTOR_MINUS_ONE)
         @UseExperimental(ExperimentalStdlibApi::class)
-        val index = ((node as CompactTrieNode<*>).bitmap and (position - 1)).countOneBits()
+        val index = (node.bitmap and (position - 1)).countOneBits()
 
         path[pathIndex].reset(node.buffer, index)
 

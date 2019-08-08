@@ -177,7 +177,9 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
     fun collisionTests() {
         var set = persistentHashSetOf<IntWrapper>()
 
-        assertTrue(set.add(IntWrapper(1, 1)).contains(IntWrapper(1, 1)))
+        val oneWrapper = IntWrapper(1, 1)
+        val twoWrapper = IntWrapper(2, 1)
+        assertTrue(set.add(oneWrapper).add(twoWrapper).run { contains(oneWrapper) && contains(twoWrapper) })
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 

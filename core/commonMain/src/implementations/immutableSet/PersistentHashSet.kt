@@ -52,7 +52,7 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
     }
 
     internal companion object {
-        private val EMPTY = PersistentHashSet(CompactTrieNode.EMPTY, 0)
+        private val EMPTY = PersistentHashSet(TrieNode.EMPTY, 0)
         internal fun <E> emptyOf(): PersistentSet<E> = PersistentHashSet.EMPTY
     }
 }

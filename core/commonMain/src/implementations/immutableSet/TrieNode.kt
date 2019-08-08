@@ -37,147 +37,11 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
     return newBuffer
 }
 
-internal interface TrieNode<E> {
-    val buffer: Array<Any?>
-
-    fun isCollision(): Boolean
-
-    fun contains(elementHash: Int, element: E, shift: Int): Boolean
-
-    fun add(elementHash: Int, element: E, shift: Int): TrieNode<E>
-
-    fun mutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E>
-
-    fun remove(elementHash: Int, element: E, shift: Int): TrieNode<E>?
-
-    fun mutableRemove(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E>?
-}
-
-
-private class CollisionTrieNode<E>(
-        val collisionHash: Int,
-        override var buffer: Array<Any?>,
-        val ownedBy: MutabilityOwnership?
-): TrieNode<E> {
-
-    constructor(buffer: Array<Any?>, collisionHash: Int) : this(collisionHash, buffer, null)
-
-    private fun lastBits(hash: Int, shift: Int): Int {
-        return hash and ((1 shl shift) - 1)
-    }
-
-    private fun makeNode(elementHash: Int, element: E, shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
-        assert(elementHash != collisionHash)
-
-        val collisionBits = indexSegment(collisionHash, shift)
-        val elementBits = indexSegment(elementHash, shift)
-
-        if (collisionBits != elementBits) {
-            val nodeBuffer = if (collisionBits < elementBits) {
-                arrayOf<Any?>(this, element)
-            } else {
-                arrayOf<Any?>(element, this)
-            }
-            return CompactTrieNode((1 shl collisionBits) or (1 shl elementBits), nodeBuffer, owner)
-        }
-
-        val node = makeNode(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR, owner)
-        return CompactTrieNode<E>(1 shl collisionBits, arrayOf(node), owner)
-    }
-
-    override fun isCollision(): Boolean {
-        return true
-    }
-
-    override fun contains(elementHash: Int, element: E, shift: Int): Boolean {
-//        assert(lastBits(elementHash, shift) == lastBits(collisionHash, shift))
-
-        if (collisionHash != elementHash) {
-            return false
-        }
-        return buffer.contains(element)
-    }
-
-    override fun add(elementHash: Int, element: E, shift: Int): TrieNode<E> {
-//        assert(lastBits(elementHash, shift) == lastBits(collisionHash, shift))
-
-        if (collisionHash != elementHash) {
-            return makeNode(elementHash, element, shift, null)
-        }
-        if (buffer.contains(element)) {
-            return this
-        }
-        return CollisionTrieNode(buffer + element, collisionHash)
-    }
-
-    override fun mutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
-//        assert(lastBits(elementHash, shift) == lastBits(collisionHash, shift))
-
-        if (collisionHash != elementHash) {
-            mutator.size++
-            return makeNode(elementHash, element, shift, mutator.ownership)
-        }
-        if (buffer.contains(element)) {
-            return this
-        }
-
-        mutator.size++
-
-        if (ownedBy === mutator.ownership) {
-            buffer += element
-            return this
-        }
-        return CollisionTrieNode(collisionHash, buffer + element, mutator.ownership)
-    }
-
-    override fun remove(elementHash: Int, element: E, shift: Int): TrieNode<E>? {
-//        assert(lastBits(elementHash, shift) == lastBits(collisionHash, shift))
-
-        if (collisionHash != elementHash) {
-            return this
-        }
-
-        for (index in 0 until buffer.size) {
-            if (buffer[index] == element) {
-                if (buffer.size == 1) {
-                    return null
-                }
-                return CollisionTrieNode(buffer.removeCellAtIndex(index), collisionHash)
-            }
-        }
-        return this
-    }
-
-    override fun mutableRemove(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E>? {
-//        assert(lastBits(elementHash, shift) == lastBits(collisionHash, shift))
-
-        if (collisionHash != elementHash) {
-            return this
-        }
-
-        for (index in 0 until buffer.size) {
-            if (buffer[index] == element) {
-                mutator.size--
-
-                if (buffer.size == 1) {
-                    return null
-                }
-                if (ownedBy === mutator.ownership) {
-                    buffer = buffer.removeCellAtIndex(index)
-                    return this
-                }
-                return CollisionTrieNode(collisionHash, buffer.removeCellAtIndex(index), mutator.ownership)
-            }
-        }
-        return this
-    }
-}
-
-internal class CompactTrieNode<E>(
+internal class TrieNode<E>(
         var bitmap: Int,
-        override var buffer: Array<Any?>,
+        var buffer: Array<Any?>,
         var ownedBy: MutabilityOwnership?
-): TrieNode<E> {
+) {
 
     constructor(bitmap: Int, buffer: Array<Any?>) : this(bitmap, buffer, null)
 
@@ -208,7 +72,7 @@ internal class CompactTrieNode<E>(
 
         val index = indexOfCellAt(positionMask)
         val newBuffer = buffer.addElementAtIndex(index, element)
-        return CompactTrieNode(bitmap or positionMask, newBuffer)
+        return TrieNode(bitmap or positionMask, newBuffer)
     }
 
     private fun mutableAddElementAt(positionMask: Int, element: E, owner: MutabilityOwnership): TrieNode<E> {
@@ -221,7 +85,7 @@ internal class CompactTrieNode<E>(
             return this
         }
         val newBuffer = buffer.addElementAtIndex(index, element)
-        return CompactTrieNode(bitmap or positionMask, newBuffer, owner)
+        return TrieNode(bitmap or positionMask, newBuffer, owner)
     }
 
     private fun updateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>): TrieNode<E> {
@@ -229,7 +93,7 @@ internal class CompactTrieNode<E>(
 
         val newBuffer = buffer.copyOf()
         newBuffer[nodeIndex] = newNode
-        return CompactTrieNode(bitmap, newBuffer)
+        return TrieNode(bitmap, newBuffer)
     }
 
     private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>, owner: MutabilityOwnership): TrieNode<E> {
@@ -241,43 +105,46 @@ internal class CompactTrieNode<E>(
         }
         val newBuffer = buffer.copyOf()
         newBuffer[nodeIndex] = newNode
-        return CompactTrieNode(bitmap, newBuffer, owner)
-    }
-
-    private fun makeNodeAtIndex(elementIndex: Int, newElementHash: Int, newElement: E,
-                                shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
-        val storedElement = elementAtIndex(elementIndex)
-        val storedElementHash = storedElement.hashCode()
-
-        if (storedElementHash == newElementHash) {
-            return CollisionTrieNode(storedElementHash, arrayOf<Any?>(storedElement, newElement), owner)
-        }
-
-        return makeNode(storedElementHash, storedElement,
-                newElementHash, newElement, shift + LOG_MAX_BRANCHING_FACTOR, owner)
+        return TrieNode(bitmap, newBuffer, owner)
     }
 
     private fun moveElementToNode(elementIndex: Int, newElementHash: Int, newElement: E,
-                                  shift: Int): TrieNode<E> {
-        val newBuffer = buffer.copyOf()
-        newBuffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, null)
-        return CompactTrieNode(bitmap, newBuffer)
-    }
+                                  shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
+        val storedElement = elementAtIndex(elementIndex)
+        val storedElementHash = storedElement.hashCode()
 
-    private fun mutableMoveElementToNode(elementIndex: Int, newElementHash: Int, newElement: E,
-                                         shift: Int, owner: MutabilityOwnership): TrieNode<E> {
-        if (ownedBy === owner) {
-            buffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, owner)
+        val newNode: TrieNode<E>
+
+        if (storedElementHash == newElementHash) {
+            newNode = makeCollisionNode(storedElement, newElement, owner)
+            if (buffer.size == 1) {
+                return newNode
+            }
+        } else {
+            newNode = makeNode(storedElementHash, storedElement,
+                    newElementHash, newElement, shift + LOG_MAX_BRANCHING_FACTOR, owner)
+        }
+
+        if (ownedBy != null && ownedBy === owner) {
+            buffer[elementIndex] = newNode
             return this
         }
         val newBuffer = buffer.copyOf()
-        newBuffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, owner)
-        return CompactTrieNode(bitmap, newBuffer, owner)
+        newBuffer[elementIndex] = newNode
+        return TrieNode(bitmap, newBuffer, owner)
+    }
+
+    private fun makeCollisionNode(element1: E, element2: E, owner: MutabilityOwnership?): TrieNode<E> {
+        return makeCollisionNode(arrayOf<Any?>(element1, element2), owner)
+    }
+
+    private fun makeCollisionNode(buffer: Array<Any?>, owner: MutabilityOwnership?): TrieNode<E> {
+        return TrieNode(0, buffer, owner)
     }
 
     private fun makeNode(elementHash1: Int, element1: E, elementHash2: Int, element2: E,
                          shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
-        assert(elementHash1 != elementHash2)
+//        assert(elementHash1 != elementHash2)
 
         val setBit1 = indexSegment(elementHash1, shift)
         val setBit2 = indexSegment(elementHash2, shift)
@@ -288,11 +155,30 @@ internal class CompactTrieNode<E>(
             } else {
                 arrayOf<Any?>(element2, element1)
             }
-            return CompactTrieNode((1 shl setBit1) or (1 shl setBit2), nodeBuffer, owner)
+            return TrieNode((1 shl setBit1) or (1 shl setBit2), nodeBuffer, owner)
         }
         // hash segments at the given shift are equal: move these elements into the subtrie
         val node = makeNode(elementHash1, element1, elementHash2, element2, shift + LOG_MAX_BRANCHING_FACTOR, owner)
-        return CompactTrieNode<E>(1 shl setBit1, arrayOf(node), owner)
+        return TrieNode<E>(1 shl setBit1, arrayOf(node), owner)
+    }
+
+    private fun makeNode(collisionHash: Int, elementHash: Int, element: E, shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
+//        assert(elementHash != collisionHash)
+
+        val collisionBits = indexSegment(collisionHash, shift)
+        val elementBits = indexSegment(elementHash, shift)
+
+        if (collisionBits != elementBits) {
+            val nodeBuffer = if (collisionBits < elementBits) {
+                arrayOf<Any?>(this, element)
+            } else {
+                arrayOf<Any?>(element, this)
+            }
+            return TrieNode((1 shl collisionBits) or (1 shl elementBits), nodeBuffer, owner)
+        }
+
+        val node = makeNode(collisionHash, elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR, owner)
+        return TrieNode<E>(1 shl collisionBits, arrayOf(node), owner)
     }
 
 
@@ -301,7 +187,7 @@ internal class CompactTrieNode<E>(
         if (buffer.size == 1) return null
 
         val newBuffer = buffer.removeCellAtIndex(cellIndex)
-        return CompactTrieNode(bitmap xor positionMask, newBuffer)
+        return TrieNode(bitmap xor positionMask, newBuffer)
     }
 
     private fun mutableRemoveCellAtIndex(cellIndex: Int, positionMask: Int, owner: MutabilityOwnership): TrieNode<E>? {
@@ -314,14 +200,83 @@ internal class CompactTrieNode<E>(
             return this
         }
         val newBuffer = buffer.removeCellAtIndex(cellIndex)
-        return CompactTrieNode(bitmap xor positionMask, newBuffer, owner)
+        return TrieNode(bitmap xor positionMask, newBuffer, owner)
     }
 
-    override fun isCollision(): Boolean {
-        return false
+    private fun collisionContains(elementHash: Int, element: E): Boolean {
+        if (elementHash != buffer[0].hashCode()) {
+            return false
+        }
+        return buffer.contains(element)
     }
 
-    override fun contains(elementHash: Int, element: E, shift: Int): Boolean {
+    private fun collisionAdd(elementHash: Int, element: E, shift: Int): TrieNode<E> {
+        val collisionHash = buffer[0].hashCode()
+        if (elementHash != collisionHash) {
+            return makeNode(collisionHash, elementHash, element, shift, null)
+        }
+        if (buffer.contains(element)) {
+            return this
+        }
+        return makeCollisionNode(buffer + element, null)
+    }
+
+    private fun collisionMutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
+        val collisionHash = buffer[0].hashCode()
+        if (collisionHash != elementHash) {
+            mutator.size++
+            return makeNode(collisionHash, elementHash, element, shift, mutator.ownership)
+        }
+        if (buffer.contains(element)) {
+            return this
+        }
+
+        mutator.size++
+
+        if (ownedBy === mutator.ownership) {
+            buffer += element
+            return this
+        }
+        return makeCollisionNode(buffer + element, mutator.ownership)
+    }
+
+    private fun collisionRemove(elementHash: Int, element: E): TrieNode<E>? {
+        if (buffer[0].hashCode() != elementHash) {
+            return this
+        }
+        val index = buffer.indexOf(element)
+        if (index == -1) return this
+        if (buffer.size == 1) return null
+        return makeCollisionNode(buffer.removeCellAtIndex(index), null)
+    }
+
+    private fun collisionMutableRemove(elementHash: Int, element: E, mutator: PersistentHashSetBuilder<*>): TrieNode<E>? {
+        if (buffer[0].hashCode() != elementHash) {
+            return this
+        }
+
+        val index = buffer.indexOf(element)
+        if (index == -1) return this
+
+        mutator.size--
+
+        if (buffer.size == 1) return null
+        if (ownedBy === mutator.ownership) {
+            buffer = buffer.removeCellAtIndex(index)
+            return this
+        }
+        return makeCollisionNode(buffer.removeCellAtIndex(index), mutator.ownership)
+    }
+
+    fun isCollision(): Boolean {
+        return bitmap == 0 && buffer.isNotEmpty()
+    }
+
+    fun contains(elementHash: Int, element: E, shift: Int): Boolean {
+        if (isCollision()) {
+            return collisionContains(elementHash, element)
+        }
+
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
@@ -337,7 +292,11 @@ internal class CompactTrieNode<E>(
         return element == buffer[cellIndex]
     }
 
-    override fun add(elementHash: Int, element: E, shift: Int): TrieNode<E> {
+    fun add(elementHash: Int, element: E, shift: Int): TrieNode<E> {
+        if (isCollision()) {
+            return collisionAdd(elementHash, element, shift)
+        }
+
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
@@ -353,10 +312,14 @@ internal class CompactTrieNode<E>(
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) return this
-        return moveElementToNode(cellIndex, elementHash, element, shift)
+        return moveElementToNode(cellIndex, elementHash, element, shift, null)
     }
 
-    override fun mutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
+    fun mutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
+        if (isCollision()) {
+            return collisionMutableAdd(elementHash, element, shift, mutator)
+        }
+
         val cellPosition = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPosition)) { // element is absent
@@ -374,10 +337,14 @@ internal class CompactTrieNode<E>(
         // element is directly in buffer
         if (element == buffer[cellIndex]) return this
         mutator.size++
-        return mutableMoveElementToNode(cellIndex, elementHash, element, shift, mutator.ownership)
+        return moveElementToNode(cellIndex, elementHash, element, shift, mutator.ownership)
     }
 
-    override fun remove(elementHash: Int, element: E, shift: Int): TrieNode<E>? {
+    fun remove(elementHash: Int, element: E, shift: Int): TrieNode<E>? {
+        if (isCollision()) {
+            return collisionRemove(elementHash, element)
+        }
+
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
@@ -401,7 +368,11 @@ internal class CompactTrieNode<E>(
         return this
     }
 
-    override fun mutableRemove(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E>? {
+    fun mutableRemove(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E>? {
+        if (isCollision()) {
+            return collisionMutableRemove(elementHash, element, mutator)
+        }
+
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
@@ -427,6 +398,6 @@ internal class CompactTrieNode<E>(
     }
 
     internal companion object {
-        internal val EMPTY = CompactTrieNode<Nothing>(0, emptyArray())
+        internal val EMPTY = TrieNode<Nothing>(0, emptyArray())
     }
 }

@@ -77,7 +77,7 @@ internal class TrieNode<K, V>(
         private set
 
     internal fun isCollision(): Boolean {
-        return dataMap == 0 && nodeMap == 0 && buffer.size > 0
+        return dataMap == 0 && nodeMap == 0 && buffer.isNotEmpty()
     }
 
     /** Returns number of entries stored in this trie node (not counting subnodes) */
