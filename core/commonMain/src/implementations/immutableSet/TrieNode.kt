@@ -89,29 +89,39 @@ internal class TrieNode<E>(
         return TrieNode(bitmap or positionMask, newBuffer, owner)
     }
 
+    /** The given [newNode] must not be a part of any persistent set instance. */
     private fun updateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>): TrieNode<E> {
 //        assert(buffer[nodeIndex] !== newNode)
+        val cell: Any?
 
-        val newBuffer = buffer.copyOf()
-
-        // TODO: check how this changes affect `add` operation performance.
-        // Try to not create this newNode, but pass here the remained element.
         val newNodeBuffer = newNode.buffer
         if (newNodeBuffer.size == 1 && newNodeBuffer[0] !is TrieNode<*>) {
-            newBuffer[nodeIndex] = newNodeBuffer[0]
+            if (buffer.size == 1) {
+                newNode.bitmap = bitmap
+                return newNode
+            }
+            cell = newNodeBuffer[0]
         } else {
-            newBuffer[nodeIndex] = newNode
+            cell = newNode
         }
 
+        val newBuffer = buffer.copyOf()
+        newBuffer[nodeIndex] = cell
         return TrieNode(bitmap, newBuffer)
     }
 
+    /** The given [newNode] must not be a part of any persistent set instance. */
     private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>, owner: MutabilityOwnership): TrieNode<E> {
 //        assert(buffer[nodeIndex] !== newNode)
 
         val cell: Any?
+
         val newNodeBuffer = newNode.buffer
         if (newNodeBuffer.size == 1 && newNodeBuffer[0] !is TrieNode<*>) {
+            if (buffer.size == 1) {
+                newNode.bitmap = bitmap
+                return newNode
+            }
             cell = newNodeBuffer[0]
         } else {
             cell = newNode

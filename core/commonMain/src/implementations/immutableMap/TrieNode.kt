@@ -172,10 +172,17 @@ internal class TrieNode<K, V>(
         return TrieNode(dataMap, nodeMap, newBuffer, mutator.ownership)
     }
 
+    /** The given [newNode] must not be a part of any persistent map instance. */
     private fun updateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>): TrieNode<K, V> {
 //        assert(buffer[nodeIndex] !== newNode)
         val newNodeBuffer = newNode.buffer
         if (newNodeBuffer.size == 2 && newNode.nodeMap == 0) {
+            if (buffer.size == 1) {
+//                assert(dataMap == 0 && nodeMap xor positionMask == 0)
+                newNode.dataMap = nodeMap
+                return newNode
+            }
+
             val keyIndex = entryKeyIndex(positionMask)
             val newBuffer = buffer.replaceNodeWithEntry(nodeIndex, keyIndex, newNodeBuffer[0], newNodeBuffer[1])
             return TrieNode(dataMap xor positionMask, nodeMap xor positionMask, newBuffer)
@@ -186,11 +193,18 @@ internal class TrieNode<K, V>(
         return TrieNode(dataMap, nodeMap, newBuffer)
     }
 
+    /** The given [newNode] must not be a part of any persistent map instance. */
     private fun mutableUpdateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership): TrieNode<K, V> {
 //        assert(buffer[nodeIndex] !== newNode)
 
         val newNodeBuffer = newNode.buffer
         if (newNodeBuffer.size == 2 && newNode.nodeMap == 0) {
+            if (buffer.size == 1) {
+//                assert(dataMap == 0 && nodeMap xor positionMask == 0)
+                newNode.dataMap = nodeMap
+                return newNode
+            }
+
             val keyIndex = entryKeyIndex(positionMask)
             val newBuffer = buffer.replaceNodeWithEntry(nodeIndex, keyIndex, newNodeBuffer[0], newNodeBuffer[1])
 
