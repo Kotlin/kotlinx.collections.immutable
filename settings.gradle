@@ -7,9 +7,12 @@ pluginManagement {
     }
 }
 
+enableFeaturePreview('GRADLE_METADATA')
+
 rootProject.name = 'Kotlin Immutable Collections'
 
-include ':kotlinx-collections-immutable'
-include ':kotlinx-collections-immutable:tests'
+include ':core'
+project(":core").name='kotlinx-collections-immutable'
+
 include ':benchmarks-mpp'
 include ':benchmarks-runner'

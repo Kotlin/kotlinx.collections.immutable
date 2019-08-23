@@ -1,0 +1,110 @@
+plugins {
+    id("kotlin-multiplatform")
+    `maven-publish`
+}
+
+base {
+    archivesBaseName = "kotlinx-collections-immutable" // doesn't work
+}
+
+publishing {
+    repositories {
+        maven(url = "${rootProject.buildDir}/maven") {
+            this.name = "buildLocal"
+        }
+    }
+}
+
+val JDK_6: String by project
+
+kotlin {
+    infra {
+        target("macosX64")
+        target("linuxX64")
+        target("mingwX64")
+    }
+
+    jvm {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.6"
+                jdkHome = JDK_6
+            }
+        }
+    }
+
+    js {
+        nodejs {
+//            testTask { }
+        }
+        compilations.all {
+            kotlinOptions {
+                sourceMap = true
+                moduleKind = "umd"
+                metaInfo = true
+            }
+        }
+    }
+
+    sourceSets.all {
+        kotlin.setSrcDirs(listOf("$name/src"))
+        resources.setSrcDirs(listOf("$name/resources"))
+        languageSettings.apply {
+            //            progressiveMode = true
+            useExperimentalAnnotation("kotlin.Experimental")
+        }
+    }
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib-common")
+            }
+        }
+
+        commonTest {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-common")
+                api("org.jetbrains.kotlin:kotlin-test-annotations-common")
+            }
+        }
+
+        val jvmMain by getting {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib")
+
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-junit")
+            }
+        }
+
+        val jsMain by getting {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib-js")
+            }
+        }
+
+        val jsTest by getting {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-js")
+            }
+        }
+
+        val nativeMain by getting {
+            dependencies {
+
+            }
+        }
+
+    }
+}
+
+tasks {
+    named("jvmTest", Test::class) {
+        maxHeapSize = "1024m"
+        executable = "$JDK_6/bin/java"
+    }
+}

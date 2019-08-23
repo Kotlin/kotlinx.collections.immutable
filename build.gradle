@@ -1,1 +1,0 @@
-ext.JDK_16 = System.getenv("JDK_16")
