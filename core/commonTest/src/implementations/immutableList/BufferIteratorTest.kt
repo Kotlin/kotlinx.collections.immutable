@@ -16,8 +16,6 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-import org.junit.Test
-import java.util.*
 import kotlin.test.*
 
 class BufferIteratorTest {

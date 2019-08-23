@@ -16,8 +16,8 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-import org.junit.Test
-import java.util.*
+import kotlinx.collections.immutable.internal.assert
+import kotlin.math.pow
 import kotlin.test.*
 
 class TrieIteratorTest {
@@ -41,7 +41,7 @@ class TrieIteratorTest {
             val newLeaves = arrayListOf<Any?>()
             for (i in 0 until leaves.size step MAX_BUFFER_SIZE) {
                 val buffer = arrayOfNulls<Any?>(MAX_BUFFER_SIZE)
-                for (j in i until Math.min(leaves.size, i + MAX_BUFFER_SIZE)) {
+                for (j in i until minOf(leaves.size, i + MAX_BUFFER_SIZE)) {
                     buffer[j - i] = leaves[j]
                 }
                 newLeaves.add(buffer)
@@ -58,7 +58,7 @@ class TrieIteratorTest {
         var lastStop = 1
         for (height in 1..7) {
             for (leafCount in lastStop..(1 shl 12) step height) {
-                if (Math.pow(MAX_BUFFER_SIZE.toDouble(), (height - 1).toDouble()) < leafCount) {
+                if (MAX_BUFFER_SIZE.toDouble().pow(height - 1) < leafCount) {
                     lastStop = leafCount
                     break
                 }
