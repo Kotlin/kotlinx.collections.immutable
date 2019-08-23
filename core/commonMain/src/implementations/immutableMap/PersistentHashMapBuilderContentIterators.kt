@@ -16,6 +16,8 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
+import kotlinx.collections.immutable.internal.assert
+
 
 internal class TrieNodeMutableEntriesIterator<K, V>(private val builder: PersistentHashMapBuilder<K, V>)
     : TrieNodeBaseIterator<K, V, MutableMap.MutableEntry<K, V>>() {

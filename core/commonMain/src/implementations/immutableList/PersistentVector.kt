@@ -19,6 +19,7 @@ package kotlinx.collections.immutable.implementations.immutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
+import kotlinx.collections.immutable.internal.assert
 
 /**
  * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having

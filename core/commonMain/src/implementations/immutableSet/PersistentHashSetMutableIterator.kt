@@ -16,6 +16,8 @@
 
 package kotlinx.collections.immutable.implementations.immutableSet
 
+import kotlinx.collections.immutable.internal.assert
+
 internal class PersistentHashSetMutableIterator<E>(private val builder: PersistentHashSetBuilder<E>)
     : PersistentHashSetIterator<E>(builder.node), MutableIterator<E> {
     private var lastIteratedElement: E? = null
@@ -56,7 +58,8 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
         }
 
         val position = 1 shl ((hashCode shr (pathIndex * LOG_MAX_BRANCHING_FACTOR)) and MAX_BRANCHING_FACTOR_MINUS_ONE)
-        val index = Integer.bitCount(node.bitmap and (position - 1))
+        @UseExperimental(ExperimentalStdlibApi::class)
+        val index = (node.bitmap and (position - 1)).countOneBits()
 
         path[pathIndex].reset(node.buffer, index)
 

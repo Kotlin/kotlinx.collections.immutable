@@ -16,6 +16,8 @@
 
 package kotlinx.collections.immutable.internal
 
+import kotlin.jvm.JvmStatic
+
 internal object ListImplementation {
 
     @JvmStatic

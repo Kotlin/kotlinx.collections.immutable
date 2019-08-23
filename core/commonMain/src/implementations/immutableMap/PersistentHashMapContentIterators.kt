@@ -1,5 +1,8 @@
 package kotlinx.collections.immutable.implementations.immutableMap
 
+import kotlinx.collections.immutable.internal.assert
+import kotlin.js.JsName
+
 internal const val TRIE_MAX_HEIGHT = 7
 
 internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> {
@@ -93,6 +96,7 @@ internal open class MapEntry<out K, out V>(override val key: K, override val val
 internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K, V>,
                                                                protected val path: Array<TrieNodeBaseIterator<K, V, T>>) : Iterator<T> {
     private var pathLastIndex = 0
+    @JsName("_hasNext")
     private var hasNext = true
 
     init {

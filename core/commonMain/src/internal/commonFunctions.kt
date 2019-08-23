@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2018 JetBrains s.r.o.
+ * Copyright 2016-2019 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,9 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.implementations.immutableList
+package kotlinx.collections.immutable.internal
 
-internal class BufferIterator<out T>(
-        private val buffer: Array<T>,
-        index: Int,
-        size: Int
-) : AbstractListIterator<T>(index, size) {
-    override fun next(): T {
-        if (!hasNext()) {
-            throw NoSuchElementException()
-        }
-        return buffer[index++]
-    }
+internal expect fun assert(condition: Boolean)
 
-    override fun previous(): T {
-        if (!hasPrevious()) {
-            throw NoSuchElementException()
-        }
-        return buffer[--index]
-    }
-}
+@Suppress("NO_ACTUAL_FOR_EXPECT") // implemented by protected property in JVM
+internal expect var AbstractMutableList<*>.modCount: Int

@@ -89,7 +89,8 @@ internal class TrieNode<K, V>(
         private set
 
     /** Returns number of entries stored in this trie node (not counting subnodes) */
-    internal fun entryCount(): Int = Integer.bitCount(dataMap)
+    @UseExperimental(ExperimentalStdlibApi::class)
+    internal fun entryCount(): Int = dataMap.countOneBits()
 
     // here and later:
     // positionMask — an int in form 2^n, i.e. having the single bit set, whose ordinal is a logical position in buffer
@@ -106,13 +107,15 @@ internal class TrieNode<K, V>(
     }
 
     /** Gets the index in buffer of the data entry key corresponding to the position specified by [positionMask]. */
+    @UseExperimental(ExperimentalStdlibApi::class)
     internal fun entryKeyIndex(positionMask: Int): Int {
-        return ENTRY_SIZE * Integer.bitCount(dataMap and (positionMask - 1))
+        return ENTRY_SIZE * (dataMap and (positionMask - 1)).countOneBits()
     }
 
     /** Gets the index in buffer of the subtrie node entry corresponding to the position specified by [positionMask]. */
+    @UseExperimental(ExperimentalStdlibApi::class)
     internal fun nodeIndex(positionMask: Int): Int {
-        return buffer.size - 1 - Integer.bitCount(nodeMap and (positionMask - 1))
+        return buffer.size - 1 - (nodeMap and (positionMask - 1)).countOneBits()
     }
 
     /** Retrieves the buffer element at the given [keyIndex] as key of a data entry. */
