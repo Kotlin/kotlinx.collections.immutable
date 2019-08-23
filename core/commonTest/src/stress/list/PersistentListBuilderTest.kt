@@ -20,6 +20,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.contractTests.compare
 import kotlinx.collections.immutable.contractTests.listIteratorProperties
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.tests.*
 import kotlin.random.Random
 import kotlin.test.*
 
@@ -282,8 +283,10 @@ class PersistentListBuilderTest {
         assertEquals(0, builder[beginIndex * 2])
 
         builder.add(0)
-        assertFailsWith<ConcurrentModificationException> {
-            subList.add(0)
+        testOn(TestPlatform.JVM) {
+            assertFailsWith<ConcurrentModificationException> {
+                subList.add(0)
+            }
         }
     }
 

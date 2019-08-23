@@ -19,8 +19,7 @@ package kotlinx.collections.immutable.contractTests.immutableList
 import kotlinx.collections.immutable.*
 import kotlinx.collections.immutable.contractTests.compare
 import kotlinx.collections.immutable.contractTests.listBehavior
-import kotlinx.collections.immutable.tests.isDigit
-import kotlinx.collections.immutable.tests.isUpperCase
+import kotlinx.collections.immutable.tests.*
 import kotlin.test.*
 
 class ImmutableListTest {
@@ -152,7 +151,9 @@ class ImmutableListTest {
         // So, structural changes in builder causes CME on subList iteration.
         var subList = builder.subList(2, 5)
         builder[4] = 'x'
-        assertFailsWith<ConcurrentModificationException> { subList.joinToString("") }
+        testOn(TestPlatform.JVM) {
+            assertFailsWith<ConcurrentModificationException> { subList.joinToString("") }
+        }
 
         // builder is the exclusive owner of the inner trie.
         // So, `set(index, value)` doesn't lead to structural changes.

@@ -26,3 +26,5 @@ public actual fun assertTypeEquals(expected: Any?, actual: Any?) {
         assertTrue(expected == null && actual == null)
     }
 }
+
+public actual val currentPlatform: TestPlatform get() = TestPlatform.Native

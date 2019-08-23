@@ -21,3 +21,5 @@ import kotlin.test.assertEquals
 public actual fun assertTypeEquals(expected: Any?, actual: Any?) {
     assertEquals(expected?.javaClass, actual?.javaClass)
 }
+
+public actual val currentPlatform: TestPlatform get() = TestPlatform.JVM

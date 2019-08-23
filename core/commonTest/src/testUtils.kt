@@ -29,3 +29,14 @@ internal fun <K, V> MutableMap<K, V>.remove(key: K, value: V): Boolean =
         }
 
 public expect fun assertTypeEquals(expected: Any?, actual: Any?)
+
+public enum class TestPlatform {
+    JVM,
+    JS,
+    Native
+}
+public expect val currentPlatform: TestPlatform
+
+public inline fun testOn(platform: TestPlatform, action: () -> Unit) {
+    if (platform == currentPlatform) action()
+}

@@ -21,3 +21,5 @@ import kotlin.test.assertEquals
 public actual fun assertTypeEquals(expected: Any?, actual: Any?) {
     assertEquals(expected?.let { it::class.js }, actual?.let { it::class.js })
 }
+
+public actual val currentPlatform: TestPlatform get() = TestPlatform.JS
