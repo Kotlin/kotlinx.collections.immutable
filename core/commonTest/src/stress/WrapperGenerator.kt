@@ -16,19 +16,19 @@
 
 package kotlinx.collections.immutable.stressTests
 
-import java.util.*
+import kotlin.random.Random
+
 
 class WrapperGenerator<K: Comparable<K>>(private val hashCodeUpperBound: Int) {
     private val elementMap = hashMapOf<K, ObjectWrapper<K>>()
     private val hashCodeMap = hashMapOf<Int, MutableList<ObjectWrapper<K>>>()
-    private val random = Random()
 
     fun wrapper(element: K): ObjectWrapper<K> {
         val existing = elementMap[element]
         if (existing != null) {
             return existing
         }
-        val hashCode = random.nextInt(hashCodeUpperBound)
+        val hashCode = Random.nextInt(hashCodeUpperBound)
         val wrapper = ObjectWrapper(element, hashCode)
         elementMap[element] = wrapper
 

@@ -214,6 +214,6 @@ abstract class ImmutableMapTest {
         val mapSNI: PersistentMap<String, Int?> = mapSI + mapOf("y" to null)
         val mapANA: PersistentMap<Any, Any?> = mapSNI + listOf(1 to "x")
 
-        assertEquals(mapOf(1 to "x", "x" to 1, "y" to null), mapANA)
+        assertEquals<Map<*, *>>(mapOf(1 to "x", "x" to 1, "y" to null), mapANA)
     }
 }

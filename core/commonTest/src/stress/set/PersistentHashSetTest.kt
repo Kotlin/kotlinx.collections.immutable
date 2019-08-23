@@ -19,9 +19,9 @@ package kotlinx.collections.immutable.stressTests.immutableSet
 import kotlinx.collections.immutable.stressTests.ObjectWrapper
 import kotlinx.collections.immutable.stressTests.WrapperGenerator
 import kotlinx.collections.immutable.persistentHashSetOf
-import org.junit.Test
-import org.junit.Assert.*
-import java.util.*
+import kotlin.random.Random
+import kotlin.test.*
+
 
 class PersistentHashSetTest {
     @Test
@@ -74,11 +74,10 @@ class PersistentHashSetTest {
         assertTrue(set.isEmpty())
 
         val mutableSet = mutableSetOf<Int>()
-        val random = Random()
 
         val elementsToAdd = 2000
         repeat(times = elementsToAdd) {
-            val element = random.nextInt()
+            val element = Random.nextInt()
             mutableSet.add(element)
             set = set.add(element)
 
@@ -223,25 +222,24 @@ class PersistentHashSetTest {
     fun randomOperationsTests() {
         repeat(times = 1) {
 
-            val random = Random()
             val mutableSets = List(10) { mutableSetOf<ObjectWrapper<Int>?>() }
             val immutableSets = MutableList(10) { persistentHashSetOf<ObjectWrapper<Int>?>() }
 
             val operationCount = 2000000
-            val hashCodes = List(operationCount / 3) { random.nextInt() }
+            val hashCodes = List(operationCount / 3) { Random.nextInt() }
             repeat(times = operationCount) {
-                val index = random.nextInt(mutableSets.size)
+                val index = Random.nextInt(mutableSets.size)
                 val mutableSet = mutableSets[index]
                 val immutableSet = immutableSets[index]
 
-                val element = if (random.nextDouble() < 0.001) {
+                val element = if (Random.nextDouble() < 0.001) {
                     null
                 } else {
-                    val hashCodeIndex = random.nextInt(hashCodes.size)
-                    ObjectWrapper(random.nextInt(), hashCodes[hashCodeIndex])
+                    val hashCodeIndex = Random.nextInt(hashCodes.size)
+                    ObjectWrapper(Random.nextInt(), hashCodes[hashCodeIndex])
                 }
 
-                val operationType = random.nextDouble()
+                val operationType = Random.nextDouble()
 
                 val shouldRemove = operationType < 0.3
 

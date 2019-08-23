@@ -19,9 +19,9 @@ package kotlinx.collections.immutable.stressTests.immutableMap
 import kotlinx.collections.immutable.stressTests.ObjectWrapper
 import kotlinx.collections.immutable.stressTests.WrapperGenerator
 import kotlinx.collections.immutable.persistentHashMapOf
-import org.junit.Test
-import org.junit.Assert.*
-import java.util.*
+import kotlinx.collections.immutable.tests.remove
+import kotlin.random.Random
+import kotlin.test.*
 
 
 class PersistentHashMapTest {
@@ -79,11 +79,10 @@ class PersistentHashMapTest {
         assertTrue(map.values.isEmpty())
 
         val set = mutableSetOf<Int>()
-        val random = Random()
 
         val elementsToAdd = 2000
         repeat(times = elementsToAdd) {
-            val key = random.nextInt()
+            val key = Random.nextInt()
             set.add(key)
             map = map.put(key, key)
 
@@ -263,25 +262,24 @@ class PersistentHashMapTest {
     fun randomOperationsTests() {
         repeat(times = 1) {
 
-            val random = Random()
             val mutableMaps = List(10) { mutableMapOf<ObjectWrapper<Int>?, Int?>() }
             val immutableMaps = MutableList(10) { persistentHashMapOf<ObjectWrapper<Int>?, Int?>() }
 
             val operationCount = 2000000
-            val hashCodes = List(operationCount / 3) { random.nextInt() }
+            val hashCodes = List(operationCount / 3) { Random.nextInt() }
             repeat(times = operationCount) {
-                val index = random.nextInt(mutableMaps.size)
+                val index = Random.nextInt(mutableMaps.size)
                 val mutableMap = mutableMaps[index]
                 val immutableMap = immutableMaps[index]
 
-                val key = if (random.nextDouble() < 0.001) {
+                val key = if (Random.nextDouble() < 0.001) {
                     null
                 } else {
-                    val hashCodeIndex = random.nextInt(hashCodes.size)
-                    ObjectWrapper(random.nextInt(), hashCodes[hashCodeIndex])
+                    val hashCodeIndex = Random.nextInt(hashCodes.size)
+                    ObjectWrapper(Random.nextInt(), hashCodes[hashCodeIndex])
                 }
 
-                val operationType = random.nextDouble()
+                val operationType = Random.nextDouble()
 
                 val shouldRemove = operationType < 0.2
                 val shouldRemoveEntry = !shouldRemove && operationType < 0.4
@@ -293,7 +291,7 @@ class PersistentHashMapTest {
                         immutableMap.remove(key)
                     }
                     shouldRemoveEntry -> {
-                        val value = random.nextInt(5)
+                        val value = Random.nextInt(5)
                         mutableMap.remove(key, value)
                         immutableMap.remove(key, value)
                     }
@@ -302,7 +300,7 @@ class PersistentHashMapTest {
                         immutableMap.put(key, null)
                     }
                     else -> {
-                        val value = random.nextInt(5)
+                        val value = Random.nextInt(5)
                         mutableMap[key] = value
                         immutableMap.put(key, value)
                     }

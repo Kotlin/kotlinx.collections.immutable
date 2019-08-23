@@ -16,6 +16,7 @@
 
 package kotlinx.collections.immutable.contractTests
 
+import kotlinx.collections.immutable.tests.assertTypeEquals
 import kotlin.test.*
 
 public fun <T> compare(expected: T, actual: T, block: CompareContext<T>.() -> Unit) {
@@ -48,9 +49,5 @@ public class CompareContext<out T>(public val expected: T, public val actual: T)
             //assertEquals(expectedFail != null, actualFail != null)
             assertTypeEquals(expectedFail, actualFail)
         }
-    }
-
-    public fun assertTypeEquals(expected: Any?, actual: Any?) {
-        assertEquals(expected?.javaClass, actual?.javaClass)
     }
 }

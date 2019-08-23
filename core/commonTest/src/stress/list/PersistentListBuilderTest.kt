@@ -20,10 +20,8 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.contractTests.compare
 import kotlinx.collections.immutable.contractTests.listIteratorProperties
 import kotlinx.collections.immutable.persistentListOf
-import org.junit.Test
-import org.junit.Assert.*
-import java.util.*
-import kotlin.test.assertFailsWith
+import kotlin.random.Random
+import kotlin.test.*
 
 class PersistentListBuilderTest {
 
@@ -107,11 +105,11 @@ class PersistentListBuilderTest {
         assertEquals(emptyList<Int>(), builder)
 
         val elementsToAdd = 1000
-        val list = LinkedList<Int>()
+        val list = mutableListOf<Int>()
         repeat(times = elementsToAdd) { index ->
             list.add(index)
             builder.add(index)
-            assertEquals(list, builder)
+            assertEquals<List<*>>(list, builder)
         }
     }
 
@@ -301,9 +299,8 @@ class PersistentListBuilderTest {
                                 actualIterator: MutableListIterator<E>,
                                 maxIterationCount: Int,
                                 afterIteration: () -> Unit) {
-        val random = Random()
-        val towardStart = random.nextBoolean()
-        val iterationCount = random.nextInt(maxIterationCount)
+        val towardStart = Random.nextBoolean()
+        val iterationCount = Random.nextInt(maxIterationCount)
 
         if (towardStart) {
             repeat(iterationCount) {
@@ -332,11 +329,10 @@ class PersistentListBuilderTest {
         var expectedIterator = expected.listIterator()
         compare(expectedIterator, builderIterator) { listIteratorProperties() }
 
-        val random = Random()
         repeat(times = 100) {
-            val createNew = random.nextDouble() < 0.2
+            val createNew = Random.nextDouble() < 0.2
             if (createNew) {
-                val index = random.nextInt(expected.size)
+                val index = Random.nextInt(expected.size)
                 builderIterator = builder.listIterator(index)
                 expectedIterator = expected.listIterator(index)
                 compare(expectedIterator, builderIterator) { listIteratorProperties() }
@@ -356,20 +352,19 @@ class PersistentListBuilderTest {
         var expectedIterator = expected.listIterator()
         compare(expectedIterator, builderIterator) { listIteratorProperties() }
 
-        val random = Random()
         repeat(times = 100) {
-            val createNew = random.nextDouble() < 0.1
+            val createNew = Random.nextDouble() < 0.1
             if (createNew) {
-                val index = random.nextInt(expected.size)
+                val index = Random.nextInt(expected.size)
                 builderIterator = builder.listIterator(index)
                 expectedIterator = expected.listIterator(index)
                 compare(expectedIterator, builderIterator) { listIteratorProperties() }
             }
 
-            val shouldSet = random.nextBoolean()
+            val shouldSet = Random.nextBoolean()
             iterateWith(expectedIterator, builderIterator, expected.size) {
                 if (shouldSet) {
-                    val elementToSet = random.nextInt()
+                    val elementToSet = Random.nextInt()
                     expectedIterator.set(elementToSet)
                     builderIterator.set(elementToSet)
                 }
@@ -387,21 +382,20 @@ class PersistentListBuilderTest {
         var expectedIterator = expected.listIterator(builder.size)
         compare(expectedIterator, builderIterator) { listIteratorProperties() }
 
-        val random = Random()
         repeat(times = 100) {
-            val createNew = random.nextDouble() < 0.1
+            val createNew = Random.nextDouble() < 0.1
             if (createNew) {
-                val index = random.nextInt(expected.size)
+                val index = Random.nextInt(expected.size)
                 builderIterator = builder.listIterator(index)
                 expectedIterator = expected.listIterator(index)
                 compare(expectedIterator, builderIterator) { listIteratorProperties() }
             }
 
-            val shouldAdd = random.nextBoolean()
+            val shouldAdd = Random.nextBoolean()
             if (shouldAdd) {
-                val addCount = random.nextInt(2000)
+                val addCount = Random.nextInt(2000)
                 repeat(addCount) {
-                    val elementToAdd = random.nextInt()
+                    val elementToAdd = Random.nextInt()
                     expectedIterator.add(elementToAdd)
                     builderIterator.add(elementToAdd)
                     compare(expectedIterator, builderIterator) { listIteratorProperties() }
@@ -422,24 +416,23 @@ class PersistentListBuilderTest {
         var expectedIterator = expected.listIterator()
         compare(expectedIterator, builderIterator) { listIteratorProperties() }
 
-        val random = Random()
         repeat(times = 100) {
-            val createNew = random.nextDouble() < 0.1
+            val createNew = Random.nextDouble() < 0.1
             if (createNew) {
-                val index = random.nextInt(expected.size)
+                val index = Random.nextInt(expected.size)
                 builderIterator = builder.listIterator(index)
                 expectedIterator = expected.listIterator(index)
                 compare(expectedIterator, builderIterator) { listIteratorProperties() }
             }
 
-            val shouldAddOrRemove = random.nextBoolean()
+            val shouldAddOrRemove = Random.nextBoolean()
             if (shouldAddOrRemove) {
-                val actionCount = random.nextInt(2000)
-                val shouldAdd = random.nextBoolean()
+                val actionCount = Random.nextInt(2000)
+                val shouldAdd = Random.nextBoolean()
 
                 if (shouldAdd) {
                     repeat(actionCount) {
-                        val elementToAdd = random.nextInt()
+                        val elementToAdd = Random.nextInt()
                         expectedIterator.add(elementToAdd)
                         builderIterator.add(elementToAdd)
                         compare(expectedIterator, builderIterator) { listIteratorProperties() }
@@ -463,17 +456,16 @@ class PersistentListBuilderTest {
 
         repeat(times = 10) {
 
-            val random = Random()
             val builders = vectorGen.last().map { it.builder() }
             val lists = builders.map { it.toMutableList() }
 
             repeat(times = 100000) {
-                val index = random.nextInt(lists.size)
+                val index = Random.nextInt(lists.size)
                 val list = lists[index]
                 val builder = builders[index]
 
-                val operationType = random.nextDouble()
-                val operationIndex = if (list.size > 1) random.nextInt(list.size) else 0
+                val operationType = Random.nextDouble()
+                val operationIndex = if (list.size > 1) Random.nextInt(list.size) else 0
 
                 val shouldRemove = operationType < 0.15
                 val shouldSet = operationType > 0.15 && operationType < 0.3
@@ -482,12 +474,12 @@ class PersistentListBuilderTest {
                     assertEquals(list.removeAt(operationIndex),
                             builder.removeAt(operationIndex))
                 } else if (!list.isEmpty() && shouldSet) {
-                    val value = random.nextInt()
+                    val value = Random.nextInt()
                     assertEquals(list.set(operationIndex, value),
                             builder.set(operationIndex, value))
 
                 } else {
-                    val value = random.nextInt()
+                    val value = Random.nextInt()
                     list.add(operationIndex, value)
                     builder.add(operationIndex, value)
                 }

@@ -19,6 +19,8 @@ package kotlinx.collections.immutable.contractTests.immutableList
 import kotlinx.collections.immutable.*
 import kotlinx.collections.immutable.contractTests.compare
 import kotlinx.collections.immutable.contractTests.listBehavior
+import kotlinx.collections.immutable.tests.isDigit
+import kotlinx.collections.immutable.tests.isUpperCase
 import kotlin.test.*
 
 class ImmutableListTest {
@@ -200,6 +202,6 @@ class ImmutableListTest {
         val listSN: PersistentList<String?> = listS + (null as String?)
         val listAny: PersistentList<Any?> = listSN + 1
 
-        assertEquals(listOf("x", null, 1), listAny)
+        assertEquals<List<*>>(listOf("x", null, 1), listAny)
     }
 }

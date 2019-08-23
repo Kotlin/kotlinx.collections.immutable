@@ -19,9 +19,9 @@ package kotlinx.collections.immutable.stressTests.immutableMap
 import kotlinx.collections.immutable.stressTests.ObjectWrapper
 import kotlinx.collections.immutable.stressTests.WrapperGenerator
 import kotlinx.collections.immutable.persistentHashMapOf
-import org.junit.Test
-import org.junit.Assert.*
-import java.util.*
+import kotlinx.collections.immutable.tests.remove
+import kotlin.random.Random
+import kotlin.test.*
 
 class PersistentHashMapBuilderTest {
 
@@ -77,11 +77,10 @@ class PersistentHashMapBuilderTest {
         assertTrue(builder.values.isEmpty())
 
         val set = mutableSetOf<Int>()
-        val random = Random()
 
         val elementsToAdd = 2000
         repeat(times = elementsToAdd) {
-            val key = random.nextInt()
+            val key = Random.nextInt()
             set.add(key)
             builder[key] = key
 
@@ -252,20 +251,19 @@ class PersistentHashMapBuilderTest {
 
         repeat(times = 10) {
 
-            val random = Random()
             val builders = mapGen.last().map { it.builder() }
             val maps = builders.map { it.toMutableMap() }
 
             val operationCount = 200000
-            val hashCodes = List(operationCount / 2) { random.nextInt() }
+            val hashCodes = List(operationCount / 2) { Random.nextInt() }
             repeat(times = operationCount) {
-                val index = random.nextInt(maps.size)
+                val index = Random.nextInt(maps.size)
                 val map = maps[index]
                 val builder = builders[index]
 
-                val operationType = random.nextDouble()
-                val hashCodeIndex = random.nextInt(hashCodes.size)
-                val key = ObjectWrapper(random.nextInt(), hashCodes[hashCodeIndex])
+                val operationType = Random.nextDouble()
+                val hashCodeIndex = Random.nextInt(hashCodes.size)
+                val key = ObjectWrapper(Random.nextInt(), hashCodes[hashCodeIndex])
 
                 val shouldRemove = operationType < 0.2
                 val shouldRemoveEntry = !shouldRemove && operationType < 0.4
@@ -274,11 +272,11 @@ class PersistentHashMapBuilderTest {
                         assertEquals(map.remove(key), builder.remove(key))
                     }
                     shouldRemoveEntry -> {
-                        val value = random.nextInt(5)
+                        val value = Random.nextInt(5)
                         assertEquals(map.remove(key, value), builder.remove(key, value))
                     }
                     else -> {
-                        val value = random.nextInt(5)
+                        val value = Random.nextInt(5)
                         assertEquals(map.put(key, value), builder.put(key, value))
                     }
                 }
@@ -298,7 +296,7 @@ class PersistentHashMapBuilderTest {
         }
 
         mapGen.forEachIndexed { index, maps ->
-            assertEquals(expected[index].map { it.toSortedMap() }, maps.map { it.toSortedMap() })
+            assertEquals(expected[index], maps)
         }
     }
 }

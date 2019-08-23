@@ -18,10 +18,8 @@ package kotlinx.collections.immutable.stressTests.immutableList
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-import org.junit.Test
-import org.junit.Assert.*
-import java.util.*
-import kotlin.test.assertFailsWith
+import kotlin.random.Random
+import kotlin.test.*
 
 
 class PersistentListTest {
@@ -130,7 +128,7 @@ class PersistentListTest {
         )
 
         val elementsToAdd = 1000
-        val list = LinkedList<Int>()
+        val list = mutableListOf<Int>()
         repeat(times = elementsToAdd) { index ->
             list.add(index)
             vector = vector.add(index)
@@ -297,17 +295,16 @@ class PersistentListTest {
     fun randomOperationsTests() {
         repeat(times = 1) {
 
-            val random = Random()
             val lists = List(20) { mutableListOf<Int>() }
             val vectors = MutableList(20) { persistentListOf<Int>() }
 
             repeat(times = 1000000) {
-                val index = random.nextInt(lists.size)
+                val index = Random.nextInt(lists.size)
                 val list = lists[index]
                 val vector = vectors[index]
 
-                val operationType = random.nextDouble()
-                val operationIndex = if (list.size > 1) random.nextInt(list.size) else 0
+                val operationType = Random.nextDouble()
+                val operationIndex = if (list.size > 1) Random.nextInt(list.size) else 0
 
                 val shouldRemove = operationType < 0.15
                 val shouldSet = operationType > 0.15 && operationType < 0.3
@@ -316,11 +313,11 @@ class PersistentListTest {
                     list.removeAt(operationIndex)
                     vector.removeAt(operationIndex)
                 } else if (!list.isEmpty() && shouldSet) {
-                    val value = random.nextInt()
+                    val value = Random.nextInt()
                     list[operationIndex] = value
                     vector.set(operationIndex, value)
                 } else {
-                    val value = random.nextInt()
+                    val value = Random.nextInt()
                     list.add(operationIndex, value)
                     vector.add(operationIndex, value)
                 }
@@ -337,7 +334,7 @@ class PersistentListTest {
                 var vector = vectors[index]
 
                 while (!list.isEmpty()) {
-                    val removeIndex = random.nextInt(list.size)
+                    val removeIndex = Random.nextInt(list.size)
                     list.removeAt(removeIndex)
                     vector = vector.removeAt(removeIndex)
 
