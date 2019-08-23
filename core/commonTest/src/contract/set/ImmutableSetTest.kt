@@ -19,7 +19,6 @@ package kotlinx.collections.immutable.contractTests.immutableSet
 import kotlinx.collections.immutable.*
 import kotlinx.collections.immutable.contractTests.compare
 import kotlinx.collections.immutable.contractTests.setBehavior
-import org.junit.Test
 import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {

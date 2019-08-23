@@ -78,6 +78,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 api("org.jetbrains.kotlin:kotlin-test-junit")
+                implementation("com.google.guava:guava-testlib:18.0")
             }
         }
 

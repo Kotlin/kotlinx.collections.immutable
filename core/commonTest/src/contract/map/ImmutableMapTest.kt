@@ -21,8 +21,6 @@ import kotlinx.collections.immutable.contractTests.collectionBehavior
 import kotlinx.collections.immutable.contractTests.compare
 import kotlinx.collections.immutable.contractTests.mapBehavior
 import kotlinx.collections.immutable.contractTests.setBehavior
-import org.junit.Test
-import java.util.*
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {

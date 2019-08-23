@@ -19,7 +19,6 @@ package kotlinx.collections.immutable.contractTests.immutableList
 import kotlinx.collections.immutable.*
 import kotlinx.collections.immutable.contractTests.compare
 import kotlinx.collections.immutable.contractTests.listBehavior
-import org.junit.Test
 import kotlin.test.*
 
 class ImmutableListTest {
