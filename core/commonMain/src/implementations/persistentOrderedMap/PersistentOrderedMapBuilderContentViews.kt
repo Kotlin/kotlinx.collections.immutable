@@ -31,6 +31,8 @@ internal class PersistentOrderedMapBuilderEntries<K, V>(private val builder: Per
     }
 
     override fun remove(element: MutableMap.MutableEntry<K, V>): Boolean {
+        // TODO: Eliminate this check after KT-30016 gets fixed.
+        if ((element as Any?) !is MutableMap.MutableEntry<*, *>) return false
         return builder.remove(element.key, element.value)
     }
 
@@ -38,6 +40,8 @@ internal class PersistentOrderedMapBuilderEntries<K, V>(private val builder: Per
         get() = builder.size
 
     override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean {
+        // TODO: Eliminate this check after KT-30016 gets fixed.
+        if ((element as Any?) !is MutableMap.MutableEntry<*, *>) return false
         return builder[element.key]?.let { candidate -> candidate == element.value }
                 ?: (element.value == null && builder.containsKey(element.key))
     }

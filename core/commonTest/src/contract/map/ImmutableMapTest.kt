@@ -171,6 +171,7 @@ abstract class ImmutableMapTest {
             testMutation { this['a'] = null }
             testMutation { remove('x') }
             testMutation { clear() }
+            testMutation { entries.remove(null as Any?) }
         }
     }
 

@@ -23,6 +23,8 @@ internal class PersistentOrderedMapEntries<K, V>(private val map: PersistentOrde
     override val size: Int get() = map.size
 
     override fun contains(element: Map.Entry<K, V>): Boolean {
+        // TODO: Eliminate this check after KT-30016 gets fixed.
+        if ((element as Any?) !is Map.Entry<*, *>) return false
         return map[element.key]?.let { candidate -> candidate == element.value }
                 ?: (element.value == null && map.containsKey(element.key))
     }
