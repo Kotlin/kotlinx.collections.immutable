@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests.immutableSet
+package tests.contract.set
 
 import kotlinx.collections.immutable.*
-import kotlinx.collections.immutable.contractTests.compare
-import kotlinx.collections.immutable.contractTests.setBehavior
-import kotlinx.collections.immutable.tests.isDigit
-import kotlinx.collections.immutable.tests.isUpperCase
+import tests.contract.compare
+import tests.contract.setBehavior
+import tests.isDigit
+import tests.isUpperCase
 import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {

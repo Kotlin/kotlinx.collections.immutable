@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests.immutableSet
+package tests.contract.set
 
 import com.google.common.collect.testing.SetTestSuiteBuilder
 import com.google.common.collect.testing.TestSetGenerator
 import com.google.common.collect.testing.features.CollectionFeature
 import com.google.common.collect.testing.features.CollectionSize
 import com.google.common.collect.testing.features.Feature
-import kotlinx.collections.immutable.contractTests.GuavaImmutableCollectionBaseTest
-import kotlinx.collections.immutable.contractTests.immutableSet.PersistentSetGenerator.HashSet
-import kotlinx.collections.immutable.contractTests.immutableSet.PersistentSetGenerator.OrderedSet
+import tests.contract.GuavaImmutableCollectionBaseTest
+import tests.contract.set.PersistentSetGenerator.HashSet
+import tests.contract.set.PersistentSetGenerator.OrderedSet
 import kotlin.test.Test
 
 class GuavaImmutableSetTest: GuavaImmutableCollectionBaseTest() {

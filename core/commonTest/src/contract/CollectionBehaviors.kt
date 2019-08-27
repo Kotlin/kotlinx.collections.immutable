@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests
+package tests.contract
 
 public fun <T> CompareContext<List<T>>.listBehavior() {
     equalityBehavior()

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.stressTests
+package tests.stress
 
 import kotlinx.collections.immutable.internal.assert
 import kotlin.js.JsName

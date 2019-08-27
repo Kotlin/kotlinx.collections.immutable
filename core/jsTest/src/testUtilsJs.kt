@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.tests
+package tests
 
 import kotlin.test.assertEquals
 

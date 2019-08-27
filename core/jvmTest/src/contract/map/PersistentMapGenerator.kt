@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests.immutableMap
+package tests.contract.map
 
 import com.google.common.collect.testing.TestStringMapGenerator
 import kotlinx.collections.immutable.mutate

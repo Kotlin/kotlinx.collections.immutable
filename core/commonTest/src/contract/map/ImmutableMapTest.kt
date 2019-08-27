@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests.immutableMap
+package tests.contract.map
 
 import kotlinx.collections.immutable.*
-import kotlinx.collections.immutable.contractTests.collectionBehavior
-import kotlinx.collections.immutable.contractTests.compare
-import kotlinx.collections.immutable.contractTests.mapBehavior
-import kotlinx.collections.immutable.contractTests.setBehavior
+import tests.contract.collectionBehavior
+import tests.contract.compare
+import tests.contract.mapBehavior
+import tests.contract.setBehavior
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {

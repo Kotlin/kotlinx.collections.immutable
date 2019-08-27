@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests.immutableMap
+package tests.contract.map
 
 import com.google.common.collect.testing.MapTestSuiteBuilder
 import com.google.common.collect.testing.TestMapGenerator
@@ -22,9 +22,9 @@ import com.google.common.collect.testing.features.CollectionFeature
 import com.google.common.collect.testing.features.CollectionSize
 import com.google.common.collect.testing.features.Feature
 import com.google.common.collect.testing.features.MapFeature
-import kotlinx.collections.immutable.contractTests.GuavaImmutableCollectionBaseTest
-import kotlinx.collections.immutable.contractTests.immutableMap.PersistentMapGenerator.HashMap
-import kotlinx.collections.immutable.contractTests.immutableMap.PersistentMapGenerator.OrderedMap
+import tests.contract.GuavaImmutableCollectionBaseTest
+import tests.contract.map.PersistentMapGenerator.HashMap
+import tests.contract.map.PersistentMapGenerator.OrderedMap
 import kotlin.test.Test
 
 class GuavaImmutableMapTest: GuavaImmutableCollectionBaseTest() {

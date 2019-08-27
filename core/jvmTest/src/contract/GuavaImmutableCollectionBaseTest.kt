@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests
+package tests.contract
 
 import com.google.common.collect.testing.testers.CollectionClearTester
 import com.google.common.collect.testing.testers.ListRemoveAtIndexTester

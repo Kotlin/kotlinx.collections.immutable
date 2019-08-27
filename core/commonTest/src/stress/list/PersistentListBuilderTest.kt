@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.stressTests.immutableList
+package tests.stress.list
 
 import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.contractTests.compare
-import kotlinx.collections.immutable.contractTests.listIteratorProperties
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.tests.*
+import tests.*
+import tests.contract.compare
+import tests.contract.listIteratorProperties
 import kotlin.random.Random
 import kotlin.test.*
 

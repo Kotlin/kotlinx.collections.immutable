@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests.immutableList
+package tests.contract.list
 
 import kotlinx.collections.immutable.*
-import kotlinx.collections.immutable.contractTests.compare
-import kotlinx.collections.immutable.contractTests.listBehavior
-import kotlinx.collections.immutable.tests.*
+import tests.contract.compare
+import tests.contract.listBehavior
+import tests.*
 import kotlin.test.*
 
 class ImmutableListTest {

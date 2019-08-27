@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests
+package tests.contract
 
-import kotlinx.collections.immutable.tests.assertTypeEquals
+import tests.assertTypeEquals
 import kotlin.test.*
 
 public fun <T> compare(expected: T, actual: T, block: CompareContext<T>.() -> Unit) {

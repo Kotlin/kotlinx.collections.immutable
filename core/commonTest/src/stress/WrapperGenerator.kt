@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.stressTests
+package tests.stress
 
 import kotlin.random.Random
 

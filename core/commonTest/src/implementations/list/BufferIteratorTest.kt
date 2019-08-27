@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.implementations.immutableList
+package tests.implementations.list
 
+import kotlinx.collections.immutable.implementations.immutableList.*
 import kotlin.test.*
 
 class BufferIteratorTest {

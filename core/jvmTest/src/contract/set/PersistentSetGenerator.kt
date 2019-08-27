@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests.immutableSet
+package tests.contract.set
 
 import com.google.common.collect.testing.TestStringSetGenerator
 import kotlinx.collections.immutable.mutate

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.stressTests.immutableSet
+package tests.stress.set
 
-import kotlinx.collections.immutable.stressTests.ObjectWrapper
-import kotlinx.collections.immutable.stressTests.WrapperGenerator
 import kotlinx.collections.immutable.persistentHashSetOf
+import tests.stress.ObjectWrapper
+import tests.stress.WrapperGenerator
 import kotlin.random.Random
 import kotlin.test.*
 

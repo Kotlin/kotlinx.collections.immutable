@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.contractTests.immutableList
+package tests.contract.list
 
 import com.google.common.collect.testing.ListTestSuiteBuilder
 import com.google.common.collect.testing.TestListGenerator
 import com.google.common.collect.testing.features.CollectionFeature
 import com.google.common.collect.testing.features.CollectionSize
 import com.google.common.collect.testing.features.ListFeature
-import kotlinx.collections.immutable.contractTests.GuavaImmutableCollectionBaseTest
-import kotlinx.collections.immutable.contractTests.immutableList.PersistentListGenerator.PList
+import tests.contract.GuavaImmutableCollectionBaseTest
+import tests.contract.list.PersistentListGenerator.PList
 import kotlin.test.Test
 
 class GuavaImmutableListTest: GuavaImmutableCollectionBaseTest() {

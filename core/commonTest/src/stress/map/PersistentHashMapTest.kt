@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package kotlinx.collections.immutable.stressTests.immutableMap
+package tests.stress.map
 
-import kotlinx.collections.immutable.stressTests.ObjectWrapper
-import kotlinx.collections.immutable.stressTests.WrapperGenerator
 import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.collections.immutable.tests.remove
+import tests.stress.ObjectWrapper
+import tests.stress.WrapperGenerator
+import tests.remove
 import kotlin.random.Random
 import kotlin.test.*
 
