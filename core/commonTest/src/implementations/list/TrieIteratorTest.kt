@@ -18,6 +18,7 @@ package kotlinx.collections.immutable.implementations.immutableList
 
 import kotlinx.collections.immutable.internal.assert
 import kotlin.math.pow
+import kotlin.random.*
 import kotlin.test.*
 
 class TrieIteratorTest {
@@ -55,21 +56,20 @@ class TrieIteratorTest {
 
     @Test
     fun simpleTest() {
-        var lastStop = 1
-        for (height in 1..7) {
-            for (leafCount in lastStop..(1 shl 12) step height) {
-                if (MAX_BUFFER_SIZE.toDouble().pow(height - 1) < leafCount) {
-                    lastStop = leafCount
-                    break
-                }
+        for (height in 1..4) {
+            val maxCount = MAX_BUFFER_SIZE.toDouble().pow(height - 1).toInt()
+            val minCount = maxCount / 32 + 1
+            val leafCountRange = minCount..maxCount
+            val leafCounts = (listOf(minCount, maxCount) + List(10) { Random.nextInt(leafCountRange) }).distinct().sorted()
 
+            for (leafCount in leafCounts) {
                 val root = makeRoot(height, leafCount)
                 val size = leafCount * MAX_BUFFER_SIZE
 
                 val iterator = TrieIterator<Int>(root, 0, size, height)
-                repeat(size) { it ->
+                for (index in 0 until size) {
                     assertTrue(iterator.hasNext())
-                    assertEquals(it, iterator.next())
+                    assertEquals(index, iterator.next())
                 }
 
                 assertFalse(iterator.hasNext())
