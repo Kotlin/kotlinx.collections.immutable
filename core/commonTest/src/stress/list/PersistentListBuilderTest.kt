@@ -128,6 +128,8 @@ class PersistentListBuilderTest {
             assertEquals(index, builder.first())
             assertEquals(0, builder.last())
             assertEquals(index + 1, builder.size)
+            // TODO: avoid list allocations using approach from addLastTests
+            // TODO: try to avoid n^2
             assertEquals(List(index + 1) { index - it }, builder)
         }
     }
@@ -137,13 +139,14 @@ class PersistentListBuilderTest {
         val builder = persistentListOf<Int>().builder()
 
         val elementsToAdd = 10000
+        val allElements = List(elementsToAdd) { it }
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
 
             assertEquals(0, builder[0])
             assertEquals(index, builder[index])
             assertEquals(index + 1, builder.size)
-            assertEquals(List(index + 1) { it }, builder)
+            assertEquals(allElements.subList(0, builder.size), builder)
         }
     }
 
@@ -162,6 +165,7 @@ class PersistentListBuilderTest {
             assertEquals(elementsToAdd - 1, builder.last())
             assertEquals(index, builder.first())
             assertEquals(elementsToAdd - index, builder.size)
+            // TODO: avoid list allocations using approach from addLastTests
             assertEquals(List(elementsToAdd - index) { it + index }, builder.toList())
             builder.removeAt(0)
         }
@@ -183,6 +187,7 @@ class PersistentListBuilderTest {
             assertEquals(index, builder.last())
             assertEquals(elementsToAdd - 1, builder.first())
             assertEquals(elementsToAdd - index, builder.size)
+            // TODO: avoid list allocations using approach from addLastTests
             assertEquals(List(elementsToAdd - index) { elementsToAdd - 1 - it }, builder)
 
             builder.removeAt(builder.size - 1)
