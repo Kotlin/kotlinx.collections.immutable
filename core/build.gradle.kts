@@ -9,14 +9,6 @@ base {
     archivesBaseName = "kotlinx-collections-immutable" // doesn't work
 }
 
-publishing {
-    repositories {
-        maven(url = "${rootProject.buildDir}/maven") {
-            this.name = "buildLocal"
-        }
-    }
-}
-
 val JDK_6: String by project
 
 kotlin {
