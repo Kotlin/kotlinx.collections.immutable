@@ -39,6 +39,7 @@ project {
     // Disable editing of project and build settings from the UI to avoid issues with TeamCity
     params {
         param("teamcity.ui.settings.readOnly", "true")
+        param("env.JDK_6", "%env.JDK_16%")
     }
 
     val buildAll = buildAll()
