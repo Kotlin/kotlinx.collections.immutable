@@ -184,7 +184,7 @@ fun Project.deploy(platform: String, configureBuild: BuildType) = platform(platf
             jdkHome = "%env.$jdk%"
             jvmArgs = "-Xmx1g"
             gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$releaseVersionParameter=%$releaseVersionParameter% -PbintrayApiKey=%bintray-key% -PbintrayUser=%bintray-user%"
-            tasks = "clean build publish"
+            tasks = "clean publish"
             buildFile = ""
             gradleWrapperPath = ""
         }
