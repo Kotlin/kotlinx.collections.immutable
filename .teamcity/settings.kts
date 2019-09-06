@@ -42,15 +42,11 @@ project {
         param("env.JDK_6", "%env.JDK_16%")
     }
 
-    val buildAll = buildAll()
-    val builds = platforms.map { build(it) }
+    val buildVersion = buildVersion()
+    val buildAll = buildAll(buildVersion)
+    val builds = platforms.map { build(it, buildVersion) }
     builds.forEach { build ->
-        buildAll.dependsOn(build) {
-            snapshot {
-                onDependencyFailure = FailureAction.ADD_PROBLEM
-                onDependencyCancel = FailureAction.CANCEL
-            }
-        }
+        buildAll.dependsOnSnapshot(build, onFailure = FailureAction.ADD_PROBLEM)
         buildAll.dependsOn(build) {
             artifacts {
                 artifactRules = "+:maven=>maven\n+:api=>api"
@@ -58,22 +54,50 @@ project {
         }
     }
 
-    val deployConfigure = deployConfigure()
+    val deployConfigure = deployConfigure().apply {
+        dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
+    }
     val deploys = platforms.map { deploy(it, deployConfigure) }
     val deployPublish = deployPublish(deployConfigure).apply {
+        dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
         deploys.forEach {
             dependsOnSnapshot(it)
         }
     }
 
-    buildTypesOrder = listOf(buildAll) + builds + deployPublish + deployConfigure + deploys
+    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployConfigure, *deploys.toTypedArray())
 }
 
-fun Project.buildAll() = BuildType {
+fun Project.buildVersion() = BuildType {
+    id("Build_Version")
+    this.name = "Build (Configure Version)"
+    commonConfigure()
+
+    params {
+        param(versionSuffixParameter, "SNAPSHOT")
+        param(teamcitySuffixParameter, "%build.counter%")
+    }
+
+    steps {
+        gradle {
+            name = "Generate build chain version"
+            jdkHome = "%env.$jdk%"
+            tasks = ""
+            gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$teamcitySuffixParameter=%$teamcitySuffixParameter%"
+            buildFile = ""
+            gradleWrapperPath = ""
+        }
+    }
+}.also { buildType(it) }
+
+fun Project.buildAll(versionBuild: BuildType) = BuildType {
     id("Build_All")
     this.name = "Build (All)"
     type = BuildTypeSettings.Type.COMPOSITE
-    
+
+    dependsOnSnapshot(versionBuild)
+    buildNumberPattern = versionBuild.depParamRefs.buildNumber.ref
+
     triggers {
         vcs {
             triggerRules = """
@@ -82,11 +106,19 @@ fun Project.buildAll() = BuildType {
                 """.trimIndent()
         }
     }
-    
+
     commonConfigure()
 }.also { buildType(it) }
 
-fun Project.build(platform: String) = platform(platform, "Build") {
+fun Project.build(platform: String, versionBuild: BuildType) = platform(platform, "Build") {
+
+    dependsOnSnapshot(versionBuild)
+
+    params {
+        param(versionSuffixParameter, versionBuild.depParamRefs[versionSuffixParameter].ref)
+        param(teamcitySuffixParameter, versionBuild.depParamRefs[teamcitySuffixParameter].ref)
+    }
+
     steps {
         gradle {
             name = "Build and Test $platform Binaries"
@@ -94,7 +126,7 @@ fun Project.build(platform: String) = platform(platform, "Build") {
             jvmArgs = "-Xmx1g"
             tasks = "clean publishToBuildLocal check"
             // --continue is needed to run tests for all targets even if one target fails
-            gradleParams = "--info --stacktrace -P$versionSuffixParameter=SNAPSHOT -P$teamcitySuffixParameter=%build.counter% --continue"
+            gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$teamcitySuffixParameter=%$teamcitySuffixParameter% --continue"
             buildFile = ""
             gradleWrapperPath = ""
         }
@@ -109,11 +141,11 @@ fun BuildType.dependsOn(build: BuildType, configure: Dependency.() -> Unit) =
         dependencies.dependency(build, configure)
     }
 
-fun BuildType.dependsOnSnapshot(build: BuildType, configure: SnapshotDependency.() -> Unit = {}) = apply {
+fun BuildType.dependsOnSnapshot(build: BuildType, onFailure: FailureAction = FailureAction.FAIL_TO_START, configure: SnapshotDependency.() -> Unit = {}) = apply {
     dependencies.dependency(build) {
         snapshot {
             configure()
-            onDependencyFailure = FailureAction.FAIL_TO_START
+            onDependencyFailure = onFailure
             onDependencyCancel = FailureAction.CANCEL
         }
     }
@@ -121,7 +153,7 @@ fun BuildType.dependsOnSnapshot(build: BuildType, configure: SnapshotDependency.
 
 fun Project.deployConfigure() = BuildType {
     id("Deploy_Configure")
-    this.name = "Deploy (Configure)"
+    this.name = "Deploy (Configure Version)"
     commonConfigure()
 
     params {
@@ -152,15 +184,15 @@ fun Project.deployPublish(configureBuild: BuildType) = BuildType {
     id("Deploy_Publish")
     this.name = "Deploy (Publish)"
     type = BuildTypeSettings.Type.COMPOSITE
+    dependsOnSnapshot(configureBuild)
+    buildNumberPattern = configureBuild.depParamRefs.buildNumber.ref
     params {
-        param(versionSuffixParameter, "${configureBuild.depParamRefs[versionSuffixParameter]}")
-
         // Tell configuration build how to get release version parameter from this build
         // "dev" is the default and means publishing is not releasing to public
-        param(configureBuild.reverseDepParamRefs[releaseVersionParameter].name, "dev")
+        text(configureBuild.reverseDepParamRefs[releaseVersionParameter].name, "dev", display = ParameterDisplay.PROMPT, label = "Release Version")
     }
     commonConfigure()
-}.also { buildType(it) }.dependsOnSnapshot(configureBuild)
+}.also { buildType(it) }
 
 
 fun Project.deploy(platform: String, configureBuild: BuildType) = platform(platform, "Deploy") {
