@@ -14,17 +14,24 @@ plugins {
 
 infra {
     teamcity {
-        bintrayUser = "bintrayUser"
-        bintrayToken = "bintrayToken"
+        bintrayUser = "%env.BINTRAY_USER%"
+        bintrayToken = "%env.BINTRAY_API_KEY%"
     }
     publishing {
         include(":kotlinx-collections-immutable")
 
         bintray {
-
             organization = "kotlin"
             repository = "kotlinx"
-            library = "kotlinx-collections-immutable"
+            library = "kotlinx.collections.immutable"
+            username = findProperty("bintrayUser") as String?
+            password = findProperty("bintrayApiKey") as String?
+        }
+
+        bintrayDev {
+            organization = "kotlin"
+            repository = "kotlin-dev"
+            library = "kotlinx.collections.immutable"
             username = findProperty("bintrayUser") as String?
             password = findProperty("bintrayApiKey") as String?
         }

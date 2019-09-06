@@ -29,8 +29,8 @@ val versionSuffixParameter = "versionSuffix"
 val teamcitySuffixParameter = "teamcitySuffix"
 val releaseVersionParameter = "releaseVersion"
 
-val bintrayUserName = "bintrayUser"
-val bintrayToken = "bintrayToken"
+val bintrayUserName = "%env.BINTRAY_USER%"
+val bintrayToken = "%env.BINTRAY_API_KEY%"
 
 val platforms = listOf("Windows", "Linux", "Mac OS X")
 val jdk = "JDK_18_x64"
