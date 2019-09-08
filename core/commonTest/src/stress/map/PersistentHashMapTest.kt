@@ -16,15 +16,19 @@
 
 package tests.stress.map
 
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
+import tests.NForAlgorithmComplexity
+import tests.distinctStringValues
+import tests.remove
+import tests.stress.ExecutionTimeMeasuringTest
 import tests.stress.ObjectWrapper
 import tests.stress.WrapperGenerator
-import tests.remove
 import kotlin.random.Random
 import kotlin.test.*
 
 
-class PersistentHashMapTest {
+class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     @Test
     fun isEmptyTests() {
         var map = persistentHashMapOf<Int, String>()
@@ -32,9 +36,11 @@ class PersistentHashMapTest {
         assertTrue(map.isEmpty())
         assertFalse(map.put(0, "last").isEmpty())
 
-        val elementsToAdd = 1000000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, index.toString())
+            map = map.put(index, values[index])
             assertFalse(map.isEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
@@ -52,7 +58,8 @@ class PersistentHashMapTest {
         assertTrue(map.size == 0)
         assertEquals(1, map.put(1, 1).size)
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
         repeat(times = elementsToAdd) { index ->
             map = map.put(index, index)
             assertEquals(index + 1, map.size)
@@ -74,38 +81,42 @@ class PersistentHashMapTest {
 
     @Test
     fun keysValuesEntriesTests() {
+        fun testProperties(expectedKeys: Set<Int>, actualMap: PersistentMap<Int, Int>) {
+            val values = actualMap.values
+            val keys = actualMap.keys
+            val entries = actualMap.entries
+
+            assertTrue(listOf(values.size, keys.size, entries.size).all { it == expectedKeys.size })
+
+            assertEquals<Set<*>>(expectedKeys, keys)
+            assertTrue(keys.containsAll(values))
+
+            entries.forEach { entry ->
+                assertEquals(entry.key, entry.value)
+                assertTrue(expectedKeys.contains(entry.key))
+            }
+        }
+
         var map = persistentHashMapOf<Int, Int>()
         assertTrue(map.keys.isEmpty())
         assertTrue(map.values.isEmpty())
 
-        val set = mutableSetOf<Int>()
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
-        val elementsToAdd = 2000
+        val set = hashSetOf<Int>()
         repeat(times = elementsToAdd) {
             val key = Random.nextInt()
             set.add(key)
             map = map.put(key, key)
 
-            assertEquals(set.sorted(), map.keys.sorted())
-            assertEquals(set.sorted(), map.values.sorted())
-
-            map.entries.forEach { entry ->
-                assertEquals(entry.key, entry.value)
-                assertTrue(set.contains(entry.key))
-            }
+            testProperties(set, map)
         }
 
         set.toMutableSet().forEach { key ->
             set.remove(key)
             map = map.remove(key)
 
-            assertEquals(set.sorted(), map.keys.sorted())
-            assertEquals(set.sorted(), map.values.sorted())
-
-            map.entries.forEach { entry ->
-                assertEquals(entry.key, entry.value)
-                assertTrue(set.contains(entry.key))
-            }
+            testProperties(set, map)
         }
     }
 
@@ -114,16 +125,19 @@ class PersistentHashMapTest {
         var map = persistentHashMapOf<Int, String>()
         assertTrue(map.put(0, "0").remove(0).isEmpty())
 
-        val elementsToAdd = 1000000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, index.toString())
+            map = map.put(index, values[index])
         }
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, map.size)
-            assertEquals(index.toString(), map[index])
+            assertEquals(values[index], map[index])
             map = map.remove(index)
             assertNull(map[index])
         }
+        assertTrue(map.isEmpty())
     }
 
     @Test
@@ -132,18 +146,21 @@ class PersistentHashMapTest {
         assertTrue(map.put(0, "0").remove(0, "0").isEmpty())
         assertFalse(map.put(0, "0").remove(0, "x").isEmpty())
 
-        val elementsToAdd = 1000000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val values = distinctStringValues(elementsToAdd + 1)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, index.toString())
+            map = map.put(index, values[index])
         }
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, map.size)
-            assertEquals(index.toString(), map[index])
-            map = map.remove(index, (index + 1).toString())
-            assertEquals(index.toString(), map[index])
-            map = map.remove(index, index.toString())
+            assertEquals(values[index], map[index])
+            map = map.remove(index, values[index + 1])
+            assertEquals(values[index], map[index])
+            map = map.remove(index, values[index])
             assertNull(map[index])
         }
+        assertTrue(map.isEmpty())
     }
 
     @Test
@@ -151,17 +168,19 @@ class PersistentHashMapTest {
         var map = persistentHashMapOf<Int, String>()
         assertEquals("1", map.put(1, "1")[1])
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
+        val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, index.toString())
+            map = map.put(index, values[index])
 
             for (i in 0..index) {
-                assertEquals(i.toString(), map[i])
+                assertEquals(values[i], map[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in elementsToAdd - 1 downTo index) {
-                assertEquals(i.toString(), map[i])
+                assertEquals(values[i], map[i])
             }
 
             map = map.remove(index)
@@ -173,27 +192,32 @@ class PersistentHashMapTest {
         var map = persistentHashMapOf<Int, String>()
         assertEquals("2", map.put(1, "1").put(1, "2")[1])
 
-        val elementsToAdd = 5000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
+        val values = distinctStringValues(2 * elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, (index * 2).toString())
+            map = map.put(index, values[2 * index])
 
             for (i in 0..index) {
-                assertEquals((i + index).toString(), map[i])
-                map = map.put(i, (i + index + 1).toString())
-                assertEquals((i + index + 1).toString(), map[i])
+                val valueIndex = i + index
+
+                assertEquals(values[valueIndex], map[i])
+                map = map.put(i, values[valueIndex + 1])
+                assertEquals(values[valueIndex + 1], map[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in index until elementsToAdd) {
-                val expected = elementsToAdd - index + i
+                val valueIndex = elementsToAdd - index + i
 
-                assertEquals(expected.toString(), map[i])
-                map = map.put(i, (expected - 1).toString())
-                assertEquals((expected - 1).toString(), map[i])
+                assertEquals(values[valueIndex], map[i])
+                map = map.put(i, values[valueIndex - 1])
+                assertEquals(values[valueIndex - 1], map[i])
             }
 
             map = map.remove(index)
         }
+        assertTrue(map.isEmpty())
     }
 
     @Test
@@ -206,12 +230,15 @@ class PersistentHashMapTest {
         assertEquals(2, map.put(oneWrapper, 1).put(twoWrapper, 2)[twoWrapper])
 
         repeat(times = 2) { removeEntryPredicate ->
-            val keyGen = WrapperGenerator<Int>(20000)
+
+            val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+            val maxHashCode = elementsToAdd / 5     // should be less than `elementsToAdd`
+            val keyGen = WrapperGenerator<Int>(maxHashCode)
             fun key(key: Int): ObjectWrapper<Int> {
                 return keyGen.wrapper(key)
             }
 
-            val elementsToAdd = 100000   /// should be more than keyGen.hashCodeUpperBound
             repeat(times = elementsToAdd) { index ->
                 map = map.put(key(index), Int.MIN_VALUE)
                 assertEquals(Int.MIN_VALUE, map[key(index)])
@@ -238,19 +265,24 @@ class PersistentHashMapTest {
                 } else {
                     for (key in collisions) {
                         assertEquals(key.obj, map[key])
+
                         map = if (removeEntryPredicate == 1) {
-                            val sameMap = map.remove(key, Int.MIN_VALUE)
+                            val nonExistingValue = Int.MIN_VALUE
+                            val sameMap = map.remove(key, nonExistingValue)
                             assertEquals(map.size, sameMap.size)
                             assertEquals(key.obj, sameMap[key])
 
                             map.remove(key, key.obj)
                         } else {
-                            val sameMap = map.remove(ObjectWrapper(Int.MIN_VALUE, key.hashCode))
+                            val nonExistingKey = ObjectWrapper(Int.MIN_VALUE, key.hashCode)
+                            val sameMap = map.remove(nonExistingKey)
                             assertEquals(map.size, sameMap.size)
                             assertEquals(key.obj, sameMap[key])
 
                             map.remove(key)
                         }
+
+                        assertNull(map[key])
                     }
                 }
             }
@@ -262,78 +294,85 @@ class PersistentHashMapTest {
     fun randomOperationsTests() {
         repeat(times = 1) {
 
-            val mutableMaps = List(10) { mutableMapOf<ObjectWrapper<Int>?, Int?>() }
+            val mutableMaps = List(10) { hashMapOf<ObjectWrapper<Int>?, Int?>() }
             val immutableMaps = MutableList(10) { persistentHashMapOf<ObjectWrapper<Int>?, Int?>() }
 
-            val operationCount = 2000000
-            val hashCodes = List(operationCount / 3) { Random.nextInt() }
+            val operationCount = NForAlgorithmComplexity.O_NlogN
+
+            val numberOfDistinctHashCodes = operationCount / 3  // less than `operationCount` to increase collision cases
+            val hashCodes = List(numberOfDistinctHashCodes) { Random.nextInt() }
+
             repeat(times = operationCount) {
                 val index = Random.nextInt(mutableMaps.size)
                 val mutableMap = mutableMaps[index]
                 val immutableMap = immutableMaps[index]
 
-                val key = if (Random.nextDouble() < 0.001) {
-                    null
-                } else {
-                    val hashCodeIndex = Random.nextInt(hashCodes.size)
-                    ObjectWrapper(Random.nextInt(), hashCodes[hashCodeIndex])
+                val shouldRemove = Random.nextDouble() < 0.3
+                val shouldOperateOnExistingKey = mutableMap.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.2 }
+
+                val key = when {
+                    shouldOperateOnExistingKey -> mutableMap.keys.first()
+                    Random.nextDouble() < 0.001 -> null
+                    else -> ObjectWrapper(Random.nextInt(), hashCodes.random())
                 }
 
-                val operationType = Random.nextDouble()
-
-                val shouldRemove = operationType < 0.2
-                val shouldRemoveEntry = !shouldRemove && operationType < 0.4
-                val shouldPutNull = !shouldRemove && !shouldRemoveEntry && operationType < 0.45
+                val shouldRemoveByKey = shouldRemove && Random.nextBoolean()
+                val shouldRemoveByKeyAndValue = shouldRemove && !shouldRemoveByKey
 
                 val newImmutableMap = when {
-                    shouldRemove -> {
+                    shouldRemoveByKey -> {
                         mutableMap.remove(key)
                         immutableMap.remove(key)
                     }
-                    shouldRemoveEntry -> {
-                        val value = Random.nextInt(5)
+                    shouldRemoveByKeyAndValue -> {
+                        val shouldBeCurrentValue = Random.nextDouble() < 0.8
+                        val value = if (shouldOperateOnExistingKey && shouldBeCurrentValue) mutableMap[key] else Random.nextInt()
                         mutableMap.remove(key, value)
                         immutableMap.remove(key, value)
                     }
-                    shouldPutNull -> {
-                        mutableMap[key] = null
-                        immutableMap.put(key, null)
-                    }
                     else -> {
-                        val value = Random.nextInt(5)
+                        val shouldPutNullValue = Random.nextDouble() < 0.001
+                        val value = if (shouldPutNullValue) null else Random.nextInt()
                         mutableMap[key] = value
                         immutableMap.put(key, value)
                     }
                 }
 
-                assertEquals(mutableMap.size, newImmutableMap.size)
-                assertEquals(mutableMap[key], newImmutableMap[key])
-                assertEquals(mutableMap.containsKey(key), newImmutableMap.containsKey(key))
-//                assertEquals(mutableMap.containsValue(key), newImmutableMap.containsValue(key))
-//                assertEquals(mutableMap.keys.sorted(), newImmutableMap.keys.sorted())
-//                assertEquals(mutableMap.values.sorted(), newImmutableMap.values.sorted())
+                testAfterOperation(mutableMap, newImmutableMap, key)
 
                 immutableMaps[index] = newImmutableMap
             }
 
-            println(mutableMaps.maxBy { it.size }?.size)
-            println(immutableMaps.maxBy { it.size }?.size)
+            assertEquals<List<*>>(mutableMaps, immutableMaps)
+
+            val maxSize = immutableMaps.maxBy { it.size }?.size
+            println("Largest persistent map size: $maxSize")
 
             mutableMaps.forEachIndexed { index, mutableMap ->
                 var immutableMap = immutableMaps[index]
 
-                for (key in mutableMap.keys.toMutableSet()) {
+                val keys = mutableMap.keys.toMutableList()
+                for (key in keys) {
                     mutableMap.remove(key)
                     immutableMap = immutableMap.remove(key)
 
-                    assertEquals(mutableMap.size, immutableMap.size)
-                    assertEquals(mutableMap[key], immutableMap[key])
-                    assertEquals(mutableMap.containsKey(key), immutableMap.containsKey(key))
-//                    assertEquals(mutableMap.containsValue(key), immutableMap.containsValue(key))
-//                    assertEquals(mutableMap.keys.sorted(), immutableMap.keys.sorted())
-//                    assertEquals(mutableMap.values.sorted(), immutableMap.values.sorted())
+                    testAfterOperation(mutableMap, immutableMap, key)
                 }
             }
         }
+    }
+
+    private fun testAfterOperation(
+            expected: Map<ObjectWrapper<Int>?, Int?>,
+            actual: Map<ObjectWrapper<Int>?, Int?>,
+            operationKey: ObjectWrapper<Int>?
+    ) {
+        assertEquals(expected.size, actual.size)
+        assertEquals(expected[operationKey], actual[operationKey])
+        assertEquals(expected.containsKey(operationKey), actual.containsKey(operationKey))
+
+//        assertEquals(expected.containsValue(operationKey?.obj), actual.containsValue(operationKey?.obj))
+//        assertEquals(expected.keys, actual.keys)
+//        assertEquals(expected.values.sortedBy { it }, actual.values.sortedBy { it })
     }
 }

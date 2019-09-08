@@ -16,14 +16,18 @@
 
 package tests.stress.map
 
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
+import tests.NForAlgorithmComplexity
+import tests.distinctStringValues
+import tests.remove
+import tests.stress.ExecutionTimeMeasuringTest
 import tests.stress.ObjectWrapper
 import tests.stress.WrapperGenerator
-import tests.remove
 import kotlin.random.Random
 import kotlin.test.*
 
-class PersistentHashMapBuilderTest {
+class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun isEmptyTests() {
@@ -31,9 +35,11 @@ class PersistentHashMapBuilderTest {
 
         assertTrue(builder.isEmpty())
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            builder[index] = index.toString()
+            builder[index] = values[index]
             assertFalse(builder.isEmpty())
         }
         repeat(times = elementsToAdd - 1) {
@@ -50,7 +56,8 @@ class PersistentHashMapBuilderTest {
 
         assertTrue(builder.size == 0)
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
         repeat(times = elementsToAdd) { index ->
             assertNull(builder.put(index, index))
             assertEquals(index + 1, builder.size)
@@ -72,38 +79,42 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun keysValuesEntriesTests() {
+        fun testProperties(expectedKeys: Set<Int>, actualBuilder: PersistentMap.Builder<Int, Int>) {
+            val values = actualBuilder.values
+            val keys = actualBuilder.keys
+            val entries = actualBuilder.entries
+
+            assertTrue(listOf(values.size, keys.size, entries.size).all { it == expectedKeys.size })
+
+            assertEquals<Set<*>>(expectedKeys, keys)
+            assertTrue(keys.containsAll(values))
+
+            entries.forEach { entry ->
+                assertEquals(entry.key, entry.value)
+                assertTrue(expectedKeys.contains(entry.key))
+            }
+        }
+
         val builder = persistentHashMapOf<Int, Int>().builder()
         assertTrue(builder.keys.isEmpty())
         assertTrue(builder.values.isEmpty())
 
-        val set = mutableSetOf<Int>()
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
-        val elementsToAdd = 2000
+        val set = hashSetOf<Int>()
         repeat(times = elementsToAdd) {
             val key = Random.nextInt()
             set.add(key)
             builder[key] = key
 
-            assertEquals(set.sorted(), builder.keys.sorted())
-            assertEquals(set.sorted(), builder.values.sorted())
-
-            builder.entries.forEach { entry ->
-                assertEquals(entry.key, entry.value)
-                assertTrue(set.contains(entry.key))
-            }
+            testProperties(set, builder)
         }
 
         set.toMutableSet().forEach { key ->
             set.remove(key)
             builder.remove(key)
 
-            assertEquals(set.sorted(), builder.keys.sorted())
-            assertEquals(set.sorted(), builder.values.sorted())
-
-            builder.entries.forEach { entry ->
-                assertEquals(entry.key, entry.value)
-                assertTrue(set.contains(entry.key))
-            }
+            testProperties(set, builder)
         }
     }
 
@@ -111,14 +122,16 @@ class PersistentHashMapBuilderTest {
     fun removeTests() {
         val builder = persistentHashMapOf<Int, String>().builder()
 
-        val elementsToAdd = 1000000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            builder[index] = index.toString()
+            builder[index] = values[index]
         }
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, builder.size)
-            assertEquals(index.toString(), builder[index])
-            assertEquals(index.toString(), builder.remove(index))
+            assertEquals(values[index], builder[index])
+            assertEquals(values[index], builder.remove(index))
             assertNull(builder[index])
         }
     }
@@ -127,16 +140,18 @@ class PersistentHashMapBuilderTest {
     fun removeEntryTests() {
         val builder = persistentHashMapOf<Int, String>().builder()
 
-        val elementsToAdd = 1000000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val values = distinctStringValues(elementsToAdd + 1)
         repeat(times = elementsToAdd) { index ->
-            builder[index] = index.toString()
+            builder[index] = values[index]
         }
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, builder.size)
-            assertEquals(index.toString(), builder[index])
-            assertFalse(builder.remove(index, (index + 1).toString()))
-            assertEquals(index.toString(), builder[index])
-            assertTrue(builder.remove(index, index.toString()))
+            assertEquals(values[index], builder[index])
+            assertFalse(builder.remove(index, values[index + 1]))
+            assertEquals(values[index], builder[index])
+            assertTrue(builder.remove(index, values[index]))
             assertNull(builder[index])
         }
     }
@@ -145,17 +160,19 @@ class PersistentHashMapBuilderTest {
     fun getTests() {
         val builder = persistentHashMapOf<Int, String>().builder()
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
+        val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            builder[index] = index.toString()
+            builder[index] = values[index]
 
             for (i in 0..index) {
-                assertEquals(i.toString(), builder[i])
+                assertEquals(values[i], builder[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in elementsToAdd - 1 downTo index) {
-                assertEquals(i.toString(), builder[i])
+                assertEquals(values[i], builder[i])
             }
 
             builder.remove(index)
@@ -166,27 +183,32 @@ class PersistentHashMapBuilderTest {
     fun putTests() {
         val builder = persistentHashMapOf<Int, String>().builder()
 
-        val elementsToAdd = 5000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
+        val values = distinctStringValues(2 * elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            assertNull(builder.put(index, (index * 2).toString()))
+            assertNull(builder.put(index, values[2 * index]))
 
             for (i in 0..index) {
-                assertEquals((i + index).toString(), builder[i])
-                assertEquals((i + index).toString(), builder.put(i, (i + index + 1).toString()))
-                assertEquals((i + index + 1).toString(), builder[i])
+                val valueIndex = i + index
+
+                assertEquals(values[valueIndex], builder[i])
+                assertEquals(values[valueIndex], builder.put(i, values[valueIndex + 1]))
+                assertEquals(values[valueIndex + 1], builder[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in index until elementsToAdd) {
-                val expected = elementsToAdd - index + i
+                val valueIndex = elementsToAdd - index + i
 
-                assertEquals(expected.toString(), builder[i])
-                assertEquals(expected.toString(), builder.put(i, (expected - 1).toString()))
-                assertEquals((expected - 1).toString(), builder[i])
+                assertEquals(values[valueIndex], builder[i])
+                assertEquals(values[valueIndex], builder.put(i, values[valueIndex - 1]))
+                assertEquals(values[valueIndex - 1], builder[i])
             }
 
             builder.remove(index)
         }
+        assertTrue(builder.isEmpty())
     }
 
     @Test
@@ -194,12 +216,15 @@ class PersistentHashMapBuilderTest {
         val builder = persistentHashMapOf<ObjectWrapper<Int>, Int>().builder()
 
         repeat(times = 2) { removeEntryPredicate ->
-            val keyGen = WrapperGenerator<Int>(20000)
+
+            val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+            val maxHashCode = elementsToAdd / 5    // should be less than `elementsToAdd`
+            val keyGen = WrapperGenerator<Int>(maxHashCode)
             fun key(key: Int): ObjectWrapper<Int> {
                 return keyGen.wrapper(key)
             }
 
-            val elementsToAdd = 100000   /// should be more than keyGen.hashCodeUpperBound
             repeat(times = elementsToAdd) { index ->
                 assertNull(builder.put(key(index), Int.MIN_VALUE))
                 assertEquals(Int.MIN_VALUE, builder[key(index)])
@@ -226,17 +251,22 @@ class PersistentHashMapBuilderTest {
                 } else {
                     for (key in collisions) {
                         assertEquals(key.obj, builder[key])
+
                         if (removeEntryPredicate == 1) {
-                            assertNull(builder.remove(ObjectWrapper(Int.MIN_VALUE, key.hashCode)))
+                            val nonExistingValue = Int.MIN_VALUE
+                            assertFalse(builder.remove(key, nonExistingValue))
                             assertEquals(key.obj, builder[key])
-                            assertEquals(true, builder.remove(key, key.obj))
-                            assertNull(builder[key])
+
+                            assertTrue(builder.remove(key, key.obj))
                         } else {
-                            assertNull(builder.remove(ObjectWrapper(Int.MIN_VALUE, key.hashCode)))
+                            val nonExistingKey = ObjectWrapper(Int.MIN_VALUE, key.hashCode)
+                            assertNull(builder.remove(nonExistingKey))
                             assertEquals(key.obj, builder[key])
+
                             assertEquals(key.obj, builder.remove(key))
-                            assertNull(builder[key])
                         }
+
+                        assertNull(builder[key])
                     }
                 }
             }
@@ -249,54 +279,80 @@ class PersistentHashMapBuilderTest {
         val mapGen = mutableListOf(List(20) { persistentHashMapOf<ObjectWrapper<Int>, Int>() })
         val expected = mutableListOf(List(20) { mapOf<ObjectWrapper<Int>, Int>() })
 
-        repeat(times = 10) {
+        repeat(times = 5) {
 
             val builders = mapGen.last().map { it.builder() }
             val maps = builders.map { it.toMutableMap() }
 
-            val operationCount = 200000
-            val hashCodes = List(operationCount / 2) { Random.nextInt() }
+            val operationCount = NForAlgorithmComplexity.O_NlogN
+
+            val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
+            val hashCodes = List(numberOfDistinctHashCodes) { Random.nextInt() }
+
             repeat(times = operationCount) {
                 val index = Random.nextInt(maps.size)
                 val map = maps[index]
                 val builder = builders[index]
 
-                val operationType = Random.nextDouble()
-                val hashCodeIndex = Random.nextInt(hashCodes.size)
-                val key = ObjectWrapper(Random.nextInt(), hashCodes[hashCodeIndex])
+                val shouldRemove = Random.nextDouble() < 0.3
+                val shouldOperateOnExistingKey = map.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.2 }
 
-                val shouldRemove = operationType < 0.2
-                val shouldRemoveEntry = !shouldRemove && operationType < 0.4
+                val key = if (shouldOperateOnExistingKey) map.keys.first() else ObjectWrapper(Random.nextInt(), hashCodes.random())
+
+                val shouldRemoveByKey = shouldRemove && Random.nextBoolean()
+                val shouldRemoveByKeyAndValue = shouldRemove && !shouldRemoveByKey
+
                 when {
-                    shouldRemove -> {
+                    shouldRemoveByKey -> {
                         assertEquals(map.remove(key), builder.remove(key))
                     }
-                    shouldRemoveEntry -> {
-                        val value = Random.nextInt(5)
+                    shouldRemoveByKeyAndValue -> {
+                        val shouldBeCurrentValue = Random.nextDouble() < 0.8
+                        val value = if (shouldOperateOnExistingKey && shouldBeCurrentValue) map[key]!! else Random.nextInt()
                         assertEquals(map.remove(key, value), builder.remove(key, value))
                     }
                     else -> {
-                        val value = Random.nextInt(5)
+                        val value = Random.nextInt()
                         assertEquals(map.put(key, value), builder.put(key, value))
                     }
                 }
 
-                assertEquals(map.size, builder.size)
-                assertEquals(map[key], builder[key])
-                assertEquals(map.containsKey(key), builder.containsKey(key))
-//                assertEquals(mutableMap.containsValue(key), newImmutableMap.containsValue(key))
-//                assertEquals(mutableMap.keys.sorted(), newImmutableMap.keys.sorted())
-//                assertEquals(mutableMap.values.sorted(), newImmutableMap.values.sorted())
+                testAfterOperation(map, builder, key)
             }
 
+            assertEquals(maps, builders)
+
             mapGen.add( builders.map { it.build() } )
-            expected.add( mapGen.last().map { it.toMutableMap() } )
+            expected.add(maps)
 
-            println(maps.maxBy { it.size }?.size)
+            val maxSize = builders.maxBy { it.size }?.size
+            println("Largest persistent map builder size: $maxSize")
         }
 
-        mapGen.forEachIndexed { index, maps ->
-            assertEquals(expected[index], maps)
+        mapGen.forEachIndexed { genIndex, maps ->
+            // assert that builders didn't modify persistent maps they were created from.
+            maps.forEachIndexed { mapIndex, map ->
+                val expectedMap = expected[genIndex][mapIndex]
+                assertEquals(
+                        expectedMap,
+                        map,
+                        message = "The persistent map of $genIndex generation was modified.\nExpected: $expectedMap\nActual: $map"
+                )
+            }
         }
+    }
+
+    private fun testAfterOperation(
+            expected: Map<ObjectWrapper<Int>, Int>,
+            actual: Map<ObjectWrapper<Int>, Int>,
+            operationKey: ObjectWrapper<Int>
+    ) {
+        assertEquals(expected.size, actual.size)
+        assertEquals(expected[operationKey], actual[operationKey])
+        assertEquals(expected.containsKey(operationKey), actual.containsKey(operationKey))
+
+//        assertEquals(expected.containsValue(operationKey.obj), actual.containsValue(operationKey.obj))
+//        assertEquals(expected.keys, actual.keys)
+//        assertEquals(expected.values.sorted(), actual.values.sorted())
     }
 }

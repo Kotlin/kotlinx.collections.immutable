@@ -18,11 +18,14 @@ package tests.stress.list
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
+import tests.NForAlgorithmComplexity
+import tests.distinctStringValues
+import tests.stress.ExecutionTimeMeasuringTest
 import kotlin.random.Random
 import kotlin.test.*
 
 
-class PersistentListTest {
+class PersistentListTest : ExecutionTimeMeasuringTest() {
     @Test
     fun isEmptyTests() {
         var vector = persistentListOf<String>()
@@ -30,9 +33,11 @@ class PersistentListTest {
         assertTrue(vector.isEmpty())
         assertFalse(vector.add("last").isEmpty())
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_N
+
+        val elements = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            vector = vector.add(index.toString())
+            vector = vector.add(elements[index])
             assertFalse(vector.isEmpty())
         }
         repeat(times = elementsToAdd - 1) {
@@ -50,7 +55,8 @@ class PersistentListTest {
         assertTrue(vector.size == 0)
         assertEquals(1, vector.add(1).size)
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_N
+
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index)
             assertEquals(index + 1, vector.size)
@@ -70,7 +76,8 @@ class PersistentListTest {
         assertEquals(1, vector.add(0, 1).first())
         assertEquals(1, vector.add(1).first())
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(0, index)
             assertEquals(index, vector.first())
@@ -90,7 +97,8 @@ class PersistentListTest {
         assertEquals(1, vector.add(0, 1).last())
         assertEquals(1, vector.add(1).last())
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_N
+
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index)
             assertEquals(index, vector.last())
@@ -127,7 +135,8 @@ class PersistentListTest {
                         .toList()
         )
 
-        val elementsToAdd = 1000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
         val list = mutableListOf<Int>()
         repeat(times = elementsToAdd) { index ->
             list.add(index)
@@ -145,14 +154,18 @@ class PersistentListTest {
         assertEquals(1, vector.add(0, 1).first())
         assertEquals(1, vector.add(0, 1).last())
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
+        val allElements = List(elementsToAdd) { elementsToAdd - it - 1 }
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(0, index)
 
             assertEquals(index, vector.first())
             assertEquals(0, vector.last())
             assertEquals(index + 1, vector.size)
-            assertEquals(List(index + 1) { index - it }, vector.toList())
+
+            val expectedContent = allElements.subList(elementsToAdd - vector.size, elementsToAdd)
+            assertEquals(expectedContent, vector.toList())
         }
     }
 
@@ -162,14 +175,17 @@ class PersistentListTest {
 
         assertEquals(1, vector.add(1)[0])
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
+        val allElements = List(elementsToAdd) { it }
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index)
 
             assertEquals(0, vector[0])
             assertEquals(index, vector[index])
             assertEquals(index + 1, vector.size)
-            assertEquals(List(index + 1) { it }, vector.toList())
+
+            assertEquals(allElements.subList(0, vector.size), vector)
         }
     }
 
@@ -184,7 +200,9 @@ class PersistentListTest {
         assertTrue(vector.add(1).removeAt(0).isEmpty())
         assertTrue(vector.add(0, 1).removeAt(0).isEmpty())
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
+        val allElements = List(elementsToAdd) { it }
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index)
         }
@@ -192,7 +210,8 @@ class PersistentListTest {
             assertEquals(elementsToAdd - 1, vector.last())
             assertEquals(index, vector.first())
             assertEquals(elementsToAdd - index, vector.size)
-            assertEquals(List(elementsToAdd - index) { it + index }, vector.toList())
+            assertEquals(allElements.subList(index, elementsToAdd), vector)
+
             vector = vector.removeAt(0)
         }
     }
@@ -207,7 +226,9 @@ class PersistentListTest {
         assertTrue(vector.add(1).removeAt(0).isEmpty())
         assertTrue(vector.add(0, 1).removeAt(0).isEmpty())
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
+        val allElements = List(elementsToAdd) { elementsToAdd - it - 1 }
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(0, index)
         }
@@ -215,19 +236,20 @@ class PersistentListTest {
             assertEquals(index, vector.last())
             assertEquals(elementsToAdd - 1, vector.first())
             assertEquals(elementsToAdd - index, vector.size)
-            assertEquals(List(elementsToAdd - index) { elementsToAdd - 1 - it }, vector.toList())
+            assertEquals(allElements.subList(0, vector.size), vector)
 
             vector = vector.removeAt(vector.size - 1)
         }
 
+        val linear = NForAlgorithmComplexity.O_N
 
-        repeat(times = 1000000) { index ->
+        repeat(times = linear) { index ->
             vector = vector.add(index)
         }
-        repeat(times = 1000000) { index ->
-            assertEquals(1000000 - 1 - index, vector.last())
+        repeat(times = linear) { index ->
+            assertEquals(linear - 1 - index, vector.last())
             assertEquals(0, vector.first())
-            assertEquals(1000000 - index, vector.size)
+            assertEquals(linear - index, vector.size)
 
             vector = vector.removeAt(vector.size - 1)
         }
@@ -242,7 +264,8 @@ class PersistentListTest {
         }
         assertEquals(1, vector.add(1)[0])
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index)
 
@@ -268,7 +291,8 @@ class PersistentListTest {
         }
         assertEquals(2, vector.add(1).set(0, 2)[0])
 
-        val elementsToAdd = 5000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index * 2)
 
@@ -279,7 +303,7 @@ class PersistentListTest {
             }
         }
         repeat(times = elementsToAdd) { index ->
-            for (i in 0..(elementsToAdd - index - 1)) {
+            for (i in 0 until elementsToAdd - index) {
                 val expected = elementsToAdd + i
 
                 assertEquals(expected, vector[i])
@@ -298,7 +322,9 @@ class PersistentListTest {
             val lists = List(20) { mutableListOf<Int>() }
             val vectors = MutableList(20) { persistentListOf<Int>() }
 
-            repeat(times = 1000000) {
+            val operationCount = NForAlgorithmComplexity.O_NlogN
+
+            repeat(times = operationCount) {
                 val index = Random.nextInt(lists.size)
                 val list = lists[index]
                 val vector = vectors[index]
@@ -309,10 +335,10 @@ class PersistentListTest {
                 val shouldRemove = operationType < 0.15
                 val shouldSet = operationType > 0.15 && operationType < 0.3
 
-                val newVector = if (!list.isEmpty() && shouldRemove) {
+                val newVector = if (list.isNotEmpty() && shouldRemove) {
                     list.removeAt(operationIndex)
                     vector.removeAt(operationIndex)
-                } else if (!list.isEmpty() && shouldSet) {
+                } else if (list.isNotEmpty() && shouldSet) {
                     val value = Random.nextInt()
                     list[operationIndex] = value
                     vector.set(operationIndex, value)
@@ -323,23 +349,24 @@ class PersistentListTest {
                 }
 
                 testAfterOperation(list, newVector, operationIndex)
-//                assertEquals(list, newVector.toList())
 
                 vectors[index] = newVector
             }
 
-            println(lists.maxBy { it.size }?.size)
+            assertEquals<List<*>>(lists, vectors)
+
+            val maxSize = vectors.maxBy { it.size }?.size
+            println("Largest persistent list size: $maxSize")
 
             lists.forEachIndexed { index, list ->
                 var vector = vectors[index]
 
-                while (!list.isEmpty()) {
+                while (list.isNotEmpty()) {
                     val removeIndex = Random.nextInt(list.size)
                     list.removeAt(removeIndex)
                     vector = vector.removeAt(removeIndex)
 
                     testAfterOperation(list, vector, removeIndex)
-//                    assertEquals(list, vector.toList())
                 }
             }
         }
@@ -358,5 +385,7 @@ class PersistentListTest {
         if (operationIndex + 1 < list.size) {
             assertEquals(list[operationIndex + 1], vector[operationIndex + 1])
         }
+
+//        assertEquals(list, vector)
     }
 }

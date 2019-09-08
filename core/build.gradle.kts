@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeTest
-
 plugins {
     id("kotlin-multiplatform")
     `maven-publish`
@@ -101,10 +99,5 @@ tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
         executable = "$JDK_6/bin/java"
-    }
-
-    withType<KotlinNativeTest>() {
-        // disable all Kotlin/Native tests: very long running
-        enabled = false
     }
 }

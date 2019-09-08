@@ -18,13 +18,19 @@ package tests.stress.list
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-import tests.*
+import tests.NForAlgorithmComplexity
+import tests.TestPlatform
 import tests.contract.compare
 import tests.contract.listIteratorProperties
+import tests.distinctStringValues
+import tests.stress.ExecutionTimeMeasuringTest
+import tests.testOn
 import kotlin.random.Random
 import kotlin.test.*
+import kotlin.time.ExperimentalTime
 
-class PersistentListBuilderTest {
+@UseExperimental(ExperimentalTime::class)
+class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun isEmptyTests() {
@@ -32,9 +38,11 @@ class PersistentListBuilderTest {
 
         assertTrue(builder.isEmpty())
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_N
+
+        val elements = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            builder.add(index.toString())
+            builder.add(elements[index])
             assertFalse(builder.isEmpty())
         }
         repeat(times = elementsToAdd - 1) {
@@ -51,7 +59,8 @@ class PersistentListBuilderTest {
 
         assertTrue(builder.size == 0)
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_N
+
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
             assertEquals(index + 1, builder.size)
@@ -69,7 +78,8 @@ class PersistentListBuilderTest {
 
         assertNull(builder.firstOrNull())
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
         repeat(times = elementsToAdd) { index ->
             builder.add(0, index)
             assertEquals(index, builder.first())
@@ -87,7 +97,8 @@ class PersistentListBuilderTest {
 
         assertNull(builder.lastOrNull())
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_N
+
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
             assertEquals(index, builder.last())
@@ -105,12 +116,13 @@ class PersistentListBuilderTest {
 
         assertEquals(emptyList<Int>(), builder)
 
-        val elementsToAdd = 1000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
         val list = mutableListOf<Int>()
         repeat(times = elementsToAdd) { index ->
             list.add(index)
             builder.add(index)
-            assertEquals<List<*>>(list, builder)
+            assertEquals<List<*>>(list, builder.toList())
         }
     }
 
@@ -121,16 +133,18 @@ class PersistentListBuilderTest {
 
         assertNull(builder.firstOrNull())
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
+        val allElements = List(elementsToAdd) { elementsToAdd - it - 1 }
         repeat(times = elementsToAdd) { index ->
             builder.add(0, index)
 
             assertEquals(index, builder.first())
             assertEquals(0, builder.last())
             assertEquals(index + 1, builder.size)
-            // TODO: avoid list allocations using approach from addLastTests
-            // TODO: try to avoid n^2
-            assertEquals(List(index + 1) { index - it }, builder)
+
+            val expectedContent = allElements.subList(elementsToAdd - builder.size, elementsToAdd)
+            assertEquals(expectedContent, builder)
         }
     }
 
@@ -138,7 +152,8 @@ class PersistentListBuilderTest {
     fun addLastTests() {
         val builder = persistentListOf<Int>().builder()
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
         val allElements = List(elementsToAdd) { it }
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
@@ -157,7 +172,9 @@ class PersistentListBuilderTest {
 
         assertFailsWith<IndexOutOfBoundsException> { builder.removeAt(0) }
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
+        val allElements = List(elementsToAdd) { it }
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
         }
@@ -165,8 +182,8 @@ class PersistentListBuilderTest {
             assertEquals(elementsToAdd - 1, builder.last())
             assertEquals(index, builder.first())
             assertEquals(elementsToAdd - index, builder.size)
-            // TODO: avoid list allocations using approach from addLastTests
-            assertEquals(List(elementsToAdd - index) { it + index }, builder.toList())
+            assertEquals(allElements.subList(index, elementsToAdd), builder)
+
             builder.removeAt(0)
         }
     }
@@ -179,7 +196,9 @@ class PersistentListBuilderTest {
             builder.removeAt(builder.size - 1)
         }
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
+        val allElements = List(elementsToAdd) { elementsToAdd - it - 1 }
         repeat(times = elementsToAdd) { index ->
             builder.add(0, index)
         }
@@ -187,20 +206,20 @@ class PersistentListBuilderTest {
             assertEquals(index, builder.last())
             assertEquals(elementsToAdd - 1, builder.first())
             assertEquals(elementsToAdd - index, builder.size)
-            // TODO: avoid list allocations using approach from addLastTests
-            assertEquals(List(elementsToAdd - index) { elementsToAdd - 1 - it }, builder)
+            assertEquals(allElements.subList(0, builder.size), builder)
 
             builder.removeAt(builder.size - 1)
         }
 
+        val linear = NForAlgorithmComplexity.O_N
 
-        repeat(times = 1000000) { index ->
+        repeat(times = linear) { index ->
             builder.add(index)
         }
-        repeat(times = 1000000) { index ->
-            assertEquals(1000000 - 1 - index, builder.last())
+        repeat(times = linear) { index ->
+            assertEquals(linear - 1 - index, builder.last())
             assertEquals(0, builder.first())
-            assertEquals(1000000 - index, builder.size)
+            assertEquals(linear - index, builder.size)
 
             builder.removeAt(builder.size - 1)
         }
@@ -214,7 +233,8 @@ class PersistentListBuilderTest {
             builder[0]
         }
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
 
@@ -239,7 +259,8 @@ class PersistentListBuilderTest {
             builder[0] = 0
         }
 
-        val elementsToAdd = 5000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
         repeat(times = elementsToAdd) { index ->
             builder.add(index * 2)
 
@@ -250,7 +271,7 @@ class PersistentListBuilderTest {
             }
         }
         repeat(times = elementsToAdd) { index ->
-            for (i in 0..(elementsToAdd - index - 1)) {
+            for (i in 0 until elementsToAdd - index) {
                 val expected = elementsToAdd + i
 
                 assertEquals(expected, builder[i])
@@ -266,7 +287,7 @@ class PersistentListBuilderTest {
     fun subListTests() {
         val builder = persistentListOf<Int>().builder()
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_N
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
         }
@@ -295,6 +316,7 @@ class PersistentListBuilderTest {
         }
     }
 
+    @Suppress("TestFunctionName")
     private fun <E> PersistentList(size: Int, producer: (Int) -> E): PersistentList<E> {
         var list = persistentListOf<E>()
         repeat(times = size) { index ->
@@ -329,7 +351,9 @@ class PersistentListBuilderTest {
 
     @Test
     fun iterationTests() {
-        val list = PersistentList(100000) { it }
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val list = PersistentList(elementsToAdd) { it }
         val builder = list.builder()
         val expected = list.toMutableList()
 
@@ -346,13 +370,16 @@ class PersistentListBuilderTest {
                 compare(expectedIterator, builderIterator) { listIteratorProperties() }
             }
 
-            iterateWith(expectedIterator, builderIterator, expected.size) { /* Do nothing after iteration */ }
+            val maxIterationCount = expected.size / 3
+            iterateWith(expectedIterator, builderIterator, maxIterationCount) { /* Do nothing after iteration */ }
         }
     }
 
     @Test
     fun iteratorSetTests() {
-        val list = PersistentList(100000) { it }
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val list = PersistentList(elementsToAdd) { it }
         val builder = list.builder()
         val expected = list.toMutableList()
 
@@ -369,8 +396,9 @@ class PersistentListBuilderTest {
                 compare(expectedIterator, builderIterator) { listIteratorProperties() }
             }
 
-            val shouldSet = Random.nextBoolean()
-            iterateWith(expectedIterator, builderIterator, expected.size) {
+            val maxIterationCount = expected.size / 3
+            iterateWith(expectedIterator, builderIterator, maxIterationCount) {
+                val shouldSet = Random.nextBoolean()
                 if (shouldSet) {
                     val elementToSet = Random.nextInt()
                     expectedIterator.set(elementToSet)
@@ -382,7 +410,9 @@ class PersistentListBuilderTest {
 
     @Test
     fun iteratorAddTests() {
-        val list = PersistentList(10000) { it }
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
+        val list = PersistentList(elementsToAdd) { it }
         val builder = list.builder()
         val expected = list.toMutableList()
 
@@ -401,7 +431,7 @@ class PersistentListBuilderTest {
 
             val shouldAdd = Random.nextBoolean()
             if (shouldAdd) {
-                val addCount = Random.nextInt(2000)
+                val addCount = Random.nextInt(1000)
                 repeat(addCount) {
                     val elementToAdd = Random.nextInt()
                     expectedIterator.add(elementToAdd)
@@ -409,14 +439,17 @@ class PersistentListBuilderTest {
                     compare(expectedIterator, builderIterator) { listIteratorProperties() }
                 }
             } else {
-                iterateWith(expectedIterator, builderIterator, expected.size) { /* Do nothing after iteration */ }
+                val maxIterationCount = expected.size / 3
+                iterateWith(expectedIterator, builderIterator, maxIterationCount) { /* Do nothing after iteration */ }
             }
         }
     }
 
     @Test
     fun iteratorRemoveTests() {
-        val list = PersistentList(100000) { it }
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
+        val list = PersistentList(elementsToAdd) { it }
         val builder = list.builder()
         val expected = list.toMutableList()
 
@@ -435,7 +468,7 @@ class PersistentListBuilderTest {
 
             val shouldAddOrRemove = Random.nextBoolean()
             if (shouldAddOrRemove) {
-                val actionCount = Random.nextInt(2000)
+                val actionCount = Random.nextInt(1000)
                 val shouldAdd = Random.nextBoolean()
 
                 if (shouldAdd) {
@@ -446,13 +479,15 @@ class PersistentListBuilderTest {
                         compare(expectedIterator, builderIterator) { listIteratorProperties() }
                     }
                 } else {
-                    iterateWith(expectedIterator, builderIterator, expected.size) {
+                    iterateWith(expectedIterator, builderIterator, actionCount) {
                         expectedIterator.remove()
                         builderIterator.remove()
+                        compare(expectedIterator, builderIterator) { listIteratorProperties() }
                     }
                 }
             } else {
-                iterateWith(expectedIterator, builderIterator, expected.size) { /* Do nothing after iteration */ }
+                val maxIterationCount = expected.size / 3
+                iterateWith(expectedIterator, builderIterator, maxIterationCount) { /* Do nothing after iteration */ }
             }
         }
     }
@@ -460,14 +495,16 @@ class PersistentListBuilderTest {
     @Test
     fun randomOperationsTests() {
         val vectorGen = mutableListOf(List(20) { persistentListOf<Int>() })
-        val actual = mutableListOf(List(20) { listOf<Int>() })
+        val expected = mutableListOf(List(20) { listOf<Int>() })
 
-        repeat(times = 10) {
+        repeat(times = 5) {
 
             val builders = vectorGen.last().map { it.builder() }
             val lists = builders.map { it.toMutableList() }
 
-            repeat(times = 100000) {
+            val operationCount = NForAlgorithmComplexity.O_NlogN
+
+            repeat(times = operationCount) {
                 val index = Random.nextInt(lists.size)
                 val list = lists[index]
                 val builder = builders[index]
@@ -478,13 +515,17 @@ class PersistentListBuilderTest {
                 val shouldRemove = operationType < 0.15
                 val shouldSet = operationType > 0.15 && operationType < 0.3
 
-                if (!list.isEmpty() && shouldRemove) {
-                    assertEquals(list.removeAt(operationIndex),
-                            builder.removeAt(operationIndex))
-                } else if (!list.isEmpty() && shouldSet) {
+                if (list.isNotEmpty() && shouldRemove) {
+                    assertEquals(
+                            list.removeAt(operationIndex),
+                            builder.removeAt(operationIndex)
+                    )
+                } else if (list.isNotEmpty() && shouldSet) {
                     val value = Random.nextInt()
-                    assertEquals(list.set(operationIndex, value),
-                            builder.set(operationIndex, value))
+                    assertEquals(
+                            list.set(operationIndex, value),
+                            builder.set(operationIndex, value)
+                    )
 
                 } else {
                     val value = Random.nextInt()
@@ -493,17 +534,27 @@ class PersistentListBuilderTest {
                 }
 
                 testAfterOperation(list, builder, operationIndex)
-//                assertEquals(list, builder)
             }
 
-            vectorGen.add( builders.map { it.build() } )
-            actual.add( vectorGen.last().map { it.toMutableList() } )
+            assertEquals(lists, builders)
 
-            println(lists.maxBy { it.size }?.size)
+            vectorGen.add( builders.map { it.build() } )
+            expected.add(lists)
+
+            val maxSize = builders.maxBy { it.size }?.size
+            println("Largest persistent list builder size: $maxSize")
         }
 
-        vectorGen.forEachIndexed { index, vectors ->
-            assertEquals(vectors.map { it.toList() }, actual[index].map { it.toList() })
+        vectorGen.forEachIndexed { genIndex, vectors ->
+            // assert that builders didn't modify vectors they were created from.
+            vectors.forEachIndexed { vectorIndex, vector ->
+                val expectedList = expected[genIndex][vectorIndex]
+                assertEquals(
+                        expectedList,
+                        vector,
+                        message = "The persistent list of $genIndex generation was modified.\nExpected: $expectedList\nActual: $vector"
+                )
+            }
         }
     }
 
@@ -520,5 +571,7 @@ class PersistentListBuilderTest {
         if (operationIndex + 1 < list1.size) {
             assertEquals(list1[operationIndex + 1], list2[operationIndex + 1])
         }
+
+//        assertEquals(list1, list2)
     }
 }
