@@ -20,7 +20,7 @@ import kotlinx.collections.immutable.persistentHashSetOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
 import tests.stress.ExecutionTimeMeasuringTest
-import tests.stress.ObjectWrapper
+import tests.stress.IntWrapper
 import tests.stress.WrapperGenerator
 import kotlin.random.Random
 import kotlin.test.Test
@@ -221,13 +221,13 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun collisionTests() {
-        val builder = persistentHashSetOf<ObjectWrapper<Int>>().builder()
+        val builder = persistentHashSetOf<IntWrapper>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         val numberOfDistinctHashCodes = elementsToAdd / 5   // should be less than `elementsToAdd`
         val eGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
-        fun wrapper(element: Int): ObjectWrapper<Int> {
+        fun wrapper(element: Int): IntWrapper {
             return eGen.wrapper(element)
         }
 
@@ -258,7 +258,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
                 for (wrapper in collisions) {
                     assertTrue(builder.contains(wrapper))
 
-                    val nonExistingElement = ObjectWrapper(wrapper.obj.inv(), wrapper.hashCode)
+                    val nonExistingElement = IntWrapper(wrapper.obj.inv(), wrapper.hashCode)
                     assertFalse(builder.remove(nonExistingElement))
                     assertTrue(builder.contains(wrapper))
                     assertTrue(builder.remove(wrapper))
@@ -271,8 +271,8 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun randomOperationsTests() {
-        val setGen = mutableListOf(List(20) { persistentHashSetOf<ObjectWrapper<Int>>() })
-        val expected = mutableListOf(List(20) { setOf<ObjectWrapper<Int>>() })
+        val setGen = mutableListOf(List(20) { persistentHashSetOf<IntWrapper>() })
+        val expected = mutableListOf(List(20) { setOf<IntWrapper>() })
 
         repeat(times = 5) {
 
@@ -292,7 +292,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
                 val shouldRemove = Random.nextDouble() < 0.3
                 val shouldOperateOnExistingElement = set.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.001 }
 
-                val element = if (shouldOperateOnExistingElement) set.first() else ObjectWrapper(Random.nextInt(), hashCodes.random())
+                val element = if (shouldOperateOnExistingElement) set.first() else IntWrapper(Random.nextInt(), hashCodes.random())
 
                 when {
                     shouldRemove -> {
@@ -328,11 +328,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
         }
     }
 
-    private fun testAfterOperation(
-            expected: Set<ObjectWrapper<Int>>,
-            actual: Set<ObjectWrapper<Int>>,
-            element: ObjectWrapper<Int>
-    ) {
+    private fun testAfterOperation(expected: Set<IntWrapper>, actual: Set<IntWrapper>, element: IntWrapper) {
         assertEquals(expected.size, actual.size)
         assertEquals(expected.contains(element), actual.contains(element))
 //        assertEquals(expected, actual)

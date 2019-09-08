@@ -20,7 +20,7 @@ import kotlinx.collections.immutable.persistentHashSetOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
 import tests.stress.ExecutionTimeMeasuringTest
-import tests.stress.ObjectWrapper
+import tests.stress.IntWrapper
 import tests.stress.WrapperGenerator
 import kotlin.random.Random
 import kotlin.test.Test
@@ -186,15 +186,15 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun collisionTests() {
-        var set = persistentHashSetOf<ObjectWrapper<Int>>()
+        var set = persistentHashSetOf<IntWrapper>()
 
-        assertTrue(set.add(ObjectWrapper(1, 1)).contains(ObjectWrapper(1, 1)))
+        assertTrue(set.add(IntWrapper(1, 1)).contains(IntWrapper(1, 1)))
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         val numberOfDistinctHashCodes = elementsToAdd / 5   // should be less than `elementsToAdd`
         val eGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
-        fun wrapper(element: Int): ObjectWrapper<Int> {
+        fun wrapper(element: Int): IntWrapper {
             return eGen.wrapper(element)
         }
 
@@ -225,7 +225,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
                 for (wrapper in collisions) {
                     assertTrue(set.contains(wrapper))
 
-                    val nonExistingElement = ObjectWrapper(wrapper.obj.inv(), wrapper.hashCode)
+                    val nonExistingElement = IntWrapper(wrapper.obj.inv(), wrapper.hashCode)
                     val sameSet = set.remove(nonExistingElement)
                     assertEquals(set.size, sameSet.size)
                     assertTrue(sameSet.contains(wrapper))
@@ -242,8 +242,8 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
     fun randomOperationsTests() {
         repeat(times = 1) {
 
-            val mutableSets = List(10) { hashSetOf<ObjectWrapper<Int>?>() }
-            val immutableSets = MutableList(10) { persistentHashSetOf<ObjectWrapper<Int>?>() }
+            val mutableSets = List(10) { hashSetOf<IntWrapper?>() }
+            val immutableSets = MutableList(10) { persistentHashSetOf<IntWrapper?>() }
 
             val operationCount = NForAlgorithmComplexity.O_NlogN
 
@@ -261,7 +261,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
                 val element = when {
                     shouldOperateOnExistingElement -> mutableSet.first()
                     Random.nextDouble() < 0.001 -> null
-                    else -> ObjectWrapper(Random.nextInt(), hashCodes.random())
+                    else -> IntWrapper(Random.nextInt(), hashCodes.random())
                 }
 
                 val newImmutableSet = when {
@@ -299,7 +299,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
         }
     }
 
-    private fun testAfterOperation(expected: Set<ObjectWrapper<Int>?>, actual: Set<ObjectWrapper<Int>?>, element: ObjectWrapper<Int>?) {
+    private fun testAfterOperation(expected: Set<IntWrapper?>, actual: Set<IntWrapper?>, element: IntWrapper?) {
         assertEquals(expected.size, actual.size)
         assertEquals(expected.contains(element), actual.contains(element))
 //        assertEquals(expected, actual)

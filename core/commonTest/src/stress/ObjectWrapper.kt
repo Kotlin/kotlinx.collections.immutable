@@ -39,3 +39,5 @@ class ObjectWrapper<K: Comparable<K>>(
         return obj.compareTo(other.obj)
     }
 }
+
+typealias IntWrapper = ObjectWrapper<Int>

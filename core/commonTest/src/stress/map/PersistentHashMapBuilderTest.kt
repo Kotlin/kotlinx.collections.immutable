@@ -22,7 +22,7 @@ import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
 import tests.remove
 import tests.stress.ExecutionTimeMeasuringTest
-import tests.stress.ObjectWrapper
+import tests.stress.IntWrapper
 import tests.stress.WrapperGenerator
 import kotlin.random.Random
 import kotlin.test.*
@@ -213,7 +213,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun collisionTests() {
-        val builder = persistentHashMapOf<ObjectWrapper<Int>, Int>().builder()
+        val builder = persistentHashMapOf<IntWrapper, Int>().builder()
 
         repeat(times = 2) { removeEntryPredicate ->
 
@@ -221,7 +221,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
             val maxHashCode = elementsToAdd / 5    // should be less than `elementsToAdd`
             val keyGen = WrapperGenerator<Int>(maxHashCode)
-            fun key(key: Int): ObjectWrapper<Int> {
+            fun key(key: Int): IntWrapper {
                 return keyGen.wrapper(key)
             }
 
@@ -259,7 +259,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
                             assertTrue(builder.remove(key, key.obj))
                         } else {
-                            val nonExistingKey = ObjectWrapper(Int.MIN_VALUE, key.hashCode)
+                            val nonExistingKey = IntWrapper(Int.MIN_VALUE, key.hashCode)
                             assertNull(builder.remove(nonExistingKey))
                             assertEquals(key.obj, builder[key])
 
@@ -276,8 +276,8 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun randomOperationsTests() {
-        val mapGen = mutableListOf(List(20) { persistentHashMapOf<ObjectWrapper<Int>, Int>() })
-        val expected = mutableListOf(List(20) { mapOf<ObjectWrapper<Int>, Int>() })
+        val mapGen = mutableListOf(List(20) { persistentHashMapOf<IntWrapper, Int>() })
+        val expected = mutableListOf(List(20) { mapOf<IntWrapper, Int>() })
 
         repeat(times = 5) {
 
@@ -297,7 +297,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                 val shouldRemove = Random.nextDouble() < 0.3
                 val shouldOperateOnExistingKey = map.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.2 }
 
-                val key = if (shouldOperateOnExistingKey) map.keys.first() else ObjectWrapper(Random.nextInt(), hashCodes.random())
+                val key = if (shouldOperateOnExistingKey) map.keys.first() else IntWrapper(Random.nextInt(), hashCodes.random())
 
                 val shouldRemoveByKey = shouldRemove && Random.nextBoolean()
                 val shouldRemoveByKeyAndValue = shouldRemove && !shouldRemoveByKey
@@ -343,9 +343,9 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     private fun testAfterOperation(
-            expected: Map<ObjectWrapper<Int>, Int>,
-            actual: Map<ObjectWrapper<Int>, Int>,
-            operationKey: ObjectWrapper<Int>
+            expected: Map<IntWrapper, Int>,
+            actual: Map<IntWrapper, Int>,
+            operationKey: IntWrapper
     ) {
         assertEquals(expected.size, actual.size)
         assertEquals(expected[operationKey], actual[operationKey])
