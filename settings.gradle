@@ -14,5 +14,5 @@ rootProject.name = 'Kotlin-Immutable-Collections' // TODO: Make readable name wh
 include ':core'
 project(":core").name='kotlinx-collections-immutable'
 
-include ':benchmarks-mpp'
+include ':benchmarks'
 include ':benchmarks-runner'
