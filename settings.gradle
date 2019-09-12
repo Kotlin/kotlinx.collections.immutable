@@ -9,7 +9,7 @@ pluginManagement {
 
 enableFeaturePreview('GRADLE_METADATA')
 
-rootProject.name = 'Kotlin Immutable Collections'
+rootProject.name = 'Kotlin-Immutable-Collections' // TODO: Make readable name when it's not used in js module names
 
 include ':core'
 project(":core").name='kotlinx-collections-immutable'
