@@ -17,19 +17,26 @@
 package tests.stress.set
 
 import kotlinx.collections.immutable.persistentHashSetOf
-import tests.stress.ObjectWrapper
+import tests.NForAlgorithmComplexity
+import tests.distinctStringValues
+import tests.stress.ExecutionTimeMeasuringTest
+import tests.stress.IntWrapper
 import tests.stress.WrapperGenerator
 import kotlin.random.Random
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
-class PersistentHashSetBuilderTest {
+class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
     @Test
     fun isEmptyTests() {
         val builder = persistentHashSetOf<Int>().builder()
 
         assertTrue(builder.isEmpty())
 
-        val elementsToAdd = 1000000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
             assertFalse(builder.isEmpty())
@@ -48,7 +55,8 @@ class PersistentHashSetBuilderTest {
 
         assertTrue(builder.size == 0)
 
-        val elementsToAdd = 100000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
             assertEquals(index + 1, builder.size)
@@ -72,20 +80,21 @@ class PersistentHashSetBuilderTest {
 
         val mutableSet = mutableSetOf<Int>()
 
-        val elementsToAdd = 2000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
         repeat(times = elementsToAdd) {
             val element = Random.nextInt()
             mutableSet.add(element)
             builder.add(element)
 
-            assertEquals(builder.sorted(), mutableSet.sorted())
+            assertEquals(builder, mutableSet)
         }
 
-        mutableSet.toMutableSet().forEach { element ->
+        mutableSet.toMutableList().forEach { element ->
             mutableSet.remove(element)
             builder.remove(element)
 
-            assertEquals(builder.sorted(), mutableSet.sorted())
+            assertEquals(builder, mutableSet)
         }
 
         assertTrue(builder.isEmpty())
@@ -98,7 +107,8 @@ class PersistentHashSetBuilderTest {
 
         val mutableSet = mutableSetOf<Int>()
 
-        val elementsToAdd = 2000
+        val elementsToAdd = NForAlgorithmComplexity.O_NN
+
         repeat(times = elementsToAdd) {
             val element = Random.nextInt()
             mutableSet.add(element)
@@ -106,7 +116,7 @@ class PersistentHashSetBuilderTest {
         }
 
         var iterator = builder.iterator()
-        mutableSet.toMutableSet().forEach { element ->
+        mutableSet.toMutableList().forEach { element ->
             mutableSet.remove(element)
 
             var didRemove = false
@@ -125,7 +135,7 @@ class PersistentHashSetBuilderTest {
             assertTrue(didRemove)
 
             assertEquals(mutableSet.size, builder.size)
-            assertEquals(mutableSet.sorted(), builder.sorted())
+            assertEquals(mutableSet, builder)
         }
 
         assertTrue(builder.isEmpty())
@@ -135,7 +145,8 @@ class PersistentHashSetBuilderTest {
     fun removeTests() {
         val builder = persistentHashSetOf<Int>().builder()
 
-        val elementsToAdd = 1000000
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
         }
@@ -152,65 +163,74 @@ class PersistentHashSetBuilderTest {
     fun containsTests() {
         val builder = persistentHashSetOf<String>().builder()
 
-        val elementsToAdd = 10000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
+        val elements = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            builder.add(index.toString())
+            builder.add(elements[index])
 
             for (i in 0..index) {
-                assertTrue(builder.contains(i.toString()))
+                assertTrue(builder.contains(elements[i]))
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in elementsToAdd - 1 downTo index) {
-                assertTrue(builder.contains(i.toString()))
+                assertTrue(builder.contains(elements[i]))
             }
 
-            builder.remove(index.toString())
+            builder.remove(elements[index])
         }
     }
 
     @Test
     fun addTests() {
-        val set = persistentHashSetOf<Int>().builder()
+        val builder = persistentHashSetOf<Int>().builder()
 
-        val elementsToAdd = 5000
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
         repeat(times = elementsToAdd) { index ->
-            set.add(index * 2)
+            builder.add(index * 2)
 
             for (i in index downTo 0) {
-                assertTrue(set.contains(i + index))
-                set.remove(i + index)
-                assertFalse(set.contains(i + index))
-                assertFalse(set.contains(i + index + 1))
-                set.add(i + index + 1)
-                assertTrue(set.contains(i + index + 1))
+                val element = i + index
+
+                assertTrue(builder.contains(element))
+                builder.remove(element)
+                assertFalse(builder.contains(element))
+                assertFalse(builder.contains(element + 1))
+                builder.add(element + 1)
+                assertTrue(builder.contains(element + 1))
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in index until elementsToAdd ) {
-                val expected = elementsToAdd - index + i
+                val element = elementsToAdd - index + i
 
-                assertTrue(set.contains(expected))
-                assertFalse(set.contains(expected - 1))
-                set.remove(expected)
-                set.add(expected - 1)
-                assertTrue(set.contains(expected - 1))
+                assertTrue(builder.contains(element))
+                builder.remove(element)
+                assertFalse(builder.contains(element))
+                assertFalse(builder.contains(element - 1))
+                builder.add(element - 1)
+                assertTrue(builder.contains(element - 1))
             }
 
-            set.remove(elementsToAdd - 1)
+            builder.remove(elementsToAdd - 1)
         }
+        assertTrue(builder.isEmpty())
     }
 
     @Test
     fun collisionTests() {
-        val builder = persistentHashSetOf<ObjectWrapper<Int>>().builder()
+        val builder = persistentHashSetOf<IntWrapper>().builder()
 
-        val eGen = WrapperGenerator<Int>(20000)
-        fun wrapper(element: Int): ObjectWrapper<Int> {
+        val elementsToAdd = NForAlgorithmComplexity.O_NlogN
+
+        val numberOfDistinctHashCodes = elementsToAdd / 5   // should be less than `elementsToAdd`
+        val eGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
+        fun wrapper(element: Int): IntWrapper {
             return eGen.wrapper(element)
         }
 
-        val elementsToAdd = 100000   /// should be more than eGen.hashCodeUpperBound
         repeat(times = elementsToAdd) { index ->
             builder.add(wrapper(index))
             assertTrue(builder.contains(wrapper(index)))
@@ -222,8 +242,8 @@ class PersistentHashSetBuilderTest {
             val collisions = eGen.wrappersByHashCode(wrapper(index).hashCode)
             assertTrue(collisions.contains(wrapper(index)))
 
-            for (key in collisions) {
-                assertTrue(builder.contains(wrapper(index)))
+            for (wrapper in collisions) {
+                assertTrue(builder.contains(wrapper))
             }
         }
         repeat(times = elementsToAdd) { index ->
@@ -238,7 +258,8 @@ class PersistentHashSetBuilderTest {
                 for (wrapper in collisions) {
                     assertTrue(builder.contains(wrapper))
 
-                    assertFalse(builder.remove(ObjectWrapper(wrapper.obj.inv(), wrapper.hashCode)))
+                    val nonExistingElement = IntWrapper(wrapper.obj.inv(), wrapper.hashCode)
+                    assertFalse(builder.remove(nonExistingElement))
                     assertTrue(builder.contains(wrapper))
                     assertTrue(builder.remove(wrapper))
                     assertFalse(builder.contains(wrapper))
@@ -250,26 +271,29 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun randomOperationsTests() {
-        val mapGen = mutableListOf(List(20) { persistentHashSetOf<ObjectWrapper<Int>>() })
-        val expected = mutableListOf(List(20) { setOf<ObjectWrapper<Int>>() })
+        val setGen = mutableListOf(List(20) { persistentHashSetOf<IntWrapper>() })
+        val expected = mutableListOf(List(20) { setOf<IntWrapper>() })
 
-        repeat(times = 10) {
+        repeat(times = 5) {
 
-            val builders = mapGen.last().map { it.builder() }
+            val builders = setGen.last().map { it.builder() }
             val sets = builders.map { it.toMutableSet() }
 
-            val operationCount = 200000
-            val hashCodes = List(operationCount / 2) { Random.nextInt() }
+            val operationCount = NForAlgorithmComplexity.O_NlogN
+
+            val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
+            val hashCodes = List(numberOfDistinctHashCodes) { Random.nextInt() }
+
             repeat(times = operationCount) {
                 val index = Random.nextInt(sets.size)
                 val set = sets[index]
                 val builder = builders[index]
 
-                val operationType = Random.nextDouble()
-                val hashCodeIndex = Random.nextInt(hashCodes.size)
-                val element = ObjectWrapper(Random.nextInt(), hashCodes[hashCodeIndex])
+                val shouldRemove = Random.nextDouble() < 0.3
+                val shouldOperateOnExistingElement = set.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.001 }
 
-                val shouldRemove = operationType < 0.30
+                val element = if (shouldOperateOnExistingElement) set.first() else IntWrapper(Random.nextInt(), hashCodes.random())
+
                 when {
                     shouldRemove -> {
                         assertEquals(set.remove(element), builder.remove(element))
@@ -279,19 +303,34 @@ class PersistentHashSetBuilderTest {
                     }
                 }
 
-                assertEquals(set.size, builder.size)
-                assertEquals(set.contains(element), builder.contains(element))
-//                assertEquals(set.sorted(), builder.sorted())
+                testAfterOperation(set, builder, element)
             }
 
-            mapGen.add( builders.map { it.build() } )
-            expected.add( mapGen.last().map { it.toMutableSet() } )
+            assertEquals(sets, builders)
 
-            println(sets.maxBy { it.size }?.size)
+            setGen.add( builders.map { it.build() } )
+            expected.add(sets)
+
+            val maxSize = builders.maxBy { it.size }?.size
+            println("Largest persistent set builder size: $maxSize")
         }
 
-        mapGen.forEachIndexed { index, maps ->
-            assertEquals(expected[index].map { it.sorted() }, maps.map { it.sorted() })
+        setGen.forEachIndexed { genIndex, sets ->
+            // assert that builders didn't modify persistent sets they were created from.
+            sets.forEachIndexed { setIndex, set ->
+                val expectedSet = expected[genIndex][setIndex]
+                assertEquals(
+                        expectedSet,
+                        set,
+                        message = "The persistent set of $genIndex generation was modified.\nExpected: $expectedSet\nActual: $set"
+                )
+            }
         }
+    }
+
+    private fun testAfterOperation(expected: Set<IntWrapper>, actual: Set<IntWrapper>, element: IntWrapper) {
+        assertEquals(expected.size, actual.size)
+        assertEquals(expected.contains(element), actual.contains(element))
+//        assertEquals(expected, actual)
     }
 }

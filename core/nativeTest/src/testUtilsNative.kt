@@ -28,3 +28,10 @@ public actual fun assertTypeEquals(expected: Any?, actual: Any?) {
 }
 
 public actual val currentPlatform: TestPlatform get() = TestPlatform.Native
+
+actual object NForAlgorithmComplexity {
+    actual val O_N: Int = 100_000
+    actual val O_NlogN: Int = 20_000
+    actual val O_NN: Int = 1_000
+    actual val O_NNlogN: Int = 500
+}

@@ -16,6 +16,8 @@
 
 package tests
 
+import kotlin.native.concurrent.ThreadLocal
+
 
 internal fun Char.isUpperCase(): Boolean = this in 'A'..'Z'
 internal fun Char.isDigit(): Boolean = this in '0'..'9'
@@ -39,4 +41,24 @@ public expect val currentPlatform: TestPlatform
 
 public inline fun testOn(platform: TestPlatform, action: () -> Unit) {
     if (platform == currentPlatform) action()
+}
+
+@ThreadLocal
+private var stringValues = mutableListOf<String>()
+
+internal fun distinctStringValues(size: Int): List<String> {
+    if (size <= stringValues.size) {
+        return stringValues.subList(0, size)
+    }
+    for (index in stringValues.size until size) {
+        stringValues.add(index.toString())
+    }
+    return stringValues
+}
+
+expect object NForAlgorithmComplexity {
+    val O_N: Int
+    val O_NlogN: Int
+    val O_NN: Int
+    val O_NNlogN: Int
 }
