@@ -15,6 +15,7 @@ import tests.distinctStringValues
 import tests.stress.ExecutionTimeMeasuringTest
 import tests.testOn
 import kotlin.random.Random
+import kotlin.random.nextInt
 import kotlin.test.*
 import kotlin.time.ExperimentalTime
 
@@ -319,7 +320,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
                                 maxIterationCount: Int,
                                 afterIteration: () -> Unit) {
         val towardStart = Random.nextBoolean()
-        val iterationCount = Random.nextInt(maxIterationCount)
+        val iterationCount = Random.nextInt(0..maxIterationCount)
 
         if (towardStart) {
             repeat(iterationCount) {
@@ -449,7 +450,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
         repeat(times = 100) {
             val createNew = Random.nextDouble() < 0.1
             if (createNew) {
-                val index = Random.nextInt(expected.size)
+                val index = Random.nextInt(0..expected.size)
                 builderIterator = builder.listIterator(index)
                 expectedIterator = expected.listIterator(index)
                 compare(expectedIterator, builderIterator) { listIteratorProperties() }
@@ -475,7 +476,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
                     }
                 }
             } else {
-                val maxIterationCount = expected.size / 3
+                val maxIterationCount = expected.size / 3 + 1
                 iterateWith(expectedIterator, builderIterator, maxIterationCount) { /* Do nothing after iteration */ }
             }
         }
