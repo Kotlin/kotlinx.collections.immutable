@@ -12,6 +12,9 @@ val JDK_6: String by project
 kotlin {
     infra {
         target("macosX64")
+        target("iosX64")
+        target("iosArm64")
+        target("iosArm32")
         target("linuxX64")
         target("mingwX64")
     }
