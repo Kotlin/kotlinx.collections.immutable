@@ -654,6 +654,33 @@ internal class TrieNode<K, V>(
         return this
     }
 
+    // For testing trie structure
+    internal fun accept(visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit) {
+        accept(visitor, 0, 0)
+    }
+
+    @UseExperimental(ExperimentalStdlibApi::class)
+    private fun accept(
+            visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit,
+            hash: Int,
+            shift: Int
+    ) {
+        visitor(this, shift, hash, dataMap, nodeMap)
+
+        var nodePositions = nodeMap
+        while (nodePositions != 0) {
+            val mask = nodePositions.takeLowestOneBit()
+//            assert(hasNodeAt(mask))
+
+            val hashSegment = mask.countTrailingZeroBits()
+
+            val childNode = nodeAtIndex(nodeIndex(mask))
+            childNode.accept(visitor, hash + (hashSegment shl shift), shift + LOG_MAX_BRANCHING_FACTOR)
+
+            nodePositions -= mask
+        }
+    }
+
     internal companion object {
         internal val EMPTY = TrieNode<Nothing, Nothing>(0, 0, emptyArray())
     }
