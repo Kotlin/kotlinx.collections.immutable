@@ -268,18 +268,18 @@ internal class TrieNode<E>(
         return makeCollisionNode(buffer.removeCellAtIndex(index), mutator.ownership)
     }
 
-    fun isCollision(): Boolean {
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun isCollision(): Boolean {
         return bitmap == 0 && buffer.isNotEmpty()
     }
 
     fun contains(elementHash: Int, element: E, shift: Int): Boolean {
-        if (isCollision()) {
-            return collisionContains(elementHash, element)
-        }
-
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
+            if (isCollision()) {
+                return collisionContains(elementHash, element)
+            }
             return false
         }
 
@@ -293,13 +293,12 @@ internal class TrieNode<E>(
     }
 
     fun add(elementHash: Int, element: E, shift: Int): TrieNode<E> {
-        if (isCollision()) {
-            return collisionAdd(elementHash, element, shift)
-        }
-
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
+            if (isCollision()) {
+                return collisionAdd(elementHash, element, shift)
+            }
             return addElementAt(cellPositionMask, element)
         }
 
@@ -316,13 +315,12 @@ internal class TrieNode<E>(
     }
 
     fun mutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
-        if (isCollision()) {
-            return collisionMutableAdd(elementHash, element, shift, mutator)
-        }
-
         val cellPosition = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPosition)) { // element is absent
+            if (isCollision()) {
+                return collisionMutableAdd(elementHash, element, shift, mutator)
+            }
             mutator.size++
             return mutableAddElementAt(cellPosition, element, mutator.ownership)
         }
@@ -341,13 +339,12 @@ internal class TrieNode<E>(
     }
 
     fun remove(elementHash: Int, element: E, shift: Int): TrieNode<E>? {
-        if (isCollision()) {
-            return collisionRemove(elementHash, element)
-        }
-
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
+            if (isCollision()) {
+                return collisionRemove(elementHash, element)
+            }
             return this
         }
 
@@ -369,13 +366,12 @@ internal class TrieNode<E>(
     }
 
     fun mutableRemove(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E>? {
-        if (isCollision()) {
-            return collisionMutableRemove(elementHash, element, mutator)
-        }
-
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
+            if (isCollision()) {
+                return collisionMutableRemove(elementHash, element, mutator)
+            }
             return this
         }
 

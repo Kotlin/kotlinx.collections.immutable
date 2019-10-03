@@ -76,7 +76,8 @@ internal class TrieNode<K, V>(
     internal var buffer: Array<Any?> = buffer
         private set
 
-    internal fun isCollision(): Boolean {
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun isCollision(): Boolean {
         return dataMap == 0 && nodeMap == 0 && buffer.isNotEmpty()
     }
 
@@ -471,10 +472,6 @@ internal class TrieNode<K, V>(
     }
 
     fun containsKey(keyHash: Int, key: K, shift: Int): Boolean {
-        if (isCollision()) {
-            return collisionContainsKey(keyHash, key)
-        }
-
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -485,15 +482,15 @@ internal class TrieNode<K, V>(
             return targetNode.containsKey(keyHash, key, shift + LOG_MAX_BRANCHING_FACTOR)
         }
 
+        if (isCollision()) {
+            return collisionContainsKey(keyHash, key)
+        }
+
         // key is absent
         return false
     }
 
     fun get(keyHash: Int, key: K, shift: Int): V? {
-        if (isCollision()) {
-            return collisionGet(keyHash, key)
-        }
-
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -509,15 +506,15 @@ internal class TrieNode<K, V>(
             return targetNode.get(keyHash, key, shift + LOG_MAX_BRANCHING_FACTOR)
         }
 
+        if (isCollision()) {
+            return collisionGet(keyHash, key)
+        }
+
         // key is absent
         return null
     }
 
     fun put(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): ModificationResult<K, V>? {
-        if (isCollision()) {
-            return collisionPut(keyHash, key, value, shift)
-        }
-
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -538,15 +535,15 @@ internal class TrieNode<K, V>(
             return putResult.replaceNode { node -> updateNodeAtIndex(nodeIndex, node) }
         }
 
+        if (isCollision()) {
+            return collisionPut(keyHash, key, value, shift)
+        }
+
         // no entry at this key hash segment
         return insertEntryAt(keyPositionMask, key, value).asInsertResult()
     }
 
     fun mutablePut(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
-        if (isCollision()) {
-            return mutableCollisionPut(keyHash, key, value, shift, mutator)
-        }
-
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -574,16 +571,16 @@ internal class TrieNode<K, V>(
             return mutableUpdateNodeAtIndex(nodeIndex, newNode, mutator.ownership)
         }
 
+        if (isCollision()) {
+            return mutableCollisionPut(keyHash, key, value, shift, mutator)
+        }
+
         // key is absent
         mutator.size++
         return mutableInsertEntryAt(keyPositionMask, key, value, mutator.ownership)
     }
 
     fun remove(keyHash: Int, key: K, shift: Int): TrieNode<K, V>? {
-        if (isCollision()) {
-            return collisionRemove(keyHash, key)
-        }
-
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -606,15 +603,15 @@ internal class TrieNode<K, V>(
             }
         }
 
+        if (isCollision()) {
+            return collisionRemove(keyHash, key)
+        }
+
         // key is absent
         return this
     }
 
     fun mutableRemove(keyHash: Int, key: K, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
-        if (isCollision()) {
-            return mutableCollisionRemove(keyHash, key, mutator)
-        }
-
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -637,15 +634,15 @@ internal class TrieNode<K, V>(
             }
         }
 
+        if (isCollision()) {
+            return mutableCollisionRemove(keyHash, key, mutator)
+        }
+
         // key is absent
         return this
     }
 
     fun remove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): TrieNode<K, V>? {
-        if (isCollision()) {
-            return collisionRemove(keyHash, key, value)
-        }
-
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -668,15 +665,15 @@ internal class TrieNode<K, V>(
             }
         }
 
+        if (isCollision()) {
+            return collisionRemove(keyHash, key, value)
+        }
+
         // key is absent
         return this
     }
 
     fun mutableRemove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
-        if (isCollision()) {
-            return mutableCollisionRemove(keyHash, key, value, mutator)
-        }
-
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -697,6 +694,10 @@ internal class TrieNode<K, V>(
                 newNode == null -> mutableRemoveNodeAtIndex(nodeIndex, keyPositionMask, mutator.ownership)
                 else -> mutableUpdateNodeAtIndex(nodeIndex, newNode, mutator.ownership)
             }
+        }
+
+        if (isCollision()) {
+            return mutableCollisionRemove(keyHash, key, value, mutator)
         }
 
         // key is absent
