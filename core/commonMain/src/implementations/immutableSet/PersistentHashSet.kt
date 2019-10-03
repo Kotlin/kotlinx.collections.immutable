@@ -27,7 +27,6 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
     override fun remove(element: E): PersistentSet<E> {
         val newNode = node.remove(element.hashCode(), element, 0)
         if (node === newNode) { return this }
-        if (newNode == null) { return PersistentHashSet.emptyOf() }
         return PersistentHashSet(newNode, size - 1)
     }
 

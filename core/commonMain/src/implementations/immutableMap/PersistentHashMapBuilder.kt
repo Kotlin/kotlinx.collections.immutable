@@ -64,14 +64,14 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
     override fun remove(key: K): V? {
         operationResult = null
         @Suppress("UNCHECKED_CAST")
-        node = node.mutableRemove(key.hashCode(), key, 0, this) ?: TrieNode.EMPTY as TrieNode<K, V>
+        node = node.mutableRemove(key.hashCode(), key, 0, this)
         return operationResult
     }
 
     fun remove(key: K, value: V): Boolean {
         val oldSize = size
         @Suppress("UNCHECKED_CAST")
-        node = node.mutableRemove(key.hashCode(), key, value, 0, this) ?: TrieNode.EMPTY as TrieNode<K, V>
+        node = node.mutableRemove(key.hashCode(), key, value, 0, this)
         return oldSize != size
     }
 
