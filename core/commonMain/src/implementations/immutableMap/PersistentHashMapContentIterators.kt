@@ -105,7 +105,11 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K,
     private var hasNext = true
 
     init {
-        path[0].reset(node.buffer, ENTRY_SIZE * node.entryCount())
+        if (node.isCollision()) {
+            path[0].reset(node.buffer, node.buffer.size)
+        } else {
+            path[0].reset(node.buffer, ENTRY_SIZE * node.entryCount())
+        }
         pathLastIndex = 0
         ensureNextEntryIsReady()
     }
