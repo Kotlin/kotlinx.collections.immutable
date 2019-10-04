@@ -110,6 +110,22 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
+    fun iteratorTests() {
+        val emptyIterator = persistentHashMapOf<Int, String>().iterator()
+        assertFalse(emptyIterator.hasNext())
+        assertFails { emptyIterator.next() }
+
+        val collisionIterator = persistentHashMapOf<IntWrapper, String>().put(IntWrapper(1, 1), "a").put(IntWrapper(2, 1), "b").iterator()
+        var aFlag = false
+        var bFlag = false
+        for (entry in collisionIterator) {
+            aFlag = aFlag || entry.value == "a"
+            bFlag = bFlag || entry.value == "b"
+        }
+        assertTrue(aFlag && bFlag)
+    }
+
+    @Test
     fun removeTests() {
         var map = persistentHashMapOf<Int, String>()
         assertTrue(map.put(0, "0").remove(0).isEmpty())
