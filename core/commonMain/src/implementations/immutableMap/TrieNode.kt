@@ -337,10 +337,8 @@ internal class TrieNode<K, V>(
         return TrieNode(dataMap, nodeMap xor positionMask, newBuffer, owner)
     }
 
-    private fun collisionContainsKey(key: K): Boolean {
+    private fun collisionContainsKey(keyHash: Int, key: K): Boolean {
         val collisionHash = keyAtIndex(0).hashCode()
-        val keyHash = key.hashCode()
-
         if (keyHash != collisionHash) {
             return false
         }
@@ -351,10 +349,8 @@ internal class TrieNode<K, V>(
         return false
     }
 
-    private fun collisionGet(key: K): V? {
+    private fun collisionGet(keyHash: Int, key: K): V? {
         val collisionHash = keyAtIndex(0).hashCode()
-        val keyHash = key.hashCode()
-
         if (keyHash != collisionHash) {
             return null
         }
@@ -367,10 +363,8 @@ internal class TrieNode<K, V>(
         return null
     }
 
-    private fun collisionPut(key: K, value: V, shift: Int): ModificationResult<K, V>? {
+    private fun collisionPut(keyHash: Int, key: K, value: V, shift: Int): ModificationResult<K, V>? {
         val collisionHash = keyAtIndex(0).hashCode()
-        val keyHash = key.hashCode()
-
         if (keyHash != collisionHash) {
             return makeNode(collisionHash, this, keyHash, key, value, shift, null).asInsertResult()
         }
@@ -389,10 +383,8 @@ internal class TrieNode<K, V>(
         return makeCollisionNode(newBuffer, null).asInsertResult()
     }
 
-    private fun mutableCollisionPut(key: K, value: V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
+    private fun mutableCollisionPut(keyHash: Int, key: K, value: V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
         val collisionHash = keyAtIndex(0).hashCode()
-        val keyHash = key.hashCode()
-
         if (keyHash != collisionHash) {
             mutator.size++
             return makeNode(collisionHash, this, keyHash, key, value, shift, mutator.ownership)
@@ -423,10 +415,8 @@ internal class TrieNode<K, V>(
         return makeCollisionNode(newBuffer, mutator.ownership)
     }
 
-    private fun collisionRemove(key: K): TrieNode<K, V>? {
+    private fun collisionRemove(keyHash: Int, key: K): TrieNode<K, V>? {
         val collisionHash = keyAtIndex(0).hashCode()
-        val keyHash = key.hashCode()
-
         if (keyHash != collisionHash) {
             return this
         }
@@ -439,10 +429,8 @@ internal class TrieNode<K, V>(
         return this
     }
 
-    private fun mutableCollisionRemove(key: K, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+    private fun mutableCollisionRemove(keyHash: Int, key: K, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         val collisionHash = keyAtIndex(0).hashCode()
-        val keyHash = key.hashCode()
-
         if (keyHash != collisionHash) {
             return this
         }
@@ -455,10 +443,8 @@ internal class TrieNode<K, V>(
         return this
     }
 
-    private fun collisionRemove(key: K, value: V): TrieNode<K, V>? {
+    private fun collisionRemove(keyHash: Int, key: K, value: V): TrieNode<K, V>? {
         val collisionHash = keyAtIndex(0).hashCode()
-        val keyHash = key.hashCode()
-
         if (keyHash != collisionHash) {
             return this
         }
@@ -471,10 +457,8 @@ internal class TrieNode<K, V>(
         return this
     }
 
-    private fun mutableCollisionRemove(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+    private fun mutableCollisionRemove(keyHash: Int, key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         val collisionHash = keyAtIndex(0).hashCode()
-        val keyHash = key.hashCode()
-
         if (keyHash != collisionHash) {
             return this
         }
@@ -489,7 +473,7 @@ internal class TrieNode<K, V>(
 
     fun containsKey(keyHash: Int, key: K, shift: Int): Boolean {
         if (isCollision()) {
-            return collisionContainsKey(key)
+            return collisionContainsKey(keyHash, key)
         }
 
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
@@ -508,7 +492,7 @@ internal class TrieNode<K, V>(
 
     fun get(keyHash: Int, key: K, shift: Int): V? {
         if (isCollision()) {
-            return collisionGet(key)
+            return collisionGet(keyHash, key)
         }
 
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
@@ -532,7 +516,7 @@ internal class TrieNode<K, V>(
 
     fun put(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): ModificationResult<K, V>? {
         if (isCollision()) {
-            return collisionPut(key, value, shift)
+            return collisionPut(keyHash, key, value, shift)
         }
 
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
@@ -561,7 +545,7 @@ internal class TrieNode<K, V>(
 
     fun mutablePut(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
         if (isCollision()) {
-            return mutableCollisionPut(key, value, shift, mutator)
+            return mutableCollisionPut(keyHash, key, value, shift, mutator)
         }
 
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
@@ -598,7 +582,7 @@ internal class TrieNode<K, V>(
 
     fun remove(keyHash: Int, key: K, shift: Int): TrieNode<K, V>? {
         if (isCollision()) {
-            return collisionRemove(key)
+            return collisionRemove(keyHash, key)
         }
 
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
@@ -629,7 +613,7 @@ internal class TrieNode<K, V>(
 
     fun mutableRemove(keyHash: Int, key: K, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         if (isCollision()) {
-            return mutableCollisionRemove(key, mutator)
+            return mutableCollisionRemove(keyHash, key, mutator)
         }
 
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
@@ -660,7 +644,7 @@ internal class TrieNode<K, V>(
 
     fun remove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): TrieNode<K, V>? {
         if (isCollision()) {
-            return collisionRemove(key, value)
+            return collisionRemove(keyHash, key, value)
         }
 
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
@@ -691,7 +675,7 @@ internal class TrieNode<K, V>(
 
     fun mutableRemove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         if (isCollision()) {
-            return mutableCollisionRemove(key, value, mutator)
+            return mutableCollisionRemove(keyHash, key, value, mutator)
         }
 
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
