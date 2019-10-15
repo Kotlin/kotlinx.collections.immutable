@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 0.3
+
+- Turn the JVM-only project into a multiplatform library
+    * Builder iterators are fast-fail only on JVM. On the other platforms modifying the builder during iteration not through the corresponding iterator can invalidate the iterator state in an unspecified way.
+    * In addition to JVM and JS platforms, macosX64, iosX64, iosArm64, iosArm32, linuxX64, and mingwX64 native platforms are supported.
+- Make conversion to persistent collections consistent
+    * `toPersistentMap`/`Set` always returns an ordered persistent map/set
+    * `toPersistentHashMap`/`Set` always returns an unordered persistent map/set
+    * `toImmutableMap`/`Set` may return any kind of immutable map/set
+- Optimize persistent list [builder] batch update operations
+    * `addAll(elements)` operation performs ~3 times faster :chart_with_downwards_trend:
+    * `addAll(index, elements)` operation takes O(N + M), down from O(N * M), where N is the size of this collection and M - the size of the `elements` collection. :chart_with_downwards_trend:
+    * `removeAll(elements)` operation takes O(N * K), down from O(N * M), where K is the time complexity of `contains` operation on the `elements` collection :chart_with_downwards_trend:
+    * `removeAll(predicate)` operation takes O(N * P), down from O(N * (P + N)), where P is the time complexity of the `predicate` algorithm :chart_with_downwards_trend:
+- Implement set/map backing trie canonicalization
+    * `add` operation after `remove` operations performs ~20% faster :chart_with_downwards_trend:
+    * iteration after `remove` operations performs ~3 times faster :chart_with_downwards_trend:
+
 ## 0.2
 
 #### Split immutable and persistent interfaces
