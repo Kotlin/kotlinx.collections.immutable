@@ -39,8 +39,8 @@ kotlin {
     }
 
     sourceSets.all {
-        kotlin.setSrcDirs(listOf("src/$name/kotlin"))
-        resources.setSrcDirs(listOf("src/$name/resources"))
+        kotlin.setSrcDirs(listOf("$name/src"))
+        resources.setSrcDirs(listOf("$name/resources"))
     }
 
     sourceSets {
