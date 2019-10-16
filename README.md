@@ -4,6 +4,8 @@
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
+This is a multiplatform library providing implementations for `jvm`, `js`, `mingwX64`, `linuxX64`, `macosX64`, `iosX64`, `iosArm64`, `iosArm32` Kotlin targets. 
+
 For further details see the [proposal](proposal.md).
 
 ## What's in this library
@@ -109,9 +111,39 @@ collection.mutate { some_actions_on(it) }
 
 > Note that the library is experimental and the API is subject to change.
 
-The library is published to [kotlinx](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable) bintray repository.
+The library is published to [kotlinx](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable) bintray repository and available in jcenter too.
 
-The library depends on the Kotlin Standard Library of the version at least `1.3.40`.
+The library depends on the Kotlin Standard Library of the version at least `1.3.50`.
+
+### Gradle
+
+Add the bintray repository:
+
+```groovy
+repositories {
+    jcenter()
+}
+```
+
+In multiplatform projects add the following dependency to the common source set:
+
+```groovy
+kotlin {
+    sourceSets {
+        commonMain {
+             dependencies {
+                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3")
+             }
+        }
+    }
+}
+```
+
+To use the library in a JVM-only project add the platform to the artifact name, e.g.:
+
+```groovy
+implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3")
+```
 
 ### Maven
 
@@ -122,9 +154,9 @@ Add the bintray repository to `<repositories>` section:
     <snapshots>
         <enabled>false</enabled>
     </snapshots>
-    <id>kotlinx</id>
-    <name>bintray</name>
-    <url>https://dl.bintray.com/kotlin/kotlinx</url>
+    <id>jcenter</id>
+    <name>jcenter</name>
+    <url>https://jcenter.bintray.com/</url>
 </repository>
 ```
 
@@ -133,29 +165,10 @@ Add dependencies (you can also add other modules that you need):
 ```xml
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
-    <artifactId>kotlinx-collections-immutable</artifactId>
-    <version>0.2</version>
+    <artifactId>kotlinx-collections-immutable-jvm</artifactId>
+    <version>0.3</version>
 </dependency>
 ```
-
-### Gradle
-
-Add the bintray repository:
-
-```groovy
-repositories {
-    maven {
-        url "https://dl.bintray.com/kotlin/kotlinx"
-    }
-}
-```
-
-Add the dependency:
-
-```groovy
-implementation 'org.jetbrains.kotlinx:kotlinx-collections-immutable:0.2'
-```
-
 
 ## Building from source
 
