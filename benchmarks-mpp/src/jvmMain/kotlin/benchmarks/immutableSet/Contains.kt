@@ -33,6 +33,14 @@ open class Contains {
             elements = generateElements(hashCodeType, size)
     }
 
+    /**
+     * Requests if every element is contained.
+     *
+     * Measures mean time and memory spent per `contains` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: none
+     */
     @Benchmark
     fun contains(bh: Blackhole) {
         repeat(times = size) { index ->

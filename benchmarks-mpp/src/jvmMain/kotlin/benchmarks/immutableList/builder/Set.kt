@@ -27,6 +27,14 @@ open class Set {
         randomIndices = List(size) { it }.shuffled()
     }
 
+    /**
+     * Updates each element by index starting from first to last.
+     *
+     * Measures mean time and memory spent per `set` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: nearly constant
+     */
     @Benchmark
     fun setByIndex(): PersistentList.Builder<String> {
         for (i in 0 until size) {
@@ -35,6 +43,14 @@ open class Set {
         return builder
     }
 
+    /**
+     * Updates each element by index randomly.
+     *
+     * Measures mean time and memory spent per `set` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: nearly constant
+     */
     @Benchmark
     fun setByRandomIndex(): PersistentList.Builder<String> {
         for (i in 0 until size) {

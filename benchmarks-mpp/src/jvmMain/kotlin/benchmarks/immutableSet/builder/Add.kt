@@ -31,11 +31,27 @@ open class Add {
         elements = generateElements(hashCodeType, size)
     }
 
+    /**
+     * Adds [size] elements to an empty persistent set builder.
+     *
+     * Measures mean time and memory spent per `add` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: logarithmic
+     */
     @Benchmark
     fun add(): PersistentSet.Builder<IntWrapper> {
         return persistentSetBuilderAdd(implementation, elements, immutablePercentage)
     }
 
+    /**
+     * Adds [size] elements to an empty persistent set builder and then requests if every element is contained.
+     *
+     * Measures mean time and memory spent per `add` and `contains` operations.
+     *
+     * Expected time: [add] + [Contains.contains]
+     * Expected memory: [add] + [Contains.contains]
+     */
     @Benchmark
     fun addAndContains(bh: Blackhole) {
         val builder = persistentSetBuilderAdd(implementation, elements, immutablePercentage)
@@ -44,6 +60,14 @@ open class Add {
         }
     }
 
+    /**
+     * Adds [size] elements to an empty persistent set builder and then iterates all elements.
+     *
+     * Measures mean time and memory spent per `add` and `next` operations.
+     *
+     * Expected time: [add] + [Iterate.iterate]
+     * Expected memory: [add] + [Iterate.iterate]
+     */
     @Benchmark
     fun addAndIterate(bh: Blackhole) {
         val set = persistentSetBuilderAdd(implementation, elements, immutablePercentage)

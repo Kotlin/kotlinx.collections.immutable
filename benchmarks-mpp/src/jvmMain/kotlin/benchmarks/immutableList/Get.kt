@@ -23,6 +23,14 @@ open class Get {
         persistentList = persistentListAdd(size)
     }
 
+    /**
+     * Gets every element by index starting from first to last.
+     *
+     * Measures mean time and memory spent per `get` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: none
+     */
     @Benchmark
     fun getByIndex(bh: Blackhole) {
         for (i in 0 until persistentList.size) {

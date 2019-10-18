@@ -28,6 +28,14 @@ open class Iterate {
         persistentSet = persistentSetAdd(implementation, generateElements(hashCodeType, size))
     }
 
+    /**
+     * Iterates all elements.
+     *
+     * Measures mean time and memory spent per `next` operation.
+     *
+     * Expected time: nearly constant (logarithmic for ordered persistent map)
+     * Expected memory: none once iterator is created.
+     */
     @Benchmark
     fun iterate(bh: Blackhole) {
         for (e in persistentSet) {

@@ -32,6 +32,14 @@ open class Iterate {
         builder = persistentMapBuilderPut(implementation, keys, immutablePercentage)
     }
 
+    /**
+     * Iterates all keys.
+     *
+     * Measures mean time and memory spent per `next` operation.
+     *
+     * Expected time: nearly constant (logarithmic for ordered persistent map)
+     * Expected memory: none once iterator is created.
+     */
     @Benchmark
     fun iterateKeys(bh: Blackhole) {
         for (k in builder.keys) {
@@ -39,6 +47,14 @@ open class Iterate {
         }
     }
 
+    /**
+     * Iterates all values.
+     *
+     * Measures mean time and memory spent per `next` operation.
+     *
+     * Expected time: nearly constant (logarithmic for ordered persistent map)
+     * Expected memory: constant.
+     */
     @Benchmark
     fun iterateValues(bh: Blackhole) {
         for (v in builder.values) {
@@ -46,6 +62,14 @@ open class Iterate {
         }
     }
 
+    /**
+     * Iterates all entries.
+     *
+     * Measures mean time and memory spent per `next` operation.
+     *
+     * Expected time: nearly constant (logarithmic for ordered persistent map)
+     * Expected memory: constant.
+     */
     @Benchmark
     fun iterateEntries(bh: Blackhole) {
         for (e in builder) {

@@ -25,6 +25,14 @@ open class Set {
         randomIndices = List(size) { it }.shuffled()
     }
 
+    /**
+     * Updates each element by index starting from first to last.
+     *
+     * Measures mean time and memory spent per `set` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: logarithmic
+     */
     @Benchmark
     fun setByIndex(): ImmutableList<String> {
         repeat(times = size) { index ->
@@ -33,6 +41,14 @@ open class Set {
         return persistentList
     }
 
+    /**
+     * Updates each element by index randomly.
+     *
+     * Measures mean time and memory spent per `set` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: logarithmic
+     */
     @Benchmark
     fun setByRandomIndex(): ImmutableList<String> {
         repeat(times = size) { index ->

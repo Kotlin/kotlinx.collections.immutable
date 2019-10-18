@@ -33,6 +33,14 @@ open class Remove {
             keys = generateKeys(hashCodeType, size)
     }
 
+    /**
+     * Removes each entry by key.
+     *
+     * Measures mean time and memory spent per `remove` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: logarithmic
+     */
     @Benchmark
     fun remove(): PersistentMap<IntWrapper, String> {
         var map = persistentMap

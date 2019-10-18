@@ -37,6 +37,14 @@ open class Remove {
         }
     }
 
+    /**
+     * Adds [size] entries to an empty persistent map builder and then removes each entry by key.
+     *
+     * Measures mean time and memory spent per `put` and `remove` operations.
+     *
+     * Expected time: [Put.put] + logarithmic
+     * Expected memory: [Put.put] + logarithmic
+     */
     // Q: Why not to benchmark pure remove method?
     // A: Each invocation of remove benchmark method would clear the builder and creating new one would be needed each time.
     // Setting `@Setup(Level.Invocation)` may cause bad benchmark accuracy amid frequent `prepare` calls, especially for small `size`.

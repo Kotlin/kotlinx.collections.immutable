@@ -33,6 +33,14 @@ open class Remove {
             elements = generateElements(hashCodeType, size)
     }
 
+    /**
+     * Removes each element.
+     *
+     * Measures mean time and memory spent per `remove` operation.
+     *
+     * Expected time: logarithmic
+     * Expected memory: logarithmic
+     */
     @Benchmark
     fun remove(): ImmutableSet<IntWrapper> {
         var set = persistentSet
