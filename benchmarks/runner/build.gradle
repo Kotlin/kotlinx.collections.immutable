@@ -16,6 +16,8 @@ dependencies {
     runtimeOnly project(path: ':kotlinx-collections-immutable')
 }
 
+sourceSets.main.kotlin.srcDirs "src"
+
 // map
 task benchmarkHashMap(type: JavaExec, group: "Benchmark") {
     main = 'runners.HashMapRunnerKt'

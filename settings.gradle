@@ -15,4 +15,4 @@ include ':core'
 project(":core").name='kotlinx-collections-immutable'
 
 include ':benchmarks'
-include ':benchmarks-runner'
+include ':benchmarks:runner'
