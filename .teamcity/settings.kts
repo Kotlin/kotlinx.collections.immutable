@@ -156,6 +156,8 @@ fun Project.benchmark(target: String, platform: String) = BuildType {
             tasks = "${target}Benchmark"
             jdkHome = "%env.$jdk%"
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
+            buildFile = ""
+            gradleWrapperPath = ""
         }
     }
 
