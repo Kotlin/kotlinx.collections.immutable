@@ -1,6 +1,7 @@
 import jetbrains.buildServer.configs.kotlin.v2018_2.*
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.*
 import jetbrains.buildServer.configs.kotlin.v2018_2.triggers.*
+import java.lang.IllegalArgumentException
 
 /*
 The settings script is an entry point for defining a TeamCity
@@ -149,11 +150,10 @@ fun Project.benchmark(target: String, platform: String) = BuildType {
     // Display name of the build configuration
     this.name = "${target}Benchmark ($platform)"
 
-
     steps {
         gradle {
             name = "Benchmark"
-            tasks = "${target}Benchmark"
+            tasks = "${if (target == "native") nativeTarget(platform) else target}Benchmark"
             jdkHome = "%env.$jdk%"
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
             buildFile = ""
@@ -198,6 +198,13 @@ fun Project.benchmark(target: String, platform: String) = BuildType {
         }
     }
 }.also { buildType(it) }
+
+fun nativeTarget(platform: String): String = when(platform) {
+    "Mac OS X" -> "macosX64"
+    "Linux" -> "linuxX64"
+    "Windows" -> "mingwX64"
+    else -> throw IllegalArgumentException("Unknown platform: $platform")
+}
 
 fun BuildType.dependsOn(build: BuildType, configure: Dependency.() -> Unit) =
     apply {
