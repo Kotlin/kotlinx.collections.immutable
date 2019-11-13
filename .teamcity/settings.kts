@@ -143,17 +143,11 @@ fun Project.build(platform: String, versionBuild: BuildType) = platform(platform
     artifactRules = "+:build/maven=>maven\n+:build/api=>api"
 }
 
-fun Project.benchmark(target: String, platform: String) = BuildType {
-    // ID is prepended with Project ID, so don't repeat it here
-    // ID should conform to identifier rules, so just letters, numbers and underscore
-    id("${target}Benchmark_${platform.substringBefore(" ")}")
-    // Display name of the build configuration
-    this.name = "${target}Benchmark ($platform)"
-
+fun Project.benchmark(target: String, platform: String) = platform(platform, "${target}Benchmark") {
     steps {
         gradle {
             name = "Benchmark"
-            tasks = "${if (target == "native") nativeTarget(platform) else target}Benchmark"
+            tasks = benchmarkTask(target, platform)
             jdkHome = "%env.$jdk%"
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
             buildFile = ""
@@ -161,49 +155,31 @@ fun Project.benchmark(target: String, platform: String) = BuildType {
         }
     }
 
-    // What files to publish as build artifacts
     artifactRules = "benchmarks/build/reports/**=> reports"
 
     requirements {
-        equals("system.ec2.instance-type", "m5d.xlarge")
-        contains("teamcity.agent.jvm.os.name", platform)
-        noLessThan("teamcity.agent.hardware.memorySizeMb", "6144")
-    }
-
-    params {
-        // This parameter is needed for macOS agent to be compatible
-        if (platform.startsWith("Mac")) param("env.JDK_17", "")
-    }
-
-    // Allow to fetch build status through API for badges
-    allowExternalStatus = true
-
-    // Configure VCS, by default use the same and only VCS root from which this configuration is fetched
-    vcs {
-        root(DslContext.settingsRoot)
-        showDependenciesChanges = true
-        checkoutMode = CheckoutMode.ON_AGENT
+        benchmarkAgentInstanceTypeRequirement(platform)
     }
 
     failureConditions {
-        errorMessage = true
-        nonZeroExitCode = true
         executionTimeoutMin = 1440
     }
+}
 
-    features {
-        feature {
-            id = "perfmon"
-            type = "perfmon"
-        }
+fun benchmarkTask(target: String, platform: String): String = when(target) {
+    "js", "jvm" -> "${target}Benchmark"
+    "native" -> when(platform) {
+        "Mac OS X" -> "macosX64Benchmark"
+        "Linux" -> "linuxX64Benchmark"
+        "Windows" -> "mingwX64Benchmark"
+        else -> throw IllegalArgumentException("Unknown platform: $platform")
     }
-}.also { buildType(it) }
+    else -> throw IllegalArgumentException("Unknown target: $target")
+}
 
-fun nativeTarget(platform: String): String = when(platform) {
-    "Mac OS X" -> "macosX64"
-    "Linux" -> "linuxX64"
-    "Windows" -> "mingwX64"
-    else -> throw IllegalArgumentException("Unknown platform: $platform")
+fun Requirements.benchmarkAgentInstanceTypeRequirement(platform: String) {
+    if (platform == "Linux") equals("system.ec2.instance-type", "m5d.xlarge")
+    else if (platform == "Windows") equals("system.ec2.instance-type", "m5.xlarge")
 }
 
 fun BuildType.dependsOn(build: BuildType, configure: Dependency.() -> Unit) =
