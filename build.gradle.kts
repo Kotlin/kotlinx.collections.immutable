@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         mavenCentral()
+        mavenLocal()
         maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     }
     dependencies {
@@ -38,11 +39,12 @@ infra {
     }
 }
 
-val JDK_6 by ext(System.getenv("JDK_6") ?: findProperty("JDK_6") as String? ?: error("Specify path to JDK 6 in JDK_6 environment variable or Gradle property"))
+val JDK_6 by ext(System.getenv("JDK_17") ?: findProperty("JDK_17") as String? ?: error("Specify path to JDK 6 in JDK_6 environment variable or Gradle property"))
 
 allprojects {
     repositories {
         mavenCentral()
+        mavenLocal()
         maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     }
 }

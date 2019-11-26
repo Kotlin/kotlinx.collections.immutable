@@ -12,6 +12,7 @@ evaluationDependsOn(":kotlinx-collections-immutable")
 val JDK_6: String by project
 
 repositories {
+    mavenLocal()
     maven(url = "https://dl.bintray.com/kotlin/kotlinx")
 }
 

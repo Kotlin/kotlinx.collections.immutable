@@ -6,6 +6,7 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedMap
 
 import kotlinx.collections.immutable.implementations.immutableMap.MapEntry
+import kotlinx.collections.immutable.implementations.immutableMap.XMutableMapEntry
 
 internal open class PersistentOrderedMapLinksIterator<K, V>(
         internal var nextKey: Any?,
@@ -40,7 +41,8 @@ internal class PersistentOrderedMapEntriesIterator<out K, out V>(map: Persistent
         @Suppress("UNCHECKED_CAST")
         val nextKey = internal.nextKey as K
         val nextValue = internal.next().value
-        return MapEntry(nextKey, nextValue)
+//        return MapEntry(nextKey, nextValue)  // <<<
+        return XMutableMapEntry(nextKey, nextValue)  // <<<
     }
 }
 

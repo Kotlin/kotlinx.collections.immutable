@@ -14,8 +14,8 @@ public actual fun assertTypeEquals(expected: Any?, actual: Any?) {
 public actual val currentPlatform: TestPlatform get() = TestPlatform.JS
 
 actual object NForAlgorithmComplexity {
-    actual val O_N: Int = 500_000
-    actual val O_NlogN: Int = 100_000
-    actual val O_NN: Int = 5_000
-    actual val O_NNlogN: Int = 1_000
+    actual val O_N: Int = 500_00
+    actual val O_NlogN: Int = 100_00
+    actual val O_NN: Int = 5_00
+    actual val O_NNlogN: Int = 1_00
 }

@@ -80,12 +80,21 @@ internal class TrieNodeValuesIterator<out K, out V> : TrieNodeBaseIterator<K, V,
     }
 }
 
+internal class XMutableMapEntry<K, V>(
+                                    key: K,
+                                    override var value: V) : MapEntry<K, V>(key, value), MutableMap.MutableEntry<K, V> {
+    override fun setValue(newValue: V): V {
+        error("KKKKKK")
+    }
+}
+
 internal class TrieNodeEntriesIterator<out K, out V> : TrieNodeBaseIterator<K, V, Map.Entry<K, V>>() {
     override fun next(): Map.Entry<K, V> {
         assert(hasNextKey())
         index += 2
         @Suppress("UNCHECKED_CAST")
-        return MapEntry(buffer[index - 2] as K, buffer[index - 1] as V)
+        return XMutableMapEntry(buffer[index - 2] as K, buffer[index - 1] as V)
+//        return MapEntry(buffer[index - 2] as K, buffer[index - 1] as V)
     }
 }
 

@@ -34,6 +34,7 @@ kotlin {
         }
         compilations.all {
             kotlinOptions {
+                freeCompilerArgs += listOf("-Xir-produce-klib-dir", "-Xir-only", "-Xir-produce-js", "-Xir-dce")
                 sourceMap = true
                 moduleKind = "umd"
                 metaInfo = true
