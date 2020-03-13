@@ -30,7 +30,11 @@ kotlin {
 
     js {
         nodejs {
-//            testTask { }
+            testTask {
+                useMocha {
+                    timeout = "30000"
+                }
+            }
         }
         compilations.all {
             kotlinOptions {
