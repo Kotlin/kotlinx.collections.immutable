@@ -448,6 +448,11 @@ fun <E> persistentSetOf(): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>()
  */
 fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHashSet.emptyOf<E>().addAll(elements.asList())
 
+/**
+ * Returns an empty persistent set.
+ */
+fun <E> persistentHashSetOf(): PersistentSet<E> = PersistentHashSet.emptyOf()
+
 
 /**
  * Returns a new persistent map with the specified contents, given as a list of pairs
@@ -460,6 +465,12 @@ fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHa
 fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = PersistentOrderedMap.emptyOf<K,V>().mutate { it += pairs }
 
 /**
+ * Returns an empty persistent map.
+ */
+fun <K, V> persistentMapOf(): PersistentMap<K, V> = PersistentOrderedMap.emptyOf()
+
+
+/**
  * Returns a new persistent map with the specified contents, given as a list of pairs
  * where the first component is the key and the second is the value.
  *
@@ -468,6 +479,11 @@ fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = Pers
  * Order of the entries in the returned map is unspecified.
  */
 fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = PersistentHashMap.emptyOf<K,V>().mutate { it += pairs }
+
+/**
+ * Returns an empty persistent map.
+ */
+fun <K, V> persistentHashMapOf(): PersistentMap<K, V> = PersistentHashMap.emptyOf()
 
 
 /**
