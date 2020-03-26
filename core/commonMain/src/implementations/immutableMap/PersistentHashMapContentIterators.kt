@@ -98,8 +98,11 @@ internal open class MapEntry<out K, out V>(override val key: K, override val val
 }
 
 
-internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K, V>,
-                                                               protected val path: Array<TrieNodeBaseIterator<K, V, T>>) : Iterator<T> {
+internal abstract class PersistentHashMapBaseIterator<K, V, T>(
+        node: TrieNode<K, V>,
+        protected val path: Array<TrieNodeBaseIterator<K, V, T>>
+) : Iterator<T> {
+
     private var pathLastIndex = 0
     @JsName("_hasNext")
     private var hasNext = true
@@ -144,6 +147,7 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(node: TrieNode<K,
             if (i > 0) {
                 path[i - 1].moveToNextNode()
             }
+            path[i].reset(TrieNode.EMPTY.buffer, 0)
         }
         hasNext = false
     }
