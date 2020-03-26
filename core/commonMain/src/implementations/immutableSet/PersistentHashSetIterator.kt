@@ -54,6 +54,7 @@ internal open class PersistentHashSetIterator<E>(node: TrieNode<E>) : Iterator<E
             if (i > 0) {
                 path[i - 1].moveToNextCell()
             }
+            path[i].reset(TrieNode.EMPTY.buffer, 0)
         }
         hasNext = false
     }
