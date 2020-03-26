@@ -54,7 +54,7 @@ internal class TrieNode<E>(
     }
 
     @UseExperimental(ExperimentalStdlibApi::class)
-    private fun indexOfCellAt(positionMask: Int): Int {
+    internal fun indexOfCellAt(positionMask: Int): Int {
         return (bitmap and (positionMask - 1)).countOneBits()
     }
 

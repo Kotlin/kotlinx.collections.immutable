@@ -26,10 +26,10 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
         if (hasNext()) {
             val currentElement = currentElement()
 
-            assert(builder.remove(lastIteratedElement))
+            builder.remove(lastIteratedElement)
             resetPath(currentElement.hashCode(), builder.node, currentElement, 0)
         } else {
-            assert(builder.remove(lastIteratedElement))
+            builder.remove(lastIteratedElement)
         }
 
         lastIteratedElement = null
@@ -46,9 +46,8 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
             return
         }
 
-        val position = 1 shl ((hashCode shr (pathIndex * LOG_MAX_BRANCHING_FACTOR)) and MAX_BRANCHING_FACTOR_MINUS_ONE)
-        @UseExperimental(ExperimentalStdlibApi::class)
-        val index = (node.bitmap and (position - 1)).countOneBits()
+        val position = 1 shl indexSegment(hashCode, pathIndex * LOG_MAX_BRANCHING_FACTOR)
+        val index = node.indexOfCellAt(position)
 
         path[pathIndex].reset(node.buffer, index)
 
