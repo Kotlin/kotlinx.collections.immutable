@@ -103,7 +103,7 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(
         protected val path: Array<TrieNodeBaseIterator<K, V, T>>
 ) : Iterator<T> {
 
-    private var pathLastIndex = 0
+    protected var pathLastIndex = 0
     @JsName("_hasNext")
     private var hasNext = true
 
