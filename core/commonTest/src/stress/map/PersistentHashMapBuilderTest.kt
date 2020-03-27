@@ -244,6 +244,53 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
+    fun removeBuildTests() {
+        val builder = persistentHashMapOf<IntWrapper, Int>().builder()
+
+        val elementsToAddToBuilder = NForAlgorithmComplexity.O_NlogN
+
+        val keyGen = WrapperGenerator<Int>(elementsToAddToBuilder)
+        val expectedKeys = hashSetOf<IntWrapper>()
+
+        repeat(times = elementsToAddToBuilder) {
+            val keyValue = Random.nextInt()
+            val key = keyGen.wrapper(keyValue)
+            expectedKeys.add(key)
+            builder[key] = keyValue
+        }
+
+        val elementsToRemoveFromBuilder = expectedKeys.size / 2
+        expectedKeys.take(elementsToRemoveFromBuilder).forEach { key ->
+            expectedKeys.remove(key)
+            builder.remove(key)
+        }
+
+        var map = builder.build()
+
+        val elementsToRemoveFromMap = expectedKeys.size / 2
+        expectedKeys.take(elementsToRemoveFromMap).forEach { key ->
+            expectedKeys.remove(key)
+            map = map.remove(key)
+        }
+        assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
+
+        val elementsToAddToMap = elementsToAddToBuilder - expectedKeys.size
+        repeat(elementsToAddToMap) {
+            val keyValue = Random.nextInt()
+            val key = keyGen.wrapper(keyValue)
+            expectedKeys.add(key)
+            map = map.put(key, keyValue)
+        }
+        assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
+
+        expectedKeys.toHashSet().forEach { key ->
+            expectedKeys.remove(key)
+            map = map.remove(key)
+        }
+        assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
+    }
+
+    @Test
     fun removeEntryTests() {
         val builder = persistentHashMapOf<Int, String>().builder()
 
