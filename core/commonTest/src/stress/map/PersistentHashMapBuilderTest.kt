@@ -107,6 +107,124 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         }
     }
 
+    private fun testAfterRandomPut(block: (MutableMap<IntWrapper, Int>, PersistentMap<IntWrapper, Int>) -> Unit) {
+        val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
+
+        var map = persistentHashMapOf<IntWrapper, Int>()
+        val expected = hashMapOf<IntWrapper, Int>()
+
+        repeat(times = elementsToAdd) {
+            val keyValue = Random.nextInt()
+            val keyHash = Random.nextInt(elementsToAdd) // to have collisions
+            val key = IntWrapper(keyValue, keyHash)
+
+            expected[key] = keyValue
+            map = map.put(key, keyValue)
+
+            val shouldTest = Random.nextDouble() < 0.1
+            if (shouldTest) {
+                block(expected, map)
+            }
+        }
+    }
+
+    @Test
+    fun keysIteratorTests() {
+        fun testKeysIterator(expected: MutableMap<IntWrapper, Int>, actual: PersistentMap.Builder<IntWrapper, Int>) {
+            var expectedSize = actual.size
+            while (expectedSize > 0) {
+                assertEquals(expectedSize, actual.size)
+
+                val iterator = actual.keys.iterator()
+                repeat(expectedSize) {
+                    assertTrue(iterator.hasNext())
+
+                    val nextKey = iterator.next()
+                    assertEquals(expected[nextKey], actual[nextKey])
+
+                    val shouldRemove = Random.nextDouble() < 0.2
+                    if (shouldRemove) {
+                        iterator.remove()
+                        expectedSize--
+                    }
+                }
+                assertFalse(iterator.hasNext())
+            }
+
+            assertTrue(actual.isEmpty())
+        }
+
+        testAfterRandomPut { expected, map ->
+            testKeysIterator(expected, map.builder())
+        }
+    }
+
+    @Test
+    fun valuesIteratorTests() {
+        fun testValuesIterator(actual: PersistentMap.Builder<IntWrapper, Int>) {
+            var expectedSize = actual.size
+            while (expectedSize > 0) {
+                assertEquals(expectedSize, actual.size)
+
+                val iterator = actual.values.iterator()
+                repeat(expectedSize) {
+                    assertTrue(iterator.hasNext())
+
+                    iterator.next()
+
+                    val shouldRemove = Random.nextDouble() < 0.2
+                    if (shouldRemove) {
+                        iterator.remove()
+                        expectedSize--
+                    }
+                }
+                assertFalse(iterator.hasNext())
+            }
+
+            assertTrue(actual.isEmpty())
+        }
+
+        testAfterRandomPut { _, map ->
+            testValuesIterator(map.builder())
+        }
+    }
+
+    @Test
+    fun entriesIteratorTests() {
+        fun testEntriesIterator(expected: MutableMap<IntWrapper, Int>, actual: PersistentMap.Builder<IntWrapper, Int>) {
+            var expectedSize = actual.size
+            while (expectedSize > 0) {
+                assertEquals(expectedSize, actual.size)
+
+                val iterator = actual.entries.iterator()
+                repeat(expectedSize) {
+                    assertTrue(iterator.hasNext())
+
+                    val nextEntry = iterator.next()
+                    assertEquals(expected[nextEntry.key], actual[nextEntry.key])
+
+                    val shouldUpdate = Random.nextDouble() < 0.1
+                    if (shouldUpdate) {
+                        val newValue = Random.nextInt()
+                        assertEquals(expected.put(nextEntry.key, newValue), nextEntry.setValue(newValue))
+                    }
+                    val shouldRemove = Random.nextDouble() < 0.2
+                    if (shouldRemove) {
+                        iterator.remove()
+                        expectedSize--
+                    }
+                }
+                assertFalse(iterator.hasNext())
+            }
+
+            assertTrue(actual.isEmpty())
+        }
+
+        testAfterRandomPut { expected, map ->
+            testEntriesIterator(expected.toMutableMap(), map.builder())
+        }
+    }
+
     @Test
     fun removeTests() {
         val builder = persistentHashMapOf<Int, String>().builder()
