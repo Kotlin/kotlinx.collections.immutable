@@ -51,12 +51,14 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     override fun remove(key: K): PersistentHashMap<K, V> {
         val newNode = node.remove(key.hashCode(), key, 0)
         if (node === newNode) { return this }
+        if (newNode == null) { return emptyOf() }
         return PersistentHashMap(newNode, size - 1)
     }
 
     override fun remove(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val newNode = node.remove(key.hashCode(), key, value, 0)
         if (node === newNode) { return this }
+        if (newNode == null) { return emptyOf() }
         return PersistentHashMap(newNode, size - 1)
     }
 
