@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 0.3.2
+
+- Introduce `persistentHashSetOf`, `persistentMapOf` and `persistentHashMapOf` methods that take no arguments and create an empty instance [#67](https://github.com/Kotlin/kotlinx.collections.immutable/issues/67).
+- Fix map `entries`/`keys`/`values` iterators including [#68](https://github.com/Kotlin/kotlinx.collections.immutable/issues/68).
+
+## 0.3.1
+
+- Update Kotlin version up to 1.3.70
+
 ## 0.3
 
 - Turn the JVM-only project into a multiplatform library
