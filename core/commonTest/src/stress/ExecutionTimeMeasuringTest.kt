@@ -11,10 +11,10 @@ import kotlin.time.*
 
 @UseExperimental(ExperimentalTime::class)
 abstract class ExecutionTimeMeasuringTest {
-    private var clockMark: ClockMark? = null
+    private var clockMark: TimeMark? = null
 
     private fun markExecutionStart() {
-        clockMark = MonoClock.markNow()
+        clockMark = TimeSource.Monotonic.markNow()
     }
 
     private fun printExecutionTime() {

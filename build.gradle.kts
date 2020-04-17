@@ -1,10 +1,11 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven(url = "https://dl.bintray.com/kotlin/kotlin-dev")
         maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.71")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0")
     }
 }
 
@@ -43,6 +44,7 @@ val JDK_6 by ext(System.getenv("JDK_6") ?: findProperty("JDK_6") as String? ?: e
 allprojects {
     repositories {
         mavenCentral()
+        maven(url = "https://dl.bintray.com/kotlin/kotlin-dev")
         maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
     }
 }
