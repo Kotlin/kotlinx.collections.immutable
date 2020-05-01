@@ -1,4 +1,5 @@
 import jetbrains.buildServer.configs.kotlin.v2018_2.*
+import jetbrains.buildServer.configs.kotlin.v2018_2.buildFeatures.commitStatusPublisher
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.*
 import jetbrains.buildServer.configs.kotlin.v2018_2.triggers.*
 import java.lang.IllegalArgumentException
@@ -111,6 +112,18 @@ fun Project.buildAll(versionBuild: BuildType) = BuildType {
                     -:*.md
                     -:.gitignore
                 """.trimIndent()
+        }
+    }
+
+    features {
+        commitStatusPublisher {
+            publisher = github {
+                githubUrl = "https://api.github.com"
+                authType = password {
+                    userName = "ilya-g"
+                    password = "credentialsJSON:a834ea47-6e37-470e-85c2-55c99cb477bf"
+                }
+            }
         }
     }
 
