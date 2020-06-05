@@ -96,6 +96,14 @@ class ImmutableListTest {
         assertEquals(emptyList<Char>(), list.clear())
     }
 
+    @Test
+    fun smallPersistentListFromMutableBuffer() {
+        val list = List(33) { it }
+        var vector = persistentListOf<Int>().mutate { it.addAll(list) }
+        vector = vector.removeAt(vector.lastIndex)
+        assertEquals(list.dropLast(1), vector)
+    }
+
     @Test fun subList() {
         val list = "abcxaxyz12".toImmutableList()
         val subList = list.subList(2, 5) // 2, 3, 4

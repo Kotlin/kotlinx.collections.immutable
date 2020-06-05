@@ -180,7 +180,8 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
      */
     private fun pullLastBufferFromRoot(root: Array<Any?>, rootSize: Int, shift: Int): PersistentList<E> {
         if (shift == 0) {
-            return SmallPersistentVector(root)
+            val buffer = if (root.size == MUTABLE_BUFFER_SIZE) root.copyOf(MAX_BUFFER_SIZE) else root
+            return SmallPersistentVector(buffer)
         }
         val tailCarry = ObjectRef(null)
         val newRoot = pullLastBuffer(root, shift, rootSize - 1, tailCarry)!!
