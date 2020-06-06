@@ -36,6 +36,9 @@ infra {
             password = findProperty("bintrayApiKey") as String?
         }
     }
+    apiCheck {
+        include(":kotlinx-collections-immutable")
+    }
 }
 
 val JDK_6 by ext(System.getenv("JDK_6") ?: findProperty("JDK_6") as String? ?: error("Specify path to JDK 6 in JDK_6 environment variable or Gradle property"))

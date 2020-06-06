@@ -1,0 +1,733 @@
+package kotlinx
+{
+}
+
+package kotlinx.collections
+{
+}
+
+package kotlinx.collections.immutable
+{
+   public interface ImmutableCollection<out E> : kotlin.collections.Collection<E>
+   {
+       public abstract override val size: kotlin.Int { get; }
+       public abstract override operator fun contains(element: E): kotlin.Boolean
+
+       public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public open override fun hashCode(): kotlin.Int
+
+       public abstract override fun isEmpty(): kotlin.Boolean
+
+       public abstract override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public open override fun toString(): kotlin.String
+
+   }
+
+   public interface ImmutableList<out E> : kotlin.collections.List<E>, kotlinx.collections.immutable.ImmutableCollection<E>
+   {
+       public abstract override val size: kotlin.Int { get; }
+       public abstract override operator fun contains(element: E): kotlin.Boolean
+
+       public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public abstract override operator fun get(index: kotlin.Int): E
+
+       public open override fun hashCode(): kotlin.Int
+
+       public abstract override fun indexOf(element: E): kotlin.Int
+
+       public abstract override fun isEmpty(): kotlin.Boolean
+
+       public abstract override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public abstract override fun lastIndexOf(element: E): kotlin.Int
+
+       public abstract override fun listIterator(): kotlin.collections.ListIterator<E>
+
+       public abstract override fun listIterator(index: kotlin.Int): kotlin.collections.ListIterator<E>
+
+       public open override fun subList(fromIndex: kotlin.Int, toIndex: kotlin.Int): kotlinx.collections.immutable.ImmutableList<E>
+
+       public open override fun toString(): kotlin.String
+
+   }
+
+   public interface ImmutableMap<K, out V> : kotlin.collections.Map<K, V>
+   {
+       public abstract override val entries: kotlinx.collections.immutable.ImmutableSet<kotlin.collections.Map.Entry<K, V>> { get; }
+       public abstract override val keys: kotlinx.collections.immutable.ImmutableSet<K> { get; }
+       public abstract override val size: kotlin.Int { get; }
+       public abstract override val values: kotlinx.collections.immutable.ImmutableCollection<V> { get; }
+       public abstract override fun containsKey(key: K): kotlin.Boolean
+
+       public abstract override fun containsValue(value: V): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public abstract override operator fun get(key: K): V?
+
+       public open override fun hashCode(): kotlin.Int
+
+       public abstract override fun isEmpty(): kotlin.Boolean
+
+       public open override fun toString(): kotlin.String
+
+   }
+
+   public interface ImmutableSet<out E> : kotlin.collections.Set<E>, kotlinx.collections.immutable.ImmutableCollection<E>
+   {
+       public abstract override val size: kotlin.Int { get; }
+       public abstract override operator fun contains(element: E): kotlin.Boolean
+
+       public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public open override fun hashCode(): kotlin.Int
+
+       public abstract override fun isEmpty(): kotlin.Boolean
+
+       public abstract override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public open override fun toString(): kotlin.String
+
+   }
+
+   public interface PersistentCollection<out E> : kotlinx.collections.immutable.ImmutableCollection<E>
+   {
+       public abstract override val size: kotlin.Int { get; }
+       public abstract fun add(element: E): kotlinx.collections.immutable.PersistentCollection<E>
+
+       public abstract fun addAll(elements: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentCollection<E>
+
+       public abstract fun builder(): kotlinx.collections.immutable.PersistentCollection.Builder<E>
+
+       public abstract fun clear(): kotlinx.collections.immutable.PersistentCollection<E>
+
+       public abstract override operator fun contains(element: E): kotlin.Boolean
+
+       public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public open override fun hashCode(): kotlin.Int
+
+       public abstract override fun isEmpty(): kotlin.Boolean
+
+       public abstract override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public abstract fun remove(element: E): kotlinx.collections.immutable.PersistentCollection<E>
+
+       public abstract fun removeAll(predicate: (E) -> kotlin.Boolean): kotlinx.collections.immutable.PersistentCollection<E>
+
+       public abstract fun removeAll(elements: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentCollection<E>
+
+       public open override fun toString(): kotlin.String
+
+       public interface Builder<E> : kotlin.collections.MutableCollection<E>
+       {
+           public abstract override val size: kotlin.Int { get; }
+           public abstract override fun add(element: E): kotlin.Boolean
+
+           public abstract override fun addAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public abstract fun build(): kotlinx.collections.immutable.PersistentCollection<E>
+
+           public abstract override fun clear(): kotlin.Unit
+
+           public abstract override operator fun contains(element: E): kotlin.Boolean
+
+           public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+           public open override fun hashCode(): kotlin.Int
+
+           public abstract override fun isEmpty(): kotlin.Boolean
+
+           public abstract override operator fun iterator(): kotlin.collections.MutableIterator<E>
+
+           public abstract override fun remove(element: E): kotlin.Boolean
+
+           public abstract override fun removeAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public abstract override fun retainAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public open override fun toString(): kotlin.String
+
+       }
+
+   }
+
+   public interface PersistentList<out E> : kotlinx.collections.immutable.ImmutableList<E>, kotlinx.collections.immutable.PersistentCollection<E>
+   {
+       public abstract override val size: kotlin.Int { get; }
+       public abstract override fun add(element: E): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract fun add(index: kotlin.Int, element: E): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract fun addAll(index: kotlin.Int, c: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun addAll(elements: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun builder(): kotlinx.collections.immutable.PersistentList.Builder<E>
+
+       public abstract override fun clear(): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override operator fun contains(element: E): kotlin.Boolean
+
+       public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public abstract override operator fun get(index: kotlin.Int): E
+
+       public open override fun hashCode(): kotlin.Int
+
+       public abstract override fun indexOf(element: E): kotlin.Int
+
+       public abstract override fun isEmpty(): kotlin.Boolean
+
+       public abstract override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public abstract override fun lastIndexOf(element: E): kotlin.Int
+
+       public abstract override fun listIterator(): kotlin.collections.ListIterator<E>
+
+       public abstract override fun listIterator(index: kotlin.Int): kotlin.collections.ListIterator<E>
+
+       public abstract override fun remove(element: E): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun removeAll(predicate: (E) -> kotlin.Boolean): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun removeAll(elements: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract fun removeAt(index: kotlin.Int): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract fun set(index: kotlin.Int, element: E): kotlinx.collections.immutable.PersistentList<E>
+
+       public open override fun subList(fromIndex: kotlin.Int, toIndex: kotlin.Int): kotlinx.collections.immutable.ImmutableList<E>
+
+       public open override fun toString(): kotlin.String
+
+       public interface Builder<E> : kotlin.collections.MutableList<E>, kotlinx.collections.immutable.PersistentCollection.Builder<E>
+       {
+           public abstract override val size: kotlin.Int { get; }
+           public abstract override fun add(element: E): kotlin.Boolean
+
+           public abstract override fun add(index: kotlin.Int, element: E): kotlin.Unit
+
+           public abstract override fun addAll(index: kotlin.Int, elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public abstract override fun addAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public abstract override fun build(): kotlinx.collections.immutable.PersistentList<E>
+
+           public abstract override fun clear(): kotlin.Unit
+
+           public abstract override operator fun contains(element: E): kotlin.Boolean
+
+           public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+           public abstract override operator fun get(index: kotlin.Int): E
+
+           public open override fun hashCode(): kotlin.Int
+
+           public abstract override fun indexOf(element: E): kotlin.Int
+
+           public abstract override fun isEmpty(): kotlin.Boolean
+
+           public abstract override operator fun iterator(): kotlin.collections.MutableIterator<E>
+
+           public abstract override fun lastIndexOf(element: E): kotlin.Int
+
+           public abstract override fun listIterator(): kotlin.collections.MutableListIterator<E>
+
+           public abstract override fun listIterator(index: kotlin.Int): kotlin.collections.MutableListIterator<E>
+
+           public abstract override fun remove(element: E): kotlin.Boolean
+
+           public abstract override fun removeAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public abstract override fun removeAt(index: kotlin.Int): E
+
+           public abstract override fun retainAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public abstract override operator fun set(index: kotlin.Int, element: E): E
+
+           public abstract override fun subList(fromIndex: kotlin.Int, toIndex: kotlin.Int): kotlin.collections.MutableList<E>
+
+           public open override fun toString(): kotlin.String
+
+       }
+
+   }
+
+   public interface PersistentMap<K, out V> : kotlinx.collections.immutable.ImmutableMap<K, V>
+   {
+       public abstract override val entries: kotlinx.collections.immutable.ImmutableSet<kotlin.collections.Map.Entry<K, V>> { get; }
+       public abstract override val keys: kotlinx.collections.immutable.ImmutableSet<K> { get; }
+       public abstract override val size: kotlin.Int { get; }
+       public abstract override val values: kotlinx.collections.immutable.ImmutableCollection<V> { get; }
+       public abstract fun builder(): kotlinx.collections.immutable.PersistentMap.Builder<K, V>
+
+       public abstract fun clear(): kotlinx.collections.immutable.PersistentMap<K, V>
+
+       public abstract override fun containsKey(key: K): kotlin.Boolean
+
+       public abstract override fun containsValue(value: V): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public abstract override operator fun get(key: K): V?
+
+       public open override fun hashCode(): kotlin.Int
+
+       public abstract override fun isEmpty(): kotlin.Boolean
+
+       public abstract fun put(key: K, value: V): kotlinx.collections.immutable.PersistentMap<K, V>
+
+       public abstract fun putAll(m: kotlin.collections.Map<out K, V>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+       public abstract fun remove(key: K): kotlinx.collections.immutable.PersistentMap<K, V>
+
+       public abstract fun remove(key: K, value: V): kotlinx.collections.immutable.PersistentMap<K, V>
+
+       public open override fun toString(): kotlin.String
+
+       public interface Builder<K, V> : kotlin.collections.MutableMap<K, V>
+       {
+           public abstract override val entries: kotlin.collections.MutableSet<kotlin.collections.MutableMap.MutableEntry<K, V>> { get; }
+           public abstract override val keys: kotlin.collections.MutableSet<K> { get; }
+           public abstract override val size: kotlin.Int { get; }
+           public abstract override val values: kotlin.collections.MutableCollection<V> { get; }
+           public abstract fun build(): kotlinx.collections.immutable.PersistentMap<K, V>
+
+           public abstract override fun clear(): kotlin.Unit
+
+           public abstract override fun containsKey(key: K): kotlin.Boolean
+
+           public abstract override fun containsValue(value: V): kotlin.Boolean
+
+           public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+           public abstract override operator fun get(key: K): V?
+
+           public open override fun hashCode(): kotlin.Int
+
+           public abstract override fun isEmpty(): kotlin.Boolean
+
+           public abstract override fun put(key: K, value: V): V?
+
+           public abstract override fun putAll(from: kotlin.collections.Map<out K, V>): kotlin.Unit
+
+           public abstract override fun remove(key: K): V?
+
+           public open override fun toString(): kotlin.String
+
+       }
+
+   }
+
+   public interface PersistentSet<out E> : kotlinx.collections.immutable.ImmutableSet<E>, kotlinx.collections.immutable.PersistentCollection<E>
+   {
+       public abstract override val size: kotlin.Int { get; }
+       public abstract override fun add(element: E): kotlinx.collections.immutable.PersistentSet<E>
+
+       public abstract override fun addAll(elements: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentSet<E>
+
+       public abstract override fun builder(): kotlinx.collections.immutable.PersistentSet.Builder<E>
+
+       public abstract override fun clear(): kotlinx.collections.immutable.PersistentSet<E>
+
+       public abstract override operator fun contains(element: E): kotlin.Boolean
+
+       public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public open override fun hashCode(): kotlin.Int
+
+       public abstract override fun isEmpty(): kotlin.Boolean
+
+       public abstract override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public abstract override fun remove(element: E): kotlinx.collections.immutable.PersistentSet<E>
+
+       public abstract override fun removeAll(predicate: (E) -> kotlin.Boolean): kotlinx.collections.immutable.PersistentSet<E>
+
+       public abstract override fun removeAll(elements: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentSet<E>
+
+       public open override fun toString(): kotlin.String
+
+       public interface Builder<E> : kotlin.collections.MutableSet<E>, kotlinx.collections.immutable.PersistentCollection.Builder<E>
+       {
+           public abstract override val size: kotlin.Int { get; }
+           public abstract override fun add(element: E): kotlin.Boolean
+
+           public abstract override fun addAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public abstract override fun build(): kotlinx.collections.immutable.PersistentSet<E>
+
+           public abstract override fun clear(): kotlin.Unit
+
+           public abstract override operator fun contains(element: E): kotlin.Boolean
+
+           public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+           public open override fun hashCode(): kotlin.Int
+
+           public abstract override fun isEmpty(): kotlin.Boolean
+
+           public abstract override operator fun iterator(): kotlin.collections.MutableIterator<E>
+
+           public abstract override fun remove(element: E): kotlin.Boolean
+
+           public abstract override fun removeAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public abstract override fun retainAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+           public open override fun toString(): kotlin.String
+
+       }
+
+   }
+
+   public fun <K, V> immutableHashMapOf(vararg pairs: kotlin.Pair<K, V>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <E> immutableHashSetOf(vararg elements: E): kotlinx.collections.immutable.PersistentSet<E>
+
+   public fun <E> immutableListOf(): kotlinx.collections.immutable.PersistentList<E>
+
+   public fun <E> immutableListOf(vararg elements: E): kotlinx.collections.immutable.PersistentList<E>
+
+   public fun <K, V> immutableMapOf(vararg pairs: kotlin.Pair<K, V>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <E> immutableSetOf(): kotlinx.collections.immutable.PersistentSet<E>
+
+   public fun <E> immutableSetOf(vararg elements: E): kotlinx.collections.immutable.PersistentSet<E>
+
+   public fun <K, V> persistentHashMapOf(): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <K, V> persistentHashMapOf(vararg pairs: kotlin.Pair<K, V>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <E> persistentHashSetOf(): kotlinx.collections.immutable.PersistentSet<E>
+
+   public fun <E> persistentHashSetOf(vararg elements: E): kotlinx.collections.immutable.PersistentSet<E>
+
+   public fun <E> persistentListOf(): kotlinx.collections.immutable.PersistentList<E>
+
+   public fun <E> persistentListOf(vararg elements: E): kotlinx.collections.immutable.PersistentList<E>
+
+   public fun <K, V> persistentMapOf(): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <K, V> persistentMapOf(vararg pairs: kotlin.Pair<K, V>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <E> persistentSetOf(): kotlinx.collections.immutable.PersistentSet<E>
+
+   public fun <E> persistentSetOf(vararg elements: E): kotlinx.collections.immutable.PersistentSet<E>
+
+   public inline operator fun <E> kotlinx.collections.immutable.PersistentCollection<E>.minus(element: E): kotlinx.collections.immutable.PersistentCollection<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentCollection<E>.minus(elements: kotlin.Array<out E>): kotlinx.collections.immutable.PersistentCollection<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentCollection<E>.minus(elements: kotlin.collections.Iterable<E>): kotlinx.collections.immutable.PersistentCollection<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentCollection<E>.minus(elements: kotlin.sequences.Sequence<E>): kotlinx.collections.immutable.PersistentCollection<E>
+
+   public inline operator fun <E> kotlinx.collections.immutable.PersistentList<E>.minus(element: E): kotlinx.collections.immutable.PersistentList<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentList<E>.minus(elements: kotlin.Array<out E>): kotlinx.collections.immutable.PersistentList<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentList<E>.minus(elements: kotlin.collections.Iterable<E>): kotlinx.collections.immutable.PersistentList<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentList<E>.minus(elements: kotlin.sequences.Sequence<E>): kotlinx.collections.immutable.PersistentList<E>
+
+   public operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.minus(key: K): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.minus(keys: kotlin.Array<out K>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.minus(keys: kotlin.collections.Iterable<K>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.minus(keys: kotlin.sequences.Sequence<K>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public inline operator fun <E> kotlinx.collections.immutable.PersistentSet<E>.minus(element: E): kotlinx.collections.immutable.PersistentSet<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentSet<E>.minus(elements: kotlin.Array<out E>): kotlinx.collections.immutable.PersistentSet<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentSet<E>.minus(elements: kotlin.collections.Iterable<E>): kotlinx.collections.immutable.PersistentSet<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentSet<E>.minus(elements: kotlin.sequences.Sequence<E>): kotlinx.collections.immutable.PersistentSet<E>
+
+   public inline fun <T> kotlinx.collections.immutable.PersistentList<T>.mutate(mutator: (kotlin.collections.MutableList<T>) -> kotlin.Unit): kotlinx.collections.immutable.PersistentList<T>
+
+   public inline fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.mutate(mutator: (kotlin.collections.MutableMap<K, V>) -> kotlin.Unit): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public inline fun <T> kotlinx.collections.immutable.PersistentSet<T>.mutate(mutator: (kotlin.collections.MutableSet<T>) -> kotlin.Unit): kotlinx.collections.immutable.PersistentSet<T>
+
+   public inline operator fun <E> kotlinx.collections.immutable.PersistentCollection<E>.plus(element: E): kotlinx.collections.immutable.PersistentCollection<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentCollection<E>.plus(elements: kotlin.Array<out E>): kotlinx.collections.immutable.PersistentCollection<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentCollection<E>.plus(elements: kotlin.collections.Iterable<E>): kotlinx.collections.immutable.PersistentCollection<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentCollection<E>.plus(elements: kotlin.sequences.Sequence<E>): kotlinx.collections.immutable.PersistentCollection<E>
+
+   public inline operator fun <E> kotlinx.collections.immutable.PersistentList<E>.plus(element: E): kotlinx.collections.immutable.PersistentList<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentList<E>.plus(elements: kotlin.Array<out E>): kotlinx.collections.immutable.PersistentList<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentList<E>.plus(elements: kotlin.collections.Iterable<E>): kotlinx.collections.immutable.PersistentList<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentList<E>.plus(elements: kotlin.sequences.Sequence<E>): kotlinx.collections.immutable.PersistentList<E>
+
+   public inline operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.plus(pairs: kotlin.Array<out kotlin.Pair<K, V>>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public inline operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.plus(pair: kotlin.Pair<K, V>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public inline operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.plus(pairs: kotlin.collections.Iterable<kotlin.Pair<K, V>>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public inline operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.plus(map: kotlin.collections.Map<out K, V>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public inline operator fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.plus(pairs: kotlin.sequences.Sequence<kotlin.Pair<K, V>>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public inline operator fun <E> kotlinx.collections.immutable.PersistentSet<E>.plus(element: E): kotlinx.collections.immutable.PersistentSet<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentSet<E>.plus(elements: kotlin.Array<out E>): kotlinx.collections.immutable.PersistentSet<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentSet<E>.plus(elements: kotlin.collections.Iterable<E>): kotlinx.collections.immutable.PersistentSet<E>
+
+   public operator fun <E> kotlinx.collections.immutable.PersistentSet<E>.plus(elements: kotlin.sequences.Sequence<E>): kotlinx.collections.immutable.PersistentSet<E>
+
+   public fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.putAll(pairs: kotlin.Array<out kotlin.Pair<K, V>>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.putAll(pairs: kotlin.collections.Iterable<kotlin.Pair<K, V>>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.putAll(map: kotlin.collections.Map<out K, V>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <K, V> kotlinx.collections.immutable.PersistentMap<out K, V>.putAll(pairs: kotlin.sequences.Sequence<kotlin.Pair<K, V>>): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun kotlin.CharSequence.toImmutableList(): kotlinx.collections.immutable.ImmutableList<kotlin.Char>
+
+   public fun <T> kotlin.collections.Iterable<T>.toImmutableList(): kotlinx.collections.immutable.ImmutableList<T>
+
+   public fun <K, V> kotlin.collections.Map<K, V>.toImmutableMap(): kotlinx.collections.immutable.ImmutableMap<K, V>
+
+   public fun <T> kotlin.collections.Iterable<T>.toImmutableSet(): kotlinx.collections.immutable.ImmutableSet<T>
+
+   public fun <K, V> kotlin.collections.Map<K, V>.toPersistentHashMap(): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun <T> kotlin.collections.Set<T>.toPersistentHashSet(): kotlinx.collections.immutable.PersistentSet<T>
+
+   public fun kotlin.CharSequence.toPersistentList(): kotlinx.collections.immutable.PersistentList<kotlin.Char>
+
+   public fun <T> kotlin.collections.Iterable<T>.toPersistentList(): kotlinx.collections.immutable.PersistentList<T>
+
+   public fun <K, V> kotlin.collections.Map<K, V>.toPersistentMap(): kotlinx.collections.immutable.PersistentMap<K, V>
+
+   public fun kotlin.CharSequence.toPersistentSet(): kotlinx.collections.immutable.PersistentSet<kotlin.Char>
+
+   public fun <T> kotlin.collections.Iterable<T>.toPersistentSet(): kotlinx.collections.immutable.PersistentSet<T>
+
+}
+
+package kotlinx.collections.immutable.implementations
+{
+}
+
+package kotlinx.collections.immutable.implementations.persistentOrderedSet
+{
+}
+
+package kotlinx.collections.immutable.implementations.immutableSet
+{
+}
+
+package kotlinx.collections.immutable.implementations.persistentOrderedMap
+{
+}
+
+package kotlinx.collections.immutable.implementations.immutableList
+{
+   public abstract class AbstractPersistentList<E> : kotlinx.collections.immutable.PersistentList<E>, kotlin.collections.AbstractList<E>
+   {
+       public abstract override val size: kotlin.Int { get; }
+       public abstract override fun add(element: E): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun add(index: kotlin.Int, element: E): kotlinx.collections.immutable.PersistentList<E>
+
+       public open override fun addAll(index: kotlin.Int, c: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentList<E>
+
+       public open override fun addAll(elements: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun builder(): kotlinx.collections.immutable.PersistentList.Builder<E>
+
+       public open override fun clear(): kotlinx.collections.immutable.PersistentList<E>
+
+       public open override operator fun contains(element: E): kotlin.Boolean
+
+       public open override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public abstract override operator fun get(index: kotlin.Int): E
+
+       public open override fun hashCode(): kotlin.Int
+
+       public open override fun indexOf(element: E): kotlin.Int
+
+       public open override fun isEmpty(): kotlin.Boolean
+
+       public open override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public open override fun lastIndexOf(element: E): kotlin.Int
+
+       public open override fun listIterator(): kotlin.collections.ListIterator<E>
+
+       public open override fun listIterator(index: kotlin.Int): kotlin.collections.ListIterator<E>
+
+       public open override fun remove(element: E): kotlinx.collections.immutable.PersistentList<E>
+
+       public open override fun removeAll(elements: kotlin.collections.Collection<E>): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun removeAll(predicate: (E) -> kotlin.Boolean): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun removeAt(index: kotlin.Int): kotlinx.collections.immutable.PersistentList<E>
+
+       public abstract override fun set(index: kotlin.Int, element: E): kotlinx.collections.immutable.PersistentList<E>
+
+       public open override fun subList(fromIndex: kotlin.Int, toIndex: kotlin.Int): kotlinx.collections.immutable.ImmutableList<E>
+
+       protected open override fun toArray(): kotlin.Array<kotlin.Any?>
+
+       protected open override fun <T> toArray(array: kotlin.Array<T>): kotlin.Array<T>
+
+       public open override fun toString(): kotlin.String
+
+       public constructor AbstractPersistentList<E>()
+
+   }
+
+}
+
+package kotlinx.collections.immutable.implementations.immutableMap
+{
+}
+
+package kotlinx.collections.immutable.internal
+{
+}
+
+package kotlinx.collections.immutable.adapters
+{
+   public open class ImmutableCollectionAdapter<E> : kotlinx.collections.immutable.ImmutableCollection<E>, kotlin.collections.Collection<E>
+   {
+       public open override val size: kotlin.Int { get; }
+       public open override operator fun contains(element: E): kotlin.Boolean
+
+       public open override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public open override fun hashCode(): kotlin.Int
+
+       public open override fun isEmpty(): kotlin.Boolean
+
+       public open override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public open override fun toString(): kotlin.String
+
+       public constructor ImmutableCollectionAdapter<E>(impl: kotlin.collections.Collection<E>)
+
+   }
+
+   public final class ImmutableListAdapter<E> : kotlinx.collections.immutable.ImmutableList<E>, kotlin.collections.List<E>
+   {
+       public open override val size: kotlin.Int { get; }
+       public open override operator fun contains(element: E): kotlin.Boolean
+
+       public open override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public open override operator fun get(index: kotlin.Int): E
+
+       public open override fun hashCode(): kotlin.Int
+
+       public open override fun indexOf(element: E): kotlin.Int
+
+       public open override fun isEmpty(): kotlin.Boolean
+
+       public open override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public open override fun lastIndexOf(element: E): kotlin.Int
+
+       public open override fun listIterator(): kotlin.collections.ListIterator<E>
+
+       public open override fun listIterator(index: kotlin.Int): kotlin.collections.ListIterator<E>
+
+       public open override fun subList(fromIndex: kotlin.Int, toIndex: kotlin.Int): kotlinx.collections.immutable.ImmutableList<E>
+
+       public open override fun toString(): kotlin.String
+
+       public constructor ImmutableListAdapter<E>(impl: kotlin.collections.List<E>)
+
+   }
+
+   public final class ImmutableMapAdapter<K, out V> : kotlinx.collections.immutable.ImmutableMap<K, V>, kotlin.collections.Map<K, V>
+   {
+       public open override val entries: kotlinx.collections.immutable.ImmutableSet<kotlin.collections.Map.Entry<K, V>> { get; }
+       public open override val keys: kotlinx.collections.immutable.ImmutableSet<K> { get; }
+       public open override val size: kotlin.Int { get; }
+       public open override val values: kotlinx.collections.immutable.ImmutableCollection<V> { get; }
+       public open override fun containsKey(key: K): kotlin.Boolean
+
+       public open override fun containsValue(value: V): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public open override operator fun get(key: K): V?
+
+       public open override fun hashCode(): kotlin.Int
+
+       public open override fun isEmpty(): kotlin.Boolean
+
+       public open override fun toString(): kotlin.String
+
+       public constructor ImmutableMapAdapter<K, out V>(impl: kotlin.collections.Map<K, V>)
+
+   }
+
+   public final class ImmutableSetAdapter<E> : kotlinx.collections.immutable.ImmutableSet<E>, kotlinx.collections.immutable.adapters.ImmutableCollectionAdapter<E>
+   {
+       public open override val size: kotlin.Int { get; }
+       public open override operator fun contains(element: E): kotlin.Boolean
+
+       public open override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+
+       public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
+
+       public open override fun hashCode(): kotlin.Int
+
+       public open override fun isEmpty(): kotlin.Boolean
+
+       public open override operator fun iterator(): kotlin.collections.Iterator<E>
+
+       public open override fun toString(): kotlin.String
+
+       public constructor ImmutableSetAdapter<E>(impl: kotlin.collections.Set<E>)
+
+   }
+
+}
+
