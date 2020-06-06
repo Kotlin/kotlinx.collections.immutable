@@ -46,8 +46,11 @@ kotlin {
     }
 
     sourceSets.all {
-        kotlin.setSrcDirs(listOf("$name/src"))
-        resources.setSrcDirs(listOf("$name/resources"))
+        val platformIndex = name.indexOfLast { it.isUpperCase() }
+        val platform = name.substring(0, platformIndex)
+        val subSrcSet = name.substring(platformIndex).decapitalize().takeUnless { it == "main" }
+        kotlin.setSrcDirs(listOf("$platform/${subSrcSet ?: "src"}"))
+        resources.setSrcDirs(listOf("$platform/${subSrcSet?.let { "$it-resources" } ?: "resources"}"))
         languageSettings.apply {
             //            progressiveMode = true
             useExperimentalAnnotation("kotlin.Experimental")
