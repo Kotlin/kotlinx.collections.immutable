@@ -139,21 +139,6 @@ fun Project.build(platform: String, versionBuild: BuildType) = platform(platform
     artifactRules = "+:build/maven=>maven\n+:build/api=>api"
 }
 
-fun BuildType.dependsOn(build: BuildType, configure: Dependency.() -> Unit) =
-    apply {
-        dependencies.dependency(build, configure)
-    }
-
-fun BuildType.dependsOnSnapshot(build: BuildType, onFailure: FailureAction = FailureAction.FAIL_TO_START, configure: SnapshotDependency.() -> Unit = {}) = apply {
-    dependencies.dependency(build) {
-        snapshot {
-            configure()
-            onDependencyFailure = onFailure
-            onDependencyCancel = FailureAction.CANCEL
-        }
-    }
-}
-
 fun Project.deployConfigure() = BuildType {
     id("Deploy_Configure")
     this.name = "Deploy (Configure Version)"

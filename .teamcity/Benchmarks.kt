@@ -14,14 +14,32 @@ fun benchmarksProject() = Project {
     this.id("Benchmarks")
     this.name = "Benchmarks"
 
+    val benchmarkAll = benchmarkAll()
     val benchmarks = listOf(
             benchmark("js", "Linux"),
             benchmark("jvm", "Linux"),
             *platforms.map { benchmark("native", it) }.toTypedArray()
     )
 
-    buildTypesOrder = benchmarks
+    benchmarks.forEach { benchmark ->
+        benchmarkAll.dependsOnSnapshot(benchmark, onFailure = FailureAction.ADD_PROBLEM)
+        benchmarkAll.dependsOn(benchmark) {
+            artifacts {
+                artifactRules = "+:reports=>reports"
+            }
+        }
+    }
+
+    buildTypesOrder = listOf(benchmarkAll, *benchmarks.toTypedArray())
 }
+
+fun Project.benchmarkAll() = BuildType {
+    id("Benchmark_All")
+    this.name = "Benchmark (All)"
+    type = BuildTypeSettings.Type.COMPOSITE
+
+    commonConfigure()
+}.also { buildType(it) }
 
 fun Project.benchmark(target: String, platform: String) = platform(platform, "${target}Benchmark") {
     steps {
@@ -60,6 +78,21 @@ fun benchmarkTask(target: String, platform: String): String = when(target) {
 fun Requirements.benchmarkAgentInstanceTypeRequirement(platform: String) {
     if (platform == "Linux") equals("system.ec2.instance-type", "m5d.xlarge")
     else if (platform == "Windows") equals("system.ec2.instance-type", "m5.xlarge")
+}
+
+fun BuildType.dependsOn(build: BuildType, configure: Dependency.() -> Unit) =
+        apply {
+            dependencies.dependency(build, configure)
+        }
+
+fun BuildType.dependsOnSnapshot(build: BuildType, onFailure: FailureAction = FailureAction.FAIL_TO_START, configure: SnapshotDependency.() -> Unit = {}) = apply {
+    dependencies.dependency(build) {
+        snapshot {
+            configure()
+            onDependencyFailure = onFailure
+            onDependencyCancel = FailureAction.CANCEL
+        }
+    }
 }
 
 fun Project.platform(platform: String, name: String, configure: BuildType.() -> Unit) = BuildType {
