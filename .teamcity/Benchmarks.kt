@@ -10,6 +10,10 @@ import java.lang.IllegalArgumentException
 val platforms = listOf("Windows", "Linux", "Mac OS X")
 val jdk = "JDK_18_x64"
 
+fun Project.additionalConfiguration() {
+    subProject(benchmarksProject())
+}
+
 fun benchmarksProject() = Project {
     this.id("Benchmarks")
     this.name = "Benchmarks"

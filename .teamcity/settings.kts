@@ -67,8 +67,7 @@ project {
 
     buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployConfigure, *deploys.toTypedArray())
 
-    val benchmarksProject = benchmarksProject()
-    subProject(benchmarksProject)
+    additionalConfiguration()
 }
 
 fun Project.buildVersion() = BuildType {
