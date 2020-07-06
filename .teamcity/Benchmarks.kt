@@ -47,11 +47,11 @@ fun Project.benchmark(target: String, platform: String) = platform(platform, "${
 }
 
 fun benchmarkTask(target: String, platform: String): String = when(target) {
-    "js", "jvm" -> "${target}Benchmark"
+    "js", "jvm" -> "${target}FastBenchmark"
     "native" -> when(platform) {
-        "Mac OS X" -> "macosX64Benchmark"
-        "Linux" -> "linuxX64Benchmark"
-        "Windows" -> "mingwX64Benchmark"
+        "Mac OS X" -> "macosX64FastBenchmark"
+        "Linux" -> "linuxX64FastBenchmark"
+        "Windows" -> "mingwX64FastBenchmark"
         else -> throw IllegalArgumentException("Unknown platform: $platform")
     }
     else -> throw IllegalArgumentException("Unknown target: $target")

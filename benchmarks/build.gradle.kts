@@ -67,6 +67,32 @@ benchmark {
             param("immutablePercentage", /*"95", "30", */"0")
             param("hashCodeType", "random", "collision")
         }
+
+        register("fast") {
+            warmups = 7
+            iterations = 7
+            iterationTime = 500
+            iterationTimeUnit = "ms"
+            param("size", "1000")
+            param("immutablePercentage", "0")
+            param("hashCodeType", "random")
+
+            include("immutableList.Add.addLast$")
+            include("immutableList.Get.getByIndex$")
+            include("immutableList.Iterate.firstToLast$")
+            include("immutableList.Remove.removeLast$")
+            include("immutableList.Set.setByIndex$")
+
+            include("immutableMap.Get.get$")
+            include("immutableMap.Iterate.iterateKeys$")
+            include("immutableMap.Put.put$")
+            include("immutableMap.Remove.remove$")
+
+            include("immutableSet.Add.add$")
+            include("immutableSet.Contains.contains$")
+            include("immutableSet.Iterate.iterate$")
+            include("immutableSet.Remove.remove$")
+        }
     }
 
     targets {
