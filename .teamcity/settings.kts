@@ -1,7 +1,6 @@
 import jetbrains.buildServer.configs.kotlin.v2018_2.*
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.*
 import jetbrains.buildServer.configs.kotlin.v2018_2.triggers.*
-import java.lang.IllegalArgumentException
 
 /*
 The settings script is an entry point for defining a TeamCity
@@ -66,13 +65,10 @@ project {
         }
     }
 
-    val benchmarks = listOf(
-            benchmark("js", "Linux"),
-            benchmark("jvm", "Linux"),
-            *platforms.map { benchmark("native", it) }.toTypedArray()
-    )
+    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployConfigure, *deploys.toTypedArray())
 
-    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployConfigure, *deploys.toTypedArray(), *benchmarks.toTypedArray())
+    val benchmarksProject = benchmarksProject()
+    subProject(benchmarksProject)
 }
 
 fun Project.buildVersion() = BuildType {
@@ -141,45 +137,6 @@ fun Project.build(platform: String, versionBuild: BuildType) = platform(platform
 
     // What files to publish as build artifacts
     artifactRules = "+:build/maven=>maven\n+:build/api=>api"
-}
-
-fun Project.benchmark(target: String, platform: String) = platform(platform, "${target}Benchmark") {
-    steps {
-        gradle {
-            name = "Benchmark"
-            tasks = benchmarkTask(target, platform)
-            jdkHome = "%env.$jdk%"
-            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
-            buildFile = ""
-            gradleWrapperPath = ""
-        }
-    }
-
-    artifactRules = "benchmarks/build/reports/**=> reports"
-
-    requirements {
-        benchmarkAgentInstanceTypeRequirement(platform)
-    }
-
-    failureConditions {
-        executionTimeoutMin = 1440
-    }
-}
-
-fun benchmarkTask(target: String, platform: String): String = when(target) {
-    "js", "jvm" -> "${target}Benchmark"
-    "native" -> when(platform) {
-        "Mac OS X" -> "macosX64Benchmark"
-        "Linux" -> "linuxX64Benchmark"
-        "Windows" -> "mingwX64Benchmark"
-        else -> throw IllegalArgumentException("Unknown platform: $platform")
-    }
-    else -> throw IllegalArgumentException("Unknown target: $target")
-}
-
-fun Requirements.benchmarkAgentInstanceTypeRequirement(platform: String) {
-    if (platform == "Linux") equals("system.ec2.instance-type", "m5d.xlarge")
-    else if (platform == "Windows") equals("system.ec2.instance-type", "m5.xlarge")
 }
 
 fun BuildType.dependsOn(build: BuildType, configure: Dependency.() -> Unit) =
@@ -268,53 +225,3 @@ fun Project.deploy(platform: String, configureBuild: BuildType) = platform(platf
         }
     }
 }.dependsOnSnapshot(configureBuild)
-
-fun Project.platform(platform: String, name: String, configure: BuildType.() -> Unit) = BuildType {
-    // ID is prepended with Project ID, so don't repeat it here
-    // ID should conform to identifier rules, so just letters, numbers and underscore
-    id("${name}_${platform.substringBefore(" ")}")
-    // Display name of the build configuration
-    this.name = "$name ($platform)"
-
-    requirements {
-        contains("teamcity.agent.jvm.os.name", platform)
-    }
-
-    params {
-        // This parameter is needed for macOS agent to be compatible
-        if (platform.startsWith("Mac")) param("env.JDK_17", "")
-    }
-
-    commonConfigure()
-    configure()
-}.also { buildType(it) }
-
-
-fun BuildType.commonConfigure() {
-    requirements {
-        noLessThan("teamcity.agent.hardware.memorySizeMb", "6144")
-    }
-
-    // Allow to fetch build status through API for badges
-    allowExternalStatus = true
-
-    // Configure VCS, by default use the same and only VCS root from which this configuration is fetched
-    vcs {
-        root(DslContext.settingsRoot)
-        showDependenciesChanges = true
-        checkoutMode = CheckoutMode.ON_AGENT
-    }
-
-    failureConditions {
-        errorMessage = true
-        nonZeroExitCode = true
-        executionTimeoutMin = 120
-    }
-
-    features {
-        feature {
-            id = "perfmon"
-            type = "perfmon"
-        }
-    }
-}
