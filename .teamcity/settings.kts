@@ -25,15 +25,6 @@ To debug in IntelliJ Idea, open the 'Maven Projects' tool window (View
 */
 
 version = "2018.2"
-val versionSuffixParameter = "versionSuffix"
-val teamcitySuffixParameter = "teamcitySuffix"
-val releaseVersionParameter = "releaseVersion"
-
-val bintrayUserName = "%env.BINTRAY_USER%"
-val bintrayToken = "%env.BINTRAY_API_KEY%"
-
-val platforms = listOf("Windows", "Linux", "Mac OS X")
-val jdk = "JDK_18_x64"
 
 project {
     // Disable editing of project and build settings from the UI to avoid issues with TeamCity
@@ -112,7 +103,7 @@ fun Project.buildAll(versionBuild: BuildType) = BuildType {
     commonConfigure()
 }.also { buildType(it) }
 
-fun Project.build(platform: String, versionBuild: BuildType) = platform(platform, "Build") {
+fun Project.build(platform: Platform, versionBuild: BuildType) = buildType("Build", platform) {
 
     dependsOnSnapshot(versionBuild)
 
@@ -123,7 +114,7 @@ fun Project.build(platform: String, versionBuild: BuildType) = platform(platform
 
     steps {
         gradle {
-            name = "Build and Test $platform Binaries"
+            name = "Build and Test ${platform.buildTypeName()} Binaries"
             jdkHome = "%env.$jdk%"
             jvmArgs = "-Xmx1g"
             tasks = "clean publishToBuildLocal check"
@@ -182,7 +173,7 @@ fun Project.deployPublish(configureBuild: BuildType) = BuildType {
 }.also { buildType(it) }
 
 
-fun Project.deploy(platform: String, configureBuild: BuildType) = platform(platform, "Deploy") {
+fun Project.deploy(platform: Platform, configureBuild: BuildType) = buildType("Deploy", platform) {
     type = BuildTypeSettings.Type.DEPLOYMENT
     enablePersonalBuilds = false
     maxRunningBuilds = 1
@@ -199,7 +190,7 @@ fun Project.deploy(platform: String, configureBuild: BuildType) = platform(platf
 
     steps {
         gradle {
-            name = "Deploy $platform Binaries"
+            name = "Deploy ${platform.buildTypeName()} Binaries"
             jdkHome = "%env.$jdk%"
             jvmArgs = "-Xmx1g"
             gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$releaseVersionParameter=%$releaseVersionParameter% -PbintrayApiKey=%bintray-key% -PbintrayUser=%bintray-user%"
