@@ -72,6 +72,7 @@ fun benchmarkTask(target: String, platform: Platform): String = when(target) {
 }
 
 fun Requirements.benchmarkAgentInstanceTypeRequirement(platform: Platform) {
-    if (platform == Platform.Linux) equals("system.ec2.instance-type", "m5d.xlarge")
-    else if (platform == Platform.Windows) equals("system.ec2.instance-type", "m5.xlarge")
+    if (platform == Platform.Linux || platform == Platform.Windows) {
+        matches("system.ec2.instance-type", "m5d?.xlarge")
+    }
 }
