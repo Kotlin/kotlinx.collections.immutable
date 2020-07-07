@@ -7,10 +7,6 @@ import jetbrains.buildServer.configs.kotlin.v2018_2.*
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.gradle
 import java.lang.IllegalArgumentException
 
-fun Project.additionalConfiguration() {
-    subProject(benchmarksProject())
-}
-
 fun benchmarksProject() = Project {
     this.id("Benchmarks")
     this.name = "Benchmarks"
