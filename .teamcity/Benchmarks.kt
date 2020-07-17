@@ -7,7 +7,7 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.*
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
 import java.lang.IllegalArgumentException
 
-fun benchmarksProject() = Project {
+fun benchmarksProject(buildVersion: BuildType) = Project {
     this.id("Benchmarks")
     this.name = "Benchmarks"
 
@@ -15,11 +15,11 @@ fun benchmarksProject() = Project {
         param("teamcity.ui.settings.readOnly", "true")
     }
 
-    val benchmarkAll = benchmarkAll()
+    val benchmarkAll = benchmarkAll(buildVersion)
     val benchmarks = listOf(
-            benchmark("js", Platform.Linux),
-            benchmark("jvm", Platform.Linux),
-            *platforms.map { benchmark("native", it) }.toTypedArray()
+            benchmark("js", Platform.Linux, buildVersion),
+            benchmark("jvm", Platform.Linux, buildVersion),
+            *platforms.map { benchmark("native", it, buildVersion) }.toTypedArray()
     )
 
     benchmarks.forEach { benchmark ->
@@ -34,21 +34,33 @@ fun benchmarksProject() = Project {
     buildTypesOrder = listOf(benchmarkAll, *benchmarks.toTypedArray())
 }
 
-fun Project.benchmarkAll() = BuildType {
+fun Project.benchmarkAll(buildVersion: BuildType) = BuildType {
     id("Benchmark_All")
     this.name = "Benchmark (All)"
     type = BuildTypeSettings.Type.COMPOSITE
 
+    dependsOnSnapshot(buildVersion)
+    buildNumberPattern = buildVersion.depParamRefs.buildNumber.ref
+
     commonConfigure()
 }.also { buildType(it) }
 
-fun Project.benchmark(target: String, platform: Platform) = buildType("${target}Benchmark", platform) {
+fun Project.benchmark(target: String, platform: Platform, buildVersion: BuildType) = buildType("${target}Benchmark", platform) {
+
+    dependsOnSnapshot(buildVersion)
+
+    params {
+        param(versionSuffixParameter, buildVersion.depParamRefs[versionSuffixParameter].ref)
+        param(teamcitySuffixParameter, buildVersion.depParamRefs[teamcitySuffixParameter].ref)
+    }
+
     steps {
         gradle {
             name = "Benchmark"
             tasks = benchmarkTask(target, platform)
             jdkHome = "%env.$jdk%"
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
+            gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$teamcitySuffixParameter=%$teamcitySuffixParameter%"
             buildFile = ""
             gradleWrapperPath = ""
         }

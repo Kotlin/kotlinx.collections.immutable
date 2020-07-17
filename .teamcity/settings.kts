@@ -58,7 +58,7 @@ project {
 
     buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployConfigure, *deploys.toTypedArray())
 
-    additionalConfiguration()
+    additionalConfiguration(buildVersion)
 }
 
 fun Project.buildVersion() = BuildType {
