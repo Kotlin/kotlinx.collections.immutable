@@ -3,9 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
-import jetbrains.buildServer.configs.kotlin.v2019_2.BuildType
 import jetbrains.buildServer.configs.kotlin.v2019_2.Project
 
-fun Project.additionalConfiguration(buildVersion: BuildType) {
-    subProject(benchmarksProject(buildVersion))
+fun Project.additionalConfiguration() {
+    subProject(benchmarksProject(existingBuildVersion()))
 }

@@ -45,24 +45,24 @@ project {
         }
     }
 
-    val deployConfigure = deployConfigure().apply {
+    val deployVersion = deployVersion().apply {
         dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
     }
-    val deploys = platforms.map { deploy(it, deployConfigure) }
-    val deployPublish = deployPublish(deployConfigure).apply {
+    val deploys = platforms.map { deploy(it, deployVersion) }
+    val deployPublish = deployPublish(deployVersion).apply {
         dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
         deploys.forEach {
             dependsOnSnapshot(it)
         }
     }
 
-    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployConfigure, *deploys.toTypedArray())
+    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployVersion, *deploys.toTypedArray())
 
-    additionalConfiguration(buildVersion)
+    additionalConfiguration()
 }
 
 fun Project.buildVersion() = BuildType {
-    id("Build_Version")
+    id(BUILD_CONFIGURE_VERSION_ID)
     this.name = "Build (Configure Version)"
     commonConfigure()
 
@@ -84,7 +84,7 @@ fun Project.buildVersion() = BuildType {
 }.also { buildType(it) }
 
 fun Project.buildAll(versionBuild: BuildType) = BuildType {
-    id("Build_All")
+    id(BUILD_ALL_ID)
     this.name = "Build (All)"
     type = BuildTypeSettings.Type.COMPOSITE
 
@@ -129,8 +129,8 @@ fun Project.build(platform: Platform, versionBuild: BuildType) = buildType("Buil
     artifactRules = "+:build/maven=>maven\n+:build/api=>api"
 }
 
-fun Project.deployConfigure() = BuildType {
-    id("Deploy_Configure")
+fun Project.deployVersion() = BuildType {
+    id(DEPLOY_CONFIGURE_VERSION_ID)
     this.name = "Deploy (Configure Version)"
     commonConfigure()
 
@@ -159,7 +159,7 @@ fun Project.deployConfigure() = BuildType {
 }.also { buildType(it) }
 
 fun Project.deployPublish(configureBuild: BuildType) = BuildType {
-    id("Deploy_Publish")
+    id(DEPLOY_PUBLISH_ID)
     this.name = "Deploy (Publish)"
     type = BuildTypeSettings.Type.COMPOSITE
     dependsOnSnapshot(configureBuild)
