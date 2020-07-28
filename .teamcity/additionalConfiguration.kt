@@ -6,5 +6,5 @@
 import jetbrains.buildServer.configs.kotlin.v2019_2.Project
 
 fun Project.additionalConfiguration() {
-    subProject(benchmarksProject(existingBuildVersion()))
+    subProject(benchmarksProject(knownBuilds.buildVersion))
 }
