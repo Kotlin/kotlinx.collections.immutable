@@ -77,8 +77,8 @@ fun Project.benchmark(target: String, platform: Platform, buildVersion: BuildTyp
 }
 
 fun benchmarkTask(target: String, platform: Platform): String = when(target) {
-    "js", "jvm" -> "${target}FastBenchmark"
-    "native" -> "${platform.nativeTaskPrefix()}FastBenchmark"
+    "js", "jvm" -> "${target}Benchmark"
+    "native" -> "${platform.nativeTaskPrefix()}Benchmark"
     else -> throw IllegalArgumentException("Unknown target: $target")
 }
 
