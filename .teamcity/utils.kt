@@ -39,8 +39,7 @@ const val DEPLOY_PUBLISH_ID = "Deploy_Publish"
 
 class KnownBuilds(private val project: Project) {
     private fun buildWithId(id: String): BuildType {
-        val fullId = "RootProjectId_$id"
-        return project.buildTypes.single { it.id.toString() == fullId }
+        return project.buildTypes.single { it.id.toString().endsWith(id) }
     }
 
     val buildVersion: BuildType get() = buildWithId(BUILD_CONFIGURE_VERSION_ID)
