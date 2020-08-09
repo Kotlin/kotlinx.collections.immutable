@@ -623,7 +623,7 @@ fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
  *
  * Order of the elements in the returned set is unspecified.
  */
-fun <T> Set<T>.toPersistentHashSet(): PersistentSet<T>
+fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T>
     = this as? PersistentHashSet
         ?: (this as? PersistentHashSetBuilder<T>)?.build()
         ?: PersistentHashSet.emptyOf<T>() + this
