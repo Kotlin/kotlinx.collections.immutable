@@ -28,7 +28,10 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
         lastIteratedKey = nextKey
         nextWasInvoked = true
         index++
-        val result = builder.hashMapBuilder[nextKey]!!
+        @Suppress("UNCHECKED_CAST")
+        val result = builder.hashMapBuilder.getOrElse(nextKey as K) {
+            throw ConcurrentModificationException("Hash code of a key ($nextKey) has changed after it was added to the persistent map.")
+        }
         nextKey = result.next
         return result
     }

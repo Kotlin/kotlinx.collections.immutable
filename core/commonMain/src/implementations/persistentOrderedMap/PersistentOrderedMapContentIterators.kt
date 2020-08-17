@@ -21,7 +21,10 @@ internal open class PersistentOrderedMapLinksIterator<K, V>(
         if (!hasNext()) {
             throw NoSuchElementException()
         }
-        val result = hashMap[nextKey]!!
+        @Suppress("UNCHECKED_CAST")
+        val result = hashMap.getOrElse(nextKey as K) {
+            throw ConcurrentModificationException("Hash code of a key ($nextKey) has changed after it was added to the persistent map.")
+        }
         index++
         nextKey = result.next
         return result
