@@ -589,6 +589,14 @@ fun CharSequence.toPersistentList(): PersistentList<Char> =
 fun CharSequence.toPersistentSet(): PersistentSet<Char> =
     persistentSetOf<Char>().mutate { this.toCollection(it) }
 
+/**
+ * Returns a persistent set of all characters.
+ *
+ * Order of the elements in the returned set is unspecified.
+ */
+fun CharSequence.toPersistentHashSet(): PersistentSet<Char> =
+    persistentHashSetOf<Char>().mutate { this.toCollection(it) }
+
 
 /**
  * Returns an immutable set of all elements of this collection.
