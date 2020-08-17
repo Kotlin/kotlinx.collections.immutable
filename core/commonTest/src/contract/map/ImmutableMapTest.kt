@@ -38,6 +38,24 @@ class ImmutableOrderedMapTest : ImmutableMapTest() {
         compare(listOf(1, 2), map.values) { collectionBehavior(ordered = true) }
         compare(mapOf("y" to 1, "x" to 2).entries, map.entries) { setBehavior(ordered = true) }
     }
+
+    @Test fun keyHashCodeChanged() {
+        val changing = mutableSetOf("ok")
+        val persistent: PersistentMap<Any, Any> = immutableMapOf("constant" to "fixed", changing to "modified")
+        assertEquals(1, persistent.keys.filter { it === changing }.size)
+        changing.add("break iteration")
+        assertFailsWith<ConcurrentModificationException> { persistent.keys.filter { it === changing } }
+    }
+
+    @Test fun builderKeyHashCodeChanged() {
+        val changing = mutableSetOf("ok")
+        val builder: PersistentMap.Builder<Any, Any> = immutableMapOf<Any, Any>().builder().apply {
+            putAll(listOf("constant" to "fixed", changing to "modified"))
+        }
+        assertEquals(1, builder.filter { it.key === changing }.size)
+        changing.add("break iteration")
+        assertFailsWith<ConcurrentModificationException> { builder.filter { it.key === changing } }
+    }
 }
 
 abstract class ImmutableMapTest {

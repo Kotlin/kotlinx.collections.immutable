@@ -24,6 +24,24 @@ class ImmutableOrderedSetTest : ImmutableSetTestBase() {
     override fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>) {
         assertSame(builder.build(), builder.toPersistentSet(), "toPersistent should call build()")
     }
+
+    @Test fun elementHashCodeChanged() {
+        val changing = mutableSetOf("ok")
+        val persistent: PersistentSet<Any> = immutableSetOf("constant", changing, "fix")
+        assertEquals(1, persistent.filter { it === changing }.size)
+        changing.add("break iteration")
+        assertFailsWith<ConcurrentModificationException> { persistent.filter { it === changing } }
+    }
+
+    @Test fun builderElementHashCodeChanged() {
+        val changing = mutableSetOf("ok")
+        val builder: PersistentSet.Builder<Any> = immutableSetOf<Any>().builder().apply {
+            addAll(listOf("constant", changing, "fix"))
+        }
+        assertEquals(1, builder.filter { it === changing }.size)
+        changing.add("break iteration")
+        assertFailsWith<ConcurrentModificationException> { builder.filter { it === changing } }
+    }
 }
 
 abstract class ImmutableSetTestBase {
