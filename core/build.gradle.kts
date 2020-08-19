@@ -28,7 +28,7 @@ kotlin {
         }
     }
 
-    js {
+    js(BOTH) {
         nodejs {
             testTask {
                 useMocha {
