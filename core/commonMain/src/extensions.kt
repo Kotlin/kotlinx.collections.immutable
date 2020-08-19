@@ -576,6 +576,16 @@ fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
 fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentList()
 
 /**
+ * Returns an immutable list containing all elements of this collection.
+ */
+fun <T> Sequence<T>.toImmutableList(): ImmutableList<T> = toPersistentList()
+
+/**
+ * Returns a persistent list containing all elements of this collection.
+ */
+fun <T> Sequence<T>.toPersistentList(): PersistentList<T> = persistentListOf<T>() + this
+
+/**
  * Returns a persistent list containing all characters.
  */
 fun CharSequence.toPersistentList(): PersistentList<Char> =
@@ -614,6 +624,16 @@ fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
         this as? PersistentOrderedSet<T>
         ?: (this as? PersistentOrderedSetBuilder)?.build()
         ?: PersistentOrderedSet.emptyOf<T>() + this
+
+/**
+ * Returns an immutable set of all elements of this collection.
+ */
+fun <T> Sequence<T>.toImmutableSet(): ImmutableSet<T> = toPersistentSet()
+
+/**
+ * Returns a persistent set of all elements of this collection.
+ */
+fun <T> Sequence<T>.toPersistentSet(): PersistentSet<T> = persistentSetOf<T>() + this
 
 /**
  * Returns a persistent set containing all elements from this set.
