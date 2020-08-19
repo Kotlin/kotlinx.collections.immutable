@@ -10,7 +10,7 @@ buildscript {
 }
 
 plugins {
-    id("kotlinx.team.infra") version "0.1.0-dev-53"
+    id("kotlinx.team.infra") version "0.2.0-dev-55"
 }
 
 infra {
