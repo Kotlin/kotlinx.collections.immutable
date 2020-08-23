@@ -38,6 +38,7 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
     return newBuffer
 }
 
+// 'iterate' all the bits set to one in a given integer, in the form of one-bit masks
 private inline fun Int.forEachOneBit(body: (mask: Int) -> Unit) {
     var mask = this
     while (mask != 0) {
@@ -289,30 +290,40 @@ internal class TrieNode<E>(
 
     fun unite(otherNode: TrieNode<E>, shift: Int, intersectionSizeRef: IntArray): TrieNode<E> {
         if (this === otherNode) return this
+        // union mask contains all the bits from input masks
         val newBitMap = bitmap or otherNode.bitmap
+        // first allocate the node and then fill it in
+        // we are doing a union, so all the array elements are guaranteed to exist
         val newNode = TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()))
+        // for each bit set in the resulting mask,
+        // either left, right or both masks contain the same bit
         newBitMap.forEachOneBit { mask ->
             val newNodeIndex = newNode.indexOfCellAt(mask)
             val thisIndex = indexOfCellAt(mask)
             val otherNodeIndex = otherNode.indexOfCellAt(mask)
-            when {
-                hasNoCellAt(mask) -> {
-                    newNode.buffer[newNodeIndex] = otherNode.buffer[otherNodeIndex]
-                }
-                otherNode.hasNoCellAt(mask) -> {
-                    newNode.buffer[newNodeIndex] = buffer[thisIndex]
-                }
+            newNode.buffer[newNodeIndex] = when {
+                // no element on left -> pick right
+                hasNoCellAt(mask) -> otherNode.buffer[otherNodeIndex]
+                // no element on right -> pick left
+                otherNode.hasNoCellAt(mask) -> buffer[thisIndex]
+                // both nodes contain something at the masked bit
                 else -> {
                     val thisCell = buffer[thisIndex]
                     val otherNodeCell = otherNode.buffer[otherNodeIndex]
                     val thisIsNode = thisCell is TrieNode<*>
                     val otherIsNode = otherNodeCell is TrieNode<*>
-                    val res = when {
+                    when {
+                        // both are nodes -> merge them recursively
                         thisIsNode && otherIsNode -> @Suppress("UNCHECKED_CAST") {
                             thisCell as TrieNode<E>
                             otherNodeCell as TrieNode<E>
-                            thisCell.unite(otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR, intersectionSizeRef)
+                            thisCell.unite(
+                                    otherNodeCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR,
+                                    intersectionSizeRef
+                            )
                         }
+                        // one of them is a node -> add the other one to it
                         thisIsNode -> @Suppress("UNCHECKED_CAST") {
                             thisCell as TrieNode<E>
                             otherNodeCell as E
@@ -324,6 +335,7 @@ internal class TrieNode<E>(
                                 if (it !== thisCell) intersectionSizeRef[0]++
                             }
                         }
+                        // same as last case, but reversed
                         otherIsNode -> @Suppress("UNCHECKED_CAST") {
                             otherNodeCell as TrieNode<E>
                             thisCell as E
@@ -335,7 +347,9 @@ internal class TrieNode<E>(
                                 if (it !== otherNodeCell) intersectionSizeRef[0]++
                             }
                         }
+                        // both are just E => compare them
                         thisCell == otherNodeCell -> thisCell.also { intersectionSizeRef[0]++ }
+                        // both are just E, but different => make a collision node
                         else -> @Suppress("UNCHECKED_CAST") {
                             thisCell as E
                             otherNodeCell as E
@@ -349,7 +363,6 @@ internal class TrieNode<E>(
                             )
                         }
                     }
-                    newNode.buffer[newNodeIndex] = res
                 }
             }
         }
