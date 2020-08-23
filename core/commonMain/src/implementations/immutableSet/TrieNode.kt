@@ -287,8 +287,8 @@ internal class TrieNode<E>(
         return element == buffer[cellIndex]
     }
 
-    fun unite(otherNode: TrieNode<E>, shift: Int): TrieNode<E> {
-        if(this === otherNode) return this
+    fun unite(otherNode: TrieNode<E>, shift: Int, intersectionSizeRef: IntArray): TrieNode<E> {
+        if (this === otherNode) return this
         val newBitMap = bitmap or otherNode.bitmap
         val newNode = TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()))
         newBitMap.forEachOneBit { mask ->
@@ -311,19 +311,31 @@ internal class TrieNode<E>(
                         thisIsNode && otherIsNode -> @Suppress("UNCHECKED_CAST") {
                             thisCell as TrieNode<E>
                             otherNodeCell as TrieNode<E>
-                            thisCell.unite(otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR)
+                            thisCell.unite(otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR, intersectionSizeRef)
                         }
                         thisIsNode -> @Suppress("UNCHECKED_CAST") {
                             thisCell as TrieNode<E>
                             otherNodeCell as E
-                            thisCell.add(otherNodeCell.hashCode(), otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR)
+                            thisCell.add(
+                                    otherNodeCell.hashCode(),
+                                    otherNodeCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR
+                            ).also {
+                                if (it !== thisCell) intersectionSizeRef[0]++
+                            }
                         }
                         otherIsNode -> @Suppress("UNCHECKED_CAST") {
                             otherNodeCell as TrieNode<E>
                             thisCell as E
-                            otherNodeCell.add(thisCell.hashCode(), thisCell, shift + LOG_MAX_BRANCHING_FACTOR)
+                            otherNodeCell.add(
+                                    thisCell.hashCode(),
+                                    thisCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR
+                            ).also {
+                                if (it !== otherNodeCell) intersectionSizeRef[0]++
+                            }
                         }
-                        thisCell == otherNodeCell -> thisCell
+                        thisCell == otherNodeCell -> thisCell.also { intersectionSizeRef[0]++ }
                         else -> @Suppress("UNCHECKED_CAST") {
                             thisCell as E
                             otherNodeCell as E

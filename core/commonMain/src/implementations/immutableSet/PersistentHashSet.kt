@@ -21,6 +21,13 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
     }
 
     override fun addAll(elements: Collection<E>): PersistentSet<E> {
+        if(elements is PersistentHashSet) {
+            val intersectionCount = intArrayOf(0)
+            val newNode = node.unite(elements.node, 0, intersectionCount)
+            if(node === newNode) return this
+            if(elements.node === newNode) return elements
+            return PersistentHashSet(newNode, size + elements.size - intersectionCount[0])
+        }
         return this.mutate { it.addAll(elements) }
     }
 
