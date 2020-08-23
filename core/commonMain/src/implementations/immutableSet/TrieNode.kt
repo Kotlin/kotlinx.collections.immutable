@@ -288,6 +288,7 @@ internal class TrieNode<E>(
     }
 
     fun unite(otherNode: TrieNode<E>, shift: Int): TrieNode<E> {
+        if(this === otherNode) return this
         val newBitMap = bitmap or otherNode.bitmap
         val newNode = TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()))
         newBitMap.forEachOneBit { mask ->
