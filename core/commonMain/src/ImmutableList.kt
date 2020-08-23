@@ -102,6 +102,16 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E>
 
     /**
+     * Returns all elements in this list that are also
+     * contained in the specified [elements] collection.
+     *
+     * @return a new persistent list with elements in this list that are also
+     * contained in the specified [elements] collection;
+     * or this instance if no modifications were made in the result of this operation.
+     */
+    override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+
+    /**
      * Returns an empty persistent list.
      */
     override fun clear(): PersistentList<E>

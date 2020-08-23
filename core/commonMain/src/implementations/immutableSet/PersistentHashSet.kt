@@ -7,6 +7,7 @@ package kotlinx.collections.immutable.implementations.immutableSet
 
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.internal.DeltaCounter
+import kotlinx.collections.immutable.internal.assert
 import kotlinx.collections.immutable.mutate
 
 internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
@@ -37,6 +38,20 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
 
     override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> {
         return mutate { it.removeAll(predicate) }
+    }
+
+    override fun retainAll(elements: Collection<E>): PersistentSet<E> {
+        return mutate { it.retainAll(elements) }
+    }
+
+    override fun containsAll(elements: Collection<E>): Boolean {
+        if (elements is PersistentHashSet) {
+            return node.containsAll(elements.node, 0)
+        }
+        if (elements is PersistentHashSetBuilder) {
+            return node.containsAll(elements.node, 0)
+        }
+        return super.containsAll(elements)
     }
 
     override fun clear(): PersistentSet<E> {

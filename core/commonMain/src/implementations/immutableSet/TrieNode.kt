@@ -41,13 +41,17 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
     return newBuffer
 }
 
+// marker value for "empty" results, used in intersection implementation
+private val NOVALUE = Any()
+
 private inline fun Array<Any?>.filterTo(
         newArray: Array<Any?>,
         newArrayOffset: Int = 0,
-        predicate: (Any?) -> Boolean): Int {
+        predicate: (Any?) -> Boolean = { it !== NOVALUE }): Int {
     var i = 0
     var j = 0
     while (i < size) {
+        assert(j <= i) // this is extremely important if newArray === this
         val e = this[i]
         if (predicate(e)) {
             newArray[newArrayOffset + j] = this[i]
@@ -293,8 +297,8 @@ internal class TrieNode<E>(
         }
         val totalSize = totalWritten + this.buffer.size
         intersectionSizeRef += (tempBuffer.size - totalSize)
-        if(totalSize == this.buffer.size) return this
-        if(totalSize == otherNode.buffer.size) return otherNode
+        if (totalSize == this.buffer.size) return this
+        if (totalSize == otherNode.buffer.size) return otherNode
 
         val newBuffer = if(totalSize == tempBuffer.size) tempBuffer else tempBuffer.copyOf(newSize = totalSize)
         return if(ownedBy == owner) {
@@ -302,6 +306,52 @@ internal class TrieNode<E>(
             this
         } else {
             TrieNode(0, newBuffer, owner)
+        }
+    }
+
+    private fun mutableCollisionRetainAll(otherNode: TrieNode<E>, intersectionSizeRef: DeltaCounter,
+                                          owner: MutabilityOwnership): Any? {
+        if (this === otherNode) {
+            intersectionSizeRef += buffer.size
+            return this
+        }
+        val tempBuffer =
+                if (owner == ownedBy && buffer.size < otherNode.buffer.size) buffer
+                else arrayOfNulls<Any?>(minOf(buffer.size, otherNode.buffer.size))
+        val totalWritten = buffer.filterTo(tempBuffer) {
+            @Suppress("UNCHECKED_CAST")
+            otherNode.collisionContainsElement(it as E)
+        }
+        intersectionSizeRef += totalWritten
+        return when(totalWritten) {
+            0 -> NOVALUE
+            1 -> tempBuffer[0]
+            this.buffer.size -> this
+            otherNode.buffer.size -> otherNode
+            tempBuffer.size -> TrieNode<E>(0, tempBuffer, owner)
+            else -> TrieNode<E>(0, tempBuffer.copyOf(newSize = totalWritten), owner)
+        }
+    }
+
+    private fun mutableCollisionRemoveAll(otherNode: TrieNode<E>,
+                                          intersectionSizeRef: DeltaCounter,
+                                          owner: MutabilityOwnership): Any? {
+        if (this === otherNode) {
+            intersectionSizeRef += buffer.size
+            return NOVALUE
+        }
+        val tempBuffer = if (owner == ownedBy) buffer else arrayOfNulls<Any?>(buffer.size)
+        val totalWritten = buffer.filterTo(tempBuffer) {
+            @Suppress("UNCHECKED_CAST")
+            !otherNode.collisionContainsElement(it as E)
+        }
+        intersectionSizeRef += (buffer.size - totalWritten)
+        return when(totalWritten) {
+            0 -> NOVALUE
+            1 -> tempBuffer[0]
+            this.buffer.size -> this
+            tempBuffer.size -> TrieNode<E>(0, tempBuffer, owner)
+            else -> TrieNode<E>(0, tempBuffer.copyOf(newSize = totalWritten), owner)
         }
     }
 
@@ -446,6 +496,223 @@ internal class TrieNode<E>(
             else -> mutableNode
         }
     }
+
+    fun mutableRetainAll(otherNode: TrieNode<E>,
+                         shift: Int,
+                         intersectionSizeRef: DeltaCounter,
+                         mutator: PersistentHashSetBuilder<*>): Any? {
+        if (this === otherNode) {
+            intersectionSizeRef += calculateSize();
+            return this
+        }
+        if (shift > MAX_SHIFT) {
+            return mutableCollisionRetainAll(otherNode, intersectionSizeRef, mutator.ownership)
+        }
+        val newBitMap = bitmap and otherNode.bitmap
+        if (newBitMap == 0) return NOVALUE
+        val mutableNode =
+                if (ownedBy == mutator.ownership && newBitMap == bitmap) this
+                else TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()), mutator.ownership)
+        var realBitMap = 0
+        newBitMap.forEachOneBit { positionMask, newNodeIndex ->
+            val thisIndex = indexOfCellAt(positionMask)
+            val otherNodeIndex = otherNode.indexOfCellAt(positionMask)
+            val newValue = run {
+                val thisCell = buffer[thisIndex]
+                val otherNodeCell = otherNode.buffer[otherNodeIndex]
+                val thisIsNode = thisCell is TrieNode<*>
+                val otherIsNode = otherNodeCell is TrieNode<*>
+                when {
+                    // both are nodes -> merge them recursively
+                    thisIsNode && otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                        thisCell as TrieNode<E>
+                        otherNodeCell as TrieNode<E>
+                        thisCell.mutableRetainAll(
+                                otherNodeCell,
+                                shift + LOG_MAX_BRANCHING_FACTOR,
+                                intersectionSizeRef,
+                                mutator
+                        )
+                    }
+                    // one of them is a node -> check containment
+                    thisIsNode -> @Suppress("UNCHECKED_CAST") {
+                        thisCell as TrieNode<E>
+                        otherNodeCell as E
+                        if (thisCell.contains(otherNodeCell.hashCode(), otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR)) {
+                            intersectionSizeRef += 1
+                            otherNodeCell
+                        } else NOVALUE
+                    }
+                    // same as last case, but reversed
+                    otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                        otherNodeCell as TrieNode<E>
+                        thisCell as E
+                        if (otherNodeCell.contains(thisCell.hashCode(), thisCell, shift + LOG_MAX_BRANCHING_FACTOR)) {
+                            intersectionSizeRef += 1
+                            thisCell
+                        } else NOVALUE
+                    }
+                    // both are just E => compare them
+                    thisCell == otherNodeCell -> thisCell.also { intersectionSizeRef += 1 }
+                    // both are just E, but different => return nothing
+                    else -> NOVALUE
+                }
+            }
+            if (newValue !== NOVALUE) {
+                realBitMap = realBitMap or positionMask
+            }
+            mutableNode.buffer[newNodeIndex] = newValue
+        }
+        val realSize = realBitMap.countOneBits()
+        return when {
+            realBitMap == 0 -> NOVALUE
+            realBitMap == newBitMap -> {
+                when {
+                    mutableNode.elementsIdentityEquals(this) -> this
+                    mutableNode.elementsIdentityEquals(otherNode) -> otherNode
+                    else -> mutableNode
+                }
+            }
+            realSize == 1 && shift != 0 -> when(val single = mutableNode.buffer[mutableNode.indexOfCellAt(realBitMap)]) {
+                is TrieNode<*> -> TrieNode<E>(realBitMap, arrayOf(single), mutator.ownership)
+                else -> single
+            }
+            else -> {
+                val realBuffer = arrayOfNulls<Any>(realSize)
+                mutableNode.buffer.filterTo(realBuffer)
+                TrieNode<E>(realBitMap, realBuffer, mutator.ownership)
+            }
+        }
+    }
+
+    fun mutableRemoveAll(otherNode: TrieNode<E>, shift: Int,
+                         intersectionSizeRef: DeltaCounter,
+                         mutator: PersistentHashSetBuilder<*>): Any? {
+        if (this === otherNode) {
+            intersectionSizeRef += calculateSize();
+            return NOVALUE
+        }
+        if (shift > MAX_SHIFT) {
+            return mutableCollisionRemoveAll(otherNode, intersectionSizeRef, mutator.ownership)
+        }
+        val removalBitmap = bitmap and otherNode.bitmap
+        if (removalBitmap == 0) return this
+        val mutableNode =
+                if (ownedBy == mutator.ownership) this
+                else TrieNode<E>(bitmap, buffer.copyOf(), mutator.ownership)
+        var realBitMap = bitmap
+        removalBitmap.forEachOneBit { positionMask, _ ->
+            val thisIndex = indexOfCellAt(positionMask)
+            val otherNodeIndex = otherNode.indexOfCellAt(positionMask)
+            val newValue = run {
+                val thisCell = buffer[thisIndex]
+                val otherNodeCell = otherNode.buffer[otherNodeIndex]
+                val thisIsNode = thisCell is TrieNode<*>
+                val otherIsNode = otherNodeCell is TrieNode<*>
+                when {
+                    // both are nodes -> merge them recursively
+                    thisIsNode && otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                        thisCell as TrieNode<E>
+                        otherNodeCell as TrieNode<E>
+                        thisCell.mutableRemoveAll(
+                                otherNodeCell,
+                                shift + LOG_MAX_BRANCHING_FACTOR,
+                                intersectionSizeRef,
+                                mutator
+                        )
+                    }
+                    // one of them is a node -> check containment
+                    thisIsNode -> @Suppress("UNCHECKED_CAST") {
+                        thisCell as TrieNode<E>
+                        otherNodeCell as E
+                        val oldSize = mutator.size
+                        val removed = thisCell.mutableRemove(
+                                otherNodeCell.hashCode(),
+                                otherNodeCell,
+                                shift + LOG_MAX_BRANCHING_FACTOR,
+                                mutator)
+                        if (oldSize != mutator.size) {
+                            intersectionSizeRef += 1
+                            if (removed.buffer.size == 1 && removed.buffer[0] !is TrieNode<*>) removed.buffer[0]
+                            else removed
+                        } else thisCell
+                    }
+                    // same as last case, but reversed
+                    otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                        otherNodeCell as TrieNode<E>
+                        thisCell as E
+                        if (otherNodeCell.contains(thisCell.hashCode(), thisCell, shift + LOG_MAX_BRANCHING_FACTOR)) {
+                            intersectionSizeRef += 1
+                            NOVALUE
+                        } else thisCell
+                    }
+                    // both are just E => compare them
+                    thisCell == otherNodeCell -> {
+                        intersectionSizeRef += 1
+                        NOVALUE
+                    }
+                    // both are just E, but different => return any one of them
+
+                    else -> thisCell
+                }
+            }
+            if (newValue === NOVALUE) {
+                realBitMap = realBitMap xor positionMask
+            }
+            mutableNode.buffer[thisIndex] = newValue
+        }
+        val realSize = realBitMap.countOneBits()
+        return when {
+            realBitMap == 0 -> NOVALUE
+            realBitMap == bitmap -> {
+                when {
+                    mutableNode.elementsIdentityEquals(this) -> this
+                    else -> mutableNode
+                }
+            }
+            realSize == 1 && shift != 0 -> when(val single = mutableNode.buffer[mutableNode.indexOfCellAt(realBitMap)]) {
+                is TrieNode<*> -> TrieNode<E>(realBitMap, arrayOf(single), mutator.ownership)
+                else -> single
+            }
+            else -> {
+                val realBuffer = arrayOfNulls<Any>(realSize)
+                mutableNode.buffer.filterTo(realBuffer)
+                TrieNode<E>(realBitMap, realBuffer, mutator.ownership)
+            }
+        }
+    }
+
+    fun containsAll(otherNode: TrieNode<E>, shift: Int): Boolean {
+        if (this === otherNode) return true
+        if (shift > MAX_SHIFT) return otherNode.buffer.all { it in buffer }
+
+        val potentialBitMap = bitmap and otherNode.bitmap
+        if (potentialBitMap != otherNode.bitmap) return false
+        potentialBitMap.forEachOneBit { positionMask, _ ->
+            val thisIndex = indexOfCellAt(positionMask)
+            val otherNodeIndex = otherNode.indexOfCellAt(positionMask)
+            val thisCell = buffer[thisIndex]
+            val otherNodeCell = otherNode.buffer[otherNodeIndex]
+            val thisIsNode = thisCell is TrieNode<*>
+            val otherIsNode = otherNodeCell is TrieNode<*>
+            when {
+                thisIsNode && otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                    thisCell as TrieNode<E>
+                    otherNodeCell as TrieNode<E>
+                    thisCell.containsAll(otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR) || return false
+                }
+                thisIsNode -> @Suppress("UNCHECKED_CAST") {
+                    thisCell as TrieNode<E>
+                    otherNodeCell as E
+                    thisCell.contains(otherNodeCell.hashCode(), otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR) || return false
+                }
+                otherIsNode -> return false /* an element cannot contain the whole node */
+                else -> thisCell == otherNodeCell || return false
+            }
+        }
+        return true
+    }
+
 
     fun add(elementHash: Int, element: E, shift: Int): TrieNode<E> {
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)

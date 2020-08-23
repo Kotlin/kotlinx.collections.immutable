@@ -48,15 +48,61 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
         val set = elements as? PersistentHashSet ?: (elements as? PersistentHashSetBuilder)?.build()
         if (set !== null) {
             val deltaCounter = DeltaCounter()
-            val oldSize = this.size
-            node = node.mutableAddAll(set.node, 0, deltaCounter, this)
-            val newSize = oldSize + elements.size - deltaCounter.count
-            if (oldSize != newSize) {
+            val size = this.size
+            val result = node.mutableAddAll(set.node, 0, deltaCounter, this)
+            val newSize = size + elements.size - deltaCounter.count
+            if (size != newSize) {
+                this.node = result
                 this.size = newSize
             }
-            return oldSize != this.size
+            return size != this.size
         }
         return super.addAll(elements)
+    }
+
+    override fun retainAll(elements: Collection<E>): Boolean {
+        val set = elements as? PersistentHashSet ?: (elements as? PersistentHashSetBuilder)?.set
+        if (set !== null) {
+            val deltaCounter = DeltaCounter()
+            val size = this.size
+            val result = node.mutableRetainAll(set.node, 0, deltaCounter, this)
+            when (val newSize = deltaCounter.count) {
+                0 -> clear()
+                size -> {}
+                else -> {
+                    @Suppress("UNCHECKED_CAST")
+                    this.node = result as TrieNode<E>
+                    this.size = newSize
+                }
+            }
+            return size != this.size
+        }
+        return super.retainAll(elements)
+    }
+
+    override fun removeAll(elements: Collection<E>): Boolean {
+        val set = elements as? PersistentHashSet ?: (elements as? PersistentHashSetBuilder)?.set
+        if (set !== null) {
+            val counter = DeltaCounter()
+            val size = this.size
+            val result = node.mutableRemoveAll(set.node, 0, counter, this)
+
+            when (val newSize = size - counter.count) {
+                0 -> clear()
+                size -> {}
+                else -> {
+                    @Suppress("UNCHECKED_CAST")
+                    this.node = result as TrieNode<E>
+                    this.size = newSize
+                }
+            }
+            return size != this.size
+        }
+        return super.removeAll(elements)
+    }
+
+    override fun containsAll(elements: Collection<E>): Boolean {
+        return set.containsAll(elements)
     }
 
     override fun remove(element: E): Boolean {

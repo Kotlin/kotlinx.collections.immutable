@@ -34,6 +34,10 @@ abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractList<E>() 
         return removeAll { elements.contains(it) }
     }
 
+    override fun retainAll(elements: Collection<E>): PersistentList<E> {
+        return removeAll { !elements.contains(it) }
+    }
+
     override fun clear(): PersistentList<E> {
         return persistentVectorOf()
     }

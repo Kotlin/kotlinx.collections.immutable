@@ -291,6 +291,27 @@ operator fun <E> PersistentSet<E>.minus(elements: Array<out E>): PersistentSet<E
 operator fun <E> PersistentSet<E>.minus(elements: Sequence<E>): PersistentSet<E>
         = mutate { it.removeAll(elements) }
 
+/**
+ * Returns all elements in this set that are also
+ * contained in the specified [elements] collection.
+ *
+ * @return a new persistent set with elements in this set that are also
+ * contained in the specified [elements] collection;
+ * or this instance if no modifications were made in the result of this operation.
+ */
+infix fun <E> PersistentSet<E>.intersect(elements: Iterable<E>): PersistentSet<E>
+        = if(elements is Collection) retainAll(elements) else mutate { it.retainAll(elements) }
+
+/**
+ * Returns all elements in this collection that are also
+ * contained in the specified [elements] collection.
+ *
+ * @return a new persistent collection with elements in this set that are also
+ * contained in the specified [elements] collection;
+ * or this instance if no modifications were made in the result of this operation.
+ */
+infix fun <E> PersistentCollection<E>.intersect(elements: Iterable<E>): PersistentCollection<E>
+        = if(elements is Collection) retainAll(elements) else builder().also { it.retainAll(elements) }.build()
 
 /**
  * Returns the result of adding an entry to this map from the specified key-value [pair].
