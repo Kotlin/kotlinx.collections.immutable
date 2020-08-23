@@ -38,6 +38,15 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
     return newBuffer
 }
 
+private inline fun Int.forEachOneBit(body: (mask: Int) -> Unit) {
+    var mask = this
+    while (mask != 0) {
+        val bit = mask.takeLowestOneBit()
+        body(bit)
+        mask = mask and bit.inv()
+    }
+}
+
 internal class TrieNode<E>(
         var bitmap: Int,
         var buffer: Array<Any?>,
@@ -276,6 +285,62 @@ internal class TrieNode<E>(
         }
         // element is directly in buffer
         return element == buffer[cellIndex]
+    }
+
+    fun unite(otherNode: TrieNode<E>, shift: Int): TrieNode<E> {
+        val newBitMap = bitmap or otherNode.bitmap
+        val newNode = TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()))
+        newBitMap.forEachOneBit { mask ->
+            val newNodeIndex = newNode.indexOfCellAt(mask)
+            val thisIndex = indexOfCellAt(mask)
+            val otherNodeIndex = otherNode.indexOfCellAt(mask)
+            when {
+                hasNoCellAt(mask) -> {
+                    newNode.buffer[newNodeIndex] = otherNode.buffer[otherNodeIndex]
+                }
+                otherNode.hasNoCellAt(mask) -> {
+                    newNode.buffer[newNodeIndex] = buffer[thisIndex]
+                }
+                else -> {
+                    val thisCell = buffer[thisIndex]
+                    val otherNodeCell = otherNode.buffer[otherNodeIndex]
+                    val thisIsNode = thisCell is TrieNode<*>
+                    val otherIsNode = otherNodeCell is TrieNode<*>
+                    val res = when {
+                        thisIsNode && otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                            thisCell as TrieNode<E>
+                            otherNodeCell as TrieNode<E>
+                            thisCell.unite(otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR)
+                        }
+                        thisIsNode -> @Suppress("UNCHECKED_CAST") {
+                            thisCell as TrieNode<E>
+                            otherNodeCell as E
+                            thisCell.add(otherNodeCell.hashCode(), otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR)
+                        }
+                        otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                            otherNodeCell as TrieNode<E>
+                            thisCell as E
+                            otherNodeCell.add(thisCell.hashCode(), thisCell, shift + LOG_MAX_BRANCHING_FACTOR)
+                        }
+                        thisCell == otherNodeCell -> thisCell
+                        else -> @Suppress("UNCHECKED_CAST") {
+                            thisCell as E
+                            otherNodeCell as E
+                            makeNode(
+                                    thisCell.hashCode(),
+                                    thisCell,
+                                    otherNodeCell.hashCode(),
+                                    otherNodeCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR,
+                                    null
+                            )
+                        }
+                    }
+                    newNode.buffer[newNodeIndex] = res
+                }
+            }
+        }
+        return newNode
     }
 
     fun add(elementHash: Int, element: E, shift: Int): TrieNode<E> {
