@@ -6,6 +6,7 @@
 package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
@@ -59,6 +60,18 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
         operationResult = null
         node = node.mutablePut(key.hashCode(), key, value, 0, this)
         return operationResult
+    }
+
+    override fun putAll(from: Map<out K, V>) {
+        val map = from as? PersistentHashMap ?: (from as? PersistentHashMapBuilder)?.map
+        if (map != null) @Suppress("UNCHECKED_CAST") {
+            val intersectionCounter = DeltaCounter()
+            val oldSize = this.size
+            node = node.mutablePutAll(map.node as TrieNode<K, V>, 0, intersectionCounter, this)
+            val newSize = oldSize + map.size - intersectionCounter.count
+            if(oldSize != newSize) this.size = newSize
+        }
+        else super.putAll(from)
     }
 
     override fun remove(key: K): V? {

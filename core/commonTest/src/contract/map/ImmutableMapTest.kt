@@ -10,12 +10,47 @@ import tests.contract.collectionBehavior
 import tests.contract.compare
 import tests.contract.mapBehavior
 import tests.contract.setBehavior
+import tests.stress.IntWrapper
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
     override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentHashMapOf(*pairs)
     override fun <K, V> testBuilderToPersistentMap(builder: PersistentMap.Builder<K, V>) {
         assertNotSame(builder.build(), builder.toPersistentMap(), "toPersistent shouldn't call build()")
+    }
+
+    @Test fun putAllElements() {
+        run {
+            val x = immutableMapOf<String, Int>() + (11..200).map { "$it" to it }
+            compareMaps(x.toMap(), x.putAll(immutableMapOf()))
+            compareMaps(x.toMap(), immutableMapOf<String, Int>().putAll(x))
+        }
+
+        run {
+            val x = immutableMapOf<Int, Int>() + (11..200).map { it to it }
+            val y = immutableMapOf<Int, Int>() + (120..400).map { it to it }
+            compareMaps(x.toMap() + y.toMap(), x.putAll(y))
+        }
+
+        run {
+            val x = immutableMapOf<String, Int>() + (11..200).map { "$it" to it }
+            val y = immutableMapOf<String, Int>() + (120..400).map { "$it" to it }
+            compareMaps(x.toMap() + y.toMap(), x.putAll(y))
+        }
+
+        run {
+            val x = immutableMapOf<IntWrapper, Int>() + (11..200).map { IntWrapper(it, it % 30) to it }
+            val y = immutableMapOf<IntWrapper, Int>() + (120..400).map { IntWrapper(it, it % 30) to it }
+            compareMaps(x.toMap() + y.toMap(), x.putAll(y))
+            compareMaps(y.toMap() + x.toMap(), y.putAll(x))
+        }
+
+        run {
+            val bcase = (1..2000).toList() // to preserve reference equality
+            val left = immutableMapOf<String, Int>() + bcase.map { "$it" to it }
+            assertSame(left, left + left)
+            assertSame(left, left + immutableMapOf())
+        }
     }
 }
 class ImmutableOrderedMapTest : ImmutableMapTest() {
