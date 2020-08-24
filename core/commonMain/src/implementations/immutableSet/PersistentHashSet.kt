@@ -6,6 +6,7 @@
 package kotlinx.collections.immutable.implementations.immutableSet
 
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.mutate
 
 internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
@@ -22,12 +23,11 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
 
     override fun addAll(elements: Collection<E>): PersistentSet<E> {
         if(elements is PersistentHashSet) {
-            val intersectionCountRef = intArrayOf(0)
-            val newNode = node.unite(elements.node, 0, intersectionCountRef)
-            val (intersectionCount) = intersectionCountRef
+            val intersectionCountRef = DeltaCounter()
+            val newNode = node.addAll(elements.node, 0, intersectionCountRef)
             if(node === newNode) return this
             if(elements.node === newNode) return elements
-            return PersistentHashSet(newNode, size + elements.size - intersectionCount)
+            return PersistentHashSet(newNode, size + elements.size - intersectionCountRef.count)
         }
         return this.mutate { it.addAll(elements) }
     }

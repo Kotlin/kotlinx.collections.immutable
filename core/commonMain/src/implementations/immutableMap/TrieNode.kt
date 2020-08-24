@@ -6,6 +6,8 @@
 package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.internal.MutabilityOwnership
+import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.internal.forEachOneBit
 
 
 internal const val MAX_BRANCHING_FACTOR = 32
@@ -478,6 +480,100 @@ internal class TrieNode<K, V>(
 
         // key is absent
         return null
+    }
+
+    private fun putAllFromOtherNodeCell(other: TrieNode<K, V>, positionMask: Int, shift: Int): ModificationResult<K, V>? {
+        return when {
+            other.hasNodeAt(positionMask) -> {
+                putAll(
+                        other.nodeAtIndex(other.nodeIndex(positionMask)),
+                        shift + LOG_MAX_BRANCHING_FACTOR
+                )
+            }
+            other.hasEntryAt(positionMask) -> {
+                val keyIndex = other.entryKeyIndex(positionMask)
+                val key = other.keyAtIndex(keyIndex)
+                val value = other.valueAtKeyIndex(keyIndex)
+                put(
+                        key.hashCode(),
+                        key,
+                        value,
+                        shift + LOG_MAX_BRANCHING_FACTOR
+                )
+            }
+            else -> this.asUpdateResult()
+        }
+    }
+
+    fun putAll(otherNode: TrieNode<K, V>, shift: Int): ModificationResult<K, V>? {
+        // new nodes are where either of the old ones were
+        var newNodeMap = nodeMap or otherNode.nodeMap
+        // entries stay being entries only if one bits were in exactly one of input nodes
+        // but not in the new data nodes
+        var newDataMap = dataMap xor otherNode.dataMap and newNodeMap.inv()
+        // (**) now, this is tricky: we have a number of entry-entry pairs and we don't know yet whether
+        // they result in an entry (if they are equal) or a new node (if they are not)
+        // but we want to keep it to single allocation, so we check and mark equal ones here
+        (dataMap and otherNode.dataMap).forEachOneBit { mask ->
+            val leftKey = this.keyAtIndex(this.entryKeyIndex(mask))
+            val rightKey = otherNode.keyAtIndex(otherNode.entryKeyIndex(mask))
+            // if they are equal, put them in the data map
+            if (leftKey == rightKey) newDataMap = newDataMap or mask
+            // if they are not, put them in the node map
+            else newNodeMap = newNodeMap or mask
+            // we can use this later to skip calling equals() again
+        }
+        assert(newNodeMap and newDataMap == 0)
+        val buffer = arrayOfNulls<Any>(newDataMap.countOneBits() * ENTRY_SIZE + newNodeMap.countOneBits())
+        val newNode = TrieNode<K, V>(newDataMap, newNodeMap, buffer)
+        newNodeMap.forEachOneBit { positionMask ->
+            val newNodeIndex = newNode.nodeIndex(positionMask)
+            newNode.buffer[newNodeIndex] = when {
+                hasNodeAt(positionMask) ->
+                    nodeAtIndex(nodeIndex(positionMask))
+                            .putAllFromOtherNodeCell(otherNode, positionMask, shift)
+                otherNode.hasNodeAt(positionMask) ->
+                    otherNode.nodeAtIndex(otherNode.nodeIndex(positionMask))
+                            .putAllFromOtherNodeCell(this, positionMask, shift)
+                else -> { // two entries, and they are not equal by key (see ** above)
+                    val thisKeyIndex = this.entryKeyIndex(positionMask)
+                    val thisKey = this.keyAtIndex(thisKeyIndex)
+                    val thisValue = this.valueAtKeyIndex(thisKeyIndex)
+                    val otherKeyIndex = otherNode.entryKeyIndex(positionMask)
+                    val otherKey = otherNode.keyAtIndex(otherKeyIndex)
+                    val otherValue = otherNode.valueAtKeyIndex(otherKeyIndex)
+                    makeNode(
+                            thisKey.hashCode(),
+                            thisKey,
+                            thisValue,
+                            otherKey.hashCode(),
+                            otherKey,
+                            otherValue,
+                            shift + LOG_MAX_BRANCHING_FACTOR,
+                            null
+                    )
+                }
+            }
+        }
+        newDataMap.forEachOneBit { mask ->
+            val newKeyIndex = newNode.entryKeyIndex(mask)
+            when {
+                !otherNode.hasEntryAt(mask) -> {
+                    val oldKeyIndex = this.entryKeyIndex(mask)
+                    newNode.buffer[newKeyIndex] = this.keyAtIndex(oldKeyIndex)
+                    newNode.buffer[newKeyIndex + 1] = this.valueAtKeyIndex(oldKeyIndex)
+                }
+                // there is either only one entry in otherNode, or
+                // both entries are here => they are equal, see ** above
+                // so just overwrite that
+                else -> {
+                    val oldKeyIndex = otherNode.entryKeyIndex(mask)
+                    newNode.buffer[newKeyIndex] = otherNode.keyAtIndex(oldKeyIndex)
+                    newNode.buffer[newKeyIndex + 1] = otherNode.valueAtKeyIndex(oldKeyIndex)
+                }
+            }
+        }
+        return newNode.asUpdateResult()
     }
 
     fun put(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): ModificationResult<K, V>? {

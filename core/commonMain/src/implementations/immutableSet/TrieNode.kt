@@ -5,7 +5,9 @@
 
 package kotlinx.collections.immutable.implementations.immutableSet
 
+import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
+import kotlinx.collections.immutable.internal.forEachOneBit
 
 
 internal const val MAX_BRANCHING_FACTOR = 32
@@ -36,16 +38,6 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
     this.copyInto(newBuffer, endIndex = cellIndex)
     this.copyInto(newBuffer, cellIndex, cellIndex + 1, this.size)
     return newBuffer
-}
-
-// 'iterate' all the bits set to one in a given integer, in the form of one-bit masks
-private inline fun Int.forEachOneBit(body: (mask: Int) -> Unit) {
-    var mask = this
-    while (mask != 0) {
-        val bit = mask.takeLowestOneBit()
-        body(bit)
-        mask = mask and bit.inv()
-    }
 }
 
 internal class TrieNode<E>(
@@ -288,7 +280,7 @@ internal class TrieNode<E>(
         return element == buffer[cellIndex]
     }
 
-    fun unite(otherNode: TrieNode<E>, shift: Int, intersectionSizeRef: IntArray): TrieNode<E> {
+    fun addAll(otherNode: TrieNode<E>, shift: Int, intersectionSizeRef: DeltaCounter): TrieNode<E> {
         if (this === otherNode) return this
         // union mask contains all the bits from input masks
         val newBitMap = bitmap or otherNode.bitmap
@@ -297,6 +289,7 @@ internal class TrieNode<E>(
         val newNode = TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()))
         // for each bit set in the resulting mask,
         // either left, right or both masks contain the same bit
+        // Note: we shouldn't overrun MAX_SHIFT because both sides are correct TrieNodes, right?
         newBitMap.forEachOneBit { mask ->
             val newNodeIndex = newNode.indexOfCellAt(mask)
             val thisIndex = indexOfCellAt(mask)
@@ -317,7 +310,7 @@ internal class TrieNode<E>(
                         thisIsNode && otherIsNode -> @Suppress("UNCHECKED_CAST") {
                             thisCell as TrieNode<E>
                             otherNodeCell as TrieNode<E>
-                            thisCell.unite(
+                            thisCell.addAll(
                                     otherNodeCell,
                                     shift + LOG_MAX_BRANCHING_FACTOR,
                                     intersectionSizeRef
@@ -332,7 +325,7 @@ internal class TrieNode<E>(
                                     otherNodeCell,
                                     shift + LOG_MAX_BRANCHING_FACTOR
                             ).also {
-                                if (it !== thisCell) intersectionSizeRef[0]++
+                                if (it !== thisCell) intersectionSizeRef += 1
                             }
                         }
                         // same as last case, but reversed
@@ -344,12 +337,12 @@ internal class TrieNode<E>(
                                     thisCell,
                                     shift + LOG_MAX_BRANCHING_FACTOR
                             ).also {
-                                if (it !== otherNodeCell) intersectionSizeRef[0]++
+                                if (it !== otherNodeCell) intersectionSizeRef += 1
                             }
                         }
                         // both are just E => compare them
-                        thisCell == otherNodeCell -> thisCell.also { intersectionSizeRef[0]++ }
-                        // both are just E, but different => make a collision node
+                        thisCell == otherNodeCell -> thisCell.also { intersectionSizeRef += 1 }
+                        // both are just E, but different => make a collision-ish node
                         else -> @Suppress("UNCHECKED_CAST") {
                             thisCell as E
                             otherNodeCell as E
