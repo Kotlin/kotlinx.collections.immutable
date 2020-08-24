@@ -576,12 +576,12 @@ fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
 fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentList()
 
 /**
- * Returns an immutable list containing all elements of this collection.
+ * Returns an immutable list containing all elements of this sequence.
  */
 fun <T> Sequence<T>.toImmutableList(): ImmutableList<T> = toPersistentList()
 
 /**
- * Returns a persistent list containing all elements of this collection.
+ * Returns a persistent list containing all elements of this sequence.
  */
 fun <T> Sequence<T>.toPersistentList(): PersistentList<T> = persistentListOf<T>() + this
 
@@ -626,12 +626,12 @@ fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
         ?: PersistentOrderedSet.emptyOf<T>() + this
 
 /**
- * Returns an immutable set of all elements of this collection.
+ * Returns an immutable set of all elements of this sequence.
  */
 fun <T> Sequence<T>.toImmutableSet(): ImmutableSet<T> = toPersistentSet()
 
 /**
- * Returns a persistent set of all elements of this collection.
+ * Returns a persistent set of all elements of this sequence.
  */
 fun <T> Sequence<T>.toPersistentSet(): PersistentSet<T> = persistentSetOf<T>() + this
 
