@@ -611,6 +611,13 @@ fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
  */
 fun <T> Sequence<T>.toImmutableSet(): ImmutableSet<T> = toPersistentSet()
 
+/**
+ * Returns an immutable set of all characters.
+ *
+ * Elements of the returned set are iterated in the same order as in this char sequence.
+ */
+fun CharSequence.toImmutableSet(): PersistentSet<Char> = toPersistentSet()
+
 
 /**
  * Returns a persistent set of all elements of this collection.
