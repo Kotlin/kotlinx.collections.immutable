@@ -613,7 +613,7 @@ fun CharSequence.toPersistentHashSet(): PersistentSet<Char> =
  *
  * If the receiver is already an immutable set, returns it as is.
  *
- * Elements of the returned set are iterated in the same order as in this collection
+ * Elements of the returned set are iterated in the same order as in this collection.
  */
 fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
         this as? ImmutableSet<T>
@@ -626,7 +626,7 @@ fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
  * If the receiver is already a persistent set, returns it as is.
  * If the receiver is a persistent set builder, calls `build` on it and returns the result.
  *
- * Elements of the returned set are iterated in the same order as in this collection
+ * Elements of the returned set are iterated in the same order as in this collection.
  */
 fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
         this as? PersistentOrderedSet<T>
@@ -635,16 +635,22 @@ fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
 
 /**
  * Returns an immutable set of all elements of this sequence.
+ *
+ * Elements of the returned set are iterated in the same order as in this sequence.
  */
 fun <T> Sequence<T>.toImmutableSet(): ImmutableSet<T> = toPersistentSet()
 
 /**
  * Returns a persistent set of all elements of this sequence.
+ *
+ * Elements of the returned set are iterated in the same order as in this sequence.
  */
 fun <T> Sequence<T>.toPersistentSet(): PersistentSet<T> = persistentSetOf<T>() + this
 
 /**
  * Returns a persistent set of all elements of this sequence.
+ *
+ * Order of the elements in the returned set is unspecified.
  */
 fun <T> Sequence<T>.toPersistentHashSet(): PersistentSet<T> = persistentHashSetOf<T>() + this
 
