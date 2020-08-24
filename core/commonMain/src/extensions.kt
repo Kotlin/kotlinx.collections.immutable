@@ -636,6 +636,11 @@ fun <T> Sequence<T>.toImmutableSet(): ImmutableSet<T> = toPersistentSet()
 fun <T> Sequence<T>.toPersistentSet(): PersistentSet<T> = persistentSetOf<T>() + this
 
 /**
+ * Returns a persistent set of all elements of this sequence.
+ */
+fun <T> Sequence<T>.toPersistentHashSet(): PersistentSet<T> = persistentHashSetOf<T>() + this
+
+/**
  * Returns a persistent set containing all elements from this set.
  *
  * If the receiver is already a persistent hash set, returns it as is.
