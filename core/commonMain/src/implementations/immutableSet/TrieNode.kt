@@ -7,6 +7,7 @@ package kotlinx.collections.immutable.implementations.immutableSet
 
 import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
+import kotlinx.collections.immutable.internal.assert
 import kotlinx.collections.immutable.internal.forEachOneBit
 
 
@@ -261,6 +262,18 @@ internal class TrieNode<E>(
         return this
     }
 
+    private fun calculateSize(): Int {
+        if(bitmap == 0) return buffer.size
+        var result = 0
+        for(e in buffer) {
+            result += when(e) {
+                is TrieNode<*> -> e.calculateSize()
+                else -> 1
+            }
+        }
+        return result
+    }
+
     fun contains(elementHash: Int, element: E, shift: Int): Boolean {
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
@@ -281,7 +294,21 @@ internal class TrieNode<E>(
     }
 
     fun addAll(otherNode: TrieNode<E>, shift: Int, intersectionSizeRef: DeltaCounter): TrieNode<E> {
-        if (this === otherNode) return this
+        if (this === otherNode) {
+            intersectionSizeRef += calculateSize()
+            return this
+        }
+        if (shift > MAX_SHIFT) {
+            var result = this
+            for(e in otherNode.buffer) {
+                assert(e !is TrieNode<*>)
+                @Suppress("UNCHECKED_CAST")
+                val newNode = result.collisionAdd(e as E)
+                if(result === newNode) intersectionSizeRef += 1
+                result = newNode
+            }
+            return result
+        }
         // union mask contains all the bits from input masks
         val newBitMap = bitmap or otherNode.bitmap
         // first allocate the node and then fill it in
@@ -290,15 +317,15 @@ internal class TrieNode<E>(
         // for each bit set in the resulting mask,
         // either left, right or both masks contain the same bit
         // Note: we shouldn't overrun MAX_SHIFT because both sides are correct TrieNodes, right?
-        newBitMap.forEachOneBit { mask ->
-            val newNodeIndex = newNode.indexOfCellAt(mask)
-            val thisIndex = indexOfCellAt(mask)
-            val otherNodeIndex = otherNode.indexOfCellAt(mask)
+        newBitMap.forEachOneBit { positionMask ->
+            val newNodeIndex = newNode.indexOfCellAt(positionMask)
+            val thisIndex = indexOfCellAt(positionMask)
+            val otherNodeIndex = otherNode.indexOfCellAt(positionMask)
             newNode.buffer[newNodeIndex] = when {
                 // no element on left -> pick right
-                hasNoCellAt(mask) -> otherNode.buffer[otherNodeIndex]
+                hasNoCellAt(positionMask) -> otherNode.buffer[otherNodeIndex]
                 // no element on right -> pick left
-                otherNode.hasNoCellAt(mask) -> buffer[thisIndex]
+                otherNode.hasNoCellAt(positionMask) -> buffer[thisIndex]
                 // both nodes contain something at the masked bit
                 else -> {
                     val thisCell = buffer[thisIndex]
@@ -325,7 +352,7 @@ internal class TrieNode<E>(
                                     otherNodeCell,
                                     shift + LOG_MAX_BRANCHING_FACTOR
                             ).also {
-                                if (it !== thisCell) intersectionSizeRef += 1
+                                if (it === thisCell) intersectionSizeRef += 1
                             }
                         }
                         // same as last case, but reversed
@@ -337,7 +364,7 @@ internal class TrieNode<E>(
                                     thisCell,
                                     shift + LOG_MAX_BRANCHING_FACTOR
                             ).also {
-                                if (it !== otherNodeCell) intersectionSizeRef += 1
+                                if (it === otherNodeCell) intersectionSizeRef += 1
                             }
                         }
                         // both are just E => compare them
