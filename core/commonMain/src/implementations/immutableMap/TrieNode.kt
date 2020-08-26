@@ -502,8 +502,10 @@ internal class TrieNode<K, V>(
                         value,
                         shift + LOG_MAX_BRANCHING_FACTOR
                 )
-                if(newNodeResult == null) this
-                else {
+                if(newNodeResult == null) {
+                    counter += 1
+                    this
+                } else {
                     if(newNodeResult.sizeDelta == 0) {
                         /* if put didn't change the size, there was a replacement */
                         counter += 1
@@ -516,6 +518,24 @@ internal class TrieNode<K, V>(
     }
 
     fun putAll(otherNode: TrieNode<K, V>, shift: Int, counter: DeltaCounter): TrieNode<K, V> {
+        // the collision case
+        if(shift > MAX_SHIFT) {
+            assert(nodeMap == 0)
+            assert(dataMap == 0)
+            assert(otherNode.nodeMap == 0)
+            assert(otherNode.dataMap == 0)
+            var res = this
+            for(i in 0 until otherNode.buffer.size step ENTRY_SIZE) {
+                val k = otherNode.keyAtIndex(i)
+                val v = otherNode.valueAtKeyIndex(i)
+
+                val mres = res.collisionPut(k, v)
+                if(mres == null || mres.sizeDelta == 0) counter += 1
+                res = mres?.node ?: res
+            }
+            return res
+        }
+
         // new nodes are where either of the old ones were
         var newNodeMap = nodeMap or otherNode.nodeMap
         // entries stay being entries only if one bits were in exactly one of input nodes

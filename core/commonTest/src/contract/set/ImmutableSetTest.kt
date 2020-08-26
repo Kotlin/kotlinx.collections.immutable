@@ -23,6 +23,12 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     @Test fun addAllElements() {
         run {
             val left = immutableSetOf<Int>() + (1..2000)
+            compareSets(left, left.addAll(immutableSetOf()))
+            compareSets(left, immutableSetOf<Int>().addAll(left))
+        }
+
+        run {
+            val left = immutableSetOf<Int>() + (1..2000)
             val right = immutableSetOf<Int>() + (200..3000)
             compareSets(left.toSet() + right.toSet(), left.addAll(right))
         }
