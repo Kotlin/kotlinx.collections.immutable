@@ -439,6 +439,60 @@ internal class TrieNode<K, V>(
         return this
     }
 
+    private fun collisionPutAll(otherNode: TrieNode<K, V>, intersectionCounter: DeltaCounter): TrieNode<K, V> {
+        assert(nodeMap == 0)
+        assert(dataMap == 0)
+        assert(otherNode.nodeMap == 0)
+        assert(otherNode.dataMap == 0)
+        var res = this
+        for(i in 0 until otherNode.buffer.size step ENTRY_SIZE) {
+            val k = otherNode.keyAtIndex(i)
+            val v = otherNode.valueAtKeyIndex(i)
+
+            val mres = res.collisionPut(k, v)
+            if(mres == null || mres.sizeDelta == 0) intersectionCounter += 1
+            res = mres?.node ?: res
+        }
+        return res
+    }
+
+    private fun putAllFromOtherNodeCell(other: TrieNode<K, V>,
+                                        positionMask: Int,
+                                        shift: Int,
+                                        intersectionCounter: DeltaCounter): TrieNode<K, V> {
+        return when {
+            other.hasNodeAt(positionMask) -> {
+                putAll(
+                        other.nodeAtIndex(other.nodeIndex(positionMask)),
+                        shift + LOG_MAX_BRANCHING_FACTOR,
+                        intersectionCounter
+                )
+            }
+            other.hasEntryAt(positionMask) -> {
+                val keyIndex = other.entryKeyIndex(positionMask)
+                val key = other.keyAtIndex(keyIndex)
+                val value = other.valueAtKeyIndex(keyIndex)
+                val newNodeResult = put(
+                        key.hashCode(),
+                        key,
+                        value,
+                        shift + LOG_MAX_BRANCHING_FACTOR
+                )
+                if(newNodeResult == null) {
+                    intersectionCounter += 1
+                    this
+                } else {
+                    if(newNodeResult.sizeDelta == 0) {
+                        /* if put didn't change the size, there was a replacement */
+                        intersectionCounter += 1
+                    }
+                    newNodeResult.node
+                }
+            }
+            else -> this
+        }
+    }
+
     fun containsKey(keyHash: Int, key: K, shift: Int): Boolean {
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
@@ -480,60 +534,10 @@ internal class TrieNode<K, V>(
         return null
     }
 
-    private fun putAllFromOtherNodeCell(other: TrieNode<K, V>,
-                                        positionMask: Int,
-                                        shift: Int,
-                                        counter: DeltaCounter): TrieNode<K, V> {
-        return when {
-            other.hasNodeAt(positionMask) -> {
-                putAll(
-                        other.nodeAtIndex(other.nodeIndex(positionMask)),
-                        shift + LOG_MAX_BRANCHING_FACTOR,
-                        counter
-                )
-            }
-            other.hasEntryAt(positionMask) -> {
-                val keyIndex = other.entryKeyIndex(positionMask)
-                val key = other.keyAtIndex(keyIndex)
-                val value = other.valueAtKeyIndex(keyIndex)
-                val newNodeResult = put(
-                        key.hashCode(),
-                        key,
-                        value,
-                        shift + LOG_MAX_BRANCHING_FACTOR
-                )
-                if(newNodeResult == null) {
-                    counter += 1
-                    this
-                } else {
-                    if(newNodeResult.sizeDelta == 0) {
-                        /* if put didn't change the size, there was a replacement */
-                        counter += 1
-                    }
-                    newNodeResult.node
-                }
-            }
-            else -> this
-        }
-    }
-
-    fun putAll(otherNode: TrieNode<K, V>, shift: Int, counter: DeltaCounter): TrieNode<K, V> {
+    fun putAll(otherNode: TrieNode<K, V>, shift: Int, intersectionCounter: DeltaCounter): TrieNode<K, V> {
         // the collision case
         if(shift > MAX_SHIFT) {
-            assert(nodeMap == 0)
-            assert(dataMap == 0)
-            assert(otherNode.nodeMap == 0)
-            assert(otherNode.dataMap == 0)
-            var res = this
-            for(i in 0 until otherNode.buffer.size step ENTRY_SIZE) {
-                val k = otherNode.keyAtIndex(i)
-                val v = otherNode.valueAtKeyIndex(i)
-
-                val mres = res.collisionPut(k, v)
-                if(mres == null || mres.sizeDelta == 0) counter += 1
-                res = mres?.node ?: res
-            }
-            return res
+            return collisionPutAll(otherNode, intersectionCounter)
         }
 
         // new nodes are where either of the old ones were
@@ -561,12 +565,12 @@ internal class TrieNode<K, V>(
             newNode.buffer[newNodeIndex] = when {
                 hasNodeAt(positionMask) -> {
                     val before = nodeAtIndex(nodeIndex(positionMask))
-                    before.putAllFromOtherNodeCell(otherNode, positionMask, shift, counter)
+                    before.putAllFromOtherNodeCell(otherNode, positionMask, shift, intersectionCounter)
                 }
 
                 otherNode.hasNodeAt(positionMask) -> {
                     val before = otherNode.nodeAtIndex(otherNode.nodeIndex(positionMask))
-                    before.putAllFromOtherNodeCell(this, positionMask, shift, counter)
+                    before.putAllFromOtherNodeCell(this, positionMask, shift, intersectionCounter)
                 }
 
                 else -> { // two entries, and they are not equal by key (see ** above)
@@ -604,7 +608,7 @@ internal class TrieNode<K, V>(
                     val oldKeyIndex = otherNode.entryKeyIndex(positionMask)
                     newNode.buffer[newKeyIndex] = otherNode.keyAtIndex(oldKeyIndex)
                     newNode.buffer[newKeyIndex + 1] = otherNode.valueAtKeyIndex(oldKeyIndex)
-                    if(this.hasEntryAt(positionMask)) counter += 1
+                    if(this.hasEntryAt(positionMask)) intersectionCounter += 1
                 }
             }
         }

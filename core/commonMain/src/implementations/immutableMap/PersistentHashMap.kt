@@ -65,11 +65,11 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
 
     override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
         if(m is PersistentHashMap) @Suppress("UNCHECKED_CAST") {
-            val deltaCounter = DeltaCounter()
-            val newNode = node.putAll(m.node as TrieNode<K, V>, 0, deltaCounter)
+            val intersectionCounter = DeltaCounter()
+            val newNode = node.putAll(m.node as TrieNode<K, V>, 0, intersectionCounter)
             return when {
                 newNode === node -> this
-                else -> PersistentHashMap(newNode, this.size + m.size - deltaCounter.count)
+                else -> PersistentHashMap(newNode, this.size + m.size - intersectionCounter.count)
             }
         }
         return this.mutate { it.putAll(m) }

@@ -261,6 +261,18 @@ internal class TrieNode<E>(
         return this
     }
 
+    private fun collisionAddAll(otherNode: TrieNode<E>, intersectionSizeRef: DeltaCounter): TrieNode<E> {
+        var result = this
+        for(e in otherNode.buffer) {
+            assert(e !is TrieNode<*>)
+            @Suppress("UNCHECKED_CAST")
+            val newNode = result.collisionAdd(e as E)
+            if(result === newNode) intersectionSizeRef += 1
+            result = newNode
+        }
+        return result
+    }
+
     private fun calculateSize(): Int {
         if(bitmap == 0) return buffer.size
         var result = 0
@@ -298,15 +310,7 @@ internal class TrieNode<E>(
             return this
         }
         if (shift > MAX_SHIFT) {
-            var result = this
-            for(e in otherNode.buffer) {
-                assert(e !is TrieNode<*>)
-                @Suppress("UNCHECKED_CAST")
-                val newNode = result.collisionAdd(e as E)
-                if(result === newNode) intersectionSizeRef += 1
-                result = newNode
-            }
-            return result
+            return collisionAddAll(otherNode)
         }
         // union mask contains all the bits from input masks
         val newBitMap = bitmap or otherNode.bitmap
