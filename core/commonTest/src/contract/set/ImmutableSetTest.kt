@@ -11,6 +11,7 @@ import tests.contract.setBehavior
 import tests.isDigit
 import tests.isUpperCase
 import tests.stress.IntWrapper
+import kotlin.random.Random
 import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {
@@ -38,6 +39,15 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
             compareSets(left.toSet() + right.toSet(), left.addAll(right))
         }
 
+    }
+
+    @Test fun debuggingBenchmark() {
+        val size = 3000000
+        val lRandom = Random(40)
+        val left = immutableSetOf<IntWrapper>() + List(size) { IntWrapper(it, lRandom.nextInt((size + 1) / 3)) }
+        val rRandom = Random(40)
+        val right = immutableSetOf<IntWrapper>() + List(size) { IntWrapper(it, rRandom.nextInt((size + 1) / 3)) }
+        left.addAll(right)
     }
 }
 class ImmutableOrderedSetTest : ImmutableSetTestBase() {

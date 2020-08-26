@@ -6,6 +6,7 @@
 package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.*
+import kotlinx.collections.immutable.internal.DeltaCounter
 
 internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
                                        override val size: Int): AbstractMap<K, V>(), PersistentMap<K, V> {
@@ -63,6 +64,14 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     }
 
     override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
+        if(m is PersistentHashMap) @Suppress("UNCHECKED_CAST") {
+            val deltaCounter = DeltaCounter()
+            val newNode = node.putAll(m.node as TrieNode<K, V>, 0, deltaCounter)
+            return when {
+                newNode === node -> this
+                else -> PersistentHashMap(newNode, this.size + m.size - deltaCounter.count)
+            }
+        }
         return this.mutate { it.putAll(m) }
     }
 

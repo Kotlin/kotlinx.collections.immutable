@@ -5,6 +5,7 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
+import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 import kotlinx.collections.immutable.internal.assert
 import kotlinx.collections.immutable.internal.forEachOneBit
@@ -482,30 +483,42 @@ internal class TrieNode<K, V>(
         return null
     }
 
-    private fun putAllFromOtherNodeCell(other: TrieNode<K, V>, positionMask: Int, shift: Int): ModificationResult<K, V>? {
+    private fun putAllFromOtherNodeCell(other: TrieNode<K, V>,
+                                        positionMask: Int,
+                                        shift: Int,
+                                        counter: DeltaCounter): TrieNode<K, V> {
         return when {
             other.hasNodeAt(positionMask) -> {
                 putAll(
                         other.nodeAtIndex(other.nodeIndex(positionMask)),
-                        shift + LOG_MAX_BRANCHING_FACTOR
+                        shift + LOG_MAX_BRANCHING_FACTOR,
+                        counter
                 )
             }
             other.hasEntryAt(positionMask) -> {
                 val keyIndex = other.entryKeyIndex(positionMask)
                 val key = other.keyAtIndex(keyIndex)
                 val value = other.valueAtKeyIndex(keyIndex)
-                put(
+                val newNodeResult = put(
                         key.hashCode(),
                         key,
                         value,
                         shift + LOG_MAX_BRANCHING_FACTOR
                 )
+                if(newNodeResult == null) this
+                else {
+                    if(newNodeResult.sizeDelta == 0) {
+                        /* if put didn't change the size, there was a replacement */
+                        counter += 1
+                    }
+                    newNodeResult.node
+                }
             }
-            else -> this.asUpdateResult()
+            else -> this
         }
     }
 
-    fun putAll(otherNode: TrieNode<K, V>, shift: Int): ModificationResult<K, V>? {
+    fun putAll(otherNode: TrieNode<K, V>, shift: Int, counter: DeltaCounter): TrieNode<K, V> {
         // new nodes are where either of the old ones were
         var newNodeMap = nodeMap or otherNode.nodeMap
         // entries stay being entries only if one bits were in exactly one of input nodes
@@ -514,13 +527,13 @@ internal class TrieNode<K, V>(
         // (**) now, this is tricky: we have a number of entry-entry pairs and we don't know yet whether
         // they result in an entry (if they are equal) or a new node (if they are not)
         // but we want to keep it to single allocation, so we check and mark equal ones here
-        (dataMap and otherNode.dataMap).forEachOneBit { mask ->
-            val leftKey = this.keyAtIndex(this.entryKeyIndex(mask))
-            val rightKey = otherNode.keyAtIndex(otherNode.entryKeyIndex(mask))
+        (dataMap and otherNode.dataMap).forEachOneBit { positionMask ->
+            val leftKey = this.keyAtIndex(this.entryKeyIndex(positionMask))
+            val rightKey = otherNode.keyAtIndex(otherNode.entryKeyIndex(positionMask))
             // if they are equal, put them in the data map
-            if (leftKey == rightKey) newDataMap = newDataMap or mask
+            if (leftKey == rightKey) newDataMap = newDataMap or positionMask
             // if they are not, put them in the node map
-            else newNodeMap = newNodeMap or mask
+            else newNodeMap = newNodeMap or positionMask
             // we can use this later to skip calling equals() again
         }
         assert(newNodeMap and newDataMap == 0)
@@ -529,12 +542,16 @@ internal class TrieNode<K, V>(
         newNodeMap.forEachOneBit { positionMask ->
             val newNodeIndex = newNode.nodeIndex(positionMask)
             newNode.buffer[newNodeIndex] = when {
-                hasNodeAt(positionMask) ->
-                    nodeAtIndex(nodeIndex(positionMask))
-                            .putAllFromOtherNodeCell(otherNode, positionMask, shift)
-                otherNode.hasNodeAt(positionMask) ->
-                    otherNode.nodeAtIndex(otherNode.nodeIndex(positionMask))
-                            .putAllFromOtherNodeCell(this, positionMask, shift)
+                hasNodeAt(positionMask) -> {
+                    val before = nodeAtIndex(nodeIndex(positionMask))
+                    before.putAllFromOtherNodeCell(otherNode, positionMask, shift, counter)
+                }
+
+                otherNode.hasNodeAt(positionMask) -> {
+                    val before = otherNode.nodeAtIndex(otherNode.nodeIndex(positionMask))
+                    before.putAllFromOtherNodeCell(this, positionMask, shift, counter)
+                }
+
                 else -> { // two entries, and they are not equal by key (see ** above)
                     val thisKeyIndex = this.entryKeyIndex(positionMask)
                     val thisKey = this.keyAtIndex(thisKeyIndex)
@@ -555,11 +572,11 @@ internal class TrieNode<K, V>(
                 }
             }
         }
-        newDataMap.forEachOneBit { mask ->
-            val newKeyIndex = newNode.entryKeyIndex(mask)
+        newDataMap.forEachOneBit { positionMask ->
+            val newKeyIndex = newNode.entryKeyIndex(positionMask)
             when {
-                !otherNode.hasEntryAt(mask) -> {
-                    val oldKeyIndex = this.entryKeyIndex(mask)
+                !otherNode.hasEntryAt(positionMask) -> {
+                    val oldKeyIndex = this.entryKeyIndex(positionMask)
                     newNode.buffer[newKeyIndex] = this.keyAtIndex(oldKeyIndex)
                     newNode.buffer[newKeyIndex + 1] = this.valueAtKeyIndex(oldKeyIndex)
                 }
@@ -567,13 +584,14 @@ internal class TrieNode<K, V>(
                 // both entries are here => they are equal, see ** above
                 // so just overwrite that
                 else -> {
-                    val oldKeyIndex = otherNode.entryKeyIndex(mask)
+                    val oldKeyIndex = otherNode.entryKeyIndex(positionMask)
                     newNode.buffer[newKeyIndex] = otherNode.keyAtIndex(oldKeyIndex)
                     newNode.buffer[newKeyIndex + 1] = otherNode.valueAtKeyIndex(oldKeyIndex)
+                    if(this.hasEntryAt(positionMask)) counter += 1
                 }
             }
         }
-        return newNode.asUpdateResult()
+        return newNode
     }
 
     fun put(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): ModificationResult<K, V>? {
