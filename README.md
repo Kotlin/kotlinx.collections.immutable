@@ -113,7 +113,7 @@ collection.mutate { some_actions_on(it) }
 
 The library is published to [kotlinx](https://bintray.com/kotlin/kotlinx/kotlinx.collections.immutable) bintray repository and available in jcenter too.
 
-The library depends on the Kotlin Standard Library of the version at least `1.3.70`.
+The library depends on the Kotlin Standard Library of the version at least `1.4.0`.
 
 ### Gradle
 
@@ -132,7 +132,7 @@ kotlin {
     sourceSets {
         commonMain {
              dependencies {
-                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.2")
+                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.3")
              }
         }
     }
@@ -142,7 +142,7 @@ kotlin {
 To use the library in a JVM-only project add the platform to the artifact name, e.g.:
 
 ```groovy
-implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.2")
+implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.3")
 ```
 
 ### Maven
@@ -166,7 +166,7 @@ Add dependencies (you can also add other modules that you need):
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
     <artifactId>kotlinx-collections-immutable-jvm</artifactId>
-    <version>0.3.2</version>
+    <version>0.3.3</version>
 </dependency>
 ```
 

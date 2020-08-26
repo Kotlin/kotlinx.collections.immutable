@@ -556,6 +556,20 @@ fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> =
         ?: this.toPersistentList()
 
 /**
+ * Returns an immutable list containing all elements of this sequence.
+ */
+fun <T> Sequence<T>.toImmutableList(): ImmutableList<T> = toPersistentList()
+
+/**
+ * Returns an immutable list containing all characters.
+ */
+fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentList()
+
+
+// fun <T> Array<T>.toImmutableList(): ImmutableList<T> = immutableListOf<T>() + this.asList()
+
+
+/**
  * Returns a persistent list containing all elements of this collection.
  *
  * If the receiver is already a persistent list, returns it as is.
@@ -566,14 +580,10 @@ fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
         ?: (this as? PersistentList.Builder)?.build()
         ?: persistentListOf<T>() + this
 
-
-// fun <T> Array<T>.toImmutableList(): ImmutableList<T> = immutableListOf<T>() + this.asList()
-
-
 /**
- * Returns an immutable list containing all characters.
+ * Returns a persistent list containing all elements of this sequence.
  */
-fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentList()
+fun <T> Sequence<T>.toPersistentList(): PersistentList<T> = persistentListOf<T>() + this
 
 /**
  * Returns a persistent list containing all characters.
@@ -581,29 +591,13 @@ fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentList()
 fun CharSequence.toPersistentList(): PersistentList<Char> =
     persistentListOf<Char>().mutate { this.toCollection(it) }
 
-/**
- * Returns a persistent set of all characters.
- *
- * Elements of the returned set are iterated in the same order as in this char sequence.
- */
-fun CharSequence.toPersistentSet(): PersistentSet<Char> =
-    persistentSetOf<Char>().mutate { this.toCollection(it) }
-
-/**
- * Returns a persistent set of all characters.
- *
- * Order of the elements in the returned set is unspecified.
- */
-fun CharSequence.toPersistentHashSet(): PersistentSet<Char> =
-    persistentHashSetOf<Char>().mutate { this.toCollection(it) }
-
 
 /**
  * Returns an immutable set of all elements of this collection.
  *
  * If the receiver is already an immutable set, returns it as is.
  *
- * Elements of the returned set are iterated in the same order as in this collection
+ * Elements of the returned set are iterated in the same order as in this collection.
  */
 fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
         this as? ImmutableSet<T>
@@ -611,17 +605,48 @@ fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
         ?: persistentSetOf<T>() + this
 
 /**
+ * Returns an immutable set of all elements of this sequence.
+ *
+ * Elements of the returned set are iterated in the same order as in this sequence.
+ */
+fun <T> Sequence<T>.toImmutableSet(): ImmutableSet<T> = toPersistentSet()
+
+/**
+ * Returns an immutable set of all characters.
+ *
+ * Elements of the returned set are iterated in the same order as in this char sequence.
+ */
+fun CharSequence.toImmutableSet(): PersistentSet<Char> = toPersistentSet()
+
+
+/**
  * Returns a persistent set of all elements of this collection.
  *
  * If the receiver is already a persistent set, returns it as is.
  * If the receiver is a persistent set builder, calls `build` on it and returns the result.
  *
- * Elements of the returned set are iterated in the same order as in this collection
+ * Elements of the returned set are iterated in the same order as in this collection.
  */
 fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
         this as? PersistentOrderedSet<T>
         ?: (this as? PersistentOrderedSetBuilder)?.build()
         ?: PersistentOrderedSet.emptyOf<T>() + this
+
+/**
+ * Returns a persistent set of all elements of this sequence.
+ *
+ * Elements of the returned set are iterated in the same order as in this sequence.
+ */
+fun <T> Sequence<T>.toPersistentSet(): PersistentSet<T> = persistentSetOf<T>() + this
+
+/**
+ * Returns a persistent set of all characters.
+ *
+ * Elements of the returned set are iterated in the same order as in this char sequence.
+ */
+fun CharSequence.toPersistentSet(): PersistentSet<Char> =
+        persistentSetOf<Char>().mutate { this.toCollection(it) }
+
 
 /**
  * Returns a persistent set containing all elements from this set.
@@ -635,6 +660,21 @@ fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T>
     = this as? PersistentHashSet
         ?: (this as? PersistentHashSetBuilder<T>)?.build()
         ?: PersistentHashSet.emptyOf<T>() + this
+
+/**
+ * Returns a persistent set of all elements of this sequence.
+ *
+ * Order of the elements in the returned set is unspecified.
+ */
+fun <T> Sequence<T>.toPersistentHashSet(): PersistentSet<T> = persistentHashSetOf<T>() + this
+
+/**
+ * Returns a persistent set of all characters.
+ *
+ * Order of the elements in the returned set is unspecified.
+ */
+fun CharSequence.toPersistentHashSet(): PersistentSet<Char> =
+        persistentHashSetOf<Char>().mutate { this.toCollection(it) }
 
 
 /**

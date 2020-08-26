@@ -90,7 +90,6 @@ internal class TrieNode<K, V>(
         private set
 
     /** Returns number of entries stored in this trie node (not counting subnodes) */
-    @UseExperimental(ExperimentalStdlibApi::class)
     internal fun entryCount(): Int = dataMap.countOneBits()
 
     // here and later:
@@ -108,13 +107,11 @@ internal class TrieNode<K, V>(
     }
 
     /** Gets the index in buffer of the data entry key corresponding to the position specified by [positionMask]. */
-    @UseExperimental(ExperimentalStdlibApi::class)
     internal fun entryKeyIndex(positionMask: Int): Int {
         return ENTRY_SIZE * (dataMap and (positionMask - 1)).countOneBits()
     }
 
     /** Gets the index in buffer of the subtrie node entry corresponding to the position specified by [positionMask]. */
-    @UseExperimental(ExperimentalStdlibApi::class)
     internal fun nodeIndex(positionMask: Int): Int {
         return buffer.size - 1 - (nodeMap and (positionMask - 1)).countOneBits()
     }
@@ -791,7 +788,6 @@ internal class TrieNode<K, V>(
         accept(visitor, 0, 0)
     }
 
-    @UseExperimental(ExperimentalStdlibApi::class)
     private fun accept(
             visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit,
             hash: Int,

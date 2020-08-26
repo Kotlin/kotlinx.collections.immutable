@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.3.3 
+
+- Upgrade Kotlin version up to 1.4.0
+- Weaken receiver type of toPersistentHashSet to Iterable [#77](https://github.com/Kotlin/kotlinx.collections.immutable/issues/77).
+- Throw ConcurrentModificationException if hashCode of ordered set element changes [#76](https://github.com/Kotlin/kotlinx.collections.immutable/issues/76).
+- Fix transition from PersistentVector to SmallPersistentVector [#75](https://github.com/Kotlin/kotlinx.collections.immutable/issues/75)
+- Add CharSequence.toPersistentHashSet() as an alternative to CharSequence.toPersistentSet()
+
 ## 0.3.2
 
 - Introduce `persistentHashSetOf`, `persistentMapOf` and `persistentHashMapOf` methods that take no arguments and create an empty instance [#67](https://github.com/Kotlin/kotlinx.collections.immutable/issues/67).
