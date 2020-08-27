@@ -310,7 +310,7 @@ internal class TrieNode<E>(
             return this
         }
         if (shift > MAX_SHIFT) {
-            return collisionAddAll(otherNode)
+            return collisionAddAll(otherNode, intersectionSizeRef)
         }
         // union mask contains all the bits from input masks
         val newBitMap = bitmap or otherNode.bitmap
