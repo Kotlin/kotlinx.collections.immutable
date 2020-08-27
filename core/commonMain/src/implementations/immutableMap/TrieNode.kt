@@ -493,6 +493,16 @@ internal class TrieNode<K, V>(
         }
     }
 
+    private fun calculateSize(): Int {
+        if(dataMap == 0 && nodeMap == 0) return buffer.size / ENTRY_SIZE
+        var result = 0
+        nodeMap.forEachOneBit { positionMask ->
+            result += nodeAtIndex(nodeIndex(positionMask)).calculateSize()
+        }
+        result += dataMap.countOneBits()
+        return result
+    }
+
     fun containsKey(keyHash: Int, key: K, shift: Int): Boolean {
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
@@ -535,6 +545,10 @@ internal class TrieNode<K, V>(
     }
 
     fun putAll(otherNode: TrieNode<K, V>, shift: Int, intersectionCounter: DeltaCounter): TrieNode<K, V> {
+        if(this === otherNode) {
+            intersectionCounter += calculateSize()
+            return this
+        }
         // the collision case
         if(shift > MAX_SHIFT) {
             return collisionPutAll(otherNode, intersectionCounter)
