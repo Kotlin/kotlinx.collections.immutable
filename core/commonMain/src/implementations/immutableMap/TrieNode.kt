@@ -450,7 +450,7 @@ internal class TrieNode<K, V>(
             val v = otherNode.valueAtKeyIndex(i)
 
             val mres = res.collisionPut(k, v)
-            if(mres == null || mres.sizeDelta == 0) intersectionCounter += 1
+            if (mres == null || mres.sizeDelta == 0) intersectionCounter += 1
             res = mres?.node ?: res
         }
         return res
@@ -478,11 +478,11 @@ internal class TrieNode<K, V>(
                         value,
                         shift + LOG_MAX_BRANCHING_FACTOR
                 )
-                if(newNodeResult == null) {
+                if (newNodeResult == null) {
                     intersectionCounter += 1
                     this
                 } else {
-                    if(newNodeResult.sizeDelta == 0) {
+                    if (newNodeResult.sizeDelta == 0) {
                         /* if put didn't change the size, there was a replacement */
                         intersectionCounter += 1
                     }
@@ -494,7 +494,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun calculateSize(): Int {
-        if(dataMap == 0 && nodeMap == 0) return buffer.size / ENTRY_SIZE
+        if (dataMap == 0 && nodeMap == 0) return buffer.size / ENTRY_SIZE
         var result = 0
         nodeMap.forEachOneBit { positionMask ->
             result += nodeAtIndex(nodeIndex(positionMask)).calculateSize()
@@ -545,12 +545,12 @@ internal class TrieNode<K, V>(
     }
 
     fun putAll(otherNode: TrieNode<K, V>, shift: Int, intersectionCounter: DeltaCounter): TrieNode<K, V> {
-        if(this === otherNode) {
+        if (this === otherNode) {
             intersectionCounter += calculateSize()
             return this
         }
         // the collision case
-        if(shift > MAX_SHIFT) {
+        if (shift > MAX_SHIFT) {
             return collisionPutAll(otherNode, intersectionCounter)
         }
 
@@ -622,7 +622,7 @@ internal class TrieNode<K, V>(
                     val oldKeyIndex = otherNode.entryKeyIndex(positionMask)
                     newNode.buffer[newKeyIndex] = otherNode.keyAtIndex(oldKeyIndex)
                     newNode.buffer[newKeyIndex + 1] = otherNode.valueAtKeyIndex(oldKeyIndex)
-                    if(this.hasEntryAt(positionMask)) intersectionCounter += 1
+                    if (this.hasEntryAt(positionMask)) intersectionCounter += 1
                 }
             }
         }

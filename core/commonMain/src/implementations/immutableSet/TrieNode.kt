@@ -263,20 +263,20 @@ internal class TrieNode<E>(
 
     private fun collisionAddAll(otherNode: TrieNode<E>, intersectionSizeRef: DeltaCounter): TrieNode<E> {
         var result = this
-        for(e in otherNode.buffer) {
+        for (e in otherNode.buffer) {
             assert(e !is TrieNode<*>)
             @Suppress("UNCHECKED_CAST")
             val newNode = result.collisionAdd(e as E)
-            if(result === newNode) intersectionSizeRef += 1
+            if (result === newNode) intersectionSizeRef += 1
             result = newNode
         }
         return result
     }
 
     private fun calculateSize(): Int {
-        if(bitmap == 0) return buffer.size
+        if (bitmap == 0) return buffer.size
         var result = 0
-        for(e in buffer) {
+        for (e in buffer) {
             result += when(e) {
                 is TrieNode<*> -> e.calculateSize()
                 else -> 1
