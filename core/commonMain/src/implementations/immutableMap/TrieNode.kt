@@ -503,6 +503,15 @@ internal class TrieNode<K, V>(
         return result
     }
 
+    private fun elementsEquals(otherNode: TrieNode<K, V>): Boolean {
+        if (nodeMap != otherNode.nodeMap) return false
+        if (dataMap != otherNode.dataMap) return false
+        for (i in 0 until buffer.size) {
+            if(buffer[i] !== otherNode.buffer[i]) return false
+        }
+        return true
+    }
+
     fun containsKey(keyHash: Int, key: K, shift: Int): Boolean {
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
@@ -626,7 +635,11 @@ internal class TrieNode<K, V>(
                 }
             }
         }
-        return newNode
+        return when {
+            this.elementsEquals(newNode) -> this
+            otherNode.elementsEquals(newNode) -> this
+            else -> newNode
+        }
     }
 
     fun put(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): ModificationResult<K, V>? {
