@@ -637,7 +637,7 @@ internal class TrieNode<K, V>(
         }
         return when {
             this.elementsEquals(newNode) -> this
-            otherNode.elementsEquals(newNode) -> this
+            otherNode.elementsEquals(newNode) -> otherNode
             else -> newNode
         }
     }

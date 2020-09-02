@@ -285,6 +285,14 @@ internal class TrieNode<E>(
         return result
     }
 
+    private fun elementsEquals(otherNode: TrieNode<E>): Boolean {
+        if (bitmap != otherNode.bitmap) return false
+        for (i in 0 until buffer.size) {
+            if(buffer[i] !== otherNode.buffer[i]) return false
+        }
+        return true
+    }
+
     fun contains(elementHash: Int, element: E, shift: Int): Boolean {
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
@@ -389,7 +397,11 @@ internal class TrieNode<E>(
                 }
             }
         }
-        return newNode
+        return when {
+            this.elementsEquals(newNode) -> this
+            otherNode.elementsEquals(newNode) -> otherNode
+            else -> newNode
+        }
     }
 
     fun add(elementHash: Int, element: E, shift: Int): TrieNode<E> {
