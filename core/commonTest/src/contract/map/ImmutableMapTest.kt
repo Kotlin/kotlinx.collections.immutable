@@ -44,6 +44,13 @@ class ImmutableHashMapTest : ImmutableMapTest() {
             compareMaps(x.toMap() + y.toMap(), x.putAll(y))
             compareMaps(y.toMap() + x.toMap(), y.putAll(x))
         }
+
+        run {
+            val bcase = (1..2000).toList() // to preserve reference equality
+            val left = immutableMapOf<String, Int>() + bcase.map { "$it" to it }
+            assertSame(left, left + left)
+            assertSame(left, left + immutableMapOf())
+        }
     }
 }
 class ImmutableOrderedMapTest : ImmutableMapTest() {

@@ -11,7 +11,6 @@ import tests.contract.setBehavior
 import tests.isDigit
 import tests.isUpperCase
 import tests.stress.IntWrapper
-import kotlin.random.Random
 import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {
@@ -45,6 +44,14 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
             compareSets(left.toSet() + right.toSet(), left.addAll(right))
         }
 
+        run {
+            val left = immutableSetOf<Int>() + (1..2000)
+            assertSame(left, left + left)
+            assertSame(left, left + immutableSetOf())
+            val right = immutableSetOf<Int>() + (1..2000)
+            assertSame(right, right + left)
+            assertSame(left, left + right)
+        }
     }
 
 }
