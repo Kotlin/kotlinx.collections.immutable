@@ -504,6 +504,8 @@ internal class TrieNode<K, V>(
     }
 
     private fun elementsEquals(otherNode: TrieNode<K, V>): Boolean {
+        if (this === otherNode) return true
+        if (this.buffer === otherNode.buffer) return true
         if (nodeMap != otherNode.nodeMap) return false
         if (dataMap != otherNode.dataMap) return false
         for (i in 0 until buffer.size) {

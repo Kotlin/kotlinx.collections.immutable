@@ -286,6 +286,8 @@ internal class TrieNode<E>(
     }
 
     private fun elementsEquals(otherNode: TrieNode<E>): Boolean {
+        if (this === otherNode) return true
+        if (this.buffer === otherNode.buffer) return true
         if (bitmap != otherNode.bitmap) return false
         for (i in 0 until buffer.size) {
             if(buffer[i] !== otherNode.buffer[i]) return false
