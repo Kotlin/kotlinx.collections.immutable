@@ -43,6 +43,16 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
         return size != this.size
     }
 
+    override fun addAll(elements: Collection<E>): Boolean {
+        if(elements is PersistentHashSet) {
+            val oldSize = this.size
+            size += elements.size
+            node = node.mutableAddAll(elements.node, 0, this)
+            return oldSize != this.size
+        }
+        return super.addAll(elements)
+    }
+
     override fun remove(element: E): Boolean {
         val size = this.size
         @Suppress("UNCHECKED_CAST")

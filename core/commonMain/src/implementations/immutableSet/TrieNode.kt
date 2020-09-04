@@ -273,6 +273,18 @@ internal class TrieNode<E>(
         return result
     }
 
+    private fun mutableCollisionAddAll(otherNode: TrieNode<E>, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
+        var result = this
+        for (e in otherNode.buffer) {
+            assert(e !is TrieNode<*>)
+            mutator.size--
+            @Suppress("UNCHECKED_CAST")
+            val newNode = result.mutableCollisionAdd(e as E, mutator)
+            result = newNode
+        }
+        return result
+    }
+
     private fun calculateSize(): Int {
         if (bitmap == 0) return buffer.size
         var result = 0
@@ -403,6 +415,102 @@ internal class TrieNode<E>(
             this.elementsEquals(newNode) -> this
             otherNode.elementsEquals(newNode) -> otherNode
             else -> newNode
+        }
+    }
+
+    fun mutableAddAll(otherNode: TrieNode<E>, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
+        if (this === otherNode) {
+            mutator.size -= this.calculateSize()
+            return this
+        }
+        if (shift > MAX_SHIFT) {
+            return mutableCollisionAddAll(otherNode, mutator)
+        }
+        // union mask contains all the bits from input masks
+        val newBitMap = bitmap or otherNode.bitmap
+        // first allocate the node and then fill it in
+        // we are doing a union, so all the array elements are guaranteed to exist
+        val mutableNode = when {
+            newBitMap == bitmap && ownedBy == mutator.ownership -> this
+            newBitMap == otherNode.bitmap && otherNode.ownedBy == mutator.ownership -> otherNode
+            else -> TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()), mutator.ownership)
+        }
+        // for each bit set in the resulting mask,
+        // either left, right or both masks contain the same bit
+        // Note: we shouldn't overrun MAX_SHIFT because both sides are correct TrieNodes, right?
+        newBitMap.forEachOneBit { positionMask ->
+            val newNodeIndex = mutableNode.indexOfCellAt(positionMask)
+            val thisIndex = indexOfCellAt(positionMask)
+            val otherNodeIndex = otherNode.indexOfCellAt(positionMask)
+            mutableNode.buffer[newNodeIndex] = when {
+                // no element on left -> pick right
+                hasNoCellAt(positionMask) -> otherNode.buffer[otherNodeIndex]
+                // no element on right -> pick left
+                otherNode.hasNoCellAt(positionMask) -> buffer[thisIndex]
+                // both nodes contain something at the masked bit
+                else -> {
+                    val thisCell = buffer[thisIndex]
+                    val otherNodeCell = otherNode.buffer[otherNodeIndex]
+                    val thisIsNode = thisCell is TrieNode<*>
+                    val otherIsNode = otherNodeCell is TrieNode<*>
+                    when {
+                        // both are nodes -> merge them recursively
+                        thisIsNode && otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                            thisCell as TrieNode<E>
+                            otherNodeCell as TrieNode<E>
+                            thisCell.mutableAddAll(
+                                    otherNodeCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR,
+                                    mutator
+                            )
+                        }
+                        // one of them is a node -> add the other one to it
+                        thisIsNode -> @Suppress("UNCHECKED_CAST") {
+                            thisCell as TrieNode<E>
+                            otherNodeCell as E
+                            mutator.size--
+                            thisCell.mutableAdd(
+                                    otherNodeCell.hashCode(),
+                                    otherNodeCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR,
+                                    mutator
+                            )
+                        }
+                        // same as last case, but reversed
+                        otherIsNode -> @Suppress("UNCHECKED_CAST") {
+                            otherNodeCell as TrieNode<E>
+                            thisCell as E
+                            mutator.size--
+                            otherNodeCell.mutableAdd(
+                                    thisCell.hashCode(),
+                                    thisCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR,
+                                    mutator
+                            )
+                        }
+                        // both are just E => compare them
+                        thisCell == otherNodeCell -> thisCell
+                        // both are just E, but different => make a collision-ish node
+                        else -> @Suppress("UNCHECKED_CAST") {
+                            thisCell as E
+                            otherNodeCell as E
+                            makeNode(
+                                    thisCell.hashCode(),
+                                    thisCell,
+                                    otherNodeCell.hashCode(),
+                                    otherNodeCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR,
+                                    mutator.ownership
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        return when {
+            this.elementsEquals(mutableNode) -> this
+            otherNode.elementsEquals(mutableNode) -> otherNode
+            else -> mutableNode
         }
     }
 
