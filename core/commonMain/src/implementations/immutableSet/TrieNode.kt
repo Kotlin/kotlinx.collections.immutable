@@ -342,11 +342,11 @@ internal class TrieNode<E>(
         // for each bit set in the resulting mask,
         // either left, right or both masks contain the same bit
         // Note: we shouldn't overrun MAX_SHIFT because both sides are correct TrieNodes, right?
+        var newNodeIndex = 0
         newBitMap.forEachOneBit { positionMask ->
-            val newNodeIndex = newNode.indexOfCellAt(positionMask)
             val thisIndex = indexOfCellAt(positionMask)
             val otherNodeIndex = otherNode.indexOfCellAt(positionMask)
-            newNode.buffer[newNodeIndex] = when {
+            newNode.buffer[newNodeIndex++] = when {
                 // no element on left -> pick right
                 hasNoCellAt(positionMask) -> otherNode.buffer[otherNodeIndex]
                 // no element on right -> pick left
