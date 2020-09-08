@@ -11,6 +11,6 @@ internal inline fun Int.forEachOneBit(body: (mask: Int) -> Unit) {
     while (mask != 0) {
         val bit = mask.takeLowestOneBit()
         body(bit)
-        mask = mask and bit.inv()
+        mask = mask xor bit
     }
 }
