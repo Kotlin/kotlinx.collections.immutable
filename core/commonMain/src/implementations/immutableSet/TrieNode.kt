@@ -262,15 +262,15 @@ internal class TrieNode<E>(
     }
 
     private fun collisionAddAll(otherNode: TrieNode<E>, intersectionSizeRef: DeltaCounter): TrieNode<E> {
-        var result = this
+        val resultBuffer = buffer.copyOf(buffer.size + otherNode.buffer.size)
+        var filledSize = buffer.size
         for (e in otherNode.buffer) {
             assert(e !is TrieNode<*>)
-            @Suppress("UNCHECKED_CAST")
-            val newNode = result.collisionAdd(e as E)
-            if (result === newNode) intersectionSizeRef += 1
-            result = newNode
+            if (!buffer.contains(e)) resultBuffer[filledSize++] = e
         }
-        return result
+        intersectionSizeRef += resultBuffer.size - filledSize
+        if (filledSize == buffer.size) return this
+        return TrieNode(0, resultBuffer.copyOf(filledSize))
     }
 
     private fun mutableCollisionAddAll(otherNode: TrieNode<E>, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
