@@ -423,6 +423,7 @@ internal class TrieNode<E>(
         if (shift > MAX_SHIFT) {
             return mutableCollisionAddAll(otherNode, mutator)
         }
+        val originalMutatorSize = mutator.size
         // union mask contains all the bits from input masks
         val newBitMap = bitmap or otherNode.bitmap
         // first allocate the node and then fill it in
@@ -503,11 +504,7 @@ internal class TrieNode<E>(
                 }
             }
         }
-        return when {
-            this.elementsEquals(mutableNode) -> this
-            otherNode.elementsEquals(mutableNode) -> otherNode
-            else -> mutableNode
-        }
+        return if (mutator.size == originalMutatorSize) this else mutableNode
     }
 
     fun add(elementHash: Int, element: E, shift: Int): TrieNode<E> {
