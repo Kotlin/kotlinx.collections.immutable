@@ -277,7 +277,6 @@ internal class TrieNode<E>(
         var result = this
         for (e in otherNode.buffer) {
             assert(e !is TrieNode<*>)
-            mutator.size--
             @Suppress("UNCHECKED_CAST")
             val newNode = result.mutableCollisionAdd(e as E, mutator)
             result = newNode
@@ -285,16 +284,13 @@ internal class TrieNode<E>(
         return result
     }
 
+    private fun calculateSize(cell: Any?): Int = when(cell) {
+        is TrieNode<*> -> cell.calculateSize()
+        else -> 1
+    }
+
     private fun calculateSize(): Int {
-        if (bitmap == 0) return buffer.size
-        var result = 0
-        for (e in buffer) {
-            result += when(e) {
-                is TrieNode<*> -> e.calculateSize()
-                else -> 1
-            }
-        }
-        return result
+        return if (bitmap == 0) buffer.size else buffer.sumOf { calculateSize(it) }
     }
 
     private fun elementsEquals(otherNode: TrieNode<E>): Boolean {
@@ -419,8 +415,9 @@ internal class TrieNode<E>(
     }
 
     fun mutableAddAll(otherNode: TrieNode<E>, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
+        assert(buffer.isNotEmpty() && otherNode.buffer.isNotEmpty())
+
         if (this === otherNode) {
-            mutator.size -= this.calculateSize()
             return this
         }
         if (shift > MAX_SHIFT) {
@@ -444,7 +441,7 @@ internal class TrieNode<E>(
             val otherNodeIndex = otherNode.indexOfCellAt(positionMask)
             mutableNode.buffer[newNodeIndex] = when {
                 // no element on left -> pick right
-                hasNoCellAt(positionMask) -> otherNode.buffer[otherNodeIndex]
+                hasNoCellAt(positionMask) -> otherNode.buffer[otherNodeIndex].also { mutator.size += calculateSize(it) }
                 // no element on right -> pick left
                 otherNode.hasNoCellAt(positionMask) -> buffer[thisIndex]
                 // both nodes contain something at the masked bit
@@ -468,7 +465,6 @@ internal class TrieNode<E>(
                         thisIsNode -> @Suppress("UNCHECKED_CAST") {
                             thisCell as TrieNode<E>
                             otherNodeCell as E
-                            mutator.size--
                             thisCell.mutableAdd(
                                     otherNodeCell.hashCode(),
                                     otherNodeCell,
@@ -480,7 +476,6 @@ internal class TrieNode<E>(
                         otherIsNode -> @Suppress("UNCHECKED_CAST") {
                             otherNodeCell as TrieNode<E>
                             thisCell as E
-                            mutator.size--
                             otherNodeCell.mutableAdd(
                                     thisCell.hashCode(),
                                     thisCell,
@@ -492,6 +487,7 @@ internal class TrieNode<E>(
                         thisCell == otherNodeCell -> thisCell
                         // both are just E, but different => make a collision-ish node
                         else -> @Suppress("UNCHECKED_CAST") {
+                            mutator.size++
                             thisCell as E
                             otherNodeCell as E
                             makeNode(

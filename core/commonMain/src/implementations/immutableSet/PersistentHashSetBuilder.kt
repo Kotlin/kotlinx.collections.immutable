@@ -44,9 +44,14 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
     }
 
     override fun addAll(elements: Collection<E>): Boolean {
+        if (elements.isEmpty()) return false
+
         if(elements is PersistentHashSet) {
+            if (this.isEmpty()) {
+                this.node = elements.node
+                return true
+            }
             val oldSize = this.size
-            size += elements.size
             node = node.mutableAddAll(elements.node, 0, this)
             return oldSize != this.size
         }
