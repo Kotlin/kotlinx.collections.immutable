@@ -6,6 +6,7 @@
 package kotlinx.collections.immutable.implementations.immutableSet
 
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.mutate
 
 internal class PersistentHashSet<E>(internal val node: TrieNode<E>,

@@ -10,6 +10,7 @@ import tests.contract.compare
 import tests.contract.setBehavior
 import tests.isDigit
 import tests.isUpperCase
+import tests.stress.IntWrapper
 import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {
@@ -17,6 +18,42 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     override fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>) {
         assertNotSame(builder.build(), builder.toPersistentSet(), "toPersistent shouldn't call build()")
     }
+
+    @Test fun addAllElements() {
+        run {
+            val left = immutableSetOf<Int>() + (1..2000)
+            assertSame(left, left.addAll(immutableSetOf()))
+            compareSets(left, immutableSetOf<Int>().addAll(left))
+        }
+
+        run {
+            val left = immutableSetOf<Int>() + (1..2000)
+            val right = immutableSetOf<Int>() + (200..3000)
+            compareSets(left.toSet() + right.toSet(), left.addAll(right))
+        }
+
+        run {
+            val left = immutableSetOf<IntWrapper>() + (1..2000).map { IntWrapper(it, it % 200) }
+            val right = immutableSetOf<IntWrapper>() + (200..3000).map { IntWrapper(it, it % 200) }
+            compareSets(left.toSet() + right.toSet(), left.addAll(right))
+        }
+
+        run {
+            val left = immutableSetOf<String>() + (1..2000).map { "$it" }
+            val right = immutableSetOf<String>() + (200..3000).map { "$it" }
+            compareSets(left.toSet() + right.toSet(), left.addAll(right))
+        }
+
+        run {
+            val left = immutableSetOf<Int>() + (1..2000)
+            assertSame(left, left + left)
+            assertSame(left, left + immutableSetOf())
+            val right = immutableSetOf<Int>() + (1..2000)
+            assertSame(right, right + left)
+            assertSame(left, left + right)
+        }
+    }
+
 }
 class ImmutableOrderedSetTest : ImmutableSetTestBase() {
     override fun <T> immutableSetOf(vararg elements: T) = persistentSetOf(*elements)

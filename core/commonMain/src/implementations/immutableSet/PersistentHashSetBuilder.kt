@@ -6,6 +6,7 @@
 package kotlinx.collections.immutable.implementations.immutableSet
 
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
@@ -41,6 +42,21 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
         val size = this.size
         node = node.mutableAdd(element.hashCode(), element, 0, this)
         return size != this.size
+    }
+
+    override fun addAll(elements: Collection<E>): Boolean {
+        val set = elements as? PersistentHashSet ?: (elements as? PersistentHashSetBuilder)?.set
+        if (set !== null) {
+            val deltaCounter = DeltaCounter()
+            val oldSize = this.size
+            node = node.mutableAddAll(set.node, 0, deltaCounter, this)
+            val newSize = oldSize + elements.size - deltaCounter.count
+            if (oldSize != newSize) {
+                this.size = newSize
+            }
+            return oldSize != this.size
+        }
+        return super.addAll(elements)
     }
 
     override fun remove(element: E): Boolean {
