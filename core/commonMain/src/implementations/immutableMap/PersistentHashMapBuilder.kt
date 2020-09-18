@@ -63,7 +63,11 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
     }
 
     override fun putAll(from: Map<out K, V>) {
-        val map = from as? PersistentHashMap ?: (from as? PersistentHashMapBuilder)?.build()
+        val map = when {
+            from is PersistentHashMap -> from
+            from is PersistentHashMapBuilder && from.node === from.map.node -> from.map
+            else -> null
+        }
         if (map != null) @Suppress("UNCHECKED_CAST") {
             val intersectionCounter = DeltaCounter()
             val oldSize = this.size
