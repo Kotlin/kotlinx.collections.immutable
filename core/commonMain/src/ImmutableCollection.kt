@@ -68,6 +68,16 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     fun removeAll(predicate: (E) -> Boolean): PersistentCollection<E>
 
     /**
+     * Returns all elements in this collection that are also
+     * contained in the specified [elements] collection.
+     *
+     * @return a new persistent set with elements in this set that are also
+     * contained in the specified [elements] collection;
+     * or this instance if no modifications were made in the result of this operation.
+     */
+    fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+
+    /**
      * Returns an empty persistent collection.
      */
     fun clear(): PersistentCollection<E>
