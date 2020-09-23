@@ -54,6 +54,29 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
         }
     }
 
+    @Test fun addAllElementsFromBuilder() {
+        val builder1 = immutableSetOf<String>().builder()
+        val builder2 = immutableSetOf<String>().builder()
+        val expected = mutableSetOf<String>()
+        for(i in 300..400) {
+            builder1.add("$i")
+            expected.add("$i")
+        }
+        for(i in 0..200) {
+            builder2.add("$i")
+            expected.add("$i")
+        }
+        builder1.addAll(builder2)
+
+        // make sure we work with current state of builder2, not previous
+        compareSets(expected, builder1)
+        builder2.add("200")
+        // make sure we can't modify builder1 through builder2
+        compareSets(expected, builder1)
+        // make sure builder builds correct map
+        compareSets(expected, builder1.build())
+    }
+
 }
 class ImmutableOrderedSetTest : ImmutableSetTestBase() {
     override fun <T> immutableSetOf(vararg elements: T) = persistentSetOf(*elements)
