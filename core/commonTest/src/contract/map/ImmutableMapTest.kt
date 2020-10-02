@@ -52,6 +52,29 @@ class ImmutableHashMapTest : ImmutableMapTest() {
             assertSame(left, left + immutableMapOf())
         }
     }
+
+    @Test fun putAllElementsFromBuilder() {
+        val builder1 = immutableMapOf<String, Int>().builder()
+        val builder2 = immutableMapOf<String, Int>().builder()
+        val expected = mutableMapOf<String, Int>()
+        for(i in 300..400) {
+            builder1.put("$i", i)
+            expected.put("$i", i)
+        }
+        for(i in 0..200) {
+            builder2.put("$i", i)
+            expected.put("$i", i)
+        }
+        builder1.putAll(builder2)
+
+        // make sure we work with current state of builder2, not previous
+        compareMaps(expected, builder1)
+        builder2.put("200", 1000)
+        // make sure we can't modify builder1 through builder2
+        compareMaps(expected, builder1)
+        // make sure builder builds correct map
+        compareMaps(expected, builder1.build())
+    }
 }
 class ImmutableOrderedMapTest : ImmutableMapTest() {
     override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
