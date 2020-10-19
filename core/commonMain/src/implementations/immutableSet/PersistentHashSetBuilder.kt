@@ -24,7 +24,7 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
             modCount++
         }
 
-    override fun build(): PersistentSet<E> {
+    override fun build(): PersistentHashSet<E> {
         set = if (node === set.node) {
             set
         } else {
@@ -45,7 +45,7 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
     }
 
     override fun addAll(elements: Collection<E>): Boolean {
-        val set = elements as? PersistentHashSet ?: (elements as? PersistentHashSetBuilder)?.set
+        val set = elements as? PersistentHashSet ?: (elements as? PersistentHashSetBuilder)?.build()
         if (set !== null) {
             val deltaCounter = DeltaCounter()
             val oldSize = this.size
