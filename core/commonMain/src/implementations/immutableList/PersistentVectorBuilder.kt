@@ -755,7 +755,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
         while (lastIndex shr rootShift == 0) {
             rootShift -= LOG_MAX_BUFFER_SIZE
             @Suppress("UNCHECKED_CAST")
-            newRoot = root[0] as Array<Any?>
+            newRoot = newRoot[0] as Array<Any?>
         }
         return nullifyAfter(newRoot, lastIndex, rootShift)
     }

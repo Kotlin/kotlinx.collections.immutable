@@ -29,6 +29,19 @@ class ImmutableListTest {
 
     }
 
+    @Test
+    fun persistentListFails() {
+        var xs = persistentListOf(
+                *(1..1885).map { it }.toTypedArray()
+        )
+
+        xs = xs.removeAll(
+                (1..1837).map { it }
+        )
+
+        assertEquals((1838..1885).toList(), xs)
+    }
+
     @Test fun ofElements() {
         val list0 = listOf("a", "d", 1, null)
         val list1 = persistentListOf("a", "d", 1, null)
