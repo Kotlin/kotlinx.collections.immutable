@@ -369,7 +369,9 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
                 removeElements.add(List(1) { Random.nextInt(initialSize) }) // a random element
                 removeElements.add(List(maxBufferSize) { Random.nextInt(initialSize) }) // random elements
                 removeElements.add(List(initialSize / 2) { Random.nextInt(initialSize) }) // ~half elements
-                removeElements.add(List(initialSize) { Random.nextInt(initialSize) }) // ~all elements
+                removeElements.add(List(initialSize) { Random.nextInt(initialSize) }) // ~more than half elements
+                removeElements.add(List(initialSize / 2) { it }) // ~first half
+                removeElements.add(List(initialSize / 2) { initialSize - it }) // ~last half
             }
             if (initialSize > maxBufferSize) {
                 val rootSize = (initialSize - 1) and (maxBufferSize - 1).inv()
@@ -377,10 +379,17 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
                 removeElements.add(List(maxBufferSize) { it }) // first leaf
                 removeElements.add(List(tailSize) { rootSize + it }) // tail
                 removeElements.add(List(maxBufferSize) { rootSize - it }) // last leaf
+                for (shift in 5 until 30 step 5) {
+                    val branches = 1 shl shift
+                    if (branches > rootSize) break
+                    removeElements.add(initialElements.shuffled().take(initialSize - rootSize / branches)) // decrease root height
+                }
             }
 
             for (elements in removeElements) {
                 val expected = initialElements.toMutableList().also { it.removeAll(elements) }
+
+//                println("${initialElements.size} -> ${expected.size} : ${initialElements.size.toDouble() / expected.size}")
 
                 val result = list.removeAll(elements)
 
