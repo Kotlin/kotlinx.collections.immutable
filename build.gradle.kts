@@ -10,32 +10,18 @@ buildscript {
 }
 
 plugins {
-    id("kotlinx.team.infra") version "0.2.0-dev-55"
+    id("kotlinx.team.infra") version "0.3.0-dev-64"
 }
 
 infra {
     teamcity {
-        bintrayUser = "%env.BINTRAY_USER%"
-        bintrayToken = "%env.BINTRAY_API_KEY%"
+        libraryStagingRepoDescription = project.name
     }
     publishing {
         include(":kotlinx-collections-immutable")
 
-        bintray {
-            organization = "kotlin"
-            repository = "kotlinx"
-            library = "kotlinx.collections.immutable"
-            username = findProperty("bintrayUser") as String?
-            password = findProperty("bintrayApiKey") as String?
-        }
-
-        bintrayDev {
-            organization = "kotlin"
-            repository = "kotlin-dev"
-            library = "kotlinx.collections.immutable"
-            username = findProperty("bintrayUser") as String?
-            password = findProperty("bintrayApiKey") as String?
-        }
+        libraryRepoUrl = "https://github.com/Kotlin/kotlinx.collections.immutable"
+        sonatype {}
     }
 }
 

@@ -1,3 +1,5 @@
+import kotlinx.team.infra.mavenPublicationsPom
+
 plugins {
     id("kotlin-multiplatform")
     `maven-publish`
@@ -5,6 +7,10 @@ plugins {
 
 base {
     archivesBaseName = "kotlinx-collections-immutable" // doesn't work
+}
+
+mavenPublicationsPom {
+    description.set("Kotlin Immutable Collections multiplatform library")
 }
 
 val JDK_6: String by project
