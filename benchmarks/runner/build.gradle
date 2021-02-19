@@ -2,12 +2,6 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
-repositories {
-    mavenCentral()
-    jcenter()
-    maven { url 'https://dl.bintray.com/orangy/maven' }
-}
-
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'org.openjdk.jmh:jmh-core:1.21'

@@ -11,12 +11,6 @@ evaluationDependsOn(":kotlinx-collections-immutable")
 
 val JDK_6: String by project
 
-repositories {
-    maven(url = "https://dl.bintray.com/kotlin/kotlin-dev")
-    maven(url = "https://dl.bintray.com/kotlin/kotlinx")
-}
-
-
 kotlin {
     infra {
         target("macosX64")
