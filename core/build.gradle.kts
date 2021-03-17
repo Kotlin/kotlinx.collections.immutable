@@ -1,8 +1,10 @@
 import kotlinx.team.infra.mavenPublicationsPom
+import org.gradle.jvm.tasks.Jar
 
 plugins {
     id("kotlin-multiplatform")
     `maven-publish`
+    id("org.jetbrains.dokka")
 }
 
 base {
@@ -112,5 +114,10 @@ tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
         executable = "$JDK_6/bin/java"
+    }
+
+    named("javadocJar", Jar::class) {
+        dependsOn(dokkaHtml)
+        from(buildDir.resolve("dokka/html"))
     }
 }
