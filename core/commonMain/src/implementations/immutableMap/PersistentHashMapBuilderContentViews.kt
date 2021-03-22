@@ -21,7 +21,7 @@ internal class PersistentHashMapBuilderEntries<K, V>(private val builder: Persis
 
     override fun remove(element: MutableMap.MutableEntry<K, V>): Boolean {
         // TODO: Eliminate this check after KT-30016 gets fixed.
-        if ((element as Any?) !is MutableMap.MutableEntry<*, *>) return false
+        if ((element as Any?) !is Map.Entry<*, *>) return false
         return builder.remove(element.key, element.value)
     }
 
@@ -30,7 +30,7 @@ internal class PersistentHashMapBuilderEntries<K, V>(private val builder: Persis
 
     override fun contains(element: MutableMap.MutableEntry<K, V>): Boolean {
         // TODO: Eliminate this check after KT-30016 gets fixed.
-        if ((element as Any?) !is MutableMap.MutableEntry<*, *>) return false
+        if ((element as Any?) !is Map.Entry<*, *>) return false
         return builder[element.key]?.let { candidate -> candidate == element.value }
                 ?: (element.value == null && builder.containsKey(element.key))
     }
