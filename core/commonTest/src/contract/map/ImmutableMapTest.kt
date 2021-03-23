@@ -11,6 +11,7 @@ import tests.contract.compare
 import tests.contract.mapBehavior
 import tests.contract.setBehavior
 import tests.stress.IntWrapper
+import tests.stress.ObjectWrapper
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
@@ -289,5 +290,22 @@ abstract class ImmutableMapTest {
         val mapANA: PersistentMap<Any, Any?> = mapSNI + listOf(1 to "x")
 
         assertEquals<Map<*, *>>(mapOf(1 to "x", "x" to 1, "y" to null), mapANA)
+    }
+
+    @Test
+    fun collisionEquality() {
+        val m1 = immutableMapOf<ObjectWrapper<Int>, String>().putAll(
+            arrayOf(
+                ObjectWrapper(1, 42) to "Hello",
+                ObjectWrapper(2, 42) to "World"
+            )
+        )
+        val m2 = immutableMapOf<ObjectWrapper<Int>, String>().putAll(
+            arrayOf(
+                ObjectWrapper(2, 42) to "World",
+                ObjectWrapper(1, 42) to "Hello"
+            )
+        )
+        assertEquals(m2, m1)
     }
 }

@@ -9,6 +9,8 @@ import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
+import kotlinx.collections.immutable.implementations.persistentOrderedSet.Links
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.mutate
 
@@ -125,6 +127,32 @@ internal class PersistentOrderedMap<K, V>(
 
     override fun builder(): PersistentMap.Builder<K, V> {
         return PersistentOrderedMapBuilder(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when (other) {
+            is PersistentOrderedMap<*, *> -> {
+                hashMap.node.equalsWith(other.hashMap.node) { a, b ->
+                    a.value == b.value
+                }
+            }
+            is PersistentOrderedMapBuilder<*, *> -> {
+                hashMap.node.equalsWith(other.hashMapBuilder.node) { a, b ->
+                    a.value == b.value
+                }
+            }
+            is PersistentHashMap<*, *> -> {
+                hashMap.node.equalsWith(other.node) { a, b ->
+                    a.value == b
+                }
+            }
+            is PersistentHashMapBuilder<*, *> -> {
+                hashMap.node.equalsWith(other.node) { a, b ->
+                    a.value == b
+                }
+            }
+            else -> super.equals(other)
+        }
     }
 
     internal companion object {

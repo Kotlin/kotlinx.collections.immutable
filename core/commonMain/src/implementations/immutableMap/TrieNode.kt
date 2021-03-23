@@ -876,6 +876,36 @@ internal class TrieNode<K, V>(
         }
     }
 
+    internal fun <K1, V1> equalsWith(that: TrieNode<K1, V1>, equalityComparator: (V, V1) -> Boolean): Boolean {
+        if (this === that) return true
+        if (dataMap != that.dataMap || nodeMap != that.nodeMap) return false
+        if (dataMap == 0 && nodeMap == 0) { // collision node
+            if (buffer.size != that.buffer.size) return false
+            return (0 until buffer.size step ENTRY_SIZE).all { i ->
+                val thatKey = that.keyAtIndex(i)
+                val thatValue = that.valueAtKeyIndex(i)
+                (0 until buffer.size step ENTRY_SIZE).any { j ->
+                    val key = keyAtIndex(j)
+                    val value = valueAtKeyIndex(j)
+                    if (key == thatKey) {
+                        if (equalityComparator(value, thatValue)) true
+                        else return false
+                    } else false
+                }
+            }
+        }
+
+        val valueSize = dataMap.countOneBits() * ENTRY_SIZE
+        for (i in 0 until valueSize step ENTRY_SIZE) {
+            if (keyAtIndex(i) != that.keyAtIndex(i)) return false
+            if (!equalityComparator(valueAtKeyIndex(i), that.valueAtKeyIndex(i))) return false
+        }
+        for (i in valueSize until buffer.size) {
+            if (!nodeAtIndex(i).equalsWith(that.nodeAtIndex(i), equalityComparator)) return false
+        }
+        return true
+    }
+
     internal companion object {
         internal val EMPTY = TrieNode<Nothing, Nothing>(0, 0, emptyArray())
     }

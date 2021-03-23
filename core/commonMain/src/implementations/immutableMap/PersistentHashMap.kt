@@ -8,6 +8,8 @@ package kotlinx.collections.immutable.implementations.immutableMap
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
 import kotlinx.collections.immutable.mutate
 
 internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
@@ -75,6 +77,28 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
 
     override fun builder(): PersistentHashMapBuilder<K, V> {
         return PersistentHashMapBuilder(this)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when (other) {
+            is PersistentOrderedMap<*, *> -> {
+                node.equalsWith(other.hashMap.node) { a, b ->
+                    a == b.value
+                }
+            }
+            is PersistentOrderedMapBuilder<*, *> -> {
+                node.equalsWith(other.hashMapBuilder.node) { a, b ->
+                    a == b.value
+                }
+            }
+            is PersistentHashMap<*, *> -> {
+                node.equalsWith(other.node) { a, b -> a == b }
+            }
+            is PersistentHashMapBuilder<*, *> -> {
+                node.equalsWith(other.node) { a, b -> a == b }
+            }
+            else -> super.equals(other)
+        }
     }
 
     internal companion object {

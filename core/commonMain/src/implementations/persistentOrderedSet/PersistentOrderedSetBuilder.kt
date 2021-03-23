@@ -86,4 +86,16 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
     override fun iterator(): MutableIterator<E> {
         return PersistentOrderedSetMutableIterator(this)
     }
+
+    override fun equals(other: Any?): Boolean {
+        return when (other) {
+            is PersistentOrderedSet<*> -> {
+                hashMapBuilder.node.equalsWith(other.hashMap.node) { _, _ -> true }
+            }
+            is PersistentOrderedSetBuilder<*> -> {
+                hashMapBuilder.node.equalsWith(other.hashMapBuilder.node) { _, _ -> true }
+            }
+            else -> super.equals(other)
+        }
+    }
 }
