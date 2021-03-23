@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 
 class KT41278Test {
     // Based on https://youtrack.jetbrains.com/issue/KT-42428.
-    private fun doTest(map: Map<String, Int>, key: String, value: Int, createEntry: (String, Int) -> Map.Entry<String, Int>) {
+    private fun doContainsTest(map: Map<String, Int>, key: String, value: Int, createEntry: (String, Int) -> Map.Entry<String, Int>) {
         assertTrue(map.keys.contains(key))
         assertEquals(value, map[key])
         // This one requires special efforts to make it work this way.
@@ -28,14 +28,28 @@ class KT41278Test {
         assertFalse(map.entries.contains("not an entry" as Any?))
     }
 
+    private fun doRemoveTest(map: MutableMap<String, Int>, key: String, value: Int, createEntry: (String, Int) -> Map.Entry<String, Int>) {
+        assertTrue(map.keys.contains(key))
+        assertEquals(value, map[key])
+        // This one requires special efforts to make it work this way.
+        // map.entries can in fact be `MutableSet<MutableMap.MutableEntry>`,
+        // which [remove] method takes [MutableEntry], so the compiler may generate special bridge
+        // returning false for values that aren't [MutableEntry].
+        assertTrue(map.entries.toMutableSet().remove(createEntry(key, value)))
+        assertTrue(map.entries.remove(createEntry(key, value)))
+    }
+
     @Test
     fun persistentOrderedMap() {
         val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentMapOf<String, Int>()) { map, pair ->
             map.put(pair.first, pair.second)
         }
 
-        doTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
-        doTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
+        doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
+        doContainsTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
+
+        doRemoveTest(mapLetterToIndex.builder(), "h", 7, ::TestMapEntry)
+        doRemoveTest(mapLetterToIndex.builder(), "h", 7, ::TestMutableMapEntry)
     }
 
     @Test
@@ -44,24 +58,33 @@ class KT41278Test {
             map.put(pair.first, pair.second)
         }
 
-        doTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
-        doTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
+        doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
+        doContainsTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
+
+        doRemoveTest(mapLetterToIndex.builder(), "h", 7, ::TestMapEntry)
+        doRemoveTest(mapLetterToIndex.builder(), "h", 7, ::TestMutableMapEntry)
     }
 
     @Test
     fun persistentOrderedMapBuilder() {
         val mapLetterToIndex = persistentMapOf<String, Int>().builder().apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
 
-        doTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
-        doTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
+        doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
+        doContainsTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
+
+        doRemoveTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
+        doRemoveTest(mapLetterToIndex, "b", 1, ::TestMutableMapEntry)
     }
 
     @Test
     fun persistentHashMapBuilder() {
         val mapLetterToIndex = persistentHashMapOf<String, Int>().builder().apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
 
-        doTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
-        doTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
+        doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
+        doContainsTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
+
+        doRemoveTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
+        doRemoveTest(mapLetterToIndex, "b", 1, ::TestMutableMapEntry)
     }
 }
 
