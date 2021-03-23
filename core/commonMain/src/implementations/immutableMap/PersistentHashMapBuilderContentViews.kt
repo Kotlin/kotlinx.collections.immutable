@@ -13,6 +13,13 @@ internal abstract class AbstractMapBuilderEntries<E : Map.Entry<K, V>, K, V> : A
         return containsEntry(element)
     }
     abstract fun containsEntry(element: Map.Entry<K, V>): Boolean
+
+    final override fun remove(element: E): Boolean {
+        // TODO: Eliminate this check after KT-30016 gets fixed.
+        if ((element as? Any?) !is Map.Entry<*, *>) return false
+        return removeEntry(element)
+    }
+    abstract fun removeEntry(element: Map.Entry<K, V>): Boolean
 }
 
 internal class PersistentHashMapBuilderEntries<K, V>(private val builder: PersistentHashMapBuilder<K, V>)
@@ -29,9 +36,7 @@ internal class PersistentHashMapBuilderEntries<K, V>(private val builder: Persis
         return PersistentHashMapBuilderEntriesIterator(builder)
     }
 
-    override fun remove(element: MutableMap.MutableEntry<K, V>): Boolean {
-        // TODO: Eliminate this check after KT-30016 gets fixed.
-        if ((element as Any?) !is Map.Entry<*, *>) return false
+    override fun removeEntry(element: Map.Entry<K, V>): Boolean {
         return builder.remove(element.key, element.value)
     }
 

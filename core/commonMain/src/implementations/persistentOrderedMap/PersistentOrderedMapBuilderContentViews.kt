@@ -21,9 +21,7 @@ internal class PersistentOrderedMapBuilderEntries<K, V>(private val builder: Per
         return PersistentOrderedMapBuilderEntriesIterator(builder)
     }
 
-    override fun remove(element: MutableMap.MutableEntry<K, V>): Boolean {
-        // TODO: Eliminate this check after KT-30016 gets fixed.
-        if ((element as Any?) !is Map.Entry<*, *>) return false
+    override fun removeEntry(element: Map.Entry<K, V>): Boolean {
         return builder.remove(element.key, element.value)
     }
 
