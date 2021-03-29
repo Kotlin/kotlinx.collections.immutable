@@ -1,6 +1,18 @@
 # CHANGELOG
 
-## 0.3.3 
+## 0.3.4
+
+- Upgrade Kotlin version up to 1.4.30
+- Publish the library to Maven Central instead of Bintray #[96](https://github.com/Kotlin/kotlinx.collections.immutable/issues/96).
+- Add license information to published POMs [#98](https://github.com/Kotlin/kotlinx.collections.immutable/issues/98).
+- Implement workaround for specialized MutableEntrySet.contains/remove [KT-41278](https://youtrack.jetbrains.com/issue/KT-41278).
+- Bug in PersistentList - list is broken after removeAll call [#92](https://github.com/Kotlin/kotlinx.collections.immutable/issues/92).
+- Faster bulk operations for non-ordered sets (removeAll, retainAll, containsAll) [#91](https://github.com/Kotlin/kotlinx.collections.immutable/issues/91).
+- Faster addAll/putAll implementation for non-ordered sets/maps [#83](https://github.com/Kotlin/kotlinx.collections.immutable/issues/83).
+- Add extension functions to convert Sequence<T> to persistent collections [84](https://github.com/Kotlin/kotlinx.collections.immutable/issues/84).
+- Add missing CharSequence.toImmutableSet() extension function.
+
+## 0.3.3
 
 - Upgrade Kotlin version up to 1.4.0
 - Weaken receiver type of toPersistentHashSet to Iterable [#77](https://github.com/Kotlin/kotlinx.collections.immutable/issues/77).
