@@ -156,7 +156,7 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
                 }
             }
             // should be super.equals(other), but https://youtrack.jetbrains.com/issue/KT-45673
-            else -> other.entries.all { entry -> containsEntry(entry) }
+            else -> other.all { entry -> containsEntry(entry) }
         }
     }
 

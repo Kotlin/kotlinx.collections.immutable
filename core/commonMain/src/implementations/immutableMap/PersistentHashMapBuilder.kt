@@ -130,7 +130,7 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
             }
 
             // should be super.equals(other), but https://youtrack.jetbrains.com/issue/KT-45673
-            else -> return other.entries.all { entry -> containsEntry(entry) }
+            else -> return other.all { entry -> containsEntry(entry) }
         }
 
     }
