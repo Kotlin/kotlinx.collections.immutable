@@ -130,6 +130,9 @@ internal class PersistentOrderedMap<K, V>(
     }
 
     override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        if (other !is Map<*, *>) return false
+        if (size != other.size) return false
         return when (other) {
             is PersistentOrderedMap<*, *> -> {
                 hashMap.node.equalsWith(other.hashMap.node) { a, b ->

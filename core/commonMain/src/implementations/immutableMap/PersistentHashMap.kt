@@ -80,6 +80,9 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     }
 
     override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        if (other !is Map<*, *>) return false
+        if (size != other.size) return false
         return when (other) {
             is PersistentOrderedMap<*, *> -> {
                 node.equalsWith(other.hashMap.node) { a, b ->

@@ -105,6 +105,9 @@ internal class PersistentOrderedSet<E>(
     }
 
     override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        if (other !is Set<*>) return false
+        if (size != other.size) return false
         return when (other) {
             is PersistentOrderedSet<*> -> {
                 hashMap.node.equalsWith(other.hashMap.node) { _, _ -> true }
