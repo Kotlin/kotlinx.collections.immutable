@@ -1,11 +1,9 @@
 pluginManagement {
     repositories {
-        maven { url 'https://dl.bintray.com/kotlin/kotlinx' } // for infra
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlinx/maven' }
         gradlePluginPortal()
     }
 }
-
-enableFeaturePreview('GRADLE_METADATA')
 
 rootProject.name = 'Kotlin-Immutable-Collections' // TODO: Make readable name when it's not used in js module names
 
