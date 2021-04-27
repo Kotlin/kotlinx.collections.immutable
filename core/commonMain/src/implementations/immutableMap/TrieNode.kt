@@ -346,32 +346,31 @@ internal class TrieNode<K, V>(
         return TrieNode(0, 0, newBuffer, mutator.ownership)
     }
 
-    private fun collisionContainsKey(key: K): Boolean {
+    private fun collisionKeyIndex(key: Any?): Int {
         for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == buffer[i]) return true
+            if (key == keyAtIndex(i)) return i
         }
-        return false
+        return -1
+    }
+
+    private fun collisionContainsKey(key: K): Boolean {
+        return collisionKeyIndex(key) != -1
     }
 
     private fun collisionGet(key: K): V? {
-        for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == keyAtIndex(i)) {
-                return valueAtKeyIndex(i)
-            }
-        }
-        return null
+        val keyIndex = collisionKeyIndex(key)
+        return if (keyIndex != -1) valueAtKeyIndex(keyIndex) else null
     }
 
     private fun collisionPut(key: K, value: V): ModificationResult<K, V>? {
-        for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == keyAtIndex(i)) {
-                if (value === valueAtKeyIndex(i)) {
-                    return null
-                }
-                val newBuffer = buffer.copyOf()
-                newBuffer[i + 1] = value
-                return TrieNode<K, V>(0, 0, newBuffer).asUpdateResult()
+        val keyIndex = collisionKeyIndex(key)
+        if (keyIndex != -1) {
+            if (value === valueAtKeyIndex(keyIndex)) {
+                return null
             }
+            val newBuffer = buffer.copyOf()
+            newBuffer[keyIndex + 1] = value
+            return TrieNode<K, V>(0, 0, newBuffer).asUpdateResult()
         }
         val newBuffer = buffer.insertEntryAtIndex(0, key, value)
         return TrieNode<K, V>(0, 0, newBuffer).asInsertResult()
@@ -379,23 +378,22 @@ internal class TrieNode<K, V>(
 
     private fun mutableCollisionPut(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
         // Check if there is an entry with the specified key.
-        for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == keyAtIndex(i)) { // found entry with the specified key
-                mutator.operationResult = valueAtKeyIndex(i)
+        val keyIndex = collisionKeyIndex(key)
+        if (keyIndex != -1) { // found entry with the specified key
+            mutator.operationResult = valueAtKeyIndex(keyIndex)
 
-                // If the [mutator] is exclusive owner of this node, update value of the entry in-place.
-                if (ownedBy === mutator.ownership) {
-                    buffer[i + 1] = value
-                    return this
-                }
-
-                // Structural change due to node replacement.
-                mutator.modCount++
-                // Create new node with updated entry value.
-                val newBuffer = buffer.copyOf()
-                newBuffer[i + 1] = value
-                return TrieNode(0, 0, newBuffer, mutator.ownership)
+            // If the [mutator] is exclusive owner of this node, update value of the entry in-place.
+            if (ownedBy === mutator.ownership) {
+                buffer[keyIndex + 1] = value
+                return this
             }
+
+            // Structural change due to node replacement.
+            mutator.modCount++
+            // Create new node with updated entry value.
+            val newBuffer = buffer.copyOf()
+            newBuffer[keyIndex + 1] = value
+            return TrieNode(0, 0, newBuffer, mutator.ownership)
         }
         // Create new collision node with the specified entry added to it.
         mutator.size++
@@ -404,37 +402,33 @@ internal class TrieNode<K, V>(
     }
 
     private fun collisionRemove(key: K): TrieNode<K, V>? {
-        for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == keyAtIndex(i)) {
-                return collisionRemoveEntryAtIndex(i)
-            }
+        val keyIndex = collisionKeyIndex(key)
+        if (keyIndex != -1) {
+            return collisionRemoveEntryAtIndex(keyIndex)
         }
         return this
     }
 
     private fun mutableCollisionRemove(key: K, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
-        for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == keyAtIndex(i)) {
-                return mutableCollisionRemoveEntryAtIndex(i, mutator)
-            }
+        val keyIndex = collisionKeyIndex(key)
+        if (keyIndex != -1) {
+            return mutableCollisionRemoveEntryAtIndex(keyIndex, mutator)
         }
         return this
     }
 
     private fun collisionRemove(key: K, value: V): TrieNode<K, V>? {
-        for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == keyAtIndex(i) && value == valueAtKeyIndex(i)) {
-                return collisionRemoveEntryAtIndex(i)
-            }
+        val keyIndex = collisionKeyIndex(key)
+        if (keyIndex != -1 && value == valueAtKeyIndex(keyIndex)) {
+            return collisionRemoveEntryAtIndex(keyIndex)
         }
         return this
     }
 
     private fun mutableCollisionRemove(key: K, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
-        for (i in 0 until buffer.size step ENTRY_SIZE) {
-            if (key == keyAtIndex(i) && value == valueAtKeyIndex(i)) {
-                return mutableCollisionRemoveEntryAtIndex(i, mutator)
-            }
+        val keyIndex = collisionKeyIndex(key)
+        if (keyIndex != -1 && value == valueAtKeyIndex(keyIndex)) {
+            return mutableCollisionRemoveEntryAtIndex(keyIndex, mutator)
         }
         return this
     }
@@ -884,14 +878,11 @@ internal class TrieNode<K, V>(
             return (0 until buffer.size step ENTRY_SIZE).all { i ->
                 val thatKey = that.keyAtIndex(i)
                 val thatValue = that.valueAtKeyIndex(i)
-                (0 until buffer.size step ENTRY_SIZE).any { j ->
-                    val key = keyAtIndex(j)
-                    val value = valueAtKeyIndex(j)
-                    if (key == thatKey) {
-                        if (equalityComparator(value, thatValue)) true
-                        else return false
-                    } else false
-                }
+                val keyIndex = collisionKeyIndex(thatKey)
+                if (keyIndex != -1) {
+                    val value = valueAtKeyIndex(keyIndex)
+                    equalityComparator(value, thatValue)
+                } else false
             }
         }
 
