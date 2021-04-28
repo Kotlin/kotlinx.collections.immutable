@@ -881,7 +881,7 @@ internal class TrieNode<K, V>(
                 val keyIndex = collisionKeyIndex(thatKey)
                 if (keyIndex != -1) {
                     val value = valueAtKeyIndex(keyIndex)
-                    equalityComparator(value, thatValue)
+                    equalityComparator(value, thatValue) || return false
                 } else false
             }
         }
