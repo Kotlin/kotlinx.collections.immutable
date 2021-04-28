@@ -293,6 +293,38 @@ abstract class ImmutableMapTest {
     }
 
     @Test
+    fun specializedEquality() {
+        val data = (0..200).map { i -> ObjectWrapper(i, i % 50) to "$i"}.toTypedArray()
+        val changed = data.copyOf().apply { this[42] = ObjectWrapper(42, 42) to "Invalid" }
+
+        val base = immutableMapOf(*data)
+        assertTrue(base == mapOf(*data))
+        assertTrue(base == persistentHashMapOf(*data))
+        assertTrue(base == persistentMapOf(*data))
+        assertTrue(base == persistentHashMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) })
+        assertTrue(base == persistentMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) })
+
+        assertFalse(base == mapOf(*changed))
+        assertFalse(base == persistentHashMapOf(*changed))
+        assertFalse(base == persistentMapOf(*changed))
+        assertFalse(base == persistentHashMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(changed) })
+        assertFalse(base == persistentMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(changed) })
+
+        val builder = immutableMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) }
+        assertTrue(builder == mapOf(*data))
+        assertTrue(builder == persistentHashMapOf(*data))
+        assertTrue(builder == persistentMapOf(*data))
+        assertTrue(builder == persistentHashMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) })
+        assertTrue(builder == persistentMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) })
+
+        assertFalse(builder == mapOf(*changed))
+        assertFalse(builder == persistentHashMapOf(*changed))
+        assertFalse(builder == persistentMapOf(*changed))
+        assertFalse(builder == persistentHashMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(changed) })
+        assertFalse(builder == persistentMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(changed) })
+    }
+
+    @Test
     fun collisionEquality() {
         val m1 = immutableMapOf<ObjectWrapper<Int>, String>().putAll(
             arrayOf(
