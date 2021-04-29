@@ -294,34 +294,34 @@ abstract class ImmutableMapTest {
 
     @Test
     fun specializedEquality() {
-        val data = (0..200).map { i -> ObjectWrapper(i, i % 50) to "$i"}.toTypedArray()
-        val changed = data.copyOf().apply { this[42] = ObjectWrapper(42, 42) to "Invalid" }
+        val data = (0..200).map { i -> IntWrapper(i, i % 50) to "$i"}.toTypedArray()
+        val changed = data.copyOf().apply { this[42] = IntWrapper(42, 42) to "Invalid" }
 
         val base = immutableMapOf(*data)
         assertTrue(base == mapOf(*data))
         assertTrue(base == persistentHashMapOf(*data))
         assertTrue(base == persistentMapOf(*data))
-        assertTrue(base == persistentHashMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) })
-        assertTrue(base == persistentMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) })
+        assertTrue(base == persistentHashMapOf<IntWrapper, String>().builder().apply { putAll(data) })
+        assertTrue(base == persistentMapOf<IntWrapper, String>().builder().apply { putAll(data) })
 
         assertFalse(base == mapOf(*changed))
         assertFalse(base == persistentHashMapOf(*changed))
         assertFalse(base == persistentMapOf(*changed))
-        assertFalse(base == persistentHashMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(changed) })
-        assertFalse(base == persistentMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(changed) })
+        assertFalse(base == persistentHashMapOf<IntWrapper, String>().builder().apply { putAll(changed) })
+        assertFalse(base == persistentMapOf<IntWrapper, String>().builder().apply { putAll(changed) })
 
         val builder = immutableMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) }
         assertTrue(builder == mapOf(*data))
         assertTrue(builder == persistentHashMapOf(*data))
         assertTrue(builder == persistentMapOf(*data))
-        assertTrue(builder == persistentHashMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) })
-        assertTrue(builder == persistentMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(data) })
+        assertTrue(builder == persistentHashMapOf<IntWrapper, String>().builder().apply { putAll(data) })
+        assertTrue(builder == persistentMapOf<IntWrapper, String>().builder().apply { putAll(data) })
 
         assertFalse(builder == mapOf(*changed))
         assertFalse(builder == persistentHashMapOf(*changed))
         assertFalse(builder == persistentMapOf(*changed))
-        assertFalse(builder == persistentHashMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(changed) })
-        assertFalse(builder == persistentMapOf<ObjectWrapper<Int>, String>().builder().apply { putAll(changed) })
+        assertFalse(builder == persistentHashMapOf<IntWrapper, String>().builder().apply { putAll(changed) })
+        assertFalse(builder == persistentMapOf<IntWrapper, String>().builder().apply { putAll(changed) })
     }
 
     @Test
