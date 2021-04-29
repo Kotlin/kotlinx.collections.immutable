@@ -9,8 +9,9 @@ import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap.Companion.equals
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap.Companion.hashCode
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
-import kotlinx.collections.immutable.implementations.persistentOrderedSet.Links
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.mutate
 
@@ -157,6 +158,12 @@ internal class PersistentOrderedMap<K, V>(
             else -> super.equals(other)
         }
     }
+
+    /**
+     * We provide [equals], so as a matter of style, we should also provide [hashCode].
+     * However, the implementation from [AbstractMap] is enough.
+     */
+    override fun hashCode(): Int = super<AbstractMap>.hashCode()
 
     internal companion object {
         private val EMPTY = PersistentOrderedMap<Nothing, Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf())

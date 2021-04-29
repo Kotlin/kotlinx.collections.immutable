@@ -104,6 +104,12 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         }
     }
 
+    /**
+     * We provide [equals], so as a matter of style, we should also provide [hashCode].
+     * However, the implementation from [AbstractMap] is enough.
+     */
+    override fun hashCode(): Int = super<AbstractMap>.hashCode()
+
     internal companion object {
         private val EMPTY = PersistentHashMap(TrieNode.EMPTY, 0)
         @Suppress("UNCHECKED_CAST")

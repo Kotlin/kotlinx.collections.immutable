@@ -7,9 +7,8 @@ package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
-import kotlinx.collections.immutable.implementations.persistentOrderedMap.LinkedValue
-import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
-import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap.Companion.equals
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap.Companion.hashCode
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.mutate
 
@@ -118,6 +117,12 @@ internal class PersistentOrderedSet<E>(
             else -> super.equals(other)
         }
     }
+
+    /**
+     * We provide [equals], so as a matter of style, we should also provide [hashCode].
+     * However, the implementation from [AbstractSet] is enough.
+     */
+    override fun hashCode(): Int = super<AbstractSet>.hashCode()
 
     internal companion object {
         private val EMPTY = PersistentOrderedSet<Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf())
