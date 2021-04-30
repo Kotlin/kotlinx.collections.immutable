@@ -58,11 +58,11 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         val builder1 = immutableMapOf<String, Int>().builder()
         val builder2 = immutableMapOf<String, Int>().builder()
         val expected = mutableMapOf<String, Int>()
-        for(i in 300..400) {
+        for (i in 300..400) {
             builder1.put("$i", i)
             expected.put("$i", i)
         }
-        for(i in 0..200) {
+        for (i in 0..200) {
             builder2.put("$i", i)
             expected.put("$i", i)
         }
@@ -77,6 +77,7 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         compareMaps(expected, builder1.build())
     }
 }
+
 class ImmutableOrderedMapTest : ImmutableMapTest() {
     override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
     override fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = true) }
@@ -294,7 +295,7 @@ abstract class ImmutableMapTest {
 
     @Test
     fun specializedEquality() {
-        val data = (0..200).map { i -> IntWrapper(i, i % 50) to "$i"}.toTypedArray()
+        val data = (0..200).map { i -> IntWrapper(i, i % 50) to "$i" }.toTypedArray()
         val changed = data.copyOf().apply { this[42] = IntWrapper(42, 42) to "Invalid" }
 
         val base = immutableMapOf(*data)
@@ -328,16 +329,34 @@ abstract class ImmutableMapTest {
     fun collisionEquality() {
         val m1 = immutableMapOf<ObjectWrapper<Int>, String>().putAll(
             arrayOf(
-                ObjectWrapper(1, 42) to "Hello",
-                ObjectWrapper(2, 42) to "World"
+                IntWrapper(1, 42) to "Hello",
+                IntWrapper(2, 42) to "World"
             )
         )
         val m2 = immutableMapOf<ObjectWrapper<Int>, String>().putAll(
             arrayOf(
-                ObjectWrapper(2, 42) to "World",
-                ObjectWrapper(1, 42) to "Hello"
+                IntWrapper(2, 42) to "World",
+                IntWrapper(1, 42) to "Hello"
             )
         )
         assertEquals(m2, m1)
+    }
+
+    @Test
+    fun hashing() {
+        val collisionData = arrayOf(
+            IntWrapper(1, 42) to "Hello",
+            IntWrapper(2, 42) to "World"
+        )
+        val collisionMap = immutableMapOf(*collisionData)
+
+        assertEquals(mapOf(*collisionData).hashCode(), collisionMap.hashCode())
+        assertEquals(mapOf(*collisionData).hashCode(), collisionMap.builder().hashCode())
+
+        val data = (0..200).map { i -> IntWrapper(i, i % 50) to "$i" }.toTypedArray()
+
+        val persistentMap = immutableMapOf(*data)
+        assertEquals(mapOf(*data).hashCode(), persistentMap.hashCode())
+        assertEquals(mapOf(*data).hashCode(), persistentMap.builder().hashCode())
     }
 }

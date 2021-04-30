@@ -98,4 +98,10 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
             else -> super.equals(other)
         }
     }
+
+    /**
+     * We provide [equals], so as a matter of style, we should also provide [hashCode].
+     * However, the implementation from [AbstractMutableSet] is enough.
+     */
+    override fun hashCode(): Int = super<AbstractMutableSet>.hashCode()
 }

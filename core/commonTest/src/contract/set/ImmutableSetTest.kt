@@ -195,8 +195,8 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
             compareSets(immutableSetOf<Int>(), left - right)
         }
     }
-
 }
+
 class ImmutableOrderedSetTest : ImmutableSetTestBase() {
     override fun <T> immutableSetOf(vararg elements: T) = persistentSetOf(*elements)
     override fun <T> compareSets(expected: Set<T>, actual: Set<T>) = compare(expected, actual) { setBehavior(ordered = true) }
@@ -354,4 +354,63 @@ abstract class ImmutableSetTestBase {
         assertTrue(this === buildResult)
     }
 
+    @Test fun specializedEquality() {
+        val data = (0..200).map { i -> IntWrapper(i, i % 50) }.toTypedArray()
+        val changed = data.copyOf().apply { this[42] = IntWrapper(4242, 42) }
+
+        val base = immutableSetOf(*data)
+        assertTrue(base == setOf(*data))
+        assertTrue(base == persistentHashSetOf(*data))
+        assertTrue(base == persistentSetOf(*data))
+        assertTrue(base == persistentHashSetOf<IntWrapper>().builder().apply { addAll(data) })
+        assertTrue(base == persistentSetOf<IntWrapper>().builder().apply { addAll(data) })
+
+        assertFalse(base == setOf(*changed))
+        assertFalse(base == persistentHashSetOf(*changed))
+        assertFalse(base == persistentSetOf(*changed))
+        assertFalse(base == persistentHashSetOf<IntWrapper>().builder().apply { addAll(changed) })
+        assertFalse(base == persistentSetOf<IntWrapper>().builder().apply { addAll(changed) })
+
+        val builder = immutableSetOf<IntWrapper>().builder().apply { addAll(data) }
+        assertTrue(builder == setOf(*data))
+        assertTrue(builder == persistentHashSetOf(*data))
+        assertTrue(builder == persistentSetOf(*data))
+        assertTrue(builder == persistentHashSetOf<IntWrapper>().builder().apply { addAll(data) })
+        assertTrue(builder == persistentSetOf<IntWrapper>().builder().apply { addAll(data) })
+
+        assertFalse(builder == setOf(*changed))
+        assertFalse(builder == persistentHashSetOf(*changed))
+        assertFalse(builder == persistentSetOf(*changed))
+        assertFalse(builder == persistentHashSetOf<IntWrapper>().builder().apply { addAll(changed) })
+        assertFalse(builder == persistentSetOf<IntWrapper>().builder().apply { addAll(changed) })
+    }
+
+    @Test fun collisionEquality() {
+        val m1 = immutableSetOf(
+            IntWrapper(1, 42), IntWrapper(2, 42)
+        )
+        val m2 = immutableSetOf(
+            IntWrapper(2, 42), IntWrapper(1, 42)
+        )
+        assertEquals(m2, m1)
+        assertEquals(m2.builder(), m1.builder())
+    }
+
+    @Test
+    fun hashing() {
+        val collisionData = arrayOf(
+            IntWrapper(1, 42),
+            IntWrapper(2, 42)
+        )
+        val collisionSet = immutableSetOf(*collisionData)
+
+        assertEquals(setOf(*collisionData).hashCode(), collisionSet.hashCode())
+        assertEquals(setOf(*collisionData).hashCode(), collisionSet.builder().hashCode())
+
+        val data = (0..200).map { i -> IntWrapper(i, i % 50) }.toTypedArray()
+
+        val persistentSet = immutableSetOf(*data)
+        assertEquals(setOf(*data).hashCode(), persistentSet.hashCode())
+        assertEquals(setOf(*data).hashCode(), persistentSet.builder().hashCode())
+    }
 }

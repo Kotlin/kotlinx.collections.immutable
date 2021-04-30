@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
 import kotlinx.collections.immutable.internal.DeltaCounter
+import kotlinx.collections.immutable.internal.MapImplementation
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
@@ -96,16 +97,6 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
         size = 0
     }
 
-    private fun <K1, V1> containsEntry(entry: Map.Entry<K1, V1>): Boolean {
-        entry is Map.Entry<*, *> || return false
-        val (k, v) = entry
-        val thisValue = get(k)
-        return when {
-            thisValue === null -> containsKey(k)
-            else -> thisValue == v
-        }
-    }
-
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is Map<*, *>) return false
@@ -130,8 +121,14 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
             }
 
             // should be super.equals(other), but https://youtrack.jetbrains.com/issue/KT-45673
-            else -> return other.all { entry -> containsEntry(entry) }
+            else -> return other.all { entry -> MapImplementation.containsEntry(this, entry) }
         }
-
     }
+
+    /**
+     * We provide [equals], so as a matter of style, we should also provide [hashCode].
+     *
+     * Should be super.hashCode(), but https://youtrack.jetbrains.com/issue/KT-45673
+     */
+    override fun hashCode(): Int = MapImplementation.hashCode(this)
 }

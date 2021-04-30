@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
 import kotlinx.collections.immutable.internal.EndOfChain
+import kotlinx.collections.immutable.internal.MapImplementation
 import kotlinx.collections.immutable.internal.assert
 
 internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrderedMap<K, V>) : AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
@@ -155,9 +156,15 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
                     a.value == b
                 }
             }
-            // should be super.equals(other), but https://youtrack.jetbrains.com/issue/KT-45673
-            else -> other.all { entry -> containsEntry(entry) }
+            // should be `super.equals(other)`, but https://youtrack.jetbrains.com/issue/KT-45673
+            else -> other.all { entry -> MapImplementation.containsEntry(this, entry) }
         }
     }
 
+    /**
+     * We provide [equals], so as a matter of style, we should also provide [hashCode].
+     *
+     * Should be `super.hashCode()`, but https://youtrack.jetbrains.com/issue/KT-45673
+     */
+    override fun hashCode(): Int = MapImplementation.hashCode(this)
 }
