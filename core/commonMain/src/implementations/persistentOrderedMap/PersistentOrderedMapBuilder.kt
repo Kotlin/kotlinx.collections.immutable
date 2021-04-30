@@ -120,16 +120,6 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
         lastKey = EndOfChain
     }
 
-    private fun <K1, V1> containsEntry(entry: Map.Entry<K1, V1>): Boolean {
-        entry is Map.Entry<*, *> || return false
-        val (k, v) = entry
-        val thisValue = get(k)
-        return when {
-            thisValue === null -> containsKey(k)
-            else -> thisValue == v
-        }
-    }
-
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is Map<*, *>) return false
