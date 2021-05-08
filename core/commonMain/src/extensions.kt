@@ -645,11 +645,14 @@ fun CharSequence.toImmutableSet(): PersistentSet<Char> = toPersistentSet()
  * If the receiver is already a persistent set, returns it as is.
  * If the receiver is a persistent set builder, calls `build` on it and returns the result.
  *
- * Elements of the returned set are iterated in the same order as in this collection.
+ * * If the receiver is not a persistent set builder,
+ * elements of the returned set are iterated in the same order as in this collection.
+ * Otherwise the order depends on the persistent set builder implementation.
+
  */
 fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
-        this as? PersistentOrderedSet<T>
-        ?: (this as? PersistentOrderedSetBuilder)?.build()
+        this as? PersistentSet<T>
+        ?: (this as? PersistentSet.Builder)?.build()
         ?: PersistentOrderedSet.emptyOf<T>() + this
 
 /**
@@ -715,11 +718,13 @@ fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
  * If the receiver is already a persistent map, returns it as is.
  * If the receiver is a persistent map builder, calls `build` on it and returns the result.
  *
- * Entries of the returned map are iterated in the same order as in this map.
+ * If the receiver is not a persistent map builder,
+ * entries of the returned map are iterated in the same order as in this map.
+ * Otherwise the order depends on the persistent map builder implementation.
  */
 fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
-    = this as? PersistentOrderedMap<K, V>
-        ?: (this as? PersistentOrderedMapBuilder<K, V>)?.build()
+    = this as? PersistentMap<K, V>
+        ?: (this as? PersistentMap.Builder<K, V>)?.build()
         ?: PersistentOrderedMap.emptyOf<K, V>().putAll(this)
 
 /**
