@@ -86,4 +86,26 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
     override fun iterator(): MutableIterator<E> {
         return PersistentOrderedSetMutableIterator(this)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        if (other !is Set<*>) return false
+        if (size != other.size) return false
+
+        return when (other) {
+            is PersistentOrderedSet<*> -> {
+                hashMapBuilder.node.equalsWith(other.hashMap.node) { _, _ -> true }
+            }
+            is PersistentOrderedSetBuilder<*> -> {
+                hashMapBuilder.node.equalsWith(other.hashMapBuilder.node) { _, _ -> true }
+            }
+            else -> super.equals(other)
+        }
+    }
+
+    /**
+     * We provide [equals], so as a matter of style, we should also provide [hashCode].
+     * However, the implementation from [AbstractMutableSet] is enough.
+     */
+    override fun hashCode(): Int = super<AbstractMutableSet>.hashCode()
 }

@@ -844,6 +844,33 @@ internal class TrieNode<K, V>(
         return this
     }
 
+    internal fun <K1, V1> equalsWith(that: TrieNode<K1, V1>, equalityComparator: (V, V1) -> Boolean): Boolean {
+        if (this === that) return true
+        if (dataMap != that.dataMap || nodeMap != that.nodeMap) return false
+        if (dataMap == 0 && nodeMap == 0) { // collision node
+            if (buffer.size != that.buffer.size) return false
+            return (0 until buffer.size step ENTRY_SIZE).all { i ->
+                val thatKey = that.keyAtIndex(i)
+                val thatValue = that.valueAtKeyIndex(i)
+                val keyIndex = collisionKeyIndex(thatKey)
+                if (keyIndex != -1) {
+                    val value = valueAtKeyIndex(keyIndex)
+                    equalityComparator(value, thatValue)
+                } else false
+            }
+        }
+
+        val valueSize = dataMap.countOneBits() * ENTRY_SIZE
+        for (i in 0 until valueSize step ENTRY_SIZE) {
+            if (keyAtIndex(i) != that.keyAtIndex(i)) return false
+            if (!equalityComparator(valueAtKeyIndex(i), that.valueAtKeyIndex(i))) return false
+        }
+        for (i in valueSize until buffer.size) {
+            if (!nodeAtIndex(i).equalsWith(that.nodeAtIndex(i), equalityComparator)) return false
+        }
+        return true
+    }
+
     // For testing trie structure
     internal fun accept(visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit) {
         accept(visitor, 0, 0)
