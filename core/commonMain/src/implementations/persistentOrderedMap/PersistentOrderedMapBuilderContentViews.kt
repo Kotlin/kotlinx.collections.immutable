@@ -6,6 +6,7 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedMap
 
 import kotlinx.collections.immutable.implementations.immutableMap.AbstractMapBuilderEntries
+import kotlinx.collections.immutable.internal.MapImplementation
 
 internal class PersistentOrderedMapBuilderEntries<K, V>(private val builder: PersistentOrderedMapBuilder<K, V>)
     : AbstractMapBuilderEntries<MutableMap.MutableEntry<K, V>, K, V>() {
@@ -29,8 +30,7 @@ internal class PersistentOrderedMapBuilderEntries<K, V>(private val builder: Per
         get() = builder.size
 
     override fun containsEntry(element: Map.Entry<K, V>): Boolean {
-        return builder[element.key]?.let { candidate -> candidate == element.value }
-                ?: (element.value == null && builder.containsKey(element.key))
+        return MapImplementation.containsEntry(builder, element)
     }
 }
 
