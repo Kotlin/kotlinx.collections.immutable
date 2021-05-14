@@ -7,15 +7,13 @@ package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.internal.MapImplementation
 
 internal class PersistentHashMapEntries<K, V>(private val map: PersistentHashMap<K, V>) : ImmutableSet<Map.Entry<K, V>>, AbstractSet<Map.Entry<K, V>>() {
     override val size: Int get() = map.size
 
     override fun contains(element: Map.Entry<K, V>): Boolean {
-        // TODO: Eliminate this check after KT-30016 gets fixed.
-        if ((element as Any?) !is Map.Entry<*, *>) return false
-        return map[element.key]?.let { candidate -> candidate == element.value }
-                ?: (element.value == null && map.containsKey(element.key))
+        return MapImplementation.containsEntry(map, element)
     }
 
     override fun iterator(): Iterator<Map.Entry<K, V>> {

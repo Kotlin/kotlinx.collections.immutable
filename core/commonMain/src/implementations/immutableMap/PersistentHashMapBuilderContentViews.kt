@@ -5,6 +5,8 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
+import kotlinx.collections.immutable.internal.MapImplementation
+
 // intermediate abstract class to workaround KT-43321
 internal abstract class AbstractMapBuilderEntries<E : Map.Entry<K, V>, K, V> : AbstractMutableSet<E>() {
     final override fun contains(element: E): Boolean {
@@ -44,8 +46,7 @@ internal class PersistentHashMapBuilderEntries<K, V>(private val builder: Persis
         get() = builder.size
 
     override fun containsEntry(element: Map.Entry<K, V>): Boolean {
-        return builder[element.key]?.let { candidate -> candidate == element.value }
-                ?: (element.value == null && builder.containsKey(element.key))
+        return MapImplementation.containsEntry(builder, element)
     }
 }
 
