@@ -57,11 +57,11 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         val builder1 = immutableMapOf<String, Int>().builder()
         val builder2 = immutableMapOf<String, Int>().builder()
         val expected = mutableMapOf<String, Int>()
-        for(i in 300..400) {
+        for (i in 300..400) {
             builder1.put("$i", i)
             expected.put("$i", i)
         }
-        for(i in 0..200) {
+        for (i in 0..200) {
             builder2.put("$i", i)
             expected.put("$i", i)
         }
@@ -76,6 +76,7 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         compareMaps(expected, builder1.build())
     }
 }
+
 class ImmutableOrderedMapTest : ImmutableMapTest() {
     override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
     override fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = true) }
@@ -289,5 +290,47 @@ abstract class ImmutableMapTest {
         val mapANA: PersistentMap<Any, Any?> = mapSNI + listOf(1 to "x")
 
         assertEquals<Map<*, *>>(mapOf(1 to "x", "x" to 1, "y" to null), mapANA)
+    }
+
+    private fun <K, V> testSpecializedEquality(map: Map<K, V>, pairs: Array<Pair<K, V>>, isEqual: Boolean) {
+        fun testEqualsAndHashCode(lhs: Any, rhs: Any) {
+            assertEquals(isEqual, lhs == rhs)
+            if (isEqual) assertEquals(lhs.hashCode(), rhs.hashCode())
+        }
+
+        testEqualsAndHashCode(map, mapOf(*pairs))
+        testEqualsAndHashCode(map, persistentHashMapOf(*pairs))
+        testEqualsAndHashCode(map, persistentMapOf(*pairs))
+        testEqualsAndHashCode(map, persistentHashMapOf<K, V>().builder().apply { putAll(pairs) })
+        testEqualsAndHashCode(map, persistentMapOf<K, V>().builder().apply { putAll(pairs) })
+    }
+
+    private fun <K, V> testEquality(data: Array<Pair<K, V>>, changed: Array<Pair<K, V>>) {
+        val base = immutableMapOf(*data)
+        testSpecializedEquality(base, data, isEqual = true)
+        testSpecializedEquality(base, changed, isEqual = false)
+
+        val builder = immutableMapOf<K, V>().builder().apply { putAll(data) }
+        testSpecializedEquality(builder, data, isEqual = true)
+        testSpecializedEquality(builder, changed, isEqual = false)
+
+        testSpecializedEquality(base, data.copyOf().apply { shuffle() }, isEqual = true)
+        testSpecializedEquality(builder, data.copyOf().apply { shuffle() }, isEqual = true)
+    }
+
+    @Test
+    fun equality() {
+        val data = (0..200).map { i -> i to "$i" }.toTypedArray()
+        val changed = data.copyOf().apply { this[42] = 42 to "Invalid" }
+
+        testEquality(data, changed)
+    }
+
+    @Test
+    fun collisionEquality() {
+        val data = (0..200).map { i -> IntWrapper(i, i % 50) to "$i" }.toTypedArray()
+        val changed = data.copyOf().apply { this[42] = IntWrapper(42, 42) to "Invalid" }
+
+        testEquality(data, changed)
     }
 }

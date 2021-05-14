@@ -195,8 +195,8 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
             compareSets(immutableSetOf<Int>(), left - right)
         }
     }
-
 }
+
 class ImmutableOrderedSetTest : ImmutableSetTestBase() {
     override fun <T> immutableSetOf(vararg elements: T) = persistentSetOf(*elements)
     override fun <T> compareSets(expected: Set<T>, actual: Set<T>) = compare(expected, actual) { setBehavior(ordered = true) }
@@ -354,4 +354,45 @@ abstract class ImmutableSetTestBase {
         assertTrue(this === buildResult)
     }
 
+    private fun <E> testSpecializedEquality(set: Set<E>, elements: Array<E>, isEqual: Boolean) {
+        fun testEqualsAndHashCode(lhs: Any, rhs: Any) {
+            assertEquals(isEqual, lhs == rhs)
+            if (isEqual) assertEquals(lhs.hashCode(), rhs.hashCode())
+        }
+
+        testEqualsAndHashCode(set, setOf(*elements))
+        testEqualsAndHashCode(set, persistentHashSetOf(*elements))
+        testEqualsAndHashCode(set, persistentSetOf(*elements))
+        testEqualsAndHashCode(set, persistentHashSetOf<E>().builder().apply { addAll(elements) })
+        testEqualsAndHashCode(set, persistentSetOf<E>().builder().apply { addAll(elements) })
+    }
+
+    private fun <E> testEquality(data: Array<E>, changed: Array<E>) {
+        val base = immutableSetOf(*data)
+        testSpecializedEquality(base, data, isEqual = true)
+        testSpecializedEquality(base, changed, isEqual = false)
+
+        val builder = immutableSetOf<E>().builder().apply { addAll(data) }
+        testSpecializedEquality(builder, data, isEqual = true)
+        testSpecializedEquality(builder, changed, isEqual = false)
+
+        testSpecializedEquality(base, data.copyOf().apply { shuffle() }, isEqual = true)
+        testSpecializedEquality(builder, data.copyOf().apply { shuffle() }, isEqual = true)
+    }
+
+    @Test
+    fun equality() {
+        val data = (0..200).toList().toTypedArray()
+        val changed = data.copyOf().apply { this[42] = 4242 }
+
+        testEquality(data, changed)
+    }
+
+    @Test
+    fun collisionEquality() {
+        val data = (0..200).map { i -> IntWrapper(i, i % 50) }.toTypedArray()
+        val changed = data.copyOf().apply { this[42] = IntWrapper(4242, 42) }
+
+        testEquality(data, changed)
+    }
 }

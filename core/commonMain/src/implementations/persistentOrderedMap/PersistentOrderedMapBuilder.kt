@@ -6,7 +6,10 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedMap
 
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
 import kotlinx.collections.immutable.internal.EndOfChain
+import kotlinx.collections.immutable.internal.MapImplementation
 import kotlinx.collections.immutable.internal.assert
 
 internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrderedMap<K, V>) : AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
@@ -116,4 +119,42 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
         firstKey = EndOfChain
         lastKey = EndOfChain
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+        if (other !is Map<*, *>) return false
+        if (size != other.size) return false
+
+        return when (other) {
+            is PersistentOrderedMap<*, *> -> {
+                hashMapBuilder.node.equalsWith(other.hashMap.node) { a, b ->
+                    a.value == b.value
+                }
+            }
+            is PersistentOrderedMapBuilder<*, *> -> {
+                hashMapBuilder.node.equalsWith(other.hashMapBuilder.node) { a, b ->
+                    a.value == b.value
+                }
+            }
+            is PersistentHashMap<*, *> -> {
+                hashMapBuilder.node.equalsWith(other.node) { a, b ->
+                    a.value == b
+                }
+            }
+            is PersistentHashMapBuilder<*, *> -> {
+                hashMapBuilder.node.equalsWith(other.node) { a, b ->
+                    a.value == b
+                }
+            }
+            // should be `super.equals(other)`, but https://youtrack.jetbrains.com/issue/KT-45673
+            else -> MapImplementation.equals(this, other)
+        }
+    }
+
+    /**
+     * We provide [equals], so as a matter of style, we should also provide [hashCode].
+     *
+     * Should be `super.hashCode()`, but https://youtrack.jetbrains.com/issue/KT-45673
+     */
+    override fun hashCode(): Int = MapImplementation.hashCode(this)
 }
