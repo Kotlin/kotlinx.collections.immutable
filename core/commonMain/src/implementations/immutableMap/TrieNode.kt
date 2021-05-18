@@ -202,6 +202,7 @@ internal class TrieNode<K, V>(
 
     /** The given [newNode] must not be a part of any persistent map instance. */
     private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership): TrieNode<K, V> {
+        assert(newNode.ownedBy === owner)
 //        assert(buffer[nodeIndex] !== newNode)
 
         // nodes (including collision nodes) that have only one entry are upped if they have no siblings

@@ -75,6 +75,17 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         // make sure builder builds correct map
         compareMaps(expected, builder1.build())
     }
+
+    @Test fun regressionGithubIssue109() {
+        val map0 = immutableMapOf<Int, Int>().put(0, 0).put(1, 1).put(32, 32)
+        val map1 = map0.mutate { it.remove(0) }
+        val map2 = map1.mutate {
+            it.remove(1)
+            it.remove(0)
+        }
+
+        assertTrue(map1.containsKey(32)) // fails
+    }
 }
 
 class ImmutableOrderedMapTest : ImmutableMapTest() {
