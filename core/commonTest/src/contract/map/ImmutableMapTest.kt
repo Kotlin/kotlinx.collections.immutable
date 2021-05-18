@@ -77,6 +77,7 @@ class ImmutableHashMapTest : ImmutableMapTest() {
     }
 
     @Test fun regressionGithubIssue109() {
+        // https://github.com/Kotlin/kotlinx.collections.immutable/issues/109
         val map0 = immutableMapOf<Int, Int>().put(0, 0).put(1, 1).put(32, 32)
         val map1 = map0.mutate { it.remove(0) }
         val map2 = map1.mutate {
@@ -84,7 +85,7 @@ class ImmutableHashMapTest : ImmutableMapTest() {
             it.remove(0)
         }
 
-        assertTrue(map1.containsKey(32)) // fails
+        assertTrue(map1.containsKey(32))
     }
 }
 
