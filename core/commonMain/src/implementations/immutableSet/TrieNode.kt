@@ -99,21 +99,27 @@ internal class TrieNode<E>(
 //        assert(hasNoCellAt(positionMask))
 
         val index = indexOfCellAt(positionMask)
+        val newBitmap = bitmap or positionMask
         val newBuffer = buffer.addElementAtIndex(index, element)
-        return TrieNode(bitmap or positionMask, newBuffer)
+        return setProperties(newBitmap, newBuffer, owner = null)
     }
 
     private fun mutableAddElementAt(positionMask: Int, element: E, owner: MutabilityOwnership): TrieNode<E> {
 //        assert(hasNoCellAt(positionMask))
 
         val index = indexOfCellAt(positionMask)
-        if (ownedBy === owner) {
-            buffer = buffer.addElementAtIndex(index, element)
-            bitmap = bitmap or positionMask
+        val newBitmap = bitmap or positionMask
+        val newBuffer = buffer.addElementAtIndex(index, element)
+        return setProperties(newBitmap, newBuffer, owner)
+    }
+
+    private fun setProperties(newBitmap: Int, newBuffer: Array<Any?>, owner: MutabilityOwnership?): TrieNode<E> {
+        if (ownedBy != null && ownedBy === owner) {
+            bitmap = newBitmap
+            buffer = newBuffer
             return this
         }
-        val newBuffer = buffer.addElementAtIndex(index, element)
-        return TrieNode(bitmap or positionMask, newBuffer, owner)
+        return TrieNode(newBitmap, newBuffer, owner)
     }
 
     /** The given [newNode] must not be a part of any persistent set instance. */
@@ -187,35 +193,28 @@ internal class TrieNode<E>(
 //        assert(!hasNoCellAt(positionMask))
 //        assert(buffer.size > 1) can be false only for the root node
 
+        val newBitmap = bitmap xor positionMask
         val newBuffer = buffer.removeCellAtIndex(cellIndex)
-        return TrieNode(bitmap xor positionMask, newBuffer)
+        return setProperties(newBitmap, newBuffer, owner = null)
     }
 
     private fun mutableRemoveCellAtIndex(cellIndex: Int, positionMask: Int, owner: MutabilityOwnership): TrieNode<E> {
 //        assert(!hasNoCellAt(positionMask))
 //        assert(buffer.size > 1)
 
-        if (ownedBy === owner) {
-            buffer = buffer.removeCellAtIndex(cellIndex)
-            bitmap = bitmap xor positionMask
-            return this
-        }
+        val newBitmap = bitmap xor positionMask
         val newBuffer = buffer.removeCellAtIndex(cellIndex)
-        return TrieNode(bitmap xor positionMask, newBuffer, owner)
+        return setProperties(newBitmap, newBuffer, owner)
     }
 
     private fun collisionRemoveElementAtIndex(i: Int): TrieNode<E> {
         val newBuffer = buffer.removeCellAtIndex(i)
-        return TrieNode(0, newBuffer)
+        return setProperties(newBitmap = 0, newBuffer, owner = null)
     }
 
     private fun mutableCollisionRemoveElementAtIndex(i: Int, owner: MutabilityOwnership): TrieNode<E> {
-        if (ownedBy === owner) {
-            buffer = buffer.removeCellAtIndex(i)
-            return this
-        }
         val newBuffer = buffer.removeCellAtIndex(i)
-        return TrieNode(0, newBuffer, owner)
+        return setProperties(newBitmap = 0, newBuffer, owner)
     }
 
     private fun collisionContainsElement(element: E): Boolean {
@@ -225,18 +224,14 @@ internal class TrieNode<E>(
     private fun collisionAdd(element: E): TrieNode<E> {
         if (collisionContainsElement(element)) return this
         val newBuffer = buffer.addElementAtIndex(0, element)
-        return TrieNode(0, newBuffer)
+        return setProperties(newBitmap = 0, newBuffer, owner = null)
     }
 
     private fun mutableCollisionAdd(element: E, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
         if (collisionContainsElement(element)) return this
         mutator.size++
-        if (ownedBy === mutator.ownership) {
-            buffer = buffer.addElementAtIndex(0, element)
-            return this
-        }
         val newBuffer = buffer.addElementAtIndex(0, element)
-        return TrieNode(0, newBuffer, mutator.ownership)
+        return setProperties(newBitmap = 0, newBuffer, owner = mutator.ownership)
     }
 
     private fun collisionRemove(element: E): TrieNode<E> {
@@ -274,12 +269,7 @@ internal class TrieNode<E>(
         if (totalSize == otherNode.buffer.size) return otherNode
 
         val newBuffer = if (totalSize == tempBuffer.size) tempBuffer else tempBuffer.copyOf(newSize = totalSize)
-        return if (ownedBy == owner) {
-            this.buffer = newBuffer
-            this
-        } else {
-            TrieNode(0, newBuffer, owner)
-        }
+        return setProperties(newBitmap = 0, newBuffer, owner)
     }
 
     private fun mutableCollisionRetainAll(otherNode: TrieNode<E>, intersectionSizeRef: DeltaCounter,
@@ -289,7 +279,7 @@ internal class TrieNode<E>(
             return this
         }
         val tempBuffer =
-                if (owner == ownedBy) buffer
+                if (owner === ownedBy) buffer
                 else arrayOfNulls<Any?>(minOf(buffer.size, otherNode.buffer.size))
         val totalWritten = buffer.filterTo(tempBuffer) {
             @Suppress("UNCHECKED_CAST")
@@ -301,8 +291,8 @@ internal class TrieNode<E>(
             1 -> tempBuffer[0]
             this.buffer.size -> this
             otherNode.buffer.size -> otherNode
-            tempBuffer.size -> TrieNode<E>(0, tempBuffer, owner)
-            else -> TrieNode<E>(0, tempBuffer.copyOf(newSize = totalWritten), owner)
+            tempBuffer.size -> setProperties(newBitmap = 0, newBuffer = tempBuffer, owner)
+            else -> setProperties(newBitmap = 0, newBuffer = tempBuffer.copyOf(newSize = totalWritten), owner)
         }
     }
 
@@ -313,7 +303,7 @@ internal class TrieNode<E>(
             intersectionSizeRef += buffer.size
             return EMPTY
         }
-        val tempBuffer = if (owner == ownedBy) buffer else arrayOfNulls<Any?>(buffer.size)
+        val tempBuffer = if (owner === ownedBy) buffer else arrayOfNulls<Any?>(buffer.size)
         val totalWritten = buffer.filterTo(tempBuffer) {
             @Suppress("UNCHECKED_CAST")
             !otherNode.collisionContainsElement(it as E)
@@ -323,8 +313,8 @@ internal class TrieNode<E>(
             0 -> EMPTY
             1 -> tempBuffer[0]
             this.buffer.size -> this
-            tempBuffer.size -> TrieNode<E>(0, tempBuffer, owner)
-            else -> TrieNode<E>(0, tempBuffer.copyOf(newSize = totalWritten), owner)
+            tempBuffer.size -> setProperties(newBitmap = 0, newBuffer = tempBuffer, owner)
+            else -> setProperties(newBitmap = 0, newBuffer = tempBuffer.copyOf(newSize = totalWritten), owner)
         }
     }
 
