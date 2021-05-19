@@ -95,16 +95,7 @@ internal class TrieNode<E>(
         return buffer[index] as TrieNode<E>
     }
 
-    private fun addElementAt(positionMask: Int, element: E): TrieNode<E> {
-//        assert(hasNoCellAt(positionMask))
-
-        val index = indexOfCellAt(positionMask)
-        val newBitmap = bitmap or positionMask
-        val newBuffer = buffer.addElementAtIndex(index, element)
-        return setProperties(newBitmap, newBuffer, owner = null)
-    }
-
-    private fun mutableAddElementAt(positionMask: Int, element: E, owner: MutabilityOwnership): TrieNode<E> {
+    private fun addElementAt(positionMask: Int, element: E, owner: MutabilityOwnership?): TrieNode<E> {
 //        assert(hasNoCellAt(positionMask))
 
         val index = indexOfCellAt(positionMask)
@@ -708,7 +699,7 @@ internal class TrieNode<E>(
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
-            return addElementAt(cellPositionMask, element)
+            return addElementAt(cellPositionMask, element, owner = null)
         }
 
         val cellIndex = indexOfCellAt(cellPositionMask)
@@ -732,7 +723,7 @@ internal class TrieNode<E>(
 
         if (hasNoCellAt(cellPosition)) { // element is absent
             mutator.size++
-            return mutableAddElementAt(cellPosition, element, mutator.ownership)
+            return addElementAt(cellPosition, element, mutator.ownership)
         }
 
         val cellIndex = indexOfCellAt(cellPosition)
