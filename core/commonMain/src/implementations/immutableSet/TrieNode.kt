@@ -760,7 +760,7 @@ internal class TrieNode<E>(
                 targetNode.add(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR)
             }
             if (targetNode === newNode) return this
-            return updateNodeAtIndex(cellIndex, newNode)
+            return setCellAtIndex(cellIndex, newNode, owner = null)
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) return this
@@ -784,7 +784,7 @@ internal class TrieNode<E>(
                 targetNode.mutableAdd(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
             if (targetNode === newNode) return this
-            return mutableUpdateNodeAtIndex(cellIndex, newNode, mutator.ownership)
+            return setCellAtIndex(cellIndex, newNode, mutator.ownership)
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) return this
