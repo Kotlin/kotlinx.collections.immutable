@@ -132,9 +132,7 @@ internal class TrieNode<E>(
             cell = newNode
         }
 
-        val newBuffer = buffer.copyOf()
-        newBuffer[nodeIndex] = cell
-        return TrieNode(bitmap, newBuffer)
+        return setCellAtIndex(nodeIndex, cell, owner = null)
     }
 
     /** The given [newNode] must not be a part of any persistent set instance. */
@@ -152,12 +150,16 @@ internal class TrieNode<E>(
             cell = newNode
         }
 
-        if (ownedBy === owner) {
-            buffer[nodeIndex] = cell
+        return setCellAtIndex(nodeIndex, cell, owner)
+    }
+
+    private fun setCellAtIndex(cellIndex: Int, newCell: Any?, owner: MutabilityOwnership?): TrieNode<E> {
+        if (ownedBy != null && ownedBy === owner) {
+            buffer[cellIndex] = newCell
             return this
         }
         val newBuffer = buffer.copyOf()
-        newBuffer[nodeIndex] = cell
+        newBuffer[cellIndex] = newCell
         return TrieNode(bitmap, newBuffer, owner)
     }
 
