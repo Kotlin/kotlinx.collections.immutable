@@ -202,6 +202,7 @@ internal class TrieNode<K, V>(
 
     /** The given [newNode] must not be a part of any persistent map instance. */
     private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership): TrieNode<K, V> {
+        assert(newNode.ownedBy === owner)
 //        assert(buffer[nodeIndex] !== newNode)
 
         // nodes (including collision nodes) that have only one entry are upped if they have no siblings
@@ -784,10 +785,9 @@ internal class TrieNode<K, V>(
     private fun mutableReplaceNode(targetNode: TrieNode<K, V>, newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int, owner: MutabilityOwnership) = when {
         newNode == null ->
             mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
-        ownedBy === owner || targetNode !== newNode ->
+        targetNode !== newNode ->
             mutableUpdateNodeAtIndex(nodeIndex, newNode, owner)
-        else ->
-            this
+        else -> this
     }
 
     fun remove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): TrieNode<K, V>? {
