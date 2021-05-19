@@ -153,21 +153,9 @@ internal class TrieNode<E>(
     }
 
     private fun moveElementToNode(elementIndex: Int, newElementHash: Int, newElement: E,
-                                  shift: Int): TrieNode<E> {
-        val newBuffer = buffer.copyOf()
-        newBuffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, null)
-        return TrieNode(bitmap, newBuffer)
-    }
-
-    private fun mutableMoveElementToNode(elementIndex: Int, newElementHash: Int, newElement: E,
-                                         shift: Int, owner: MutabilityOwnership): TrieNode<E> {
-        if (ownedBy === owner) {
-            buffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, owner)
-            return this
-        }
-        val newBuffer = buffer.copyOf()
-        newBuffer[elementIndex] = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, owner)
-        return TrieNode(bitmap, newBuffer, owner)
+                                         shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
+        val node = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, owner)
+        return setCellAtIndex(elementIndex, node, owner)
     }
 
     private fun makeNode(elementHash1: Int, element1: E, elementHash2: Int, element2: E,
@@ -746,7 +734,7 @@ internal class TrieNode<E>(
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) return this
-        return moveElementToNode(cellIndex, elementHash, element, shift)
+        return moveElementToNode(cellIndex, elementHash, element, shift, owner = null)
     }
 
     fun mutableAdd(elementHash: Int, element: E, shift: Int, mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
@@ -771,7 +759,7 @@ internal class TrieNode<E>(
         // element is directly in buffer
         if (element == buffer[cellIndex]) return this
         mutator.size++
-        return mutableMoveElementToNode(cellIndex, elementHash, element, shift, mutator.ownership)
+        return moveElementToNode(cellIndex, elementHash, element, shift, mutator.ownership)
     }
 
     fun remove(elementHash: Int, element: E, shift: Int): TrieNode<E> {
