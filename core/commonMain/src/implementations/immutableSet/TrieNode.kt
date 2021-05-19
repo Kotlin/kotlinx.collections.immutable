@@ -139,8 +139,6 @@ internal class TrieNode<E>(
 
     /** The given [newNode] must not be a part of any persistent set instance. */
     private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>, owner: MutabilityOwnership): TrieNode<E> {
-//        assert(buffer[nodeIndex] !== newNode)
-
         val cell: Any?
 
         val newNodeBuffer = newNode.buffer
@@ -832,7 +830,11 @@ internal class TrieNode<E>(
             } else {
                 targetNode.mutableRemove(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
-            if (ownedBy === mutator.ownership || targetNode !== newNode) {
+            // If newNode is a single-element node, it is newly created, or targetNode is owned by mutator and a cell was removed in-place.
+            //      Otherwise the single element would have been lifted up.
+            // If targetNode is owned by mutator, this node is also owned by mutator. Thus no new node will be created to replace this node.
+            // If newNode !== targetNode, it is newly created.
+            if (targetNode.ownedBy === mutator.ownership || targetNode !== newNode) {
                 return mutableUpdateNodeAtIndex(cellIndex, newNode, mutator.ownership)
             }
             return this
