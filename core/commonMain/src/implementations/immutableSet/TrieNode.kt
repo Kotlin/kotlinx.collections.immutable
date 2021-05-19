@@ -117,26 +117,8 @@ internal class TrieNode<E>(
     }
 
     /** The given [newNode] must not be a part of any persistent set instance. */
-    private fun updateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>): TrieNode<E> {
+    private fun canonicalizeNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>, owner: MutabilityOwnership?): TrieNode<E> {
 //        assert(buffer[nodeIndex] !== newNode)
-        val cell: Any?
-
-        val newNodeBuffer = newNode.buffer
-        if (newNodeBuffer.size == 1 && newNodeBuffer[0] !is TrieNode<*>) {
-            if (buffer.size == 1) {
-                newNode.bitmap = bitmap
-                return newNode
-            }
-            cell = newNodeBuffer[0]
-        } else {
-            cell = newNode
-        }
-
-        return setCellAtIndex(nodeIndex, cell, owner = null)
-    }
-
-    /** The given [newNode] must not be a part of any persistent set instance. */
-    private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>, owner: MutabilityOwnership): TrieNode<E> {
         val cell: Any?
 
         val newNodeBuffer = newNode.buffer
@@ -808,7 +790,7 @@ internal class TrieNode<E>(
                 targetNode.remove(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR)
             }
             if (targetNode === newNode) return this
-            return updateNodeAtIndex(cellIndex, newNode)
+            return canonicalizeNodeAtIndex(cellIndex, newNode, owner = null)
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
@@ -836,10 +818,8 @@ internal class TrieNode<E>(
             //      Otherwise the single element would have been lifted up.
             // If targetNode is owned by mutator, this node is also owned by mutator. Thus no new node will be created to replace this node.
             // If newNode !== targetNode, it is newly created.
-            if (targetNode.ownedBy === mutator.ownership || targetNode !== newNode) {
-                return mutableUpdateNodeAtIndex(cellIndex, newNode, mutator.ownership)
-            }
-            return this
+            if (targetNode.ownedBy !== mutator.ownership && targetNode === newNode) return this
+            return canonicalizeNodeAtIndex(cellIndex, newNode, mutator.ownership)
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
