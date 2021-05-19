@@ -180,18 +180,9 @@ internal class TrieNode<E>(
     }
 
 
-    private fun removeCellAtIndex(cellIndex: Int, positionMask: Int): TrieNode<E> {
+    private fun removeCellAtIndex(cellIndex: Int, positionMask: Int, owner: MutabilityOwnership?): TrieNode<E> {
 //        assert(!hasNoCellAt(positionMask))
 //        assert(buffer.size > 1) can be false only for the root node
-
-        val newBitmap = bitmap xor positionMask
-        val newBuffer = buffer.removeCellAtIndex(cellIndex)
-        return setProperties(newBitmap, newBuffer, owner = null)
-    }
-
-    private fun mutableRemoveCellAtIndex(cellIndex: Int, positionMask: Int, owner: MutabilityOwnership): TrieNode<E> {
-//        assert(!hasNoCellAt(positionMask))
-//        assert(buffer.size > 1)
 
         val newBitmap = bitmap xor positionMask
         val newBuffer = buffer.removeCellAtIndex(cellIndex)
@@ -763,7 +754,7 @@ internal class TrieNode<E>(
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
-            return removeCellAtIndex(cellIndex, cellPositionMask)
+            return removeCellAtIndex(cellIndex, cellPositionMask, owner = null)
         }
         return this
     }
@@ -793,7 +784,7 @@ internal class TrieNode<E>(
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
             mutator.size--
-            return mutableRemoveCellAtIndex(cellIndex, cellPositionMask, mutator.ownership)   // check is empty
+            return removeCellAtIndex(cellIndex, cellPositionMask, mutator.ownership)   // check is empty
         }
         return this
     }
