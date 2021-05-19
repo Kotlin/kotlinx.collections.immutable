@@ -189,12 +189,7 @@ internal class TrieNode<E>(
         return setProperties(newBitmap, newBuffer, owner)
     }
 
-    private fun collisionRemoveElementAtIndex(i: Int): TrieNode<E> {
-        val newBuffer = buffer.removeCellAtIndex(i)
-        return setProperties(newBitmap = 0, newBuffer, owner = null)
-    }
-
-    private fun mutableCollisionRemoveElementAtIndex(i: Int, owner: MutabilityOwnership): TrieNode<E> {
+    private fun collisionRemoveElementAtIndex(i: Int, owner: MutabilityOwnership?): TrieNode<E> {
         val newBuffer = buffer.removeCellAtIndex(i)
         return setProperties(newBitmap = 0, newBuffer, owner)
     }
@@ -219,7 +214,7 @@ internal class TrieNode<E>(
     private fun collisionRemove(element: E): TrieNode<E> {
         val index = buffer.indexOf(element)
         if (index != -1) {
-            return collisionRemoveElementAtIndex(index)
+            return collisionRemoveElementAtIndex(index, owner = null)
         }
         return this
     }
@@ -228,7 +223,7 @@ internal class TrieNode<E>(
         val index = buffer.indexOf(element)
         if (index != -1) {
             mutator.size--
-            return mutableCollisionRemoveElementAtIndex(index, mutator.ownership)
+            return collisionRemoveElementAtIndex(index, mutator.ownership)
         }
         return this
     }
