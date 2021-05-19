@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
-package tests.implementations.list
+package tests.implementations.map
 
 import kotlinx.collections.immutable.implementations.immutableMap.LOG_MAX_BRANCHING_FACTOR
 import kotlinx.collections.immutable.implementations.immutableMap.MAX_SHIFT
