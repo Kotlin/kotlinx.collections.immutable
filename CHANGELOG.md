@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.3.5
+- Upgrade Kotlin version up to 1.5.0
+- Fix modification of shared persistent map node #[109](https://github.com/Kotlin/kotlinx.collections.immutable/issues/109)
+- Optimize equals for maps and sets
+
 ## 0.3.4
 
 - Upgrade Kotlin version up to 1.4.30
