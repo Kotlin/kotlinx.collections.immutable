@@ -31,7 +31,7 @@ open class Equals {
         persistentMap = persistentMapBuilderPut(implementation, keys.take(size), 0.0)
         sameMap = persistentMapBuilderPut(implementation, keys.take(size), 0.0)
         slightlyDifferentMap = sameMap.build().builder()
-        slightlyDifferentMap.put(keys[size + 1], "different value")
+        slightlyDifferentMap.put(keys[size], "different value")
         slightlyDifferentMap.remove(keys[0])
         veryDifferentMap = persistentMapBuilderPut(implementation, keys.drop(size), 0.0)
     }

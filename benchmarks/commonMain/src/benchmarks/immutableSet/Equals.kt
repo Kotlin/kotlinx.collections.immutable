@@ -30,7 +30,7 @@ open class Equals {
         val keys = generateKeys(hashCodeType, size * 2)
         persistentSet = persistentSetAdd(implementation, keys.take(size))
         sameSet = persistentSetAdd(implementation, keys.take(size))
-        slightlyDifferentSet = sameSet.add(keys[size + 1]).remove(keys[0])
+        slightlyDifferentSet = sameSet.add(keys[size]).remove(keys[0])
         veryDifferentSet = persistentSetAdd(implementation, keys.drop(size))
     }
 
