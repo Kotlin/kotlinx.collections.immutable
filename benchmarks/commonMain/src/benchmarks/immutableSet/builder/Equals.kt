@@ -31,7 +31,7 @@ open class Equals {
         persistentSet = persistentSetBuilderAdd(implementation, keys.take(size), 0.0)
         sameSet = persistentSetBuilderAdd(implementation, keys.take(size), 0.0)
         slightlyDifferentSet = sameSet.build().builder()
-        slightlyDifferentSet.add(keys[size + 1])
+        slightlyDifferentSet.add(keys[size])
         slightlyDifferentSet.remove(keys[0])
         veryDifferentSet = persistentSetBuilderAdd(implementation, keys.drop(size), 0.0)
     }
