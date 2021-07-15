@@ -87,6 +87,16 @@ class ImmutableHashMapTest : ImmutableMapTest() {
 
         assertTrue(map1.containsKey(32))
     }
+
+    @Test
+    fun regressionGithubIssue114() {
+        // https://github.com/Kotlin/kotlinx.collections.immutable/issues/114
+        val p = persistentMapOf(99 to 1)
+        val e = Array(101) { it }.map { it to it }
+        val c = persistentMapOf(*e.toTypedArray())
+        val n = p.builder().apply { putAll(c) }.build()
+        assertEquals(99, n[99])
+    }
 }
 
 class ImmutableOrderedMapTest : ImmutableMapTest() {
