@@ -306,6 +306,15 @@ internal class TrieNode<K, V>(
         return TrieNode(0, 1 shl setBit1, arrayOf<Any?>(node), owner)
     }
 
+    /** Create a singlton node holding the given keys */
+    private fun makeNode(keyHash: Int, key: K, value: V, shift: Int, owner: MutabilityOwnership?) : TrieNode<K, V> =
+        TrieNode(
+            dataMap = 1 shl indexSegment(keyHash, shift),
+            nodeMap = 0,
+            buffer = arrayOf(key, value),
+            ownedBy = owner
+        )
+
     private fun removeEntryAtIndex(keyIndex: Int, positionMask: Int): TrieNode<K, V>? {
 //        assert(hasEntryAt(positionMask))
         if (buffer.size == ENTRY_SIZE) return null
@@ -603,8 +612,11 @@ internal class TrieNode<K, V>(
                 }
 
                 otherNode.hasNodeAt(positionMask) -> {
-                    val before = otherNode.nodeAtIndex(otherNode.nodeIndex(positionMask))
-                    before.mutablePutAllFromOtherNodeCell(this, positionMask, shift, intersectionCounter, mutator)
+                    val thisKeyIndex = this.entryKeyIndex(positionMask)
+                    val thisKey = this.keyAtIndex(thisKeyIndex)
+                    val thisValue = this.valueAtKeyIndex(thisKeyIndex)
+                    val before = makeNode(thisKey.hashCode(), thisKey, thisValue, shift, mutator.ownership)
+                    before.mutablePutAllFromOtherNodeCell(otherNode, positionMask, shift, intersectionCounter, mutator)
                 }
 
                 else -> { // two entries, and they are not equal by key (see ** above)
