@@ -43,6 +43,10 @@ fun Project.benchmarkAll(buildVersion: BuildType) = BuildType {
     buildNumberPattern = buildVersion.depParamRefs.buildNumber.ref
 
     commonConfigure()
+
+    failureConditions {
+        executionTimeoutMin = 1440
+    }
 }.also { buildType(it) }
 
 fun Project.benchmark(target: String, platform: Platform, buildVersion: BuildType) = buildType("${target}Benchmark", platform) {
