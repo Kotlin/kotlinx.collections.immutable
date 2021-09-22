@@ -334,7 +334,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
             assertEquals<List<*>>(mutableMaps, immutableMaps)
 
-            val maxSize = immutableMaps.maxByOrNull { it.size }?.size
+            val maxSize = immutableMaps.maxOfOrNull { it.size }
             println("Largest persistent map size: $maxSize")
 
             mutableMaps.forEachIndexed { index, mutableMap ->

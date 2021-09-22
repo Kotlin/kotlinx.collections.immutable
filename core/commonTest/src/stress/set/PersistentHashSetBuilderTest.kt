@@ -300,7 +300,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
             setGen.add( builders.map { it.build() } )
             expected.add(sets)
 
-            val maxSize = builders.maxByOrNull { it.size }?.size
+            val maxSize = builders.maxOfOrNull { it.size }
             println("Largest persistent set builder size: $maxSize")
         }
 

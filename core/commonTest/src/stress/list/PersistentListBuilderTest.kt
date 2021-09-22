@@ -622,7 +622,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
             vectorGen.add( builders.map { it.build() } )
             expected.add(lists)
 
-            val maxSize = builders.maxByOrNull { it.size }?.size
+            val maxSize = builders.maxOfOrNull { it.size }
             println("Largest persistent list builder size: $maxSize")
         }
 

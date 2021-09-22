@@ -479,7 +479,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             mapGen.add( builders.map { it.build() } )
             expected.add(maps)
 
-            val maxSize = builders.maxByOrNull { it.size }?.size
+            val maxSize = builders.maxOfOrNull { it.size }
             println("Largest persistent map builder size: $maxSize")
         }
 
