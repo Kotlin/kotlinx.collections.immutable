@@ -19,7 +19,7 @@ import kotlin.random.nextInt
 import kotlin.test.*
 import kotlin.time.ExperimentalTime
 
-@UseExperimental(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
@@ -622,7 +622,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
             vectorGen.add( builders.map { it.build() } )
             expected.add(lists)
 
-            val maxSize = builders.maxBy { it.size }?.size
+            val maxSize = builders.maxByOrNull { it.size }?.size
             println("Largest persistent list builder size: $maxSize")
         }
 

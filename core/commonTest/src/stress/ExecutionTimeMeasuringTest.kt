@@ -9,7 +9,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.time.*
 
-@UseExperimental(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 abstract class ExecutionTimeMeasuringTest {
     private var clockMark: TimeMark? = null
 
@@ -21,7 +21,7 @@ abstract class ExecutionTimeMeasuringTest {
         val nonNullClockMark = clockMark ?: throw IllegalStateException("markExecutionStart() must be called first")
         val elapsed = nonNullClockMark.elapsedNow()
 
-        if (elapsed > 3.seconds) {
+        if (elapsed > Duration.seconds(3)) {
             print("#".repeat(20) + " ")
         }
         println("Execution time: ${elapsed.toString(DurationUnit.MILLISECONDS)}")

@@ -251,7 +251,7 @@ abstract class ImmutableMapTest {
     @Test fun builder() {
 
         val builder = immutableMapOf<Char, Int?>().builder()
-        "abcxaxyz12".associateTo(builder) { it to it.toInt() }
+        "abcxaxyz12".associateTo(builder) { it to it.code }
         val map = builder.build()
         assertEquals<Map<*, *>>(map, builder)
         assertSame(map, builder.build(), "Building the same list without modifications")

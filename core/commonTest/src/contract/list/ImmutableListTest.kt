@@ -84,7 +84,7 @@ class ImmutableListTest {
         var list = "abcxaxab12".toImmutableList().toPersistentList()
 
         for (i in list.indices) {
-            list = list.set(i, list[i] as Char + i)
+            list = list.set(i, list[i] + i)
         }
 
         assertEquals("ace{e}gi9;", list.joinToString(""))
@@ -142,7 +142,7 @@ class ImmutableListTest {
             testMutation { add(0, 'K') }
             testMutation { addAll("kotlin".toList()) }
             testMutation { addAll(0, "kotlin".toList()) }
-            testMutation { this[1] = this[1] as Char + 2 }
+            testMutation { this[1] = this[1] + 2 }
             testMutation { removeAt(lastIndex) }
             testMutation { remove('x') }
             testMutation { removeAll(listOf('x')) }
