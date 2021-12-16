@@ -53,7 +53,7 @@ kotlin {
         resources.setSrcDirs(listOf("$name/resources"))
         languageSettings.apply {
             //            progressiveMode = true
-            useExperimentalAnnotation("kotlin.Experimental")
+            optIn("kotlin.RequiresOptIn")
         }
     }
 

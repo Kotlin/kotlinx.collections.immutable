@@ -24,4 +24,8 @@ allprojects {
     repositories {
         mavenCentral()
     }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
+        kotlinOptions.allWarningsAsErrors = true
+    }
 }
