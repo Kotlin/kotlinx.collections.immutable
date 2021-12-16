@@ -6,8 +6,5 @@
 import jetbrains.buildServer.configs.kotlin.v2019_2.Project
 
 fun Project.additionalConfiguration() {
-    params {
-        param("env.JDK_6", "%env.JDK_16%")
-    }
     subProject(benchmarksProject(knownBuilds.buildVersion))
 }
