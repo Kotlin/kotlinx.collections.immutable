@@ -271,7 +271,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
             assertEquals<List<*>>(mutableSets, immutableSets)
 
-            val maxSize = immutableSets.maxBy { it.size }?.size
+            val maxSize = immutableSets.maxOf { it.size }
             println("Largest persistent set size: $maxSize")
 
             mutableSets.forEachIndexed { index, mutableSet ->

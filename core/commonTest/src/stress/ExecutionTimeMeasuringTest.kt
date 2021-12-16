@@ -8,8 +8,9 @@ package tests.stress
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.time.*
+import kotlin.time.Duration.Companion.seconds
 
-@UseExperimental(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 abstract class ExecutionTimeMeasuringTest {
     private var clockMark: TimeMark? = null
 

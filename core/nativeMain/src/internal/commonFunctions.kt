@@ -10,4 +10,4 @@ internal actual fun assert(condition: Boolean) = kotlin.assert(condition)
 
 internal actual var AbstractMutableList<*>.modCount: Int
     get() = 0
-    set(value) {}
+    set(@Suppress("UNUSED_PARAMETER") value) {}

@@ -13,4 +13,4 @@ internal actual fun assert(condition: Boolean) {
 
 internal actual var AbstractMutableList<*>.modCount: Int
     get() = 0
-    set(value) {}
+    set(@Suppress("UNUSED_PARAMETER") value) {}

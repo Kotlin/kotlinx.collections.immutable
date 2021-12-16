@@ -444,7 +444,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
             assertEquals<List<*>>(lists, vectors)
 
-            val maxSize = vectors.maxBy { it.size }?.size
+            val maxSize = vectors.maxOf { it.size }
             println("Largest persistent list size: $maxSize")
 
             lists.forEachIndexed { index, list ->

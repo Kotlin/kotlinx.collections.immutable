@@ -40,8 +40,10 @@ class TrieIteratorTest {
             leaves = newLeaves
         }
 
-        assert(leaves.size == 1)
-        return leaves[0] as Array<Any?>
+        check(leaves.size == 1)
+
+        @Suppress("UNCHECKED_CAST")
+        return leaves.single() as Array<Any?>
     }
 
     @Test

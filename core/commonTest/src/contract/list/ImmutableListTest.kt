@@ -84,7 +84,7 @@ class ImmutableListTest {
         var list = "abcxaxab12".toImmutableList().toPersistentList()
 
         for (i in list.indices) {
-            list = list.set(i, list[i] as Char + i)
+            list = list.set(i, list[i] + i)
         }
 
         assertEquals("ace{e}gi9;", list.joinToString(""))
@@ -120,7 +120,6 @@ class ImmutableListTest {
     @Test fun subList() {
         val list = "abcxaxyz12".toImmutableList()
         val subList = list.subList(2, 5) // 2, 3, 4
-        assertTrue(subList is ImmutableList)
         compareLists(listOf('c', 'x', 'a'), subList)
 
         assertFailsWith<IndexOutOfBoundsException> { list.subList(-1, 2) }
@@ -142,7 +141,7 @@ class ImmutableListTest {
             testMutation { add(0, 'K') }
             testMutation { addAll("kotlin".toList()) }
             testMutation { addAll(0, "kotlin".toList()) }
-            testMutation { this[1] = this[1] as Char + 2 }
+            testMutation { this[1] = this[1] + 2 }
             testMutation { removeAt(lastIndex) }
             testMutation { remove('x') }
             testMutation { removeAll(listOf('x')) }
