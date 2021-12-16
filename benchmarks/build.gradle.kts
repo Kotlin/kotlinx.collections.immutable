@@ -9,8 +9,6 @@ plugins {
 
 evaluationDependsOn(":kotlinx-collections-immutable")
 
-val JDK_6: String by project
-
 kotlin {
     infra {
         target("macosX64")
@@ -21,8 +19,7 @@ kotlin {
     jvm {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.6"
-                jdkHome = JDK_6
+                jvmTarget = "1.8"
             }
         }
     }

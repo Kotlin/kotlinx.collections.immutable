@@ -158,9 +158,6 @@ Add dependencies (you can also add other modules that you need):
 
 ## Building from source
 
-> :information_source: To build this project you will need to have a path to JDK 6 specified with the `JDK_6` environment variable or gradle property.
-> For the local development purposes any JDK newer than that can be used instead.
-
 You can build and install artifacts to maven local with:
 
     gradlew build install
