@@ -48,6 +48,7 @@ inline fun <T> PersistentList<T>.mutate(mutator: (MutableList<T>) -> Unit): Pers
  * @return a new persistent map with the provided modifications applied;
  * or this instance if no modifications were made in the result of this operation.
  */
+@Suppress("UNCHECKED_CAST")
 inline fun <K, V> PersistentMap<out K, V>.mutate(mutator: (MutableMap<K, V>) -> Unit): PersistentMap<K, V> =
         (this as PersistentMap<K, V>).builder().apply(mutator).build()
 
@@ -321,6 +322,7 @@ infix fun <E> PersistentCollection<E>.intersect(elements: Iterable<E>): Persiste
  * @return a new persistent map with an entry from the specified key-value [pair] added;
  * or this instance if no modifications were made in the result of this operation.
  */
+@Suppress("UNCHECKED_CAST")
 inline operator fun <K, V> PersistentMap<out K, V>.plus(pair: Pair<K, V>): PersistentMap<K, V>
         = (this as PersistentMap<K, V>).put(pair.first, pair.second)
 
@@ -369,6 +371,7 @@ inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V>): Per
  * @return a new persistent map with keys and values from the specified [map] associated;
  * or this instance if no modifications were made in the result of this operation.
  */
+@Suppress("UNCHECKED_CAST")
 public fun <K, V> PersistentMap<out K, V>.putAll(map: Map<out K, V>): PersistentMap<K, V> =
         (this as PersistentMap<K, V>).putAll(map)
 
@@ -406,6 +409,7 @@ public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): P
  * @return a new persistent map with the specified [key] and its corresponding value removed;
  * or this instance if it contains no mapping for the key.
  */
+@Suppress("UNCHECKED_CAST")
 public operator fun <K, V> PersistentMap<out K, V>.minus(key: K): PersistentMap<K, V>
         = (this as PersistentMap<K, V>).remove(key)
 

@@ -15,11 +15,11 @@ fun printCsvResults(benchmarkResults: BenchmarkResults, outputPath: String) {
     File(outputPath).parentFile?.mkdirs()
     val fileWriter = FileWriter(outputPath)
 
-    fileWriter.appendln(csvHeader)
+    fileWriter.appendLine(csvHeader)
     benchmarkResults.runResults.forEach { res ->
         val paramsValuesString = benchmarkResults.paramsNames.joinToString(",") { res.paramValue(it) }
         val csvRow = "${res.benchmark},$paramsValuesString,${res.score.formatted()},${res.scoreError.formatted()},${res.allocRate.formatted()}"
-        fileWriter.appendln(csvRow)
+        fileWriter.appendLine(csvRow)
     }
 
     fileWriter.flush()

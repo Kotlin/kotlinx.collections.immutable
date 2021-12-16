@@ -80,7 +80,7 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         // https://github.com/Kotlin/kotlinx.collections.immutable/issues/109
         val map0 = immutableMapOf<Int, Int>().put(0, 0).put(1, 1).put(32, 32)
         val map1 = map0.mutate { it.remove(0) }
-        val map2 = map1.mutate {
+        map1.mutate {
             it.remove(1)
             it.remove(0)
         }
@@ -241,7 +241,7 @@ abstract class ImmutableMapTest {
     @Test fun builder() {
 
         val builder = immutableMapOf<Char, Int?>().builder()
-        "abcxaxyz12".associateTo(builder) { it to it.toInt() }
+        "abcxaxyz12".associateTo(builder) { it to it.code }
         val map = builder.build()
         assertEquals<Map<*, *>>(map, builder)
         assertSame(map, builder.build(), "Building the same list without modifications")

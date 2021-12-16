@@ -16,6 +16,7 @@ class HashMapTrieNodeTest {
     private fun testEmptyMap(map: PersistentHashMap<IntWrapper, Int>) {
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
+            assertEquals(0, hash)
             assertEquals(0, dataMap)
             assertEquals(0, nodeMap)
             assertTrue(node.buffer.isEmpty())
@@ -33,6 +34,7 @@ class HashMapTrieNodeTest {
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
+            assertEquals(0, hash)
             assertEquals(1 shl 0b01101, dataMap)
             assertEquals(0b0, nodeMap)
             assertTrue(arrayOf<Any?>(wrapper1, 1) contentEquals node.buffer)
@@ -74,6 +76,7 @@ class HashMapTrieNodeTest {
 
         map.remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
+            assertEquals(0, hash)
             assertEquals(0b10, dataMap)
             assertEquals(0b0, nodeMap)
             assertTrue(arrayOf<Any?>(wrapper33, 33) contentEquals node.buffer)
@@ -183,6 +186,7 @@ class HashMapTrieNodeTest {
 
         map.remove(wrapper1).remove(wrapper1057).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
+            assertEquals(0, hash)
             assertEquals(0b10, dataMap)
             assertEquals(0b0, nodeMap)
             assertTrue(arrayOf<Any?>(wrapper33, 33) contentEquals node.buffer)
@@ -228,6 +232,7 @@ class HashMapTrieNodeTest {
 
         map.remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
+            assertEquals(0, hash)
             assertEquals(0b10, dataMap)
             assertEquals(0b0, nodeMap)
             assertTrue(arrayOf(wrapper2, 2) contentEquals node.buffer)
@@ -351,6 +356,7 @@ class HashMapTrieNodeTest {
 
         map.remove(wrapper3).remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
+            assertEquals(0, hash)
             assertEquals(0b10, dataMap)
             assertEquals(0b0, nodeMap)
             assertTrue(arrayOf<Any?>(wrapper2, 2) contentEquals node.buffer)
