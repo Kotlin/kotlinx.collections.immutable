@@ -8,7 +8,7 @@
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
-This is a multiplatform library providing implementations for `jvm`, `js`, `mingwX64`, `linuxX64`, `macosX64`, `iosX64`, `iosArm64`, `iosArm32` Kotlin targets. 
+This is a multiplatform library providing implementations for `jvm`, `js` (both Legacy and IR), `mingwX64`, `linuxX64` and Apple Kotlin/Native targets.
 
 For further details see the [proposal](proposal.md).
 
@@ -117,7 +117,7 @@ collection.mutate { some_actions_on(it) }
 
 The library is published to Maven Central repository.
 
-The library depends on the Kotlin Standard Library of the version at least `1.4.30`.
+The library depends on the Kotlin Standard Library of the version at least `1.6.0`.
 
 ### Gradle
 
@@ -136,7 +136,7 @@ kotlin {
     sourceSets {
         commonMain {
              dependencies {
-                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.4")
+                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
              }
         }
     }
@@ -152,7 +152,7 @@ Add dependencies (you can also add other modules that you need):
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
     <artifactId>kotlinx-collections-immutable-jvm</artifactId>
-    <version>0.3.4</version>
+    <version>0.3.5</version>
 </dependency>
 ```
 
