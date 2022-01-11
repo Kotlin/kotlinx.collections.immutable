@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.3.5
+
+- Upgrade Kotlin version up to 1.6.0
+- Raise the JVM bytecode target to 1.8. Now the library cannot be used on JDK 1.6 and 1.7.
+- Add other Apple K/N targets
+- Implement faster equals function for sets and maps
+- Fix PersistentHashMapBuilder.putAll() #[114](https://github.com/Kotlin/kotlinx.collections.immutable/issues/114)
+
 ## 0.3.4
 
 - Upgrade Kotlin version up to 1.4.30
