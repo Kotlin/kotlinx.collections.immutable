@@ -48,7 +48,7 @@ For persistent collection interfaces there shall be provided the following imple
 
     class Query(parameters: List<Parameter>) {
         // creates an immutable list or does nothing if it's already immutable
-        val parameters = parameters.toImmutable()
+        val parameters = parameters.toImmutableList()
     }
     ```
 
