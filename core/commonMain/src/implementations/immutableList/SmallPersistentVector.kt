@@ -49,29 +49,29 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
     }
 
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
-        var newBuffer = buffer
+        var newBuffer: Array<Any?>? = null
         var newSize = size
-
-        var anyRemoved = false
 
         for (index in 0 until size) {
             @Suppress("UNCHECKED_CAST")
             val element = buffer[index] as E
 
             if (predicate(element)) {
-                if (!anyRemoved) {
-                    newBuffer = buffer.copyOf()
+                if (newBuffer == null) {
+                    if(size > 1) {
+                        newBuffer = arrayOfNulls(size - 1)
+                        buffer.copyTo(newBuffer, 0, index)
+                    }
                     newSize = index
-
-                    anyRemoved = true
                 }
-            } else if (anyRemoved) {
+            } else if (newBuffer != null) {
                 newBuffer[newSize++] = element
             }
         }
         return when (newSize) {
             size -> this
             0 -> EMPTY
+            size - 1 -> SmallPersistentVector(newBuffer)
             else -> SmallPersistentVector(newBuffer.copyOfRange(0, newSize))
         }
     }
