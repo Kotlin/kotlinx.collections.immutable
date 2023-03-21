@@ -24,7 +24,7 @@ kotlin {
         }
     }
 
-    js {
+    js(IR) {
         nodejs {
 
         }
