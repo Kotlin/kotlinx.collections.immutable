@@ -3,7 +3,7 @@ import org.gradle.jvm.tasks.Jar
 
 plugins {
     id("kotlin-multiplatform")
-    id("org.jetbrains.kotlinx.benchmark") version "0.4.1"
+    id("org.jetbrains.kotlinx.benchmark") version "0.4.7"
 }
 
 
@@ -39,7 +39,7 @@ kotlin {
         commonMain {
             dependencies {
                 api("org.jetbrains.kotlin:kotlin-stdlib-common")
-                api("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.1")
+                api("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.7")
                 api(project(":kotlinx-collections-immutable"))
             }
         }
