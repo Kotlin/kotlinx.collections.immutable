@@ -1,11 +1,14 @@
 buildscript {
+    repositories {
+        addDevRepositoryIfEnabled(this, project)
+    }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
 
 plugins {
-    id("kotlinx.team.infra") version "0.3.0-dev-64"
+    id("kotlinx.team.infra") version infra_version
 }
 
 infra {
@@ -21,7 +24,9 @@ infra {
 }
 
 allprojects {
+    logger.info("Using Kotlin $kotlin_version for project $this")
     repositories {
+        addDevRepositoryIfEnabled(this, project)
         mavenCentral()
     }
 
