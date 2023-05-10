@@ -1,11 +1,14 @@
 buildscript {
+    repositories {
+        addDevRepositoryIfEnabled(this, project)
+    }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
 
 plugins {
-    id("kotlinx.team.infra") version "0.3.0-dev-64"
+    id("kotlinx.team.infra") version infra_version
 }
 
 infra {
@@ -22,11 +25,12 @@ infra {
 
 allprojects {
     repositories {
+        addDevRepositoryIfEnabled(this, project)
         mavenCentral()
     }
 
-    // TODO: enable after https://youtrack.jetbrains.com/issue/KT-46257 gets fixed
-//    tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
-//        kotlinOptions.allWarningsAsErrors = true
-//    }
+    tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
+        kotlinOptions.allWarningsAsErrors = true
+        kotlinOptions.freeCompilerArgs += listOf("-version")
+    }
 }
