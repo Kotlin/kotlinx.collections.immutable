@@ -3,7 +3,7 @@ import org.gradle.jvm.tasks.Jar
 
 plugins {
     id("kotlin-multiplatform")
-    id("org.jetbrains.kotlinx.benchmark") version "0.4.1"
+    id("org.jetbrains.kotlinx.benchmark") version "0.4.8"
 }
 
 
@@ -39,7 +39,7 @@ kotlin {
         commonMain {
             dependencies {
                 api("org.jetbrains.kotlin:kotlin-stdlib")
-                api("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.1")
+                api("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.8")
                 api(project(":kotlinx-collections-immutable"))
             }
         }
@@ -93,7 +93,6 @@ benchmark {
             jmhVersion = "1.21"
         }
         register("js")
-        register("native")
         register("macosX64")
         register("linuxX64")
         register("mingwX64")
