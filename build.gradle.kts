@@ -25,8 +25,7 @@ allprojects {
         mavenCentral()
     }
 
-    // TODO: enable after https://youtrack.jetbrains.com/issue/KT-46257 gets fixed
-//    tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
-//        kotlinOptions.allWarningsAsErrors = true
-//    }
+    tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
+        kotlinOptions.allWarningsAsErrors = true
+    }
 }
