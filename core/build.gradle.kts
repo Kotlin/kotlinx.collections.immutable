@@ -81,28 +81,40 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib")
+                api("org.jetbrains.kotlin:kotlin-stdlib-common")
             }
         }
 
         commonTest {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-test")
+                api("org.jetbrains.kotlin:kotlin-test-common")
+                api("org.jetbrains.kotlin:kotlin-test-annotations-common")
             }
         }
 
         val jvmMain by getting {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib")
+
+            }
         }
         val jvmTest by getting {
             dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-junit")
                 implementation("com.google.guava:guava-testlib:18.0")
             }
         }
 
         val jsMain by getting {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-stdlib-js")
+            }
         }
 
         val jsTest by getting {
+            dependencies {
+                api("org.jetbrains.kotlin:kotlin-test-js")
+            }
         }
 
         val nativeMain by getting {

@@ -24,7 +24,7 @@ kotlin {
         }
     }
 
-    js(IR) {
+    js {
         nodejs {
 
         }
@@ -38,7 +38,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib")
+                api("org.jetbrains.kotlin:kotlin-stdlib-common")
                 api("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.1")
                 api(project(":kotlinx-collections-immutable"))
             }
