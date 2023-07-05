@@ -9,7 +9,8 @@
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
-This is a multiplatform library providing implementations for `jvm`, `js` (both Legacy and IR), `mingwX64`, `linuxX64` and Apple Kotlin/Native targets.
+This is a multiplatform library providing implementations for `jvm`, `js` (both Legacy and IR),
+and all [targets supported by the Kotlin/Native compiler](https://kotlinlang.org/docs/native-target-support.html).
 
 For further details see the [proposal](proposal.md).
 
