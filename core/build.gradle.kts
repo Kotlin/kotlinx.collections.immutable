@@ -15,25 +15,33 @@ mavenPublicationsPom {
 
 kotlin {
     infra {
-        target("linuxX64")
-        target("mingwX64")
+        // According to https://kotlinlang.org/docs/native-target-support.html
 
-        common("darwin") {
-            target("macosX64")
-            target("macosArm64")
-            target("iosX64")
-            target("iosArm64")
-            target("iosArm32")
-            target("iosSimulatorArm64")
-            target("watchosArm32")
-            target("watchosArm64")
-            target("watchosX86")
-            target("watchosX64")
-            target("watchosSimulatorArm64")
-            target("tvosArm64")
-            target("tvosX64")
-            target("tvosSimulatorArm64")
-        }
+        // Tier 1
+        target("linuxX64")
+        target("macosX64")
+        target("macosArm64")
+        target("iosSimulatorArm64")
+        target("iosX64")
+
+        // Tier 2
+        target("linuxArm64")
+        target("watchosSimulatorArm64")
+        target("watchosX64")
+        target("watchosArm32")
+        target("watchosArm64")
+        target("tvosSimulatorArm64")
+        target("tvosX64")
+        target("tvosArm64")
+        target("iosArm64")
+
+        // Tier 3
+        target("androidNativeArm32")
+        target("androidNativeArm64")
+        target("androidNativeX86")
+        target("androidNativeX64")
+        target("mingwX64")
+        target("watchosDeviceArm64")
     }
 
     jvm {
