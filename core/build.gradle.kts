@@ -79,15 +79,11 @@ kotlin {
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib")
-            }
+        val commonMain by getting {
         }
-
-        commonTest {
+        val commonTest by getting {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-test")
+                implementation(kotlin("test"))
             }
         }
 
@@ -101,15 +97,14 @@ kotlin {
 
         val jsMain by getting {
         }
-
         val jsTest by getting {
         }
 
         val nativeMain by getting {
-            dependsOn(commonMain.get())
+            dependsOn(commonMain)
         }
         val nativeTest by getting {
-            dependsOn(commonTest.get())
+            dependsOn(commonTest)
         }
     }
 }

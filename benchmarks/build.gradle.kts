@@ -38,9 +38,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api("org.jetbrains.kotlin:kotlin-stdlib")
-                api("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.8")
-                api(project(":kotlinx-collections-immutable"))
+                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.8")
+                implementation(project(":kotlinx-collections-immutable"))
             }
         }
     }
