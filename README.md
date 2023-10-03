@@ -9,7 +9,7 @@
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
-This is a multiplatform library providing implementations for `jvm`, `js` (both Legacy and IR),
+This is a multiplatform library providing implementations for `jvm`, `js` ([IR](https://kotlinlang.org/docs/js-ir-compiler.html)),
 and all [targets supported by the Kotlin/Native compiler](https://kotlinlang.org/docs/native-target-support.html).
 
 For further details see the [proposal](proposal.md).
