@@ -3,8 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
-import jetbrains.buildServer.configs.kotlin.v2019_2.*
-import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
+import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import java.lang.IllegalArgumentException
 
 fun benchmarksProject(buildVersion: BuildType) = Project {

@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
-import jetbrains.buildServer.configs.kotlin.v2019_2.Project
+import jetbrains.buildServer.configs.kotlin.Project
 
 fun Project.additionalConfiguration() {
     subProject(benchmarksProject(knownBuilds.buildVersion))

@@ -101,10 +101,8 @@ kotlin {
         }
 
         val nativeMain by getting {
-            dependsOn(commonMain)
         }
         val nativeTest by getting {
-            dependsOn(commonTest)
         }
     }
 }
