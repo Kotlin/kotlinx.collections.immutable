@@ -5,18 +5,17 @@ buildscript {
 }
 
 plugins {
-    id("kotlinx.team.infra") version "0.3.0-dev-64"
+    id("kotlinx.team.infra") version "0.4.0-dev-80"
 }
 
 infra {
-    teamcity {
-        libraryStagingRepoDescription = project.name
-    }
     publishing {
         include(":kotlinx-collections-immutable")
 
         libraryRepoUrl = "https://github.com/Kotlin/kotlinx.collections.immutable"
-        sonatype {}
+        sonatype {
+            libraryStagingRepoDescription = project.name
+        }
     }
 }
 
