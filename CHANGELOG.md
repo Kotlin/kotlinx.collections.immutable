@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.3.6
+
+- Upgrade Kotlin version up to 1.9.0
+- Support all targets currently supported by the K/N compiler
+- Drop support for the Legacy js target
+
 ## 0.3.5
 
 - Upgrade Kotlin version up to 1.6.0
