@@ -119,7 +119,7 @@ collection.mutate { some_actions_on(it) }
 
 The library is published to Maven Central repository.
 
-The library depends on the Kotlin Standard Library of the version at least `1.6.0`.
+The library depends on the Kotlin Standard Library of the version at least `1.9.0`.
 
 ### Gradle
 
@@ -138,7 +138,7 @@ kotlin {
     sourceSets {
         commonMain {
              dependencies {
-                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
+                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
              }
         }
     }
@@ -154,7 +154,7 @@ Add dependencies (you can also add other modules that you need):
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
     <artifactId>kotlinx-collections-immutable-jvm</artifactId>
-    <version>0.3.5</version>
+    <version>0.3.6</version>
 </dependency>
 ```
 
