@@ -69,6 +69,16 @@ kotlin {
         }
     }
 
+    wasmJs {
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "30000"
+                }
+            }
+        }
+    }
+
     sourceSets.all {
         kotlin.setSrcDirs(listOf("$name/src"))
         resources.setSrcDirs(listOf("$name/resources"))
@@ -98,6 +108,11 @@ kotlin {
         val jsMain by getting {
         }
         val jsTest by getting {
+        }
+
+        val wasmJsMain by getting {
+        }
+        val wasmJsTest by getting {
         }
 
         val nativeMain by getting {

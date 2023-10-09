@@ -30,6 +30,12 @@ kotlin {
         }
     }
 
+    wasmJs {
+        d8 {
+
+        }
+    }
+
     sourceSets.all {
         kotlin.setSrcDirs(listOf("$name/src"))
         resources.setSrcDirs(listOf("$name/resources"))
@@ -92,6 +98,7 @@ benchmark {
             jmhVersion = "1.21"
         }
         register("js")
+        register("wasmJs")
         register("macosX64")
         register("linuxX64")
         register("mingwX64")

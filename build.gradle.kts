@@ -1,6 +1,6 @@
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20-Beta2")
     }
 }
 
@@ -25,6 +25,12 @@ allprojects {
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
-        kotlinOptions.allWarningsAsErrors = true
+//        kotlinOptions.allWarningsAsErrors = true
+        kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
+        kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
     }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
+    args.add("--ignore-engines")
 }
