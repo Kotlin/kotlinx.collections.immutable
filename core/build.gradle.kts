@@ -1,4 +1,5 @@
 import kotlinx.team.infra.mavenPublicationsPom
+import java.net.URI
 
 plugins {
     id("kotlin-multiplatform")
@@ -125,5 +126,22 @@ kotlin {
 tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
+    }
+}
+
+with(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.apply(rootProject)) {
+    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+}
+
+publishing {
+    repositories {
+        maven {
+            url = URI("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
+            credentials {
+                username = ""
+                password = ""
+            }
+        }
     }
 }
