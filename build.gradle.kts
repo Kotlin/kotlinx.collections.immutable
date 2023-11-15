@@ -1,6 +1,6 @@
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20")
     }
 }
 
@@ -26,5 +26,6 @@ allprojects {
 
     tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
         kotlinOptions.allWarningsAsErrors = true
+        kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
     }
 }

@@ -14,34 +14,34 @@ mavenPublicationsPom {
 }
 
 kotlin {
-    infra {
-        // According to https://kotlinlang.org/docs/native-target-support.html
+    applyDefaultHierarchyTemplate {
 
+        // According to https://kotlinlang.org/docs/native-target-support.html
         // Tier 1
-        target("linuxX64")
-        target("macosX64")
-        target("macosArm64")
-        target("iosSimulatorArm64")
-        target("iosX64")
+        this@kotlin.linuxX64()
+        this@kotlin.macosX64()
+        this@kotlin.macosArm64()
+        this@kotlin.iosSimulatorArm64()
+        this@kotlin.iosX64()
 
         // Tier 2
-        target("linuxArm64")
-        target("watchosSimulatorArm64")
-        target("watchosX64")
-        target("watchosArm32")
-        target("watchosArm64")
-        target("tvosSimulatorArm64")
-        target("tvosX64")
-        target("tvosArm64")
-        target("iosArm64")
+        this@kotlin.watchosSimulatorArm64()
+        this@kotlin.watchosX64()
+        this@kotlin.watchosArm32()
+        this@kotlin.watchosArm64()
+        this@kotlin.tvosSimulatorArm64()
+        this@kotlin.tvosX64()
+        this@kotlin.tvosArm64()
+        this@kotlin.iosArm64()
+        this@kotlin.linuxArm64()
 
         // Tier 3
-        target("androidNativeArm32")
-        target("androidNativeArm64")
-        target("androidNativeX86")
-        target("androidNativeX64")
-        target("mingwX64")
-        target("watchosDeviceArm64")
+        this@kotlin.mingwX64()
+        this@kotlin.androidNativeArm32()
+        this@kotlin.androidNativeArm64()
+        this@kotlin.androidNativeX86()
+        this@kotlin.androidNativeX64()
+        this@kotlin.watchosDeviceArm64()
     }
 
     jvm {
