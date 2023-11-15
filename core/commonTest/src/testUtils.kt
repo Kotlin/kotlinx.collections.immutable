@@ -25,7 +25,8 @@ public expect fun assertTypeEquals(expected: Any?, actual: Any?)
 public enum class TestPlatform {
     JVM,
     JS,
-    Native
+    Native,
+    Wasm,
 }
 public expect val currentPlatform: TestPlatform
 

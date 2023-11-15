@@ -14,35 +14,34 @@ mavenPublicationsPom {
 }
 
 kotlin {
-    infra {
-        // According to https://kotlinlang.org/docs/native-target-support.html
+    applyDefaultHierarchyTemplate()
 
-        // Tier 1
-        target("linuxX64")
-        target("macosX64")
-        target("macosArm64")
-        target("iosSimulatorArm64")
-        target("iosX64")
+    // According to https://kotlinlang.org/docs/native-target-support.html
+    // Tier 1
+    linuxX64()
+    macosX64()
+    macosArm64()
+    iosSimulatorArm64()
+    iosX64()
 
-        // Tier 2
-        target("linuxArm64")
-        target("watchosSimulatorArm64")
-        target("watchosX64")
-        target("watchosArm32")
-        target("watchosArm64")
-        target("tvosSimulatorArm64")
-        target("tvosX64")
-        target("tvosArm64")
-        target("iosArm64")
+    // Tier 2
+    linuxArm64()
+    watchosSimulatorArm64()
+    watchosX64()
+    watchosArm32()
+    watchosArm64()
+    tvosSimulatorArm64()
+    tvosX64()
+    tvosArm64()
+    iosArm64()
 
-        // Tier 3
-        target("androidNativeArm32")
-        target("androidNativeArm64")
-        target("androidNativeX86")
-        target("androidNativeX64")
-        target("mingwX64")
-        target("watchosDeviceArm64")
-    }
+    // Tier 3
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX86()
+    androidNativeX64()
+    mingwX64()
+    watchosDeviceArm64()
 
     jvm {
         compilations.all {
@@ -65,6 +64,26 @@ kotlin {
                 sourceMap = true
                 moduleKind = "umd"
                 metaInfo = true
+            }
+        }
+    }
+
+    wasmJs {
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "30000"
+                }
+            }
+        }
+    }
+
+    wasmWasi {
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "30000"
+                }
             }
         }
     }
@@ -100,6 +119,25 @@ kotlin {
         val jsTest by getting {
         }
 
+        val wasmMain by creating {
+        }
+        val wasmTest by creating {
+        }
+
+        val wasmJsMain by getting {
+            dependsOn(wasmMain)
+        }
+        val wasmJsTest by getting {
+            dependsOn(wasmTest)
+        }
+
+        val wasmWasiMain by getting {
+            dependsOn(wasmMain)
+        }
+        val wasmWasiTest by getting {
+            dependsOn(wasmTest)
+        }
+
         val nativeMain by getting {
         }
         val nativeTest by getting {
@@ -111,4 +149,14 @@ tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
     }
+}
+
+with(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.apply(rootProject)) {
+    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+}
+
+// Drop this when node js version become stable
+tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
+    args.add("--ignore-engines")
 }
