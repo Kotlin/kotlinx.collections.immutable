@@ -30,6 +30,8 @@ kotlin {
         }
     }
 
+    //TODO: Add wasm benchmarks as soon as wasmJs/wasmWasi will be published
+
     sourceSets.all {
         kotlin.setSrcDirs(listOf("$name/src"))
         resources.setSrcDirs(listOf("$name/resources"))
