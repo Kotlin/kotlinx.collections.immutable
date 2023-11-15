@@ -69,6 +69,26 @@ kotlin {
         }
     }
 
+    wasmJs {
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "30000"
+                }
+            }
+        }
+    }
+
+    wasmWasi {
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "30000"
+                }
+            }
+        }
+    }
+
     sourceSets.all {
         kotlin.setSrcDirs(listOf("$name/src"))
         resources.setSrcDirs(listOf("$name/resources"))
@@ -100,6 +120,16 @@ kotlin {
         val jsTest by getting {
         }
 
+        val wasmJsMain by getting {
+        }
+        val wasmJsTest by getting {
+        }
+
+        val wasmWasiMain by getting {
+        }
+        val wasmWasiTest by getting {
+        }
+
         val nativeMain by getting {
         }
         val nativeTest by getting {
@@ -111,4 +141,14 @@ tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
     }
+}
+
+with(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.apply(rootProject)) {
+    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+}
+
+// Drop this when node js version become stable
+tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
+    args.add("--ignore-engines")
 }
