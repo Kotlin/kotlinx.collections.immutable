@@ -283,13 +283,13 @@ abstract class ImmutableMapTest {
     }
 
     @Test fun noOperation() {
-        immutableMapOf<Int, String>().toPersistentMap().testNoOperation({ clear() }, { clear() })
+        immutableMapOf<String, String>().toPersistentMap().testNoOperation({ clear() }, { clear() })
 
-        val map = immutableMapOf("x" to 1, null to "x").toPersistentMap()
+        val map = immutableMapOf("x" to "1", null to "x").toPersistentMap()
         with(map) {
             testNoOperation({ remove("y") }, { remove("y") })
-            testNoOperation({ remove("x", 2) }, { remove("x", 2) })
-            testNoOperation({ put("x", 1) }, { put("x", 1) })     // does not hold
+            testNoOperation({ remove("x", "2") }, { remove("x", "2") })
+            testNoOperation({ put("x", "1") }, { put("x", "1") })     // does not hold
             testNoOperation({ putAll(this) }, { putAll(this) })   // does not hold
             testNoOperation({ putAll(emptyMap()) }, { putAll(emptyMap()) })
         }
