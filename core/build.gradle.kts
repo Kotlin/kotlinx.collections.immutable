@@ -120,14 +120,23 @@ kotlin {
         val jsTest by getting {
         }
 
+        val wasmMain by creating {
+        }
+        val wasmTest by creating {
+        }
+
         val wasmJsMain by getting {
+            dependsOn(wasmMain)
         }
         val wasmJsTest by getting {
+            dependsOn(wasmTest)
         }
 
         val wasmWasiMain by getting {
+            dependsOn(wasmMain)
         }
         val wasmWasiTest by getting {
+            dependsOn(wasmTest)
         }
 
         val nativeMain by getting {
