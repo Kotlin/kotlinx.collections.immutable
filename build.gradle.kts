@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+
 buildscript {
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20")
@@ -27,7 +29,9 @@ allprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
         kotlinOptions.allWarningsAsErrors = true
         kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
-        kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
+        if (this is KotlinJsCompile) {
+            kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
+        }
     }
 }
 
