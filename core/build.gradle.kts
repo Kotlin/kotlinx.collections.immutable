@@ -25,6 +25,7 @@ kotlin {
         this@kotlin.iosX64()
 
         // Tier 2
+        this@kotlin.linuxArm64()
         this@kotlin.watchosSimulatorArm64()
         this@kotlin.watchosX64()
         this@kotlin.watchosArm32()
@@ -33,14 +34,13 @@ kotlin {
         this@kotlin.tvosX64()
         this@kotlin.tvosArm64()
         this@kotlin.iosArm64()
-        this@kotlin.linuxArm64()
 
         // Tier 3
-        this@kotlin.mingwX64()
         this@kotlin.androidNativeArm32()
         this@kotlin.androidNativeArm64()
         this@kotlin.androidNativeX86()
         this@kotlin.androidNativeX64()
+        this@kotlin.mingwX64()
         this@kotlin.watchosDeviceArm64()
     }
 
