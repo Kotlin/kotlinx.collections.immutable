@@ -10,7 +10,9 @@ import tests.contract.collectionBehavior
 import tests.contract.compare
 import tests.contract.mapBehavior
 import tests.contract.setBehavior
+import tests.remove
 import tests.stress.IntWrapper
+import tests.stress.ObjectWrapper
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
@@ -285,17 +287,35 @@ abstract class ImmutableMapTest {
     @Test fun noOperation() {
         immutableMapOf<Any, String>().toPersistentMap().testNoOperation({ clear() }, { clear() })
 
-        val instance = Any()
-        val instance2 = Any()
+        val key = ObjectWrapper("x", "x".hashCode())
+        val equalKey = ObjectWrapper("x", "x".hashCode()) // equalKey == key && equalKey !== key
+        val notEqualKey = ObjectWrapper("y", "x".hashCode()) // notEqualKey != key && notEqualKey.hashCode == key.hashCode
+        val value = ObjectWrapper(1, 1)
+        val equalValue = ObjectWrapper(1, 1) // equalValue == value && equalValue !== value
+        val notEqualValue = ObjectWrapper(2, 2) // notEqualValue != value
 
-        val map = immutableMapOf("x" to instance, null to "x").toPersistentMap()
-        with(map) {
-            testNoOperation({ remove("y") }, { remove("y") })
-            testNoOperation({ remove("x", instance2) }, { remove("x", instance2) })
-            testNoOperation({ put("x", instance) }, { put("x", instance) })     // does not hold
-            testNoOperation({ putAll(this) }, { putAll(this) })   // does not hold
-            testNoOperation({ putAll(emptyMap()) }, { putAll(emptyMap()) })
-        }
+        /*
+        To avoid changes to a persistent map:
+          * remove(key):
+              no key in map is equal (==) to the given key
+          * remove(key, value):
+              the above, or the value for the found key is not equal (!=) to the given value
+          * put(key, value):
+              map has a key equal (==) to the given key, and the value for the found key is the same (===) as the given value
+         */
+        val map = immutableMapOf(key to value, null to "x").toPersistentMap()
+
+        map.testNoOperation({ remove(notEqualKey) }, { remove(notEqualKey) })
+        map.testNotNoOperation({ remove(equalKey) }, { remove(equalKey) })
+
+        map.testNoOperation({ remove(key, notEqualValue) }, { remove(key, notEqualValue) })
+        map.testNotNoOperation({ remove(key, equalValue) }, { remove(key, equalValue) })
+
+        map.testNoOperation({ put(equalKey, value) }, { put(equalKey, value) })
+        map.testNotNoOperation({ put(equalKey, equalValue) }, { put(equalKey, equalValue) })
+
+        map.testNoOperation({ putAll(this) }, { putAll(this) })
+        map.testNoOperation({ putAll(emptyMap()) }, { putAll(emptyMap()) })
     }
 
     fun <K, V> PersistentMap<K, V>.testNoOperation(persistent: PersistentMap<K, V>.() -> PersistentMap<K, V>, mutating: MutableMap<K, V>.() -> Unit) {
@@ -304,6 +324,14 @@ abstract class ImmutableMapTest {
         // Ensure non-mutating operations return the same instance
         assertSame(this, result)
         assertSame(this, buildResult)
+    }
+
+    fun <K, V> PersistentMap<K, V>.testNotNoOperation(persistent: PersistentMap<K, V>.() -> PersistentMap<K, V>, mutating: MutableMap<K, V>.() -> Unit) {
+        val result = this.persistent()
+        val buildResult = this.mutate(mutating)
+        // Ensure mutating operations do not return the same instance
+        assertNotSame(this, result)
+        assertNotSame(this, buildResult)
     }
 
 
