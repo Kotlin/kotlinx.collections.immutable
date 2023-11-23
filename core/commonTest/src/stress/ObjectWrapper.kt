@@ -27,6 +27,10 @@ class ObjectWrapper<K: Comparable<K>>(
     override fun compareTo(other: ObjectWrapper<K>): Int {
         return obj.compareTo(other.obj)
     }
+
+    override fun toString(): String {
+        return "ObjectWrapper($obj, hashCode = $hashCode)"
+    }
 }
 
 typealias IntWrapper = ObjectWrapper<Int>
