@@ -580,6 +580,11 @@ fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> =
         ?: this.toPersistentList()
 
 /**
+ * Returns an immutable list containing all elements of this array.
+ */
+fun <T> Array<out T>.toImmutableList(): ImmutableList<T> = toPersistentList()
+
+/**
  * Returns an immutable list containing all elements of this sequence.
  */
 fun <T> Sequence<T>.toImmutableList(): ImmutableList<T> = toPersistentList()
@@ -588,9 +593,6 @@ fun <T> Sequence<T>.toImmutableList(): ImmutableList<T> = toPersistentList()
  * Returns an immutable list containing all characters.
  */
 fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentList()
-
-
-// fun <T> Array<T>.toImmutableList(): ImmutableList<T> = immutableListOf<T>() + this.asList()
 
 
 /**
@@ -603,6 +605,11 @@ fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
         this as? PersistentList
         ?: (this as? PersistentList.Builder)?.build()
         ?: persistentListOf<T>() + this
+
+/**
+ * Returns a persistent list containing all elements of this array.
+ */
+fun <T> Array<out T>.toPersistentList(): PersistentList<T> = persistentListOf<T>() + this
 
 /**
  * Returns a persistent list containing all elements of this sequence.
@@ -627,6 +634,13 @@ fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
         this as? ImmutableSet<T>
         ?: (this as? PersistentSet.Builder)?.build()
         ?: persistentSetOf<T>() + this
+
+/**
+ * Returns an immutable set of all elements of this array.
+ *
+ * Elements of the returned set are iterated in the same order as in this array.
+ */
+fun <T> Array<out T>.toImmutableSet(): ImmutableSet<T> = toPersistentSet()
 
 /**
  * Returns an immutable set of all elements of this sequence.
@@ -657,6 +671,13 @@ fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
         ?: PersistentOrderedSet.emptyOf<T>() + this
 
 /**
+ * Returns a persistent set of all elements of this array.
+ *
+ * Elements of the returned set are iterated in the same order as in this array.
+ */
+fun <T> Array<out T>.toPersistentSet(): PersistentSet<T> = persistentSetOf<T>() + this
+
+/**
  * Returns a persistent set of all elements of this sequence.
  *
  * Elements of the returned set are iterated in the same order as in this sequence.
@@ -684,6 +705,13 @@ fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T>
     = this as? PersistentHashSet
         ?: (this as? PersistentHashSetBuilder<T>)?.build()
         ?: PersistentHashSet.emptyOf<T>() + this
+
+/**
+ * Returns a persistent set of all elements of this array.
+ *
+ * Order of the elements in the returned set is unspecified.
+ */
+fun <T> Array<out T>.toPersistentHashSet(): PersistentSet<T> = persistentHashSetOf<T>() + this
 
 /**
  * Returns a persistent set of all elements of this sequence.
