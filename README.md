@@ -5,11 +5,10 @@
 [![GitHub license](https://img.shields.io/github/license/kotlin/kotlinx.collections.immutable)](LICENSE.txt) 
 [![Build status](https://teamcity.jetbrains.com/guestAuth/app/rest/builds/buildType:(id:KotlinTools_KotlinxCollectionsImmutable_Build_All)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxCollectionsImmutable_Build_All)
 [![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-collections-immutable.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-collections-immutable)
-[![IR](https://img.shields.io/badge/Kotlin%2FJS-IR%20supported-yellow)](https://kotl.in/jsirsupported)
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
-This is a multiplatform library providing implementations for `jvm`, `js` ([IR](https://kotlinlang.org/docs/js-ir-compiler.html)),
+This is a multiplatform library providing implementations for `jvm`, `js`, `wasmJs`, `wasmWasi`
 and all [targets supported by the Kotlin/Native compiler](https://kotlinlang.org/docs/native-target-support.html).
 
 For further details see the [proposal](proposal.md).
@@ -119,7 +118,7 @@ collection.mutate { some_actions_on(it) }
 
 The library is published to Maven Central repository.
 
-The library depends on the Kotlin Standard Library of the version at least `1.9.0`.
+The library depends on the Kotlin Standard Library of the version at least `1.9.21`.
 
 ### Gradle
 
@@ -138,7 +137,7 @@ kotlin {
     sourceSets {
         commonMain {
              dependencies {
-                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
+                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
              }
         }
     }
@@ -154,7 +153,7 @@ Add dependencies (you can also add other modules that you need):
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
     <artifactId>kotlinx-collections-immutable-jvm</artifactId>
-    <version>0.3.6</version>
+    <version>0.3.7</version>
 </dependency>
 ```
 
