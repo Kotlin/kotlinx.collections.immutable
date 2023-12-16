@@ -30,7 +30,11 @@ kotlin {
         }
     }
 
-    //TODO: Add wasm benchmarks as soon as wasmJs/wasmWasi will be published
+    wasmJs {
+        nodejs()
+    }
+
+    //TODO: Add wasmWasi benchmarks as soon as kx-benchmark supports the target
 
     sourceSets.all {
         kotlin.setSrcDirs(listOf("$name/src"))
@@ -94,6 +98,7 @@ benchmark {
             jmhVersion = "1.21"
         }
         register("js")
+        register("wasmJs")
         register("macosX64")
         register("linuxX64")
         register("mingwX64")
