@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.3.7
+
+- Upgrade Kotlin version up to 1.9.21
+- Support wasmJs and wasmWasi targets
+
 ## 0.3.6
 
 - Upgrade Kotlin version up to 1.9.0
