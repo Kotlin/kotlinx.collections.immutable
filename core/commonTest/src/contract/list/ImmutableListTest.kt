@@ -152,6 +152,16 @@ class ImmutableListTest {
         }
     }
 
+    @Test fun buildPersistentList() {
+        val expected = persistentListOf(1, 2, 3, 4, 5, 6)
+        val actual = buildPersistentList {
+            for (i in 1..6) {
+                add(i)
+            }
+        }
+        assertEquals(expected, actual)
+    }
+
     @Test fun subListOfBuilder() {
         val list = "abcxaxyz12".toImmutableList().toPersistentList()
         val builder = list.builder()
