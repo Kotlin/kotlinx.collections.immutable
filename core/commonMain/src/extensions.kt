@@ -16,6 +16,10 @@ import kotlinx.collections.immutable.implementations.persistentOrderedMap.Persis
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
 import kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSet
 import kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSetBuilder
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+import kotlin.experimental.ExperimentalTypeInference
 
 //@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 //inline fun <T> @kotlin.internal.Exact ImmutableCollection<T>.mutate(mutator: (MutableCollection<T>) -> Unit): ImmutableCollection<T> = builder().apply(mutator).build()
@@ -766,3 +770,76 @@ public fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
         = this as? PersistentHashMap
         ?: (this as? PersistentHashMapBuilder<K, V>)?.build()
         ?: PersistentHashMap.emptyOf<K, V>().putAll(this)
+
+/**
+ * Builds a new [PersistentList] by populating a [PersistentList.Builder] using the given [builderAction]
+ * and returning an immutable list with the same elements.
+ *
+ * The list passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ */
+@OptIn(ExperimentalTypeInference::class, ExperimentalContracts::class)
+public inline fun <T> buildPersistentList(@BuilderInference builderAction: PersistentList.Builder<T>.() -> Unit): PersistentList<T> {
+        contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+        return persistentListOf<T>().builder().apply(builderAction).build()
+}
+
+/**
+ * Builds a new [PersistentSet] by populating a [PersistentSet.Builder] using the given [builderAction]
+ * and returning an immutable set with the same elements.
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ *
+ * Elements of the set are iterated in the order they were added by the [builderAction].
+ */
+@OptIn(ExperimentalTypeInference::class, ExperimentalContracts::class)
+public inline fun <T> buildPersistentSet(@BuilderInference builderAction: PersistentSet.Builder<T>.() -> Unit): PersistentSet<T> {
+        contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+        return persistentSetOf<T>().builder().apply(builderAction).build()
+}
+
+/**
+ * Builds a new [PersistentSet] by populating a [PersistentSet.Builder] using the given [builderAction]
+ * and returning an immutable set with the same elements.
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ *
+ * Order of the elements in the returned set is unspecified.
+ */
+@OptIn(ExperimentalTypeInference::class, ExperimentalContracts::class)
+public inline fun <T> buildPersistentHashSet(@BuilderInference builderAction: PersistentSet.Builder<T>.() -> Unit): PersistentSet<T> {
+        contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+        return persistentHashSetOf<T>().builder().apply(builderAction).build()
+}
+
+/**
+ * Builds a new [PersistentMap] by populating a [PersistentMap.Builder] using the given [builderAction]
+ * and returning an immutable map with the same key-value pairs.
+ *
+ * The map passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ *
+ * Entries of the map are iterated in the order they were added by the [builderAction].
+ */
+@OptIn(ExperimentalTypeInference::class, ExperimentalContracts::class)
+public inline fun <K, V> buildPersistentMap(@BuilderInference builderAction: PersistentMap.Builder<K, V>.() -> Unit): PersistentMap<K, V> {
+        contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+        return persistentMapOf<K, V>().builder().apply(builderAction).build()
+}
+
+/**
+ * Builds a new [PersistentMap] by populating a [PersistentMap.Builder] using the given [builderAction]
+ * and returning an immutable map with the same key-value pairs.
+ *
+ * The map passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ *
+ * Order of the entries in the returned map is unspecified.
+ */
+@OptIn(ExperimentalTypeInference::class, ExperimentalContracts::class)
+public inline fun <K, V> buildPersistentHashMap(@BuilderInference builderAction: PersistentMap.Builder<K, V>.() -> Unit): PersistentMap<K, V> {
+        contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+        return persistentHashMapOf<K, V>().builder().apply(builderAction).build()
+}
