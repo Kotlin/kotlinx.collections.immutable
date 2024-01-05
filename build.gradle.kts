@@ -8,6 +8,7 @@ buildscript {
 
 plugins {
     id("kotlinx.team.infra") version "0.4.0-dev-80"
+    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.13.2"
 }
 
 infra {
@@ -19,6 +20,13 @@ infra {
             libraryStagingRepoDescription = project.name
         }
     }
+}
+
+apiValidation {
+    ignoredProjects += listOf(
+        "benchmarks",
+        "runner",
+    )
 }
 
 allprojects {
