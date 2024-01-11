@@ -9,7 +9,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 
-abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractList<E>() {
+public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractList<E>() {
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> {
         return super<PersistentList>.subList(fromIndex, toIndex)
     }

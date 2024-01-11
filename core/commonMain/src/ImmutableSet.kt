@@ -100,7 +100,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    interface Builder<E>: MutableSet<E>, PersistentCollection.Builder<E> {
+    public interface Builder<E>: MutableSet<E>, PersistentCollection.Builder<E> {
         override fun build(): PersistentSet<E>
     }
 
