@@ -5,7 +5,7 @@
 
 package tests.contract
 
-public fun <T> CompareContext<List<T>>.listBehavior() {
+fun <T> CompareContext<List<T>>.listBehavior() {
     equalityBehavior()
     collectionBehavior()
     compareProperty( { listIterator() }, { listIteratorBehavior() })
@@ -28,7 +28,7 @@ public fun <T> CompareContext<List<T>>.listBehavior() {
     propertyEquals { subList(0, size) }
 }
 
-public fun <T> CompareContext<ListIterator<T>>.listIteratorBehavior() {
+fun <T> CompareContext<ListIterator<T>>.listIteratorBehavior() {
     listIteratorProperties()
 
     while (expected.hasNext()) {
@@ -44,14 +44,14 @@ public fun <T> CompareContext<ListIterator<T>>.listIteratorBehavior() {
     propertyFails { previous() }
 }
 
-public fun CompareContext<ListIterator<*>>.listIteratorProperties() {
+fun CompareContext<ListIterator<*>>.listIteratorProperties() {
     propertyEquals { hasNext() }
     propertyEquals { hasPrevious() }
     propertyEquals { nextIndex() }
     propertyEquals { previousIndex() }
 }
 
-public fun <T> CompareContext<Iterator<T>>.iteratorBehavior() {
+fun <T> CompareContext<Iterator<T>>.iteratorBehavior() {
     propertyEquals { hasNext() }
 
     while (expected.hasNext()) {
@@ -61,7 +61,7 @@ public fun <T> CompareContext<Iterator<T>>.iteratorBehavior() {
     propertyFails { next() }
 }
 
-public fun <T> CompareContext<Set<T>>.setBehavior(objectName: String = "", ordered: Boolean) {
+fun <T> CompareContext<Set<T>>.setBehavior(objectName: String = "", ordered: Boolean) {
     equalityBehavior(objectName, ordered)
     collectionBehavior(objectName, ordered)
 
@@ -72,7 +72,7 @@ public fun <T> CompareContext<Set<T>>.setBehavior(objectName: String = "", order
 
 
 
-public fun <K, V> CompareContext<Map<K, V>>.mapBehavior(ordered: Boolean) {
+fun <K, V> CompareContext<Map<K, V>>.mapBehavior(ordered: Boolean) {
     propertyEquals { size }
     propertyEquals { isEmpty() }
     equalityBehavior(ordered = ordered)
@@ -92,7 +92,7 @@ public fun <K, V> CompareContext<Map<K, V>>.mapBehavior(ordered: Boolean) {
 }
 
 
-public fun <T> CompareContext<T>.equalityBehavior(objectName: String = "", ordered: Boolean = true) {
+fun <T> CompareContext<T>.equalityBehavior(objectName: String = "", ordered: Boolean = true) {
     val prefix = objectName +  if (objectName.isNotEmpty()) "." else ""
     equals(objectName)
     propertyEquals(prefix + "hashCode") { hashCode() }
@@ -101,7 +101,7 @@ public fun <T> CompareContext<T>.equalityBehavior(objectName: String = "", order
 }
 
 
-public fun <T> CompareContext<Collection<T>>.collectionBehavior(objectName: String = "", ordered: Boolean = true) {
+fun <T> CompareContext<Collection<T>>.collectionBehavior(objectName: String = "", ordered: Boolean = true) {
     val prefix = objectName +  if (objectName.isNotEmpty()) "." else ""
     propertyEquals (prefix + "size") { size }
     propertyEquals (prefix + "isEmpty") { isEmpty() }
