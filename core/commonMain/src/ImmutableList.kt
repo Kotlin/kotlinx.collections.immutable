@@ -125,28 +125,28 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
+    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
 
     /**
      * Returns a new persistent list with the element at the specified [index] replaced with the specified [element].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    fun set(index: Int, element: @UnsafeVariance E): PersistentList<E>
+    public fun set(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
      * Returns a new persistent list with the specified [element] inserted at the specified [index].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
+    public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
      * Returns a new persistent list with the element at the specified [index] removed.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    fun removeAt(index: Int): PersistentList<E>
+    public fun removeAt(index: Int): PersistentList<E>
 
     /**
      * A generic builder of the persistent list. Builder exposes its modification operations through the [MutableList] interface.
@@ -164,7 +164,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    interface Builder<E>: MutableList<E>, PersistentCollection.Builder<E> {
+    public interface Builder<E>: MutableList<E>, PersistentCollection.Builder<E> {
         override fun build(): PersistentList<E>
     }
 

@@ -15,6 +15,7 @@ mavenPublicationsPom {
 
 kotlin {
     applyDefaultHierarchyTemplate()
+    explicitApi()
 
     // According to https://kotlinlang.org/docs/native-target-support.html
     // Tier 1

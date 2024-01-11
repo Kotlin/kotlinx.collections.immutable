@@ -47,7 +47,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [value] associated with the specified [key];
      * or this instance if no modifications were made in the result of this operation.
      */
-    fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
      * Returns the result of removing the specified [key] and its corresponding value from this map.
@@ -55,7 +55,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [key] and its corresponding value removed;
      * or this instance if it contains no mapping for the key.
      */
-    fun remove(key: K): PersistentMap<K, V>
+    public fun remove(key: K): PersistentMap<K, V>
 
     /**
      * Returns the result of removing the entry that maps the specified [key] to the specified [value].
@@ -63,7 +63,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the entry for the specified [key] and [value] removed;
      * or this instance if it contains no entry with the specified key and value.
      */
-    fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
      * Returns the result of merging the specified [m] map with this map.
@@ -74,12 +74,12 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with keys and values from the specified map [m] associated;
      * or this instance if no modifications were made in the result of this operation.
      */
-    fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
+    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
 
     /**
      * Returns an empty persistent map.
      */
-    fun clear(): PersistentMap<K, V>
+    public fun clear(): PersistentMap<K, V>
 
     /**
      * A generic builder of the persistent map. Builder exposes its modification operations through the [MutableMap] interface.
@@ -97,7 +97,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    interface Builder<K, V>: MutableMap<K, V> {
+    public interface Builder<K, V>: MutableMap<K, V> {
         /**
          * Returns a persistent map with the same contents as this builder.
          *
@@ -107,7 +107,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
          * - on the first call it returns the same persistent map instance this builder was obtained from.
          * - on subsequent calls it returns the same previously returned persistent map instance.
          */
-        fun build(): PersistentMap<K, V>
+        public fun build(): PersistentMap<K, V>
     }
 
     /**
@@ -115,5 +115,5 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      *
      * The builder can be used to efficiently perform multiple modification operations.
      */
-    fun builder(): Builder<K, @UnsafeVariance V>
+    public fun builder(): Builder<K, @UnsafeVariance V>
 }

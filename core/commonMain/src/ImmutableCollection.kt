@@ -31,7 +31,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @returns a new persistent collection with the specified [element] added;
      * or this instance if this collection does not support duplicates and it already contains the element.
      */
-    fun add(element: @UnsafeVariance E): PersistentCollection<E>
+    public fun add(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
      * Returns the result of adding all elements of the specified [elements] collection to this collection.
@@ -39,7 +39,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with elements of the specified [elements] collection added;
      * or this instance if no modifications were made in the result of this operation.
      */
-    fun addAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun addAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
      * Returns the result of removing a single appearance of the specified [element] from this collection.
@@ -47,7 +47,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with a single appearance of the specified [element] removed;
      * or this instance if there is no such element in this collection.
      */
-    fun remove(element: @UnsafeVariance E): PersistentCollection<E>
+    public fun remove(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
      * Returns the result of removing all elements in this collection that are also
@@ -57,7 +57,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * contained in the specified [elements] collection removed;
      * or this instance if no modifications were made in the result of this operation.
      */
-    fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
      * Returns the result of removing all elements in this collection that match the specified [predicate].
@@ -65,7 +65,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with elements matching the specified [predicate] removed;
      * or this instance if no elements match the predicate.
      */
-    fun removeAll(predicate: (E) -> Boolean): PersistentCollection<E>
+    public fun removeAll(predicate: (E) -> Boolean): PersistentCollection<E>
 
     /**
      * Returns all elements in this collection that are also
@@ -75,12 +75,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * contained in the specified [elements] collection;
      * or this instance if no modifications were made in the result of this operation.
      */
-    fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
      * Returns an empty persistent collection.
      */
-    fun clear(): PersistentCollection<E>
+    public fun clear(): PersistentCollection<E>
 
     /**
      * A generic builder of the persistent collection. Builder exposes its modification operations through the [MutableCollection] interface.
@@ -98,7 +98,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    interface Builder<E>: MutableCollection<E> {
+    public interface Builder<E>: MutableCollection<E> {
         /**
          * Returns a persistent collection with the same contents as this builder.
          *
@@ -108,7 +108,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
          * - on the first call it returns the same persistent collection instance this builder was obtained from.
          * - on subsequent calls it returns the same previously returned persistent collection instance.
          */
-        fun build(): PersistentCollection<E>
+        public fun build(): PersistentCollection<E>
     }
 
     /**
@@ -116,5 +116,5 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      *
      * The builder can be used to efficiently perform multiple modification operations.
      */
-    fun builder(): Builder<@UnsafeVariance E>
+    public fun builder(): Builder<@UnsafeVariance E>
 }
