@@ -7,7 +7,7 @@ package tests
 
 import kotlin.test.assertTrue
 
-public actual fun assertTypeEquals(expected: Any?, actual: Any?) {
+actual fun assertTypeEquals(expected: Any?, actual: Any?) {
     if (expected != null && actual != null) {
         assertTrue(expected::class.isInstance(actual) || actual::class.isInstance(expected),
             "Expected: $expected,  Actual: $actual")
@@ -16,7 +16,7 @@ public actual fun assertTypeEquals(expected: Any?, actual: Any?) {
     }
 }
 
-public actual val currentPlatform: TestPlatform get() = TestPlatform.Wasm
+actual val currentPlatform: TestPlatform get() = TestPlatform.Wasm
 
 actual object NForAlgorithmComplexity {
     actual val O_N: Int = 500_000

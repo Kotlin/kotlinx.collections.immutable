@@ -7,11 +7,11 @@ package tests
 
 import kotlin.test.assertEquals
 
-public actual fun assertTypeEquals(expected: Any?, actual: Any?) {
+actual fun assertTypeEquals(expected: Any?, actual: Any?) {
     assertEquals(expected?.javaClass, actual?.javaClass)
 }
 
-public actual val currentPlatform: TestPlatform get() = TestPlatform.JVM
+actual val currentPlatform: TestPlatform get() = TestPlatform.JVM
 
 actual object NForAlgorithmComplexity {
     actual val O_N: Int = 1_000_000
