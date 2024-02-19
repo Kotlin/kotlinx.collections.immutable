@@ -1,7 +1,13 @@
 pluginManagement {
+    def kotlin_repo_url = providers.gradleProperty("kotlin_repo_url")
     repositories {
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlinx/maven' }
         gradlePluginPortal()
+
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev'}
+        if (kotlin_repo_url.present) {
+            maven { url kotlin_repo_url.get() }
+        }
     }
 }
 
