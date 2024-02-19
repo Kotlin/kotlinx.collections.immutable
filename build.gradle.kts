@@ -55,6 +55,11 @@ allprojects {
                 freeCompilerArgs.add("-Xwasm-enable-array-range-checks")
             }
         }
+
+        kotlinOptions {
+            languageVersion = rootProject.properties["kotlin_language_version"].toString()
+            apiVersion = rootProject.properties["kotlin_api_version"].toString()
+        }
     }
 }
 
