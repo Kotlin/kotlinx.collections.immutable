@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
@@ -56,6 +57,8 @@ allprojects {
 
     tasks.withType(KotlinCompilationTask::class).configureEach {
         compilerOptions {
+            languageVersion.set(KotlinVersion.fromVersion(rootProject.properties["kotlin_language_version"].toString()))
+            apiVersion.set(KotlinVersion.fromVersion(rootProject.properties["kotlin_api_version"].toString()))
             if (setAllWarningsAsError.orNull != false) {
                 allWarningsAsErrors = true
             } else {
