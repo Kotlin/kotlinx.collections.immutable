@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
@@ -50,6 +51,8 @@ allprojects {
         compilerOptions {
             allWarningsAsErrors = true
             freeCompilerArgs.add("-Xexpect-actual-classes")
+            languageVersion.set(KotlinVersion.fromVersion(rootProject.properties["kotlin_language_version"].toString()))
+            apiVersion.set(KotlinVersion.fromVersion(rootProject.properties["kotlin_api_version"].toString()))
         }
         if (this is KotlinJsCompile) {
             compilerOptions {
