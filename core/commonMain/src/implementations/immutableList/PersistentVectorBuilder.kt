@@ -10,7 +10,6 @@ import kotlinx.collections.immutable.internal.ListImplementation.checkElementInd
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 import kotlinx.collections.immutable.internal.assert
-import kotlinx.collections.immutable.internal.modCount
 
 internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
                                           vectorRoot: Array<Any?>?,
