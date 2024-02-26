@@ -7,8 +7,3 @@ package kotlinx.collections.immutable.internal
 
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
 internal actual fun assert(condition: Boolean) = kotlin.assert(condition)
-
-
-internal actual var AbstractMutableList<*>.modCount: Int
-    get() = 0
-    set(@Suppress("UNUSED_PARAMETER") value) {}
