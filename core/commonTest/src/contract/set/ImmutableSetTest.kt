@@ -239,7 +239,7 @@ abstract class ImmutableSetTestBase {
         assertEquals<Set<Any>>(setOf(), empty1)
         assertTrue(empty1 === empty2)
 
-        compareSets(emptySet(), empty1)
+        compareSets(emptySet<Int>(), empty1)
     }
 
     @Test fun ofElements() {
