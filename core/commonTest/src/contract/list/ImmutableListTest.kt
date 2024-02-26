@@ -25,7 +25,7 @@ class ImmutableListTest {
 
         assertFailsWith<NoSuchElementException> { empty1.iterator().next() }
 
-        compareLists(emptyList(), empty1)
+        compareLists(emptyList<Int>(), empty1)
 
     }
 
