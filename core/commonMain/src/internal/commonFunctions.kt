@@ -6,6 +6,3 @@
 package kotlinx.collections.immutable.internal
 
 internal expect fun assert(condition: Boolean)
-
-@Suppress("NO_ACTUAL_FOR_EXPECT") // implemented by protected property in JVM
-internal expect var AbstractMutableList<*>.modCount: Int
