@@ -10,7 +10,3 @@ internal actual fun assert(condition: Boolean) {
         throw AssertionError("Assertion failed")
     }
 }
-
-internal actual var AbstractMutableList<*>.modCount: Int
-    get() = 0
-    set(@Suppress("UNUSED_PARAMETER") value) {}
