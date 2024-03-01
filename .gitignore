@@ -7,3 +7,5 @@ build
 /kotlinx-collections-immutable/dependency-reduced-pom.xml
 /benchmarks-runner/benchmarkResults
 /benchmarks-runner/localReferenceBenchmarkResults
+kotlin-js-store/
+.kotlin/

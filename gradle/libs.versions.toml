@@ -1,0 +1,20 @@
+[versions]
+kotlin-sdk = "1.9.22"
+kotlinx-benchmark = "0.4.10"
+kotlinx-validator = "0.13.2"
+guava-testlib = "18.0"
+jmh = "1.21"
+
+[plugins]
+kotlinx-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlinx-benchmark" }
+kotlinx-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinx-validator" }
+
+[libraries]
+guava-testlib = { module = "com.google.guava:guava-testlib", version.ref = "guava-testlib" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin-sdk" }
+kotlinx-benchmark = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
+jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-sdk" }
+plugin-kotlinx-benchmark = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-plugin", version.ref = "kotlin-sdk" }
+
+[bundles]

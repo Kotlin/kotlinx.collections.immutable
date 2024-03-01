@@ -1,3 +1,7 @@
+@file:OptIn(org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl::class)
+
+import BuildConventions.baseConventions
+import Java9Modularity.configureJava9ModuleInfo
 import kotlinx.team.infra.mavenPublicationsPom
 
 plugins {
@@ -6,7 +10,7 @@ plugins {
 }
 
 base {
-    archivesBaseName = "kotlinx-collections-immutable" // doesn't work
+    archivesName = "kotlinx-collections-immutable"
 }
 
 mavenPublicationsPom {
@@ -160,4 +164,12 @@ with(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.apply(rootPr
 // Drop this when node js version become stable
 tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")
+}
+
+// configure baseline conventions (dependency verification, locking, etc.)
+baseConventions()
+
+afterEvaluate {
+    // Build a multi-release JAR with a Java `module-info.java` spec
+    configureJava9ModuleInfo(multiRelease = true)
 }
