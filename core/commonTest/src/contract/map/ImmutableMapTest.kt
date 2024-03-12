@@ -191,6 +191,12 @@ abstract class ImmutableMapTest {
         assertEquals<Map<*, *>>(map, immMap) // problem
     }
 
+    @Test fun emptyMapToPersistentMap() {
+        val empty = emptyMap<String, Int>()
+        val emptyPersistentMap = empty.toPersistentMap()
+
+        assertSame(emptyPersistentMap, empty.toPersistentMap())
+    }
 
     @Test fun putElements() {
         var map = immutableMapOf<String, Int?>().toPersistentMap()

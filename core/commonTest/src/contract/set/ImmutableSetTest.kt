@@ -339,11 +339,20 @@ abstract class ImmutableSetTestBase {
         val set = immutableSetOf("abcxyz12".toList())
         with(set) {
             testNoOperation({ add('a') }, { add('a') })
+            testNoOperation({ addAll(emptySet()) }, { addAll(emptySet()) })
             testNoOperation({ addAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
             testNoOperation({ remove('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
             testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
+            testNoOperation({ removeAll(emptySet()) }, { removeAll(emptySet()) })
         }
+    }
+
+    @Test fun emptySetToPersistentSet() {
+        val empty = emptySet<Int>()
+        val emptyPersistentSet = empty.toPersistentSet()
+
+        assertSame(emptyPersistentSet, empty.toPersistentSet())
     }
 
     fun <T> PersistentSet<T>.testNoOperation(persistent: PersistentSet<T>.() -> PersistentSet<T>, mutating: MutableSet<T>.() -> Unit) {

@@ -36,6 +36,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
     }
 
     override fun addAll(elements: Collection<E>): PersistentList<E> {
+        if (elements.isEmpty()) return this
         if (size + elements.size <= MAX_BUFFER_SIZE) {
             val newBuffer = buffer.copyOf(size + elements.size)
             // TODO: investigate performance of elements.toArray + copyInto
@@ -80,6 +81,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Immut
 
     override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
+        if (c.isEmpty()) return this
         if (size + c.size <= MAX_BUFFER_SIZE) {
             val newBuffer = bufferOfSize(size + c.size)
             buffer.copyInto(newBuffer, endIndex = index)

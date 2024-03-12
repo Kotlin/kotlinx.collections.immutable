@@ -68,6 +68,13 @@ class ImmutableListTest {
         compareLists(list, immList)
     }
 
+    @Test fun emptyListToPersistentList() {
+        val empty = emptyList<Int>()
+        val emptyPersistent = empty.toPersistentList()
+
+        assertSame(emptyPersistent, empty.toPersistentList())
+    }
+
     @Test fun addElements() {
         var list = persistentListOf<String>()
         list = list.add("x")
@@ -194,6 +201,9 @@ class ImmutableListTest {
             testNoOperation({ remove('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
             testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
+            testNoOperation({ removeAll(emptyList()) }, { removeAll(emptyList())})
+            testNoOperation({ addAll(emptyList()) }, { addAll(emptyList())})
+            testNoOperation({ addAll(2, emptyList()) }, { addAll(2, emptyList())})
         }
     }
 
