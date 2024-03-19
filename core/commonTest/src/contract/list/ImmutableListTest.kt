@@ -77,7 +77,7 @@ class ImmutableListTest {
         list = list + "y"
         list += "z"
         list += arrayOf("1", "2").asIterable()
-        compareLists("abcxaxyz12".map { it.toString() }, list)
+        compareLists("abcxaxyz120".map { it.toString() }, list)
     }
 
     @Test fun replaceElements() {
