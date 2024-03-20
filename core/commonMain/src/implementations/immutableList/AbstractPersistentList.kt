@@ -8,6 +8,7 @@ package kotlinx.collections.immutable.implementations.immutableList
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 
 public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractList<E>() {
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> {
@@ -15,10 +16,13 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
     }
 
     override fun addAll(elements: Collection<E>): PersistentList<E> {
+        if (elements.isEmpty()) return this
         return mutate { it.addAll(elements) }
     }
 
     override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
+        checkPositionIndex(index, size)
+        if (c.isEmpty()) return this
         return mutate { it.addAll(index, c) }
     }
 
@@ -31,10 +35,12 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
     }
 
     override fun removeAll(elements: Collection<E>): PersistentList<E> {
+        if (elements.isEmpty()) return this
         return removeAll { elements.contains(it) }
     }
 
     override fun retainAll(elements: Collection<E>): PersistentList<E> {
+        if (elements.isEmpty()) return persistentVectorOf()
         return removeAll { !elements.contains(it) }
     }
 

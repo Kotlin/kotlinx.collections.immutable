@@ -68,6 +68,7 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     }
 
     override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
+        if (m.isEmpty()) return this
         return this.mutate { it.putAll(m) }
     }
 
