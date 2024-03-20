@@ -53,6 +53,7 @@ internal class PersistentOrderedSet<E>(
     }
 
     override fun addAll(elements: Collection<E>): PersistentSet<E> {
+        if (elements.isEmpty()) return this
         return this.mutate { it.addAll(elements) }
     }
 
@@ -78,6 +79,7 @@ internal class PersistentOrderedSet<E>(
     }
 
     override fun removeAll(elements: Collection<E>): PersistentSet<E> {
+        if (elements.isEmpty()) return this
         return mutate { it.removeAll(elements) }
     }
 
@@ -86,6 +88,7 @@ internal class PersistentOrderedSet<E>(
     }
 
     override fun retainAll(elements: Collection<E>): PersistentSet<E> {
+        if (elements.isEmpty()) return PersistentOrderedSet.emptyOf<E>()
         return mutate { it.retainAll(elements) }
     }
 

@@ -21,6 +21,7 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
     }
 
     override fun addAll(elements: Collection<E>): PersistentSet<E> {
+        if (elements.isEmpty()) return this
         return this.mutate { it.addAll(elements) }
     }
 
@@ -31,6 +32,7 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
     }
 
     override fun removeAll(elements: Collection<E>): PersistentSet<E> {
+        if (elements.isEmpty()) return this
         return mutate { it.removeAll(elements) }
     }
 
@@ -39,6 +41,7 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
     }
 
     override fun retainAll(elements: Collection<E>): PersistentSet<E> {
+        if (elements.isEmpty()) return PersistentHashSet.emptyOf<E>()
         return mutate { it.retainAll(elements) }
     }
 

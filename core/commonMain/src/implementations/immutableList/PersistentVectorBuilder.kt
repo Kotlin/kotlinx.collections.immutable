@@ -669,6 +669,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
     }
 
     override fun removeAll(elements: Collection<E>): Boolean {
+        if (elements.isEmpty()) return false
         return removeAllWithPredicate { elements.contains(it) }
     }
 
