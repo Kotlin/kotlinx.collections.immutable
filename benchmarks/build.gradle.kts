@@ -1,11 +1,13 @@
+@file:OptIn(org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl::class)
+
+import BuildConventions.baseConventions
 import kotlinx.benchmark.gradle.JvmBenchmarkTarget
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    id("kotlin-multiplatform")
+    `kotlin-multiplatform`
     id("org.jetbrains.kotlinx.benchmark") version "0.4.10"
 }
-
 
 evaluationDependsOn(":kotlinx-collections-immutable")
 
@@ -104,6 +106,9 @@ benchmark {
         register("mingwX64")
     }
 }
+
+// configure baseline conventions
+baseConventions()
 
 val benchmarksJar: Configuration by configurations.creating
 

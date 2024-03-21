@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation 'org.openjdk.jmh:jmh-core:1.21'
+    implementation libs.kotlin.stdlib
+    implementation libs.jmh.core
     
     runtimeOnly project(path: ':benchmarks', configuration: 'benchmarksJar')
     runtimeOnly project(path: ':kotlinx-collections-immutable')
