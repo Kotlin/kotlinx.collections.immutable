@@ -8,6 +8,7 @@ package benchmarks.immutableMap
 import benchmarks.*
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentMap
 
 @State(Scope.Benchmark)
 open class Iterate {
@@ -20,7 +21,7 @@ open class Iterate {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE)
     var hashCodeType = ""
 
-    private var persistentMap = persistentMapOf<IntWrapper, String>()
+    private var persistentMap = emptyPersistentMap<IntWrapper, String>()
 
     @Setup
     fun prepare() {

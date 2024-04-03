@@ -9,6 +9,7 @@ import benchmarks.*
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentSet
 
 
 /**
@@ -35,13 +36,13 @@ open class Canonicalization {
 
     private var elements = listOf<IntWrapper>()
     private var elementsToRemove = listOf<IntWrapper>()
-    private var persistentSet = persistentSetOf<IntWrapper>()
+    private var persistentSet = emptyPersistentSet<IntWrapper>()
 
     /**
      * Expected height of this persistent set is equal to the [persistentSet]'s expected height divided by 2.
      * Obtained by removing some elements of the [persistentSet].
      */
-    private var halfHeightPersistentSet = persistentSetOf<IntWrapper>()
+    private var halfHeightPersistentSet = emptyPersistentSet<IntWrapper>()
 
     @Setup
     fun prepare() {

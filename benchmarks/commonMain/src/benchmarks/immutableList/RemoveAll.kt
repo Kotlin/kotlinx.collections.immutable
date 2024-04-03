@@ -9,6 +9,7 @@ import benchmarks.*
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentList
 import kotlin.random.Random
 
 @State(Scope.Benchmark)
@@ -16,11 +17,11 @@ open class RemoveAll {
     @Param(BM_1, BM_10, BM_100, BM_1000, BM_10000, BM_100000, BM_1000000, BM_10000000)
     var size: Int = 0
 
-    private var persistentList: PersistentList<Int> = persistentListOf()
+    private var persistentList: PersistentList<Int> = emptyPersistentList()
 
     @Setup
     fun prepare() {
-        persistentList = persistentListOf<Int>().addAll(List(size) { it })
+        persistentList = emptyPersistentList<Int>().addAll(List(size) { it })
     }
 
     // Results of the following benchmarks do not indicate memory or time spent per operation,

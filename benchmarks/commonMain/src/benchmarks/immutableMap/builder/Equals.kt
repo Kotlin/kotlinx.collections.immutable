@@ -7,6 +7,7 @@ package benchmarks.immutableMap.builder
 
 import benchmarks.*
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 
 @State(Scope.Benchmark)
@@ -20,10 +21,10 @@ open class Equals {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
     var hashCodeType = ""
 
-    private var persistentMap = persistentMapOf<IntWrapper, String>().builder()
-    private var sameMap = persistentMapOf<IntWrapper, String>().builder()
-    private var slightlyDifferentMap = persistentMapOf<IntWrapper, String>().builder()
-    private var veryDifferentMap = persistentMapOf<IntWrapper, String>().builder()
+    private var persistentMap = emptyPersistentMap<IntWrapper, String>().builder()
+    private var sameMap = emptyPersistentMap<IntWrapper, String>().builder()
+    private var slightlyDifferentMap = emptyPersistentMap<IntWrapper, String>().builder()
+    private var veryDifferentMap = emptyPersistentMap<IntWrapper, String>().builder()
 
     @Setup
     fun prepare() {
@@ -38,8 +39,10 @@ open class Equals {
 
     @Benchmark
     fun equalsTrue() = persistentMap == sameMap
+
     @Benchmark
     fun nearlyEquals() = persistentMap == slightlyDifferentMap
+
     @Benchmark
     fun notEquals() = persistentMap == veryDifferentMap
 

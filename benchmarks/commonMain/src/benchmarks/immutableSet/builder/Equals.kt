@@ -7,6 +7,7 @@ package benchmarks.immutableSet.builder
 
 import benchmarks.*
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentSet
 import kotlinx.collections.immutable.persistentSetOf
 
 @State(Scope.Benchmark)
@@ -20,10 +21,10 @@ open class Equals {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE, NON_EXISTING_HASH_CODE)
     var hashCodeType = ""
 
-    private var persistentSet = persistentSetOf<IntWrapper>().builder()
-    private var sameSet = persistentSetOf<IntWrapper>().builder()
-    private var slightlyDifferentSet = persistentSetOf<IntWrapper>().builder()
-    private var veryDifferentSet = persistentSetOf<IntWrapper>().builder()
+    private var persistentSet = emptyPersistentSet<IntWrapper>().builder()
+    private var sameSet = emptyPersistentSet<IntWrapper>().builder()
+    private var slightlyDifferentSet = emptyPersistentSet<IntWrapper>().builder()
+    private var veryDifferentSet = emptyPersistentSet<IntWrapper>().builder()
 
     @Setup
     fun prepare() {
@@ -38,8 +39,10 @@ open class Equals {
 
     @Benchmark
     fun equalsTrue() = persistentSet == sameSet
+
     @Benchmark
     fun nearlyEquals() = persistentSet == slightlyDifferentSet
+
     @Benchmark
     fun notEquals() = persistentSet == veryDifferentSet
 }
