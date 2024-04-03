@@ -6,6 +6,7 @@
 package tests.stress.list
 
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.emptyPersistentList
 import kotlinx.collections.immutable.persistentListOf
 import tests.NForAlgorithmComplexity
 import tests.TestPlatform
@@ -24,7 +25,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun isEmptyTests() {
-        val builder = persistentListOf<String>().builder()
+        val builder = emptyPersistentList<String>().builder()
 
         assertTrue(builder.isEmpty())
 
@@ -45,7 +46,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun sizeTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertTrue(builder.size == 0)
 
@@ -64,7 +65,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun firstTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertNull(builder.firstOrNull())
 
@@ -83,7 +84,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun lastTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertNull(builder.lastOrNull())
 
@@ -102,7 +103,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun toListTest() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertEquals(emptyList<Int>(), builder)
 
@@ -119,7 +120,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun addFirstTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertNull(builder.firstOrNull())
 
@@ -140,7 +141,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun addLastTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NN
 
@@ -158,7 +159,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeFirstTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertFailsWith<IndexOutOfBoundsException> { builder.removeAt(0) }
 
@@ -180,7 +181,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeLastTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertFailsWith<IndexOutOfBoundsException> {
             builder.removeAt(builder.size - 1)
@@ -217,7 +218,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun getTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertFailsWith<IndexOutOfBoundsException> {
             builder[0]
@@ -243,7 +244,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun setTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         assertFailsWith<IndexOutOfBoundsException> {
             builder[0] = 0
@@ -275,7 +276,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun subListTests() {
-        val builder = persistentListOf<Int>().builder()
+        val builder = emptyPersistentList<Int>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_N
         repeat(times = elementsToAdd) { index ->
@@ -308,7 +309,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Suppress("TestFunctionName")
     private fun <E> PersistentList(size: Int, producer: (Int) -> E): PersistentList<E> {
-        var list = persistentListOf<E>()
+        var list = emptyPersistentList<E>()
         repeat(times = size) { index ->
             list = list.add(producer(index))
         }
@@ -493,7 +494,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
         for (initialSize in listSizes) {
 
             val initialElements = List(initialSize) { it }
-            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.add(element) }
+            val list = initialElements.fold(emptyPersistentList<Int>()) { list, element -> list.add(element) }
 
             val addIndex = mutableListOf(
                     initialSize // append
@@ -537,7 +538,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
         for (initialSize in listSizes) {
 
             val initialElements = List(initialSize) { it }
-            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.add(element) }
+            val list = initialElements.fold(emptyPersistentList<Int>()) { list, element -> list.add(element) }
 
             val removeElements = mutableListOf(
                     initialElements // all
@@ -575,7 +576,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun randomOperationsTests() {
-        val vectorGen = mutableListOf(List(20) { persistentListOf<Int>() })
+        val vectorGen = mutableListOf(List(20) { emptyPersistentList<Int>() })
         val expected = mutableListOf(List(20) { listOf<Int>() })
 
         repeat(times = 5) {

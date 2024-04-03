@@ -8,6 +8,7 @@ package benchmarks.immutableSet
 import benchmarks.*
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentSet
 
 @State(Scope.Benchmark)
 open class Contains {
@@ -21,7 +22,7 @@ open class Contains {
     var hashCodeType = ""
 
     private var elements = listOf<IntWrapper>()
-    private var persistentSet = persistentSetOf<IntWrapper>()
+    private var persistentSet = emptyPersistentSet<IntWrapper>()
 
     @Setup
     fun prepare() {

@@ -8,6 +8,7 @@ package benchmarks.immutableSet.builder
 import benchmarks.*
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentSet
 
 @State(Scope.Benchmark)
 open class Iterate {
@@ -23,7 +24,7 @@ open class Iterate {
     @Param(IP_100, IP_99_09, IP_95, IP_70, IP_50, IP_30, IP_0)
     var immutablePercentage: Double = 0.0
 
-    private var builder = persistentSetOf<IntWrapper>().builder()
+    private var builder = emptyPersistentSet<IntWrapper>().builder()
 
     @Setup
     fun prepare() {

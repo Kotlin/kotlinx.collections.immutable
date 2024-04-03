@@ -9,6 +9,7 @@ import benchmarks.*
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentMap
 
 @State(Scope.Benchmark)
 open class Remove {
@@ -22,7 +23,7 @@ open class Remove {
     var hashCodeType = ""
 
     private var keys = listOf<IntWrapper>()
-    private var persistentMap = persistentMapOf<IntWrapper, String>()
+    private var persistentMap = emptyPersistentMap<IntWrapper, String>()
 
     @Setup
     fun prepare() {

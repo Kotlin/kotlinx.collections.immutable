@@ -5,6 +5,8 @@
 
 package tests.contract.map
 
+import kotlinx.collections.immutable.emptyPersistentHashMap
+import kotlinx.collections.immutable.emptyPersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlin.test.Test
@@ -41,7 +43,7 @@ class KT41278Test {
 
     @Test
     fun persistentOrderedMap() {
-        val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentMapOf<String, Int>()) { map, pair ->
+        val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(emptyPersistentMap<String, Int>()) { map, pair ->
             map.put(pair.first, pair.second)
         }
 
@@ -54,7 +56,7 @@ class KT41278Test {
 
     @Test
     fun persistentHashMap() {
-        val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentHashMapOf<String, Int>()) { map, pair ->
+        val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(emptyPersistentHashMap<String, Int>()) { map, pair ->
             map.put(pair.first, pair.second)
         }
 
@@ -67,7 +69,8 @@ class KT41278Test {
 
     @Test
     fun persistentOrderedMapBuilder() {
-        val mapLetterToIndex = persistentMapOf<String, Int>().builder().apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
+        val mapLetterToIndex =
+            emptyPersistentMap<String, Int>().builder().apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
 
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)
@@ -78,7 +81,8 @@ class KT41278Test {
 
     @Test
     fun persistentHashMapBuilder() {
-        val mapLetterToIndex = persistentHashMapOf<String, Int>().builder().apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
+        val mapLetterToIndex = emptyPersistentHashMap<String, Int>().builder()
+            .apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
 
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)

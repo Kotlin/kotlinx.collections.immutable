@@ -360,8 +360,8 @@ abstract class ImmutableMapTest {
         testEqualsAndHashCode(map, mapOf(*pairs))
         testEqualsAndHashCode(map, persistentHashMapOf(*pairs))
         testEqualsAndHashCode(map, persistentMapOf(*pairs))
-        testEqualsAndHashCode(map, persistentHashMapOf<K, V>().builder().apply { putAll(pairs) })
-        testEqualsAndHashCode(map, persistentMapOf<K, V>().builder().apply { putAll(pairs) })
+        testEqualsAndHashCode(map, emptyPersistentHashMap<K, V>().builder().apply { putAll(pairs) })
+        testEqualsAndHashCode(map, emptyPersistentMap<K, V>().builder().apply { putAll(pairs) })
     }
 
     private fun <K, V> testEquality(data: Array<Pair<K, V>>, changed: Array<Pair<K, V>>) {

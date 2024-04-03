@@ -8,6 +8,7 @@ package benchmarks.immutableSet
 import benchmarks.*
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentSet
 
 @State(Scope.Benchmark)
 open class Iterate {
@@ -20,7 +21,7 @@ open class Iterate {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE)
     var hashCodeType = ""
 
-    private var persistentSet = persistentSetOf<IntWrapper>()
+    private var persistentSet = emptyPersistentSet<IntWrapper>()
 
     @Setup
     fun prepare() {
