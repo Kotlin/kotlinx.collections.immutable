@@ -1,4 +1,5 @@
 import kotlinx.team.infra.mavenPublicationsPom
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     id("kotlin-multiplatform")
@@ -6,7 +7,7 @@ plugins {
 }
 
 base {
-    archivesBaseName = "kotlinx-collections-immutable" // doesn't work
+    archivesName.set("kotlinx-collections-immutable") // doesn't work
 }
 
 mavenPublicationsPom {
@@ -69,6 +70,7 @@ kotlin {
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs {
             testTask {
@@ -79,6 +81,7 @@ kotlin {
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
     wasmWasi {
         nodejs {
             testTask {
