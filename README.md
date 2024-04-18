@@ -80,8 +80,8 @@ fun Iterable<T>.toPersistentSet(): PersistentSet<T>
 #### `+` and `-` operators
 
 `plus` and `minus` operators on persistent collections exploit their immutability
-and delegate the implementation to the collections themselves. 
-The operation is performed with persistence in mind: the returned immutable collection may share storage 
+and delegate the implementation to the collections themselves.
+The operation is performed with persistence in mind: the returned immutable collection may share storage
 with the original collection.
 
 ```kotlin
@@ -90,8 +90,8 @@ val newList = persistentListOf("a", "b") + "c"
 ```
 
 > **Note:** you need to import these operators from `kotlinx.collections.immutable` package
-in order for them to take the precedence over the ones from the 
-standard library.
+> in order for them to take the precedence over the ones from the
+> standard library.
 
 ```kotlin
 import kotlinx.collections.immutable.*
@@ -111,6 +111,36 @@ With `mutate` it transforms to:
 ```kotlin
 collection.mutate { some_actions_on(it) }
 ```
+
+### Serialization
+
+Serialization modules allows you to apply custom immutable collection serializers, for example:
+
+```kotlin
+@Serializable
+private class MyCustomClass<K, V>(
+    @Serializable(with = ImmutableMapSerializer::class)
+    val immutableMap: ImmutableMap<K, V>
+)
+```
+
+#### Collection Serializers
+
+| Serializer                    | Conversion method       
+|-------------------------------|------------------------- 
+| `ImmutableListSerializer`     | `toImmutableList()`     | 
+| `PersistentListSerializer`    | `toPersistentList()`    | 
+| `ImmutableSetSerializer`      | `toImmutableSet()`      | 
+| `PersistentSetSerializer`     | `toPersistentSet()`     | 
+| `PersistentHashSetSerializer` | `toPersistentHashSet()` | 
+
+#### Map Serializers
+
+| Serializer                    | Conversion method       
+|-------------------------------|------------------------- 
+| `ImmutableMapSerializer`      | `toImmutableMap()`      | 
+| `PersistentMapSerializer`     | `toPersistentMap()`     | 
+| `PersistentHashMapSerializer` | `toPersistentHashMap()` | 
 
 ## Using in your projects
 
@@ -138,6 +168,7 @@ kotlin {
         commonMain {
              dependencies {
                  implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.8")
+                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-serialization:0.3.8")
              }
         }
     }
@@ -150,11 +181,19 @@ The Maven Central repository is available for dependency lookup by default.
 Add dependencies (you can also add other modules that you need):
 
 ```xml
-<dependency>
-    <groupId>org.jetbrains.kotlinx</groupId>
-    <artifactId>kotlinx-collections-immutable-jvm</artifactId>
-    <version>0.3.8</version>
-</dependency>
+
+<dependencies>
+    <dependency>
+        <groupId>org.jetbrains.kotlinx</groupId>
+        <artifactId>kotlinx-collections-immutable-jvm</artifactId>
+        <version>0.3.8</version>
+    </dependency>
+    <dependency>
+        <groupId>org.jetbrains.kotlinx</groupId>
+        <artifactId>kotlinx-collections-immutable-serialization-jvm</artifactId>
+        <version>0.3.8</version>
+    </dependency>
+</dependencies>
 ```
 
 ## Building from source
