@@ -7,11 +7,11 @@ plugins {
 }
 
 base {
-    archivesName.set("kotlinx-collections-immutable") // doesn't work
+    archivesName = "kotlinx-collections-immutable" // doesn't work
 }
 
 mavenPublicationsPom {
-    description.set("Kotlin Immutable Collections multiplatform library")
+    description = "Kotlin Immutable Collections multiplatform library"
 }
 
 kotlin {
