@@ -428,8 +428,10 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         }
     }
 
+    // This test is flaky and fails here: https://github.com/JetBrains/kotlin/blob/600e306d80382d9eaacbccbb28225778474a8741/libraries/stdlib/js/src/kotlin/collections/InternalHashMap.kt#L274
+    // The reason of the stdlib exception is unclear. To determine what operations lead to the exception, we log them before test fails.
     @Test
-    fun randomOperationsTests() {
+    fun randomOperationsTests() = repeat(10) {
         val mapGen = mutableListOf(List(20) { persistentHashMapOf<IntWrapper, Int>() })
         val expected = mutableListOf(List(20) { mapOf<IntWrapper, Int>() })
 
@@ -437,6 +439,13 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
             val builders = mapGen.last().map { it.builder() }
             val maps = builders.map { it.toMutableMap() }
+            val lastGenOperations = builders.map { builder ->
+                StringBuilder(builder.size * 20).apply {
+                    append("initial:")
+                    builder.forEach { append("((${it.key.obj},${it.key.hashCode}),${it.value})") }
+                    appendLine()
+                }
+            }
 
             val operationCount = NForAlgorithmComplexity.O_NlogN
 
@@ -447,6 +456,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                 val index = Random.nextInt(maps.size)
                 val map = maps[index]
                 val builder = builders[index]
+                val operations = lastGenOperations[index]
 
                 val shouldRemove = Random.nextDouble() < 0.3
                 val shouldOperateOnExistingKey = map.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.2 }
@@ -456,22 +466,33 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                 val shouldRemoveByKey = shouldRemove && Random.nextBoolean()
                 val shouldRemoveByKeyAndValue = shouldRemove && !shouldRemoveByKey
 
-                when {
-                    shouldRemoveByKey -> {
-                        assertEquals(map.remove(key), builder.remove(key))
-                    }
-                    shouldRemoveByKeyAndValue -> {
-                        val shouldBeCurrentValue = Random.nextDouble() < 0.8
-                        val value = if (shouldOperateOnExistingKey && shouldBeCurrentValue) map[key]!! else Random.nextInt()
-                        assertEquals(map.remove(key, value), builder.remove(key, value))
-                    }
-                    else -> {
-                        val value = Random.nextInt()
-                        assertEquals(map.put(key, value), builder.put(key, value))
-                    }
-                }
+                try {
+                    when {
+                        shouldRemoveByKey -> {
+                            operations.appendLine("r(${key.obj},${key.hashCode})")
+                            assertEquals(map.remove(key), builder.remove(key))
+                        }
 
-                testAfterOperation(map, builder, key)
+                        shouldRemoveByKeyAndValue -> {
+                            val shouldBeCurrentValue = Random.nextDouble() < 0.8
+                            val value = if (shouldOperateOnExistingKey && shouldBeCurrentValue) map[key]!! else Random.nextInt()
+
+                            operations.appendLine("r((${key.obj},${key.hashCode}),$value)")
+                            assertEquals(map.remove(key, value), builder.remove(key, value))
+                        }
+
+                        else -> {
+                            val value = Random.nextInt()
+                            operations.appendLine("p((${key.obj},${key.hashCode}), $value)")
+                            assertEquals(map.put(key, value), builder.put(key, value))
+                        }
+                    }
+
+                    testAfterOperation(map, builder, key)
+                } catch (e: Throwable) {
+                    println(operations)
+                    throw e
+                }
             }
 
             assertEquals(maps, builders)

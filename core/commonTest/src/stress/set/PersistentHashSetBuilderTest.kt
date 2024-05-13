@@ -258,8 +258,10 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
         assertTrue(builder.isEmpty())
     }
 
+    // This test is flaky and fails here: https://github.com/JetBrains/kotlin/blob/600e306d80382d9eaacbccbb28225778474a8741/libraries/stdlib/js/src/kotlin/collections/InternalHashMap.kt#L274
+    // The reason of the stdlib exception is unclear. To determine what operations lead to the exception, we log them before test fails.
     @Test
-    fun randomOperationsTests() {
+    fun randomOperationsTests() = repeat(10) {
         val setGen = mutableListOf(List(20) { persistentHashSetOf<IntWrapper>() })
         val expected = mutableListOf(List(20) { setOf<IntWrapper>() })
 
@@ -267,6 +269,13 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
             val builders = setGen.last().map { it.builder() }
             val sets = builders.map { it.toMutableSet() }
+            val lastGenOperations = builders.map { builder ->
+                StringBuilder(builder.size * 20).apply {
+                    append("initial:")
+                    builder.forEach { append("(${it.obj},${it.hashCode})") }
+                    appendLine()
+                }
+            }
 
             val operationCount = NForAlgorithmComplexity.O_NlogN
 
@@ -277,22 +286,30 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
                 val index = Random.nextInt(sets.size)
                 val set = sets[index]
                 val builder = builders[index]
+                val operations = lastGenOperations[index]
 
                 val shouldRemove = Random.nextDouble() < 0.3
                 val shouldOperateOnExistingElement = set.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.001 }
 
                 val element = if (shouldOperateOnExistingElement) set.first() else IntWrapper(Random.nextInt(), hashCodes.random())
 
-                when {
-                    shouldRemove -> {
-                        assertEquals(set.remove(element), builder.remove(element))
+                try {
+                    when {
+                        shouldRemove -> {
+                            operations.appendLine("r(${element.obj},${element.hashCode})")
+                            assertEquals(set.remove(element), builder.remove(element))
+                        }
+                        else -> {
+                            operations.appendLine("a(${element.obj},${element.hashCode})")
+                            assertEquals(set.add(element), builder.add(element))
+                        }
                     }
-                    else -> {
-                        assertEquals(set.add(element), builder.add(element))
-                    }
-                }
 
-                testAfterOperation(set, builder, element)
+                    testAfterOperation(set, builder, element)
+                } catch (e: Throwable) {
+                    println(operations)
+                    throw e
+                }
             }
 
             assertEquals(sets, builders)
