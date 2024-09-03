@@ -9,7 +9,8 @@ import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.assert
 
-internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrderedSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
+internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
+    private var builtSet: PersistentOrderedSet<E>? = set
     internal var firstElement = set.firstElement
     private var lastElement = set.lastElement
     internal val hashMapBuilder = set.hashMap.builder()
@@ -18,15 +19,15 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
         get() = hashMapBuilder.size
 
     override fun build(): PersistentSet<E> {
-        val newMap = hashMapBuilder.build()
-        set = if (newMap === set.hashMap) {
+        return builtSet?.also { set ->
             assert(firstElement === set.firstElement)
             assert(lastElement === set.lastElement)
-            set
-        } else {
-            PersistentOrderedSet(firstElement, lastElement, newMap)
+        } ?: run {
+            val newMap = hashMapBuilder.build()
+            val newSet = PersistentOrderedSet(firstElement, lastElement, newMap)
+            builtSet = newSet
+            newSet
         }
-        return set
     }
 
     override fun contains(element: E): Boolean {
@@ -37,6 +38,7 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
         if (hashMapBuilder.containsKey(element)) {
             return false
         }
+        builtSet = null
         if (isEmpty()) {
             firstElement = element
             lastElement = element
@@ -56,7 +58,7 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
 
     override fun remove(element: E): Boolean {
         val links = hashMapBuilder.remove(element) ?: return false
-
+        builtSet = null
         if (links.hasPrevious) {
             val previousLinks = hashMapBuilder[links.previous]!!
 //            assert(previousLinks.next == element)
@@ -78,6 +80,9 @@ internal class PersistentOrderedSetBuilder<E>(private var set: PersistentOrdered
     }
 
     override fun clear() {
+        if (hashMapBuilder.isNotEmpty()) {
+            builtSet = null
+        }
         hashMapBuilder.clear()
         firstElement = EndOfChain
         lastElement = EndOfChain

@@ -12,38 +12,58 @@ import kotlinx.collections.immutable.internal.MutabilityOwnership
 import kotlinx.collections.immutable.internal.assert
 import kotlinx.collections.immutable.internal.modCount
 
-internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
-                                          private var vectorRoot: Array<Any?>?,
-                                          private var vectorTail: Array<Any?>,
+internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
+                                          vectorRoot: Array<Any?>?,
+                                          vectorTail: Array<Any?>,
                                           internal var rootShift: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
+
+    private var builtVector: PersistentList<E>? = vector
+    private var builtVectorRoot: Array<Any?>? = vectorRoot
+    private var builtVectorTail: Array<Any?>? = vectorTail
     private var ownership = MutabilityOwnership()
+
     internal var root = vectorRoot
-        private set
+        private set (value) {
+            if (value !== field) {
+                builtVector = null
+                builtVectorRoot = null
+                field = value
+            }
+        }
+
     internal var tail = vectorTail
-        private set
+        private set (value) {
+            if (value !== field) {
+                builtVector = null
+                builtVectorTail = null
+                field = value
+            }
+        }
+
     override var size = vector.size
         private set
 
     internal fun getModCount() = modCount
 
     override fun build(): PersistentList<E> {
-        vector = if (root === vectorRoot && tail === vectorTail) {
-            vector
-        } else {
+        return builtVector ?: run {
+            val root = root
+            val tail = tail
             ownership = MutabilityOwnership()
-            vectorRoot = root
-            vectorTail = tail
-            if (root == null) {
+            builtVectorRoot = root
+            builtVectorTail = tail
+            val newlyBuiltVector: PersistentList<E> = if (root == null) {
                 if (tail.isEmpty()) {
                     persistentVectorOf()
                 } else {
                     SmallPersistentVector(tail.copyOf(size))
                 }
             } else {
-                PersistentVector(root!!, tail, size, rootShift)
+                PersistentVector(root, tail, size, rootShift)
             }
+            builtVector = newlyBuiltVector
+            newlyBuiltVector
         }
-        return vector
     }
 
     private fun rootSize(): Int {

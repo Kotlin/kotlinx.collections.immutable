@@ -12,10 +12,17 @@ import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MapImplementation
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
-internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+    internal var builtMap: PersistentHashMap<K, V>? = map
     internal var ownership = MutabilityOwnership()
         private set
     internal var node = map.node
+        set(value) {
+            if (value !== field) {
+                field = value
+                builtMap = null
+            }
+        }
     internal var operationResult: V? = null
     internal var modCount = 0
 
@@ -27,13 +34,12 @@ internal class PersistentHashMapBuilder<K, V>(private var map: PersistentHashMap
         }
 
     override fun build(): PersistentHashMap<K, V> {
-        map = if (node === map.node) {
-            map
-        } else {
+        return builtMap ?: run {
+            val newlyBuiltMap = PersistentHashMap(node, size)
+            builtMap = newlyBuiltMap
             ownership = MutabilityOwnership()
-            PersistentHashMap(node, size)
+            newlyBuiltMap
         }
-        return map
     }
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
