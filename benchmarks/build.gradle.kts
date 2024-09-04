@@ -12,6 +12,7 @@ evaluationDependsOn(":kotlinx-collections-immutable")
 kotlin {
     infra {
         target("macosX64")
+        target("macosArm64")
         target("linuxX64")
         target("mingwX64")
     }
@@ -100,6 +101,7 @@ benchmark {
         register("js")
         register("wasmJs")
         register("macosX64")
+        register("macosArm64")
         register("linuxX64")
         register("mingwX64")
     }
