@@ -10,7 +10,6 @@ import kotlin.test.BeforeTest
 import kotlin.time.*
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalTime::class)
 abstract class ExecutionTimeMeasuringTest {
     private var clockMark: TimeMark? = null
 

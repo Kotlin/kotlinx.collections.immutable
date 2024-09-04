@@ -120,6 +120,9 @@ final class <#A: kotlin/Any?, #B: out kotlin/Any?> kotlinx.collections.immutable
     final fun hashCode(): kotlin/Int // kotlinx.collections.immutable.adapters/ImmutableMapAdapter.hashCode|hashCode(){}[0]
     final fun isEmpty(): kotlin/Boolean // kotlinx.collections.immutable.adapters/ImmutableMapAdapter.isEmpty|isEmpty(){}[0]
     final fun toString(): kotlin/String // kotlinx.collections.immutable.adapters/ImmutableMapAdapter.toString|toString(){}[0]
+
+    // Targets: [js]
+    final fun asJsReadonlyMapView(): kotlin.js.collections/JsReadonlyMap<#A, #B> // kotlinx.collections.immutable.adapters/ImmutableMapAdapter.asJsReadonlyMapView|asJsReadonlyMapView(){}[0]
 }
 
 final class <#A: kotlin/Any?> kotlinx.collections.immutable.adapters/ImmutableListAdapter : kotlin.collections/List<#A>, kotlinx.collections.immutable/ImmutableList<#A> { // kotlinx.collections.immutable.adapters/ImmutableListAdapter|null[0]
@@ -141,6 +144,9 @@ final class <#A: kotlin/Any?> kotlinx.collections.immutable.adapters/ImmutableLi
     final fun listIterator(kotlin/Int): kotlin.collections/ListIterator<#A> // kotlinx.collections.immutable.adapters/ImmutableListAdapter.listIterator|listIterator(kotlin.Int){}[0]
     final fun subList(kotlin/Int, kotlin/Int): kotlinx.collections.immutable/ImmutableList<#A> // kotlinx.collections.immutable.adapters/ImmutableListAdapter.subList|subList(kotlin.Int;kotlin.Int){}[0]
     final fun toString(): kotlin/String // kotlinx.collections.immutable.adapters/ImmutableListAdapter.toString|toString(){}[0]
+
+    // Targets: [js]
+    final fun asJsReadonlyArrayView(): kotlin.js.collections/JsReadonlyArray<#A> // kotlinx.collections.immutable.adapters/ImmutableListAdapter.asJsReadonlyArrayView|asJsReadonlyArrayView(){}[0]
 }
 
 final class <#A: kotlin/Any?> kotlinx.collections.immutable.adapters/ImmutableSetAdapter : kotlinx.collections.immutable.adapters/ImmutableCollectionAdapter<#A>, kotlinx.collections.immutable/ImmutableSet<#A> { // kotlinx.collections.immutable.adapters/ImmutableSetAdapter|null[0]
