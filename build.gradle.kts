@@ -46,3 +46,7 @@ allprojects {
 tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
     args.add("--ignore-engines")
 }
+
+dependencyLocking {
+    lockAllConfigurations()
+}
