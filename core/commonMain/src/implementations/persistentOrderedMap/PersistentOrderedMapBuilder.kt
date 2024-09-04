@@ -12,7 +12,9 @@ import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.MapImplementation
 import kotlinx.collections.immutable.internal.assert
 
-internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrderedMap<K, V>) : AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
+internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>) : AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
+    private var builtMap: PersistentOrderedMap<K, V>? = map
+
     internal var firstKey = map.firstKey
         private set
 
@@ -23,15 +25,17 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
     override val size: Int get() = hashMapBuilder.size
 
     override fun build(): PersistentMap<K, V> {
-        val newHashMap = hashMapBuilder.build()
-        map = if (newHashMap === map.hashMap) {
+        return builtMap?.also { map ->
+            assert(hashMapBuilder.builtMap != null)
             assert(firstKey === map.firstKey)
             assert(lastKey === map.lastKey)
-            map
-        } else {
-            PersistentOrderedMap(firstKey, lastKey, newHashMap)
+        } ?: run {
+            assert(hashMapBuilder.builtMap == null)
+            val newHashMap = hashMapBuilder.build()
+            val newOrdered = PersistentOrderedMap(firstKey, lastKey, newHashMap)
+            builtMap = newOrdered
+            newOrdered
         }
-        return map
     }
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
@@ -55,34 +59,36 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
 
     override fun put(key: K, value: @UnsafeVariance V): V? {
         val links = hashMapBuilder[key]
-        if (links != null) {
+        return if (links != null) {
             if (links.value === value) {
-                return value
+                value
+            } else {
+                builtMap = null
+                hashMapBuilder[key] = links.withValue(value)
+                links.value
             }
-            hashMapBuilder[key] = links.withValue(value)
-            return links.value
+        } else {
+            builtMap = null
+            if (isEmpty()) {
+                firstKey = key
+                lastKey = key
+                hashMapBuilder[key] = LinkedValue(value)
+            } else {
+                @Suppress("UNCHECKED_CAST")
+                val lastKey = lastKey as K
+                val lastLinks = hashMapBuilder[lastKey]!!
+                assert(!lastLinks.hasNext)
+                hashMapBuilder[lastKey] = lastLinks.withNext(key)
+                hashMapBuilder[key] = LinkedValue(value, previous = lastKey)
+                this.lastKey = key
+            }
+            null
         }
-
-        if (isEmpty()) {  //  isEmpty
-            firstKey = key
-            lastKey = key
-            hashMapBuilder[key] = LinkedValue(value)
-            return null
-        }
-        @Suppress("UNCHECKED_CAST")
-        val lastKey = lastKey as K
-        val lastLinks = hashMapBuilder[lastKey]!!
-        assert(!lastLinks.hasNext)
-
-        hashMapBuilder[lastKey] = lastLinks.withNext(key)
-        hashMapBuilder[key] = LinkedValue(value, previous = lastKey)
-        this.lastKey = key
-        return null
     }
 
     override fun remove(key: K): V? {
         val links = hashMapBuilder.remove(key) ?: return null
-
+        builtMap = null
         if (links.hasPrevious) {
             val previousLinks = hashMapBuilder[links.previous]!!
 //            assert(previousLinks.next == key)
@@ -115,6 +121,9 @@ internal class PersistentOrderedMapBuilder<K, V>(private var map: PersistentOrde
     }
 
     override fun clear() {
+        if (hashMapBuilder.isNotEmpty()) {
+            builtMap = null
+        }
         hashMapBuilder.clear()
         firstKey = EndOfChain
         lastKey = EndOfChain
