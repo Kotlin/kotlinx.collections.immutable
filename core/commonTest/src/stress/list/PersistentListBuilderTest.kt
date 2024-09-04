@@ -17,9 +17,7 @@ import tests.testOn
 import kotlin.random.Random
 import kotlin.random.nextInt
 import kotlin.test.*
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test

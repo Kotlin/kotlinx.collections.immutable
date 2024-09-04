@@ -1,5 +1,5 @@
 import kotlinx.team.infra.mavenPublicationsPom
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     id("kotlin-multiplatform")
