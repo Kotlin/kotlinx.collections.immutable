@@ -17,22 +17,22 @@ sourceSets.main {
 // map
 val benchmarkHashMap by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.HashMapRunnerKt")
+    mainClass = "runners.HashMapRunnerKt"
 }
 
 val benchmarkHashMapBuilder by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.HashMapBuilderRunnerKt")
+    mainClass = "runners.HashMapBuilderRunnerKt"
 }
 
 val benchmarkOrderedMap by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.OrderedMapRunnerKt")
+    mainClass = "runners.OrderedMapRunnerKt"
 }
 
 val benchmarkOrderedMapBuilder by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.OrderedMapBuilderRunnerKt")
+    mainClass = "runners.OrderedMapBuilderRunnerKt"
 }
 
 val benchmarkAllMaps by tasks.registering {
@@ -46,22 +46,22 @@ val benchmarkAllMaps by tasks.registering {
 // set
 val benchmarkHashSet by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.HashSetRunnerKt")
+    mainClass = "runners.HashSetRunnerKt"
 }
 
 val benchmarkHashSetBuilder by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.HashSetBuilderRunnerKt")
+    mainClass = "runners.HashSetBuilderRunnerKt"
 }
 
 val benchmarkOrderedSet by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.OrderedSetRunnerKt")
+    mainClass = "runners.OrderedSetRunnerKt"
 }
 
 val benchmarkOrderedSetBuilder by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.OrderedSetBuilderRunnerKt")
+    mainClass = "runners.OrderedSetBuilderRunnerKt"
 }
 
 val benchmarkAllSets by tasks.registering {
@@ -75,12 +75,12 @@ val benchmarkAllSets by tasks.registering {
 // list
 val benchmarkList by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.ListRunnerKt")
+    mainClass = "runners.ListRunnerKt"
 }
 
 val benchmarkListBuilder by tasks.registering(JavaExec::class) {
     group = "Benchmark"
-    mainClass.set("runners.ListBuilderRunnerKt")
+    mainClass = "runners.ListBuilderRunnerKt"
 }
 
 val benchmarkAllLists by tasks.registering {
