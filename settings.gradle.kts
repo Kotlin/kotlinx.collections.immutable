@@ -2,6 +2,11 @@ pluginManagement {
     repositories {
         maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlinx/maven")
         gradlePluginPortal()
+
+        val kotlinRepoUrl = providers.gradleProperty("kotlin_repo_url").orNull
+        if (kotlinRepoUrl != null) {
+            maven(kotlinRepoUrl)
+        }
     }
 }
 

@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.20")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.properties["kotlin_version"]}")
     }
 }
 
@@ -37,6 +37,11 @@ apiValidation {
 allprojects {
     repositories {
         mavenCentral()
+
+        val kotlinRepoUrl = providers.gradleProperty("kotlin_repo_url").orNull
+        if (kotlinRepoUrl != null) {
+            maven(kotlinRepoUrl)
+        }
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
