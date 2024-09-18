@@ -392,4 +392,13 @@ abstract class ImmutableMapTest {
 
         testEquality(data, changed)
     }
+
+    @Test
+    fun immutableMapOrEmpty() {
+        val emptyMap = (null as PersistentMap<String, Int>?).orEmpty()
+        val notEmptyMap = persistentMapOf("a" to 1)
+
+        assertEquals(emptyMap, persistentMapOf())
+        assertEquals(notEmptyMap, notEmptyMap.orEmpty())
+    }
 }
