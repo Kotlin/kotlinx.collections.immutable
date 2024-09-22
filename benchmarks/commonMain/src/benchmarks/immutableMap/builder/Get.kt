@@ -8,6 +8,7 @@ package benchmarks.immutableMap.builder
 import benchmarks.*
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentMap
 
 @State(Scope.Benchmark)
 open class Get {
@@ -24,7 +25,7 @@ open class Get {
     var immutablePercentage: Double = 0.0
 
     private var keys = listOf<IntWrapper>()
-    private var builder = persistentMapOf<IntWrapper, String>().builder()
+    private var builder = emptyPersistentMap<IntWrapper, String>().builder()
 
     @Setup
     fun prepare() {

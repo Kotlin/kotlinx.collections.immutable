@@ -442,6 +442,13 @@ public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): Per
 
 
 /**
+ * Returns an empty persistent list.
+ *
+ * @since 0.4
+ */
+public fun <E> emptyPersistentList(): PersistentList<E> = persistentVectorOf()
+
+/**
  * Returns a new persistent list of the specified elements.
  */
 public fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persistentVectorOf<E>().addAll(elements.asList())
@@ -449,8 +456,16 @@ public fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persist
 /**
  * Returns an empty persistent list.
  */
-public fun <E> persistentListOf(): PersistentList<E> = persistentVectorOf()
+@Deprecated("Use emptyPersistentList instead.", ReplaceWith("emptyPersistentList<E>()"))
+public fun <E> persistentListOf(): PersistentList<E> = emptyPersistentList()
 
+
+/**
+ * Returns an empty persistent set.
+ *
+ * @since 0.4
+ */
+public fun <E> emptyPersistentSet(): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>()
 
 /**
  * Returns a new persistent set with the given elements.
@@ -462,8 +477,16 @@ public fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = Persisten
 /**
  * Returns an empty persistent set.
  */
-public fun <E> persistentSetOf(): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>()
+@Deprecated("Use emptyPersistentSet instead.", ReplaceWith("emptyPersistentSet<E>()"))
+public fun <E> persistentSetOf(): PersistentSet<E> = emptyPersistentSet()
 
+
+/**
+ * Returns an empty persistent set.
+ *
+ * @since 0.4
+ */
+public fun <E> emptyPersistentHashSet(): PersistentSet<E> = PersistentHashSet.emptyOf()
 
 /**
  * Returns a new persistent set with the given elements.
@@ -475,8 +498,16 @@ public fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = Persi
 /**
  * Returns an empty persistent set.
  */
-public fun <E> persistentHashSetOf(): PersistentSet<E> = PersistentHashSet.emptyOf()
+@Deprecated("Use emptyPersistentHashSet instead.", ReplaceWith("emptyPersistentHashSet<E>()"))
+public fun <E> persistentHashSetOf(): PersistentSet<E> = emptyPersistentHashSet()
 
+
+/**
+ * Returns an empty persistent map.
+ *
+ * @since 0.4
+ */
+public fun <K, V> emptyPersistentMap(): PersistentMap<K, V> = PersistentOrderedMap.emptyOf()
 
 /**
  * Returns a new persistent map with the specified contents, given as a list of pairs
@@ -491,8 +522,16 @@ public fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V>
 /**
  * Returns an empty persistent map.
  */
-public fun <K, V> persistentMapOf(): PersistentMap<K, V> = PersistentOrderedMap.emptyOf()
+@Deprecated("Use emptyPersistentMap instead.", ReplaceWith("emptyPersistentMap<K, V>()"))
+public fun <K, V> persistentMapOf(): PersistentMap<K, V> = emptyPersistentMap()
 
+
+/**
+ * Returns an empty persistent map.
+ *
+ * @since 0.4
+ */
+public fun <K, V> emptyPersistentHashMap(): PersistentMap<K, V> = PersistentHashMap.emptyOf()
 
 /**
  * Returns a new persistent map with the specified contents, given as a list of pairs
@@ -507,20 +546,21 @@ public fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K
 /**
  * Returns an empty persistent map.
  */
-public fun <K, V> persistentHashMapOf(): PersistentMap<K, V> = PersistentHashMap.emptyOf()
+@Deprecated("Use emptyPersistentHashMap instead.", ReplaceWith("emptyPersistentHashMap<K, V>()"))
+public fun <K, V> persistentHashMapOf(): PersistentMap<K, V> = emptyPersistentHashMap()
 
 
 /**
  * Returns a new persistent list of the specified elements.
  */
-@Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf(*elements)"))
+@Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf<E>(*elements)"))
 public fun <E> immutableListOf(vararg elements: E): PersistentList<E> = persistentListOf(*elements)
 
 /**
  * Returns an empty persistent list.
  */
-@Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf()"))
-public fun <E> immutableListOf(): PersistentList<E> = persistentListOf()
+@Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf<E>()"))
+public fun <E> immutableListOf(): PersistentList<E> = emptyPersistentList()
 
 
 /**
@@ -528,14 +568,14 @@ public fun <E> immutableListOf(): PersistentList<E> = persistentListOf()
  *
  * Elements of the returned set are iterated in the order they were specified.
  */
-@Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf(*elements)"))
+@Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf<E>(*elements)"))
 public fun <E> immutableSetOf(vararg elements: E): PersistentSet<E> = persistentSetOf(*elements)
 
 /**
  * Returns an empty persistent set.
  */
-@Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf()"))
-public fun <E> immutableSetOf(): PersistentSet<E> = persistentSetOf()
+@Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf<E>()"))
+public fun <E> immutableSetOf(): PersistentSet<E> = emptyPersistentSet()
 
 
 /**
@@ -543,7 +583,7 @@ public fun <E> immutableSetOf(): PersistentSet<E> = persistentSetOf()
  *
  * Order of the elements in the returned set is unspecified.
  */
-@Deprecated("Use persistentHashSetOf instead.", ReplaceWith("persistentHashSetOf(*elements)"))
+@Deprecated("Use persistentHashSetOf instead.", ReplaceWith("persistentHashSetOf<E>(*elements)"))
 public fun <E> immutableHashSetOf(vararg elements: E): PersistentSet<E> = persistentHashSetOf(*elements)
 
 
@@ -555,7 +595,7 @@ public fun <E> immutableHashSetOf(vararg elements: E): PersistentSet<E> = persis
  *
  * Entries of the map are iterated in the order they were specified.
  */
-@Deprecated("Use persistentMapOf instead.", ReplaceWith("persistentMapOf(*pairs)"))
+@Deprecated("Use persistentMapOf instead.", ReplaceWith("persistentMapOf<K, V>(*pairs)"))
 public fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
 
 /**
@@ -566,7 +606,7 @@ public fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> 
  *
  * Order of the entries in the returned map is unspecified.
  */
-@Deprecated("Use persistentHashMapOf instead.", ReplaceWith("persistentHashMapOf(*pairs)"))
+@Deprecated("Use persistentHashMapOf instead.", ReplaceWith("persistentHashMapOf<K, V>(*pairs)"))
 public fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentHashMapOf(*pairs)
 
 
@@ -604,23 +644,23 @@ public fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentLis
 public fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
         this as? PersistentList
         ?: (this as? PersistentList.Builder)?.build()
-        ?: persistentListOf<T>() + this
+        ?: emptyPersistentList<T>() + this
 
 /**
  * Returns a persistent list containing all elements of this array.
  */
-public fun <T> Array<out T>.toPersistentList(): PersistentList<T> = persistentListOf<T>() + this
+public fun <T> Array<out T>.toPersistentList(): PersistentList<T> = emptyPersistentList<T>() + this
 
 /**
  * Returns a persistent list containing all elements of this sequence.
  */
-public fun <T> Sequence<T>.toPersistentList(): PersistentList<T> = persistentListOf<T>() + this
+public fun <T> Sequence<T>.toPersistentList(): PersistentList<T> = emptyPersistentList<T>() + this
 
 /**
  * Returns a persistent list containing all characters.
  */
 public fun CharSequence.toPersistentList(): PersistentList<Char> =
-    persistentListOf<Char>().mutate { this.toCollection(it) }
+    emptyPersistentList<Char>().mutate { this.toCollection(it) }
 
 
 /**
@@ -633,7 +673,7 @@ public fun CharSequence.toPersistentList(): PersistentList<Char> =
 public fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
         this as? ImmutableSet<T>
         ?: (this as? PersistentSet.Builder)?.build()
-        ?: persistentSetOf<T>() + this
+        ?: emptyPersistentSet<T>() + this
 
 /**
  * Returns an immutable set of all elements of this array.
@@ -675,14 +715,14 @@ public fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
  *
  * Elements of the returned set are iterated in the same order as in this array.
  */
-public fun <T> Array<out T>.toPersistentSet(): PersistentSet<T> = persistentSetOf<T>() + this
+public fun <T> Array<out T>.toPersistentSet(): PersistentSet<T> = emptyPersistentSet<T>() + this
 
 /**
  * Returns a persistent set of all elements of this sequence.
  *
  * Elements of the returned set are iterated in the same order as in this sequence.
  */
-public fun <T> Sequence<T>.toPersistentSet(): PersistentSet<T> = persistentSetOf<T>() + this
+public fun <T> Sequence<T>.toPersistentSet(): PersistentSet<T> = emptyPersistentSet<T>() + this
 
 /**
  * Returns a persistent set of all characters.
@@ -690,7 +730,7 @@ public fun <T> Sequence<T>.toPersistentSet(): PersistentSet<T> = persistentSetOf
  * Elements of the returned set are iterated in the same order as in this char sequence.
  */
 public fun CharSequence.toPersistentSet(): PersistentSet<Char> =
-        persistentSetOf<Char>().mutate { this.toCollection(it) }
+        emptyPersistentSet<Char>().mutate { this.toCollection(it) }
 
 
 /**
@@ -711,14 +751,14 @@ public fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T>
  *
  * Order of the elements in the returned set is unspecified.
  */
-public fun <T> Array<out T>.toPersistentHashSet(): PersistentSet<T> = persistentHashSetOf<T>() + this
+public fun <T> Array<out T>.toPersistentHashSet(): PersistentSet<T> = emptyPersistentHashSet<T>() + this
 
 /**
  * Returns a persistent set of all elements of this sequence.
  *
  * Order of the elements in the returned set is unspecified.
  */
-public fun <T> Sequence<T>.toPersistentHashSet(): PersistentSet<T> = persistentHashSetOf<T>() + this
+public fun <T> Sequence<T>.toPersistentHashSet(): PersistentSet<T> = emptyPersistentHashSet<T>() + this
 
 /**
  * Returns a persistent set of all characters.
@@ -726,7 +766,7 @@ public fun <T> Sequence<T>.toPersistentHashSet(): PersistentSet<T> = persistentH
  * Order of the elements in the returned set is unspecified.
  */
 public fun CharSequence.toPersistentHashSet(): PersistentSet<Char> =
-        persistentHashSetOf<Char>().mutate { this.toCollection(it) }
+        emptyPersistentHashSet<Char>().mutate { this.toCollection(it) }
 
 
 /**
@@ -739,7 +779,7 @@ public fun CharSequence.toPersistentHashSet(): PersistentSet<Char> =
 public fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
     = this as? ImmutableMap
         ?: (this as? PersistentMap.Builder)?.build()
-        ?: persistentMapOf<K, V>().putAll(this)
+        ?: emptyPersistentMap<K, V>().putAll(this)
 
 /**
  * Returns a persistent map containing all entries from this map.
@@ -766,3 +806,107 @@ public fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
         = this as? PersistentHashMap
         ?: (this as? PersistentHashMapBuilder<K, V>)?.build()
         ?: PersistentHashMap.emptyOf<K, V>().putAll(this)
+
+
+/**
+ * Returns a persistent map of all elements in this [Sequence] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Sequence<Pair<T, R>>.toPersistentMap(): PersistentMap<T, R> =
+    emptyPersistentMap<T, R>().putAll(pairs = this)
+
+/**
+ * Returns an immutable map of all elements in this [Sequence] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Sequence<Pair<T, R>>.toImmutableMap(): ImmutableMap<T, R> = toPersistentMap()
+
+/**
+ * Returns a persistent map of all elements in this [Iterable] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Iterable<Pair<T, R>>.toPersistentMap(): PersistentMap<T, R> =
+    emptyPersistentMap<T, R>().putAll(pairs = this)
+
+/**
+ * Returns an immutable map of all elements in this [Iterable] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Iterable<Pair<T, R>>.toImmutableMap(): ImmutableMap<T, R> = toPersistentMap()
+
+/**
+ * Returns a persistent map of all elements in this [Array] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Array<Pair<T, R>>.toPersistentMap(): PersistentMap<T, R> =
+    emptyPersistentMap<T, R>().putAll(pairs = this)
+
+/**
+ * Returns an immutable map of all elements in this [Array] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Array<Pair<T, R>>.toImmutableMap(): ImmutableMap<T, R> = toPersistentMap()
+
+
+/**
+ * Returns a persistent hash map of all elements in this [Sequence] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Sequence<Pair<T, R>>.toPersistentHashMap(): PersistentMap<T, R> =
+    emptyPersistentHashMap<T, R>().putAll(pairs = this)
+
+/**
+ * Returns an immutable hash map of all elements in this [Sequence] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Sequence<Pair<T, R>>.toImmutableHashMap(): ImmutableMap<T, R> = toPersistentHashMap()
+
+/**
+ * Returns a persistent hash map of all elements in this [Iterable] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Iterable<Pair<T, R>>.toPersistentHashMap(): PersistentMap<T, R> =
+    emptyPersistentHashMap<T, R>().putAll(pairs = this)
+
+/**
+ * Returns an immutable hash map of all elements in this [Iterable] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Iterable<Pair<T, R>>.toImmutableHashMap(): ImmutableMap<T, R> = toPersistentHashMap()
+
+/**
+ * Returns a persistent hash map of all elements in this [Array] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Array<Pair<T, R>>.toPersistentHashMap(): PersistentMap<T, R> =
+    emptyPersistentHashMap<T, R>().putAll(pairs = this)
+
+/**
+ * Returns an immutable hash map of all elements in this [Array] of [Pair]s,
+ * using [Pair.first] as [keys][ImmutableMap.keys] and [Pair.second] as [values][ImmutableMap.values].
+ *
+ * @since 0.4
+ */
+public fun <T, R> Array<Pair<T, R>>.toImmutableHashMap(): ImmutableMap<T, R> = toPersistentHashMap()
