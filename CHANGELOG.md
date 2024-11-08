@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.3.8
+
+- Add extension functions to convert Array to persistent collections [#159](https://github.com/Kotlin/kotlinx.collections.immutable/issues/159)
+- Don't allocate temporary buffer in SmallPersistentVector.removeAll [#164](https://github.com/Kotlin/kotlinx.collections.immutable/pull/164)
+- Avoid creating new PersistentList instance when adding empty collection [#176](https://github.com/Kotlin/kotlinx.collections.immutable/pull/176)
+- Fix memory leak in builders [#193](https://github.com/Kotlin/kotlinx.collections.immutable/pull/193)
+
 ## 0.3.7
 
 - Upgrade Kotlin version up to 1.9.21

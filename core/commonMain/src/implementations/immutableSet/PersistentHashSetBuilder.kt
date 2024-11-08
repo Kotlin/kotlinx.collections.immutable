@@ -9,11 +9,17 @@ import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
-internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
+internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
+    private var builtSet: PersistentHashSet<E>? = set
     internal var ownership = MutabilityOwnership()
         private set
     internal var node = set.node
-        private set
+        private set (value) {
+            if (value !== field) {
+                builtSet = null
+                field = value
+            }
+        }
     internal var modCount = 0
         private set
 
@@ -25,13 +31,12 @@ internal class PersistentHashSetBuilder<E>(private var set: PersistentHashSet<E>
         }
 
     override fun build(): PersistentHashSet<E> {
-        set = if (node === set.node) {
-            set
-        } else {
+        return builtSet ?: run {
+            val newlyBuiltSet = PersistentHashSet(node, size)
             ownership = MutabilityOwnership()
-            PersistentHashSet(node, size)
+            builtSet = newlyBuiltSet
+            newlyBuiltSet
         }
-        return set
     }
 
     override fun contains(element: E): Boolean {
