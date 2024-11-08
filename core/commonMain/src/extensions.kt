@@ -456,7 +456,6 @@ public fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persist
 /**
  * Returns an empty persistent list.
  */
-@Deprecated("Use emptyPersistentList instead.", ReplaceWith("emptyPersistentList<E>()"))
 public fun <E> persistentListOf(): PersistentList<E> = emptyPersistentList()
 
 
@@ -477,7 +476,6 @@ public fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = Persisten
 /**
  * Returns an empty persistent set.
  */
-@Deprecated("Use emptyPersistentSet instead.", ReplaceWith("emptyPersistentSet<E>()"))
 public fun <E> persistentSetOf(): PersistentSet<E> = emptyPersistentSet()
 
 
@@ -498,7 +496,6 @@ public fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = Persi
 /**
  * Returns an empty persistent set.
  */
-@Deprecated("Use emptyPersistentHashSet instead.", ReplaceWith("emptyPersistentHashSet<E>()"))
 public fun <E> persistentHashSetOf(): PersistentSet<E> = emptyPersistentHashSet()
 
 
@@ -522,7 +519,6 @@ public fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V>
 /**
  * Returns an empty persistent map.
  */
-@Deprecated("Use emptyPersistentMap instead.", ReplaceWith("emptyPersistentMap<K, V>()"))
 public fun <K, V> persistentMapOf(): PersistentMap<K, V> = emptyPersistentMap()
 
 
@@ -546,7 +542,6 @@ public fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K
 /**
  * Returns an empty persistent map.
  */
-@Deprecated("Use emptyPersistentHashMap instead.", ReplaceWith("emptyPersistentHashMap<K, V>()"))
 public fun <K, V> persistentHashMapOf(): PersistentMap<K, V> = emptyPersistentHashMap()
 
 
