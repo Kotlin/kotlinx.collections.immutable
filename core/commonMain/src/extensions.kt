@@ -636,10 +636,10 @@ public fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentLis
  * If the receiver is already a persistent list, returns it as is.
  * If the receiver is a persistent list builder, calls `build` on it and returns the result.
  */
-public fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
-        this as? PersistentList
+public fun <T> Iterable<T>.toPersistentList(): PersistentList<T>
+        = this as? PersistentList
         ?: (this as? PersistentList.Builder)?.build()
-        ?: emptyPersistentList<T>() + this
+        ?: (emptyPersistentList<T>() + this)
 
 /**
  * Returns a persistent list containing all elements of this array.
@@ -665,10 +665,10 @@ public fun CharSequence.toPersistentList(): PersistentList<Char> =
  *
  * Elements of the returned set are iterated in the same order as in this collection.
  */
-public fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
-        this as? ImmutableSet<T>
+public fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T>
+        = this as? ImmutableSet<T>
         ?: (this as? PersistentSet.Builder)?.build()
-        ?: emptyPersistentSet<T>() + this
+        ?: (emptyPersistentSet<T>() + this)
 
 /**
  * Returns an immutable set of all elements of this array.
@@ -700,10 +700,10 @@ public fun CharSequence.toImmutableSet(): PersistentSet<Char> = toPersistentSet(
  *
  * Elements of the returned set are iterated in the same order as in this collection.
  */
-public fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
-        this as? PersistentOrderedSet<T>
+public fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T>
+        = this as? PersistentOrderedSet<T>
         ?: (this as? PersistentOrderedSetBuilder)?.build()
-        ?: PersistentOrderedSet.emptyOf<T>() + this
+        ?: (PersistentOrderedSet.emptyOf<T>() + this)
 
 /**
  * Returns a persistent set of all elements of this array.
@@ -737,9 +737,9 @@ public fun CharSequence.toPersistentSet(): PersistentSet<Char> =
  * Order of the elements in the returned set is unspecified.
  */
 public fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T>
-    = this as? PersistentHashSet
+        = this as? PersistentHashSet
         ?: (this as? PersistentHashSetBuilder<T>)?.build()
-        ?: PersistentHashSet.emptyOf<T>() + this
+        ?: (PersistentHashSet.emptyOf<T>() + this)
 
 /**
  * Returns a persistent set of all elements of this array.
@@ -772,8 +772,8 @@ public fun CharSequence.toPersistentHashSet(): PersistentSet<Char> =
  * Entries of the returned map are iterated in the same order as in this map.
  */
 public fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
-    = this as? ImmutableMap
-        ?: (this as? PersistentMap.Builder)?.build()
+        = this as? ImmutableMap 
+        ?: (this as? PersistentMap.Builder)?.build() 
         ?: emptyPersistentMap<K, V>().putAll(this)
 
 /**
@@ -785,7 +785,7 @@ public fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
  * Entries of the returned map are iterated in the same order as in this map.
  */
 public fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
-    = this as? PersistentOrderedMap<K, V>
+        = this as? PersistentOrderedMap<K, V>
         ?: (this as? PersistentOrderedMapBuilder<K, V>)?.build()
         ?: PersistentOrderedMap.emptyOf<K, V>().putAll(this)
 
@@ -797,7 +797,7 @@ public fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
  *
  * Order of the entries in the returned map is unspecified.
  */
-public fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
+public fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V> 
         = this as? PersistentHashMap
         ?: (this as? PersistentHashMapBuilder<K, V>)?.build()
         ?: PersistentHashMap.emptyOf<K, V>().putAll(this)
