@@ -73,22 +73,12 @@ kotlin {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         nodejs {
-            testTask {
-                useMocha {
-                    timeout = "30000"
-                }
-            }
         }
     }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmWasi {
         nodejs {
-            testTask {
-                useMocha {
-                    timeout = "30000"
-                }
-            }
         }
     }
 
