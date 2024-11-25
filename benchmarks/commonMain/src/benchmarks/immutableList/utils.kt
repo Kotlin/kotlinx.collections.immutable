@@ -6,10 +6,11 @@
 package benchmarks.immutableList
 
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.emptyPersistentList
 import kotlinx.collections.immutable.persistentListOf
 
 fun persistentListAdd(size: Int): PersistentList<String> {
-    var list = persistentListOf<String>()
+    var list = emptyPersistentList<String>()
     repeat(times = size) {
         list = list.add("some element")
     }
