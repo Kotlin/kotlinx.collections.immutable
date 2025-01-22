@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 buildscript {
     dependencies {
@@ -44,11 +45,15 @@ allprojects {
         }
     }
 
-    tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
-        kotlinOptions.allWarningsAsErrors = true
-        kotlinOptions.freeCompilerArgs += "-Xexpect-actual-classes"
+    tasks.withType(KotlinCompilationTask::class).configureEach {
+        compilerOptions {
+            allWarningsAsErrors = true
+            freeCompilerArgs.add("-Xexpect-actual-classes")
+        }
         if (this is KotlinJsCompile) {
-            kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
+            compilerOptions {
+                freeCompilerArgs.add("-Xwasm-enable-array-range-checks")
+            }
         }
     }
 }
