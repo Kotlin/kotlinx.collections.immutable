@@ -1,5 +1,8 @@
 import kotlinx.team.infra.mavenPublicationsPom
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("kotlin-multiplatform")
@@ -14,6 +17,7 @@ mavenPublicationsPom {
     description = "Kotlin Immutable Collections multiplatform library"
 }
 
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     applyDefaultHierarchyTemplate()
     explicitApi()
@@ -46,10 +50,8 @@ kotlin {
     watchosDeviceArm64()
 
     jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
 
@@ -61,12 +63,9 @@ kotlin {
                 }
             }
         }
-        compilations.all {
-            kotlinOptions {
-                sourceMap = true
-                moduleKind = "umd"
-                metaInfo = true
-            }
+        compilerOptions {
+            sourceMap = true
+            moduleKind.set(JsModuleKind.MODULE_UMD)
         }
     }
 
