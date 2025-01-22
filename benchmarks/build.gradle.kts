@@ -1,6 +1,8 @@
 import kotlinx.benchmark.gradle.JvmBenchmarkTarget
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("kotlin-multiplatform")
@@ -10,6 +12,7 @@ plugins {
 
 evaluationDependsOn(":kotlinx-collections-immutable")
 
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     infra {
         target("macosX64")
@@ -19,10 +22,8 @@ kotlin {
     }
 
     jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
 
