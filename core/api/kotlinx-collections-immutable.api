@@ -1,4 +1,9 @@
 public final class kotlinx/collections/immutable/ExtensionsKt {
+	public static final fun emptyPersistentHashMap ()Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun emptyPersistentHashSet ()Lkotlinx/collections/immutable/PersistentSet;
+	public static final fun emptyPersistentList ()Lkotlinx/collections/immutable/PersistentList;
+	public static final fun emptyPersistentMap ()Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun emptyPersistentSet ()Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun immutableHashMapOf ([Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun immutableHashSetOf ([Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun immutableListOf ()Lkotlinx/collections/immutable/PersistentList;
@@ -58,16 +63,25 @@ public final class kotlinx/collections/immutable/ExtensionsKt {
 	public static final fun putAll (Lkotlinx/collections/immutable/PersistentMap;Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun putAll (Lkotlinx/collections/immutable/PersistentMap;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun putAll (Lkotlinx/collections/immutable/PersistentMap;[Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun toImmutableHashMap (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/ImmutableMap;
+	public static final fun toImmutableHashMap (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/ImmutableMap;
+	public static final fun toImmutableHashMap ([Lkotlin/Pair;)Lkotlinx/collections/immutable/ImmutableMap;
 	public static final fun toImmutableList (Ljava/lang/CharSequence;)Lkotlinx/collections/immutable/ImmutableList;
 	public static final fun toImmutableList (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/ImmutableList;
 	public static final fun toImmutableList (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/ImmutableList;
 	public static final fun toImmutableList ([Ljava/lang/Object;)Lkotlinx/collections/immutable/ImmutableList;
+	public static final fun toImmutableMap (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/ImmutableMap;
 	public static final fun toImmutableMap (Ljava/util/Map;)Lkotlinx/collections/immutable/ImmutableMap;
+	public static final fun toImmutableMap (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/ImmutableMap;
+	public static final fun toImmutableMap ([Lkotlin/Pair;)Lkotlinx/collections/immutable/ImmutableMap;
 	public static final fun toImmutableSet (Ljava/lang/CharSequence;)Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun toImmutableSet (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/ImmutableSet;
 	public static final fun toImmutableSet (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/ImmutableSet;
 	public static final fun toImmutableSet ([Ljava/lang/Object;)Lkotlinx/collections/immutable/ImmutableSet;
+	public static final fun toPersistentHashMap (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun toPersistentHashMap (Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun toPersistentHashMap (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun toPersistentHashMap ([Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun toPersistentHashSet (Ljava/lang/CharSequence;)Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun toPersistentHashSet (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun toPersistentHashSet (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentSet;
@@ -76,7 +90,10 @@ public final class kotlinx/collections/immutable/ExtensionsKt {
 	public static final fun toPersistentList (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentList;
 	public static final fun toPersistentList (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentList;
 	public static final fun toPersistentList ([Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
+	public static final fun toPersistentMap (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun toPersistentMap (Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun toPersistentMap (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun toPersistentMap ([Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun toPersistentSet (Ljava/lang/CharSequence;)Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun toPersistentSet (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun toPersistentSet (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentSet;
