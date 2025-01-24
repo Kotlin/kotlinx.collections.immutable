@@ -1,0 +1,61 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.40'
+    id "me.champeau.gradle.jmh" version "0.4.8"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven { url 'http://nexus.usethesource.io/content/repositories/public/' }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    
+    implementation 'org.jetbrains.kotlinx:kotlinx-collections-immutable:0.2-SNAPSHOT'
+    implementation 'io.usethesource:capsule:0.6.1'
+    implementation 'org.organicdesign:Paguro:3.1.2'
+    implementation 'com.oath.cyclops:cyclops:10.3.0'
+    implementation 'org.clojure:clojure:1.10.0'
+    implementation 'org.scala-lang:scala-library:2.13.0'
+    implementation 'io.vavr:vavr:0.9.3'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+compileJmhKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+task generateBenchmarkSources(type: JavaExec) {
+    main = 'generators.BenchmarkSourceGeneratorKt'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+jmh {
+//    include = ['immutableList.*.Add', 'immutableMap', 'immutableSet']
+//    exclude = ['builder']
+
+    profilers = ['gc']
+
+    resultFormat = "csv"
+
+    fork = 1
+    warmupIterations = 7
+    iterations = 10
+    warmup = '500ms'
+    timeOnIteration = '500ms'
+
+    benchmarkMode = ['avgt']
+    timeUnit = "us"
+
+    benchmarkParameters = [
+            'size':['1', '10', '100', '1000', '10000'], 
+//            'implementation': ['hash'], 
+            'hashCodeType':['random', 'collision'], 
+            'immutablePercentage':['0.0', '80.0']
+    ]
+}
