@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 buildscript {
@@ -53,6 +54,10 @@ allprojects {
         if (this is KotlinJsCompile) {
             compilerOptions {
                 freeCompilerArgs.add("-Xwasm-enable-array-range-checks")
+            }
+        } else if (this is KotlinJvmCompile) {
+            compilerOptions {
+                freeCompilerArgs.add("-Xjvm-default=disable")
             }
         }
     }
