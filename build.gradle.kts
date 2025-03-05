@@ -60,7 +60,7 @@ allprojects {
             }
         } else if (this is KotlinJvmCompile) {
             compilerOptions {
-                freeCompilerArgs.add("-jvm-default=disable")
+                freeCompilerArgs.add("-Xjvm-default=disable")
             }
         }
     }
