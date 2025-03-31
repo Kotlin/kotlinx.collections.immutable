@@ -14,12 +14,10 @@ evaluationDependsOn(":kotlinx-collections-immutable")
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    infra {
-        target("macosX64")
-        target("macosArm64")
-        target("linuxX64")
-        target("mingwX64")
-    }
+    macosX64()
+    macosArm64()
+    linuxX64()
+    mingwX64()
 
     jvm {
         compilerOptions {
