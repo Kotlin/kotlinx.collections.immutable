@@ -97,7 +97,7 @@ benchmark {
     targets {
         register("jvm") {
             this as JvmBenchmarkTarget
-            jmhVersion = "1.21"
+            jmhVersion = "1.37"
         }
         register("js")
         register("wasmJs")
