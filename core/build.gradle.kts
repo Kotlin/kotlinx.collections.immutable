@@ -144,4 +144,15 @@ tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
     }
+
+    // See https://youtrack.jetbrains.com/issue/KT-61313
+    withType<Sign>().configureEach {
+        val pubName = name.removePrefix("sign").removeSuffix("Publication")
+        findByName("linkDebugTest$pubName")?.let {
+            mustRunAfter(it)
+        }
+        findByName("compileTestKotlin$pubName")?.let {
+            mustRunAfter(it)
+        }
+    }
 }
