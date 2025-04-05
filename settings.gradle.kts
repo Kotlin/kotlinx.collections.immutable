@@ -15,6 +15,9 @@ rootProject.name = "Kotlin-Immutable-Collections" // TODO: Make readable name wh
 include(":core")
 project(":core").name="kotlinx-collections-immutable"
 
+include(":serialization")
+project(":serialization").name="kotlinx-collections-immutable-serialization"
+
 include(
     ":benchmarks",
     ":benchmarks:runner"
