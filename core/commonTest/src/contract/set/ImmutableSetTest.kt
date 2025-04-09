@@ -372,8 +372,8 @@ abstract class ImmutableSetTestBase {
         testEqualsAndHashCode(set, setOf(*elements))
         testEqualsAndHashCode(set, persistentHashSetOf(*elements))
         testEqualsAndHashCode(set, persistentSetOf(*elements))
-        testEqualsAndHashCode(set, persistentHashSetOf<E>().builder().apply { addAll(elements) })
-        testEqualsAndHashCode(set, persistentSetOf<E>().builder().apply { addAll(elements) })
+        testEqualsAndHashCode(set, emptyPersistentHashSet<E>().builder().apply { addAll(elements) })
+        testEqualsAndHashCode(set, emptyPersistentSet<E>().builder().apply { addAll(elements) })
     }
 
     private fun <E> testEquality(data: Array<E>, changed: Array<E>) {
