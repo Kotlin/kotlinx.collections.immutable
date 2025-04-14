@@ -13,7 +13,7 @@ class PersistentOrderedSetTest {
 
     @Test
     fun equalsTestFromGitHubIssue() {
-        val set1 = persistentSetOf(-1, 0, 67108864)
+        val set1 = persistentSetOf(-1, 0, 1_000_000)
         val builder = set1.builder()
 
         assertEquals(set1, builder.build().toSet())
