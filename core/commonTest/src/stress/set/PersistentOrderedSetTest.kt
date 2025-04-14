@@ -35,17 +35,18 @@ class PersistentOrderedSetTest {
     fun equalsTestPersistentMap() {
         val map1 = persistentHashMapOf(-1 to "1", 0 to "0", 65536 to "65536")
         val builder = map1.builder()
+        val map11 = builder.build()
 
-        assertEquals(map1, builder.build().toMap())
-        assertEquals(map1, builder.build())
+        assertEquals(map1, map11.toMap())
+        assertEquals(map1, map11)
 
         val map2 = map1.remove(0)
         builder.remove(0)
-        val map3 = builder.build()
+        val map22 = builder.build()
 
-        println("map2.equals(map3): ${map2.equals(map3)}")
+        println("map2.equals(map22): ${map2.equals(map22)}")
 
-        assertEquals(map2, builder.build().toMap())
-        assertEquals(map2, builder.build())
+        assertEquals(map2, map22.toMap())
+        assertEquals(map2, map22)
     }
 }
