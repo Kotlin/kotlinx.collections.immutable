@@ -6,6 +6,7 @@
 package tests.stress.set
 
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.persistentSetOf
@@ -33,7 +34,7 @@ class PersistentOrderedSetTest {
 
     @Test
     fun equalsTestPersistentMap() {
-        val map1 = persistentHashMapOf(-1 to "1", 0 to "0", 65536 to "65536")
+        val map1 = persistentHashMapOf(-1 to "1", 0 to "0", 65536 to "65536") as PersistentHashMap<Int, String>
         val builder = map1.builder()
         val map11 = builder.build()
 
