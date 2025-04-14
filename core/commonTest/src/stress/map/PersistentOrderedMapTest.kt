@@ -50,7 +50,8 @@ class PersistentOrderedMapTest {
         val minusAb = abc.minus(arrayOf(a, b))
         val cOnly = persistentMapOf(c to "z")
 
-        assertEquals(minusAb.entries, cOnly.entries)
+        assertEquals(cOnly.entries, minusAb.entries)
+        assertEquals(cOnly, minusAb)
         assertEquals(minusAb, cOnly)
     }
 }
