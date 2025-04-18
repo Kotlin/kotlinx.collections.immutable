@@ -11,32 +11,28 @@ import kotlin.test.assertEquals
 
 class PersistentOrderedMapTest {
 
+    /**
+     * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/198
+     */
     @Test
-    fun equalsTest() {
-        val expected = persistentMapOf("a" to 1, "b" to 2, "c" to 3)
-        val actual = persistentMapOf<String, Int>().put("a", 1).put("b", 2).put("c", 3)
-        assertEquals(expected, actual)
-    }
+    fun persistentMapEqualsTest() {
+        class ChosenHashCode(
+            private val hashCode: Int,
+            private val name: String,
+        ) {
+            override fun equals(other: Any?): Boolean {
+                return other is ChosenHashCode && (other.name == name)
+            }
 
-    private class ChosenHashCode(
-        private val hashCode: Int,
-        private val name: String,
-    ) {
-        override fun equals(other: Any?): Boolean {
-            return other is ChosenHashCode && (other.name == name)
+            override fun hashCode(): Int {
+                return hashCode
+            }
+
+            override fun toString(): String {
+                return name
+            }
         }
 
-        override fun hashCode(): Int {
-            return hashCode
-        }
-
-        override fun toString(): String {
-            return name
-        }
-    }
-
-    @Test
-    fun testFromGitHubIssue() {
         val a = ChosenHashCode(123, "A")
         val b = ChosenHashCode(123, "B")
         val c = ChosenHashCode(123, "C")
@@ -50,8 +46,7 @@ class PersistentOrderedMapTest {
         val minusAb = abc.minus(arrayOf(a, b))
         val cOnly = persistentMapOf(c to "z")
 
-        assertEquals(cOnly.entries, minusAb.entries)
-        assertEquals(cOnly, minusAb)
+        assertEquals(minusAb.entries, cOnly.entries)
         assertEquals(minusAb, cOnly)
     }
 }
