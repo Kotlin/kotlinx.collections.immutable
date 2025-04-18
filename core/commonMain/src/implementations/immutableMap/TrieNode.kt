@@ -180,7 +180,7 @@ internal class TrieNode<K, V>(
     }
 
     /** The given [newNode] must not be a part of any persistent map instance. */
-    private fun updateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>): TrieNode<K, V> {
+    private fun updateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership? = null): TrieNode<K, V> {
 //        assert(buffer[nodeIndex] !== newNode)
         val newNodeBuffer = newNode.buffer
         if (newNodeBuffer.size == 2 && newNode.nodeMap == 0) {
@@ -195,35 +195,14 @@ internal class TrieNode<K, V>(
             return TrieNode(dataMap xor positionMask, nodeMap xor positionMask, newBuffer)
         }
 
-        val newBuffer = buffer.copyOf(buffer.size)
-        newBuffer[nodeIndex] = newNode
-        return TrieNode(dataMap, nodeMap, newBuffer)
-    }
-
-    /** The given [newNode] must not be a part of any persistent map instance. */
-    private fun mutableUpdateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership): TrieNode<K, V> {
-        assert(newNode.ownedBy === owner)
-//        assert(buffer[nodeIndex] !== newNode)
-
-        val newNodeBuffer = newNode.buffer
-        if (newNode.buffer.size == ENTRY_SIZE && newNode.nodeMap == 0) {
-            if (buffer.size == 1) {
-                newNode.dataMap = nodeMap
-                return newNode
-            }
-
-            val keyIndex = entryKeyIndex(positionMask)
-            val newBuffer = buffer.replaceNodeWithEntry(nodeIndex, keyIndex, newNodeBuffer[0], newNodeBuffer[1])
-            return TrieNode(dataMap xor positionMask, nodeMap xor positionMask, newBuffer)
-        }
-
-        if (ownedBy === owner) {
+        if (owner != null && ownedBy === owner) {
             buffer[nodeIndex] = newNode
             return this
         }
-        val newBuffer = buffer.copyOf()
+
+        val newBuffer = buffer.copyOf(buffer.size)
         newBuffer[nodeIndex] = newNode
-        return TrieNode(dataMap, nodeMap, newBuffer, owner)
+        return TrieNode(dataMap, nodeMap, newBuffer)
     }
 
     private fun removeNodeAtIndex(nodeIndex: Int, positionMask: Int): TrieNode<K, V>? {
@@ -721,7 +700,7 @@ internal class TrieNode<K, V>(
             if (targetNode === newNode) {
                 return this
             }
-            return mutableUpdateNodeAtIndex(nodeIndex, keyPositionMask, newNode, mutator.ownership)
+            return updateNodeAtIndex(nodeIndex, keyPositionMask, newNode, mutator.ownership)
         }
 
         // key is absent
@@ -796,7 +775,7 @@ internal class TrieNode<K, V>(
         newNode == null ->
             mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
         targetNode !== newNode ->
-            mutableUpdateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
+            updateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
         else -> this
     }
 
