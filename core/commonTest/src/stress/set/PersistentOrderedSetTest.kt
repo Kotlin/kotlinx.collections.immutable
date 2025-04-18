@@ -34,7 +34,7 @@ class PersistentOrderedSetTest {
 
     @Test
     fun equalsTestPersistentMap() {
-        val map1 = persistentHashMapOf(-1 to "1", 0 to "0", 65536 to "65536") as PersistentHashMap<Int, String>
+        val map1 = persistentHashMapOf(-1 to "minus-one", 0 to "zero", 65536 to "power-of-two") as PersistentHashMap<Int, String>
         val builder = map1.builder()
         val map11 = builder.build()
 
@@ -44,6 +44,8 @@ class PersistentOrderedSetTest {
         val map2 = map1.remove(0)
         builder.remove(0)
         val map22 = builder.build()
+
+        val a = arrayOf(map1.node, map11.node, map2.node, map22.node)
 
         println("map2.equals(map22): ${map2.equals(map22)}")
 
