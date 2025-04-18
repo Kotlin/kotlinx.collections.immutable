@@ -287,7 +287,8 @@ internal class TrieNode<K, V>(
         if (shift > MAX_SHIFT) {
 //            assert(key1 != key2)
             // when two key hashes are entirely equal: the last level subtrie node stores them just as unordered list
-            return TrieNode(0, 0, arrayOf(key1, value1, key2, value2), owner)
+            val node = TrieNode<K, V>(0, 0, arrayOf(key1, value1, key2, value2), owner)
+            return node
         }
 
         val setBit1 = indexSegment(keyHash1, shift)
