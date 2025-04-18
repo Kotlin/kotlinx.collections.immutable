@@ -6,6 +6,7 @@
 package tests.stress.map
 
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
@@ -349,6 +350,26 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                 }
             }
         }
+    }
+
+    @Test
+    fun testValuePromotionAfterMutableRemoving() {
+        val map1: PersistentHashMap<Int, String> =
+            persistentHashMapOf(-1 to "a", 0 to "b", 32 to "c") as PersistentHashMap<Int, String>
+        val builder = map1.builder()
+        val map2 = builder.build()
+
+        assertTrue(map1.equals(builder))
+        assertEquals(map1, map2.toMap())
+        assertEquals(map1, map2)
+
+        val map3 = map1.remove(0)
+        builder.remove(0)
+        val map4 = builder.build()
+
+        assertTrue(map3.equals(builder))
+        assertEquals(map3, map4.toMap())
+        assertEquals(map3, map4)
     }
 
     private fun testAfterOperation(
