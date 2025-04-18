@@ -15,7 +15,7 @@ class PersistentOrderedMapTest {
      * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/198
      */
     @Test
-    fun equalsTest() {
+    fun persistentMapEqualityAfterRemovingKeysWithHashCodeCollisionsTest() {
         class ChosenHashCode(
             private val hashCode: Int,
             private val name: String,

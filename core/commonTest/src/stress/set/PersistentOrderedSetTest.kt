@@ -16,7 +16,7 @@ class PersistentOrderedSetTest {
      * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/204
      */
     @Test
-    fun equalsTest() {
+    fun persistentSetAndBuilderEqualityBeforeAndAfterModificationTest() {
         val set1 = persistentSetOf(-486539264, 16777216, 0, 67108864)
         val builder = set1.builder()
 
