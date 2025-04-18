@@ -16,6 +16,27 @@ import kotlin.test.assertEquals
 class PersistentOrderedSetTest {
 
     @Test
+    fun simpleTest() {
+        data class Data(val value: Int, val hash: Int = 1) {
+            override fun hashCode(): Int {
+                return hash
+            }
+        }
+
+        var map1: PersistentHashMap<Data, Data> = persistentHashMapOf(Data(1) to Data(1)) as PersistentHashMap<Data, Data>
+        map1 = map1.put(Data(2), Data(2))
+        map1 = map1.remove(Data(2))
+
+        var map2: PersistentHashMap<Data, Data> = persistentHashMapOf(Data(2) to Data(2)) as PersistentHashMap<Data, Data>
+        map2 = map2.put(Data(1), Data(1))
+        map2 = map2.remove(Data(2))
+
+        println(map1.equals(map2))
+
+        assertEquals(map1, map2)
+    }
+
+    @Test
     fun equalsTestFromGitHubIssue() {
         val set1: PersistentSet<Int> = persistentSetOf(-1, 0, 65536)  // test passes with 65535 third parameter
         val builder = set1.builder()
