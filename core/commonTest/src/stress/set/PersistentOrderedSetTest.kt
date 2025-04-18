@@ -17,15 +17,17 @@ class PersistentOrderedSetTest {
 
     data class Data(val value: Int) {
         override fun hashCode(): Int {
-            return 1644
+            return if (value % 2 == 0) 123456789 else -1
         }
     }
 
     @Test
     fun simpleTest2() {
-        var map1: PersistentHashMap<Data, Int> = persistentHashMapOf(Data(1) to 10) as PersistentHashMap<Data, Int>
+        var map1: PersistentHashMap<Data, Int> = persistentHashMapOf<Data, Int>() as PersistentHashMap<Data, Int>
+//        map1 = map1.put(Data(1), 10)
         map1 = map1.put(Data(2), 20)
-        map1 = map1.put(Data(3), 30)
+//        map1 = map1.put(Data(3), 30)
+        map1 = map1.put(Data(4), 40)
 
         var map2: PersistentHashMap<Data, Int> = persistentHashMapOf(Data(2) to 20) as PersistentHashMap<Data, Int>
         map2 = map2.put(Data(1), 10)
@@ -70,7 +72,7 @@ class PersistentOrderedSetTest {
 
     @Test
     fun equalsTestPersistentMap() {
-        val map1 = persistentHashMapOf(-1 to "minus-one", 0 to "zero", 65536 to "power-of-two") as PersistentHashMap<Int, String>
+        val map1 = persistentHashMapOf(-2 to "minus-one", 0 to "zero", 32 to "power-of-two") as PersistentHashMap<Int, String>
         val builder = map1.builder()
         val map11 = builder.build()
 

@@ -201,15 +201,20 @@ internal class TrieNode<K, V>(
     }
 
     /** The given [newNode] must not be a part of any persistent map instance. */
-    private fun mutableUpdateNodeAtIndex(nodeIndex: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership): TrieNode<K, V> {
+    private fun mutableUpdateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership): TrieNode<K, V> {
         assert(newNode.ownedBy === owner)
 //        assert(buffer[nodeIndex] !== newNode)
 
-        // nodes (including collision nodes) that have only one entry are upped if they have no siblings
-        if (buffer.size == 1 && newNode.buffer.size == ENTRY_SIZE && newNode.nodeMap == 0) {
-//          assert(dataMap == 0 && nodeMap xor positionMask == 0)
-            newNode.dataMap = nodeMap
-            return newNode
+        val newNodeBuffer = newNode.buffer
+        if (newNode.buffer.size == ENTRY_SIZE && newNode.nodeMap == 0) {
+            if (buffer.size == 1) {
+                newNode.dataMap = nodeMap
+                return newNode
+            }
+
+            val keyIndex = entryKeyIndex(positionMask)
+            val newBuffer = buffer.replaceNodeWithEntry(nodeIndex, keyIndex, newNodeBuffer[0], newNodeBuffer[1])
+            return TrieNode(dataMap xor positionMask, nodeMap xor positionMask, newBuffer)
         }
 
         if (ownedBy === owner) {
@@ -717,7 +722,7 @@ internal class TrieNode<K, V>(
             if (targetNode === newNode) {
                 return this
             }
-            return mutableUpdateNodeAtIndex(nodeIndex, newNode, mutator.ownership)
+            return mutableUpdateNodeAtIndex(nodeIndex, keyPositionMask, newNode, mutator.ownership)
         }
 
         // key is absent
@@ -792,7 +797,7 @@ internal class TrieNode<K, V>(
         newNode == null ->
             mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
         targetNode !== newNode ->
-            mutableUpdateNodeAtIndex(nodeIndex, newNode, owner)
+            mutableUpdateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
         else -> this
     }
 
