@@ -230,11 +230,11 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun testReproduceOverIterationIssue() {
-        val map1: PersistentHashMap<Int, String> =
+        val map: PersistentHashMap<Int, String> =
             persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
-        val iterator = map1.builder().entries.iterator()
+        val iterator = map.builder().entries.iterator()
 
-        val expectedCount = map1.size
+        val expectedCount = map.size
         var actualCount = 0
 
         while (iterator.hasNext()) {
