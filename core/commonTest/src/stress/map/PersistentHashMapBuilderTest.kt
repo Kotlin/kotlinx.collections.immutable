@@ -6,6 +6,7 @@
 package tests.stress.map
 
 import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
@@ -13,6 +14,8 @@ import tests.remove
 import tests.stress.ExecutionTimeMeasuringTest
 import tests.stress.IntWrapper
 import tests.stress.WrapperGenerator
+import kotlin.collections.component1
+import kotlin.collections.component2
 import kotlin.random.Random
 import kotlin.test.*
 
@@ -223,6 +226,24 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         testAfterRandomPut { expected, map ->
             testEntriesIterator(expected.toMutableMap(), map.builder())
         }
+    }
+
+    @Test
+    fun testReproduceOverIterationIssue() {
+        val map1: PersistentHashMap<Int, String> =
+            persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
+        val iterator = map1.builder().entries.iterator()
+
+        val expectedCount = map1.size
+        var actualCount = 0
+
+        while (iterator.hasNext()) {
+            val (key, _) = iterator.next()
+            if (key == 0) iterator.remove()
+            actualCount++
+        }
+
+        assertEquals(expectedCount, actualCount)
     }
 
     @Test
