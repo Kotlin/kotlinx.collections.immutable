@@ -248,7 +248,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
-    fun iteratorRemoveCalledTwiceThrowsIllegalStateExceptionTest() {
+    fun `removing twice on iterators throws IllegalStateException`() {
         val map: PersistentHashMap<Int, String> =
             persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
         val builder = map.builder()
@@ -262,6 +262,24 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                     iterator.remove()
                     iterator.remove()
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `removing elements from different iterators throws ConcurrentModificationException`() {
+        val map: PersistentHashMap<Int, String> =
+            persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
+        val builder = map.builder()
+        val iterator1 = builder.entries.iterator()
+        val iterator2 = builder.entries.iterator()
+
+        assertFailsWith<ConcurrentModificationException> {
+            while (iterator1.hasNext()) {
+                val (key, _) = iterator1.next()
+                iterator2.next()
+                if (key == 0) iterator1.remove()
+                if (key == 2) iterator2.remove()
             }
         }
     }
