@@ -14,8 +14,6 @@ import tests.remove
 import tests.stress.ExecutionTimeMeasuringTest
 import tests.stress.IntWrapper
 import tests.stress.WrapperGenerator
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.random.Random
 import kotlin.test.*
 
