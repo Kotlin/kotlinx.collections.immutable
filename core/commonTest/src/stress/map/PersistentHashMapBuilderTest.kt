@@ -251,7 +251,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun testReproduceOverIterationIssue2() {
-        val zeroKey = IntWrapper(0, 0)
+        val zeroKey = IntWrapper(0)
 
         val map: PersistentHashMap<IntWrapper, String> = persistentHashMapOf(
             zeroKey to "a",
