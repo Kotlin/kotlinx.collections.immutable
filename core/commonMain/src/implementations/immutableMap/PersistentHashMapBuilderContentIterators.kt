@@ -57,7 +57,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
             val currentKey = currentKey()
 
             builder.remove(lastIteratedKey)
-            resetPath(currentKey.hashCode(), builder.node, currentKey, 0)
+            resetPath(currentKey.hashCode(), builder.node, currentKey, 0, lastIteratedKey.hashCode())
         } else {
             builder.remove(lastIteratedKey)
         }
@@ -82,7 +82,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         expectedModCount = builder.modCount
     }
 
-    private fun resetPath(keyHash: Int, node: TrieNode<*, *>, key: K, pathIndex: Int) {
+    private fun resetPath(keyHash: Int, node: TrieNode<*, *>, key: K, pathIndex: Int, removedKeyHash: Int? = null) {
         val shift = pathIndex * LOG_MAX_BRANCHING_FACTOR
 
         if (shift > MAX_SHIFT) {    // collision
@@ -98,6 +98,12 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
 
         if (node.hasEntryAt(keyPositionMask)) { // key is directly in buffer
             val keyIndex = node.entryKeyIndex(keyPositionMask)
+
+            val removedKeyPositionMask = removedKeyHash?.let { 1 shl indexSegment(it, shift) } ?: 0
+
+            if (keyPositionMask == removedKeyPositionMask) {
+                println("WAS PROMOTION!")
+            }
 
 //            assert(node.keyAtIndex(keyIndex) == key)
 
