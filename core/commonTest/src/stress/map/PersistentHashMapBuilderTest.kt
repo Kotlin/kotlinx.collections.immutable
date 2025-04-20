@@ -240,7 +240,9 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
         while (iterator.hasNext()) {
             val (key, _) = iterator.next()
-            if (key == 0) iterator.remove()
+            if (key == 0) {
+                iterator.remove()
+            }
             actualCount++
         }
 
