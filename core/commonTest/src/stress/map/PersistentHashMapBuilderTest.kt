@@ -250,9 +250,41 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
+    fun testReproduceOverIterationIssue2() {
+        val zeroKey = IntWrapper(0, 0)
+
+        val map: PersistentHashMap<IntWrapper, String> = persistentHashMapOf(
+            zeroKey to "a",
+            IntWrapper(1, 0) to "b",
+            IntWrapper(2, 32) to "c",
+            IntWrapper(3, 32) to "d",
+            IntWrapper(4, 64) to "e",
+            IntWrapper(5, 64) to "f",
+            IntWrapper(6) to "g",
+            IntWrapper(7) to "h",
+        ) as PersistentHashMap<IntWrapper, String>
+
+        val builder = map.builder()
+        val iterator = builder.entries.iterator()
+
+        val expectedCount = map.size
+        var actualCount = 0
+
+        while (iterator.hasNext()) {
+            val (key, _) = iterator.next()
+            if (key == zeroKey) {
+                iterator.remove()
+            }
+            actualCount++
+        }
+
+        assertEquals(expectedCount, actualCount)
+    }
+
+    @Test
     fun `removing twice on iterators throws IllegalStateException`() {
         val map: PersistentHashMap<Int, String> =
-            persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
+            persistentHashMapOf(1 to "a", 2 to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
         val builder = map.builder()
         val iterator = builder.entries.iterator()
 
@@ -271,7 +303,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     @Test
     fun `removing elements from different iterators throws ConcurrentModificationException`() {
         val map: PersistentHashMap<Int, String> =
-            persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
+            persistentHashMapOf(1 to "a", 2 to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
         val builder = map.builder()
         val iterator1 = builder.entries.iterator()
         val iterator2 = builder.entries.iterator()
