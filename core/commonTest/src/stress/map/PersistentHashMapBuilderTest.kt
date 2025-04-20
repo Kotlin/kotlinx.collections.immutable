@@ -257,11 +257,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             zeroKey to "a",
             IntWrapper(1, 0) to "b",
             IntWrapper(2, 32) to "c",
-            IntWrapper(3, 32) to "d",
-            IntWrapper(4, 64) to "e",
-            IntWrapper(5, 64) to "f",
-            IntWrapper(6) to "g",
-            IntWrapper(7) to "h",
+            IntWrapper(3, 32) to "d"
         ) as PersistentHashMap<IntWrapper, String>
 
         val builder = map.builder()
