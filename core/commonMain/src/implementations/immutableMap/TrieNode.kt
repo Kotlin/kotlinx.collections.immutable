@@ -192,7 +192,7 @@ internal class TrieNode<K, V>(
 
             val keyIndex = entryKeyIndex(positionMask)
             val newBuffer = buffer.replaceNodeWithEntry(nodeIndex, keyIndex, newNodeBuffer[0], newNodeBuffer[1])
-            return TrieNode(dataMap xor positionMask, nodeMap xor positionMask, newBuffer)
+            return TrieNode(dataMap xor positionMask, nodeMap xor positionMask, newBuffer, owner)
         }
 
         if (owner != null && ownedBy === owner) {
@@ -200,9 +200,9 @@ internal class TrieNode<K, V>(
             return this
         }
 
-        val newBuffer = buffer.copyOf(buffer.size)
+        val newBuffer = buffer.copyOf()
         newBuffer[nodeIndex] = newNode
-        return TrieNode(dataMap, nodeMap, newBuffer)
+        return TrieNode(dataMap, nodeMap, newBuffer, owner)
     }
 
     private fun removeNodeAtIndex(nodeIndex: Int, positionMask: Int): TrieNode<K, V>? {
