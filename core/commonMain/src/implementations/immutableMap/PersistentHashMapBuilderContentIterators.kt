@@ -102,7 +102,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
             val removedKeyPositionMask = removedKeyHash?.let { 1 shl indexSegment(it, shift) }
 
             if (keyPositionMask == removedKeyPositionMask && pathIndex < pathLastIndex) {
-                path[pathLastIndex].reset(arrayOf(node.buffer[keyIndex], node.buffer[keyIndex + 1]), ENTRY_SIZE, 0)
+                path[pathLastIndex].reset(arrayOf(node.buffer[keyIndex], node.buffer[keyIndex + 1]), ENTRY_SIZE)
                 return
             }
 
