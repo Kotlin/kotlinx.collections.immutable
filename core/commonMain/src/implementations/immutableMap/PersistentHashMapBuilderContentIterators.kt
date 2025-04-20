@@ -120,7 +120,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         val nodeIndex = node.nodeIndex(keyPositionMask)
         val targetNode = node.nodeAtIndex(nodeIndex)
         path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), nodeIndex)
-        resetPath(keyHash, targetNode, key, pathIndex + 1)
+        resetPath(keyHash, targetNode, key, pathIndex + 1, removedKeyHash)
     }
 
     private fun checkNextWasInvoked() {
