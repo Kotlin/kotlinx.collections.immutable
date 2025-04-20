@@ -99,10 +99,13 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         if (node.hasEntryAt(keyPositionMask)) { // key is directly in buffer
             val keyIndex = node.entryKeyIndex(keyPositionMask)
 
-            val removedKeyPositionMask = removedKeyHash?.let { 1 shl indexSegment(it, shift) } ?: 0
+            val removedKeyPositionMask = removedKeyHash?.let { 1 shl indexSegment(it, shift) }
 
             if (keyPositionMask == removedKeyPositionMask) {
                 println("WAS PROMOTION!")
+                path[pathIndex + 1].reset(arrayOf(node.buffer[keyIndex], node.buffer[keyIndex + 1]), ENTRY_SIZE, 0)
+                pathLastIndex = pathIndex + 1
+                return
             }
 
 //            assert(node.keyAtIndex(keyIndex) == key)
