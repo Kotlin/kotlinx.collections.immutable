@@ -313,6 +313,20 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
+    fun removingElementFromOneIteratorAndAccessingAnotherThrowsConcurrentModificationException() {
+        val map = persistentHashMapOf(1 to "a", 2 to "b", 3 to "c")
+        val builder = map.builder()
+        val iterator1 = builder.entries.iterator()
+        val iterator2 = builder.entries.iterator()
+
+        assertFailsWith<ConcurrentModificationException> {
+            iterator1.next()
+            iterator1.remove()
+            iterator2.next()
+        }
+    }
+
+    @Test
     fun removeTests() {
         val builder = persistentHashMapOf<Int, String>().builder()
 
