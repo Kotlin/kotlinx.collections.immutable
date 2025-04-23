@@ -63,6 +63,8 @@ allprojects {
                     "-Wextra",
                     "-Xuse-fir-experimental-checkers"
                 )
+                logger.info("kotlin_Werror_override was set to 'disable'")
+                logger.info("Using -Wextra and -Xuse-fir-experimental-checkers compiler options")
             }
             freeCompilerArgs.addAll(
                 "-Xexpect-actual-classes",
