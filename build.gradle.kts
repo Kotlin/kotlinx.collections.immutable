@@ -63,8 +63,6 @@ allprojects {
                     "-Wextra",
                     "-Xuse-fir-experimental-checkers"
                 )
-                logger.info("kotlin_Werror_override was set to 'disable'")
-                logger.info("Using -Wextra and -Xuse-fir-experimental-checkers compiler options")
             }
             freeCompilerArgs.addAll(
                 "-Xexpect-actual-classes",
@@ -85,9 +83,13 @@ allprojects {
         val extraOpts = providers.gradleProperty("kotlin_additional_cli_options").orNull
         extraOpts?.split(' ')?.let { opts ->
             if (opts.isNotEmpty()) {
-                logger.info("Adding additional compiler options: ${opts.joinToString(", ")}")
                 compilerOptions.freeCompilerArgs.addAll(opts)
             }
+        }
+
+        doFirst {
+            logger.info("Added Kotlin compiler flags: ${compilerOptions.freeCompilerArgs.get().joinToString(", ")}")
+            logger.info("allWarningsAsErrors=${compilerOptions.allWarningsAsErrors.get()}")
         }
     }
 }
