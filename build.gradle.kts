@@ -81,6 +81,14 @@ allprojects {
                 freeCompilerArgs.add("-Xjvm-default=disable")
             }
         }
+
+        val extraOpts = providers.gradleProperty("kotlin_additional_cli_options").orNull
+        extraOpts?.split(' ')?.let { opts ->
+            if (opts.isNotEmpty()) {
+                logger.info("Adding additional compiler options: ${opts.joinToString(", ")}")
+                compilerOptions.freeCompilerArgs.addAll(opts)
+            }
+        }
     }
 }
 
