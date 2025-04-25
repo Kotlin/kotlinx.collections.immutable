@@ -57,7 +57,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
             val currentKey = currentKey()
 
             builder.remove(lastIteratedKey)
-            resetPath(currentKey.hashCode(), builder.node, currentKey, 0, lastIteratedKey.hashCode())
+            resetPath(currentKey.hashCode(), builder.node, currentKey, 0, lastIteratedKey.hashCode(), afterRemove = true)
         } else {
             builder.remove(lastIteratedKey)
         }
@@ -82,7 +82,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         expectedModCount = builder.modCount
     }
 
-    private fun resetPath(keyHash: Int, node: TrieNode<*, *>, key: K, pathIndex: Int, removedKeyHash: Int? = null) {
+    private fun resetPath(keyHash: Int, node: TrieNode<*, *>, key: K, pathIndex: Int, removedKeyHash: Int = 0, afterRemove: Boolean = false) {
         val shift = pathIndex * LOG_MAX_BRANCHING_FACTOR
 
         if (shift > MAX_SHIFT) {    // collision
@@ -99,7 +99,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         if (node.hasEntryAt(keyPositionMask)) { // key is directly in buffer
             val keyIndex = node.entryKeyIndex(keyPositionMask)
 
-            val removedKeyPositionMask = removedKeyHash?.let { 1 shl indexSegment(it, shift) }
+            val removedKeyPositionMask = if (afterRemove) 1 shl indexSegment(removedKeyHash, shift) else 0
 
             if (keyPositionMask == removedKeyPositionMask && pathIndex < pathLastIndex) {
                 path[pathLastIndex].reset(arrayOf(node.buffer[keyIndex], node.buffer[keyIndex + 1]), ENTRY_SIZE)
@@ -118,7 +118,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         val nodeIndex = node.nodeIndex(keyPositionMask)
         val targetNode = node.nodeAtIndex(nodeIndex)
         path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), nodeIndex)
-        resetPath(keyHash, targetNode, key, pathIndex + 1, removedKeyHash)
+        resetPath(keyHash, targetNode, key, pathIndex + 1, removedKeyHash, afterRemove)
     }
 
     private fun checkNextWasInvoked() {
