@@ -228,8 +228,9 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun iterationsAfterPromotionTest() {
+        val removedKey = 0
         val map: PersistentHashMap<Int, String> =
-            persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
+            persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", removedKey to "y", 32 to "z") as PersistentHashMap<Int, String>
         val builder = map.builder()
         val iterator = builder.entries.iterator()
 
@@ -238,10 +239,20 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
         while (iterator.hasNext()) {
             val (key, _) = iterator.next()
-            if (key == 0) {
+            if (key == removedKey) {
                 iterator.remove()
             }
             actualCount++
+        }
+
+        val resultMap = builder.build()
+        for ((key, value) in map) {
+            if (key != removedKey) {
+                assertTrue(key in resultMap)
+                assertEquals(resultMap[key], value)
+            } else {
+                assertFalse(key in resultMap)
+            }
         }
 
         assertEquals(expectedCount, actualCount)
