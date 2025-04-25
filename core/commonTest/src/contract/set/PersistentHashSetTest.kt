@@ -5,19 +5,18 @@
 
 package tests.contract.set
 
+import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
+import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class PersistentOrderedSetTest {
+class PersistentHashSetTest {
 
-    /**
-     * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/204
-     */
     @Test
-    fun `persistentOrderedSet and their builder should be equal before and after modification`() {
-        val set1 = persistentSetOf(-486539264, 16777216, 0, 67108864)
+    fun `persistentHashSet and their builder should be equal before and after modification`() {
+        val set1 = persistentHashSetOf(-1, 0, 32)
         val builder = set1.builder()
 
         assertTrue(set1.equals(builder))
