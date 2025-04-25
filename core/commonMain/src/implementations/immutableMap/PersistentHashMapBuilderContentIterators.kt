@@ -99,9 +99,17 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         if (node.hasEntryAt(keyPositionMask)) { // key is directly in buffer
             val keyIndex = node.entryKeyIndex(keyPositionMask)
 
+            // After removing an element, we need to handle node promotion properly to maintain a correct iteration order.
+            // `removedKeyPositionMask` represents the bit position of the removed key's hash at the current level.
+            // This is needed to detect if the current key was potentially promoted from a deeper level.
             val removedKeyPositionMask = if (afterRemove) 1 shl indexSegment(removedKeyHash, shift) else 0
 
+            // Check if the removed key is at the same position as the current key and was previously at a deeper level.
+            // This indicates a node promotion occurred during removal,
+            // and we need to handle it in a special way to prevent re-traversing already visited elements.
             if (keyPositionMask == removedKeyPositionMask && pathIndex < pathLastIndex) {
+                // Instead of traversing the normal way, we create a special path entry at the previous depth
+                // that points directly to the promoted entry, maintaining the original iteration sequence.
                 path[pathLastIndex].reset(arrayOf(node.buffer[keyIndex], node.buffer[keyIndex + 1]), ENTRY_SIZE)
                 return
             }
