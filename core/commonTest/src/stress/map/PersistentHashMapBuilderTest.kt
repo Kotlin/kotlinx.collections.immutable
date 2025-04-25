@@ -227,7 +227,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
-    fun iterationsAfterPromotionTest() {
+    fun `should correctly iterate after removing integer key and promotion colliding key during iteration`() {
         val removedKey = 0
         val map: PersistentHashMap<Int, String> =
             persistentHashMapOf(1 to "a", 2 to "b", 3 to "c", removedKey to "y", 32 to "z")
@@ -237,7 +237,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
-    fun iterationsAfterPromotionWithIntWrapperTest() {
+    fun `should correctly iterate after removing IntWrapper key and promotion colliding key during iteration`() {
         val removedKey = IntWrapper(0, 0)
         val map: PersistentHashMap<IntWrapper, String> = persistentHashMapOf(
             removedKey to "a",
