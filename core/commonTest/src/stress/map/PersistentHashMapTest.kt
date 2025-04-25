@@ -353,7 +353,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     }
 
     @Test
-    fun valuePromotionAfterMutableRemovingTest() {
+    fun `if the collision is of size 2 and one of the keys is removed, the remaining key must be promoted`() {
         val map1: PersistentHashMap<Int, String> =
             persistentHashMapOf(-1 to "a", 0 to "b", 32 to "c") as PersistentHashMap<Int, String>
         val builder = map1.builder()
