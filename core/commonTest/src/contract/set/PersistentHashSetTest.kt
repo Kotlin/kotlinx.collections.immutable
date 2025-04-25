@@ -5,9 +5,7 @@
 
 package tests.contract.set
 
-import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.persistentHashSetOf
-import kotlinx.collections.immutable.persistentSetOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
