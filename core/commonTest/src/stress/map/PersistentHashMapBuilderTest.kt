@@ -230,7 +230,26 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     fun iterationsAfterPromotionTest() {
         val removedKey = 0
         val map: PersistentHashMap<Int, String> =
-            persistentHashMapOf(1 to "a", 2  to "b", 3 to "c", removedKey to "y", 32 to "z") as PersistentHashMap<Int, String>
+            persistentHashMapOf(1 to "a", 2 to "b", 3 to "c", removedKey to "y", 32 to "z")
+                    as PersistentHashMap<Int, String>
+
+        validatePromotion(map, removedKey)
+    }
+
+    @Test
+    fun iterationsAfterPromotionWithIntWrapperTest() {
+        val removedKey = IntWrapper(0, 0)
+        val map: PersistentHashMap<IntWrapper, String> = persistentHashMapOf(
+            removedKey to "a",
+            IntWrapper(1, 0) to "b",
+            IntWrapper(2, 32) to "c",
+            IntWrapper(3, 32) to "d"
+        ) as PersistentHashMap<IntWrapper, String>
+
+        validatePromotion(map, removedKey)
+    }
+
+    private fun <K> validatePromotion(map: PersistentHashMap<K, *>, removedKey: K) {
         val builder = map.builder()
         val iterator = builder.entries.iterator()
 
@@ -253,34 +272,6 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             } else {
                 assertFalse(key in resultMap)
             }
-        }
-
-        assertEquals(expectedCount, actualCount)
-    }
-
-    @Test
-    fun iterationsAfterPromotionWithIntWrapperTest() {
-        val zeroKey = IntWrapper(0, 0)
-
-        val map: PersistentHashMap<IntWrapper, String> = persistentHashMapOf(
-            zeroKey to "a",
-            IntWrapper(1, 0) to "b",
-            IntWrapper(2, 32) to "c",
-            IntWrapper(3, 32) to "d"
-        ) as PersistentHashMap<IntWrapper, String>
-
-        val builder = map.builder()
-        val iterator = builder.entries.iterator()
-
-        val expectedCount = map.size
-        var actualCount = 0
-
-        while (iterator.hasNext()) {
-            val (key, _) = iterator.next()
-            if (key == zeroKey) {
-                iterator.remove()
-            }
-            actualCount++
         }
 
         assertEquals(expectedCount, actualCount)
