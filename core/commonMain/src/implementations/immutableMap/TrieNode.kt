@@ -774,9 +774,7 @@ internal class TrieNode<K, V>(
     private fun mutableReplaceNode(targetNode: TrieNode<K, V>, newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int, owner: MutabilityOwnership) = when {
         newNode == null ->
             mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
-        targetNode !== newNode ->
-            updateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
-        else -> this
+        else -> updateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
     }
 
     fun remove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): TrieNode<K, V>? {
