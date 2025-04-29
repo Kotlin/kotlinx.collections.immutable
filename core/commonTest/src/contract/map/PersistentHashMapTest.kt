@@ -7,6 +7,7 @@ package tests.contract.map
 
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
+import tests.stress.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -31,5 +32,24 @@ class PersistentHashMapTest {
         assertTrue(map3.equals(builder))
         assertEquals(map3, map4.toMap())
         assertEquals(map3, map4)
+    }
+
+    @Test
+    fun `builder should correctly handle multiple element removals`() {
+        val a = IntWrapper(0, 0)
+        val b = IntWrapper(1, 0)
+        val c = IntWrapper(2, 0)
+
+        val original: PersistentHashMap<IntWrapper, String> =
+            persistentHashMapOf(a to "a", b to "b", c to "c") as PersistentHashMap<IntWrapper, String>
+        val builder = original.builder()
+
+        val onlyA: PersistentHashMap<IntWrapper, String> =
+            persistentHashMapOf(a to "a") as PersistentHashMap<IntWrapper, String>
+        builder.remove(b)
+        builder.remove(c)
+        val removedBC = builder.build()
+
+        assertEquals(onlyA, removedBC)
     }
 }
