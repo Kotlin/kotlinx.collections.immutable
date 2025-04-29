@@ -16,7 +16,7 @@ class PersistentOrderedMapTest {
      * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/198
      */
     @Test
-    fun `if the full collision is of size 3 and 2 of the keys is removed the remaining key must be promoted`() {
+    fun `when removing multiple keys with identical hashcodes the remaining key should be correctly promoted`() {
         class ChosenHashCode(
             private val hashCode: Int,
             private val name: String,
