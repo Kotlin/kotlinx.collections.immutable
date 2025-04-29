@@ -35,21 +35,42 @@ class PersistentHashMapTest {
     }
 
     @Test
-    fun `builder should correctly handle multiple element removals`() {
+    fun `builder should correctly handle multiple element removals in case of full collision`() {
         val a = IntWrapper(0, 0)
         val b = IntWrapper(1, 0)
         val c = IntWrapper(2, 0)
 
         val original: PersistentHashMap<IntWrapper, String> =
             persistentHashMapOf(a to "a", b to "b", c to "c") as PersistentHashMap<IntWrapper, String>
-        val builder = original.builder()
 
         val onlyA: PersistentHashMap<IntWrapper, String> =
             persistentHashMapOf(a to "a") as PersistentHashMap<IntWrapper, String>
+
+        val builder = original.builder()
         builder.remove(b)
         builder.remove(c)
         val removedBC = builder.build()
 
         assertEquals(onlyA, removedBC)
+    }
+
+    @Test
+    fun `builder should correctly handle multiple element removals in case of partial collision`() {
+        val a = IntWrapper(0, 0)
+        val b = IntWrapper(1, 0)
+        val c = IntWrapper(2, 0)
+        val d = IntWrapper(3, 11)
+
+        val original: PersistentHashMap<IntWrapper, String> =
+            persistentHashMapOf(a to "a", b to "b", c to "c", d to "d") as PersistentHashMap<IntWrapper, String>
+
+        val afterImmutableRemoving = original.remove(b).remove(c)
+
+        val builder = original.builder()
+        builder.remove(b)
+        builder.remove(c)
+        val afterMutableRemoving = builder.build()
+
+        assertEquals(afterImmutableRemoving, afterMutableRemoving)
     }
 }
