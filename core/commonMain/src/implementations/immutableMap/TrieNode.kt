@@ -763,14 +763,14 @@ internal class TrieNode<K, V>(
             } else {
                 targetNode.mutableRemove(keyHash, key, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
-            return mutableReplaceNode(targetNode, newNode, nodeIndex, keyPositionMask, mutator.ownership)
+            return mutableReplaceNode(newNode, nodeIndex, keyPositionMask, mutator.ownership)
         }
 
         // key is absent
         return this
     }
 
-    private fun mutableReplaceNode(targetNode: TrieNode<K, V>, newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int, owner: MutabilityOwnership) = when {
+    private fun mutableReplaceNode(newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int, owner: MutabilityOwnership) = when {
         newNode == null ->
             mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
         else -> updateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
@@ -823,7 +823,7 @@ internal class TrieNode<K, V>(
             } else {
                 targetNode.mutableRemove(keyHash, key, value, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
-            return mutableReplaceNode(targetNode, newNode, nodeIndex, keyPositionMask, mutator.ownership)
+            return mutableReplaceNode(newNode, nodeIndex, keyPositionMask, mutator.ownership)
         }
 
         // key is absent
