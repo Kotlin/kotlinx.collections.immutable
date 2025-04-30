@@ -81,7 +81,7 @@ allprojects {
         }
 
         val extraOpts = providers.gradleProperty("kotlin_additional_cli_options").orNull
-        extraOpts?.split(' ')?.let { opts ->
+        extraOpts?.split(' ')?.map(String::trim)?.filter(String::isNotBlank)?.let { opts ->
             if (opts.isNotEmpty()) {
                 compilerOptions.freeCompilerArgs.addAll(opts)
             }
