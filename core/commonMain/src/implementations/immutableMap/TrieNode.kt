@@ -181,7 +181,6 @@ internal class TrieNode<K, V>(
 
     /** The given [newNode] must not be a part of any persistent map instance. */
     private fun updateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership? = null): TrieNode<K, V> {
-//        assert(buffer[nodeIndex] !== newNode)
         val newNodeBuffer = newNode.buffer
         if (newNodeBuffer.size == 2 && newNode.nodeMap == 0) {
             if (buffer.size == 1) {
@@ -764,19 +763,17 @@ internal class TrieNode<K, V>(
             } else {
                 targetNode.mutableRemove(keyHash, key, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
-            return mutableReplaceNode(targetNode, newNode, nodeIndex, keyPositionMask, mutator.ownership)
+            return mutableReplaceNode(newNode, nodeIndex, keyPositionMask, mutator.ownership)
         }
 
         // key is absent
         return this
     }
 
-    private fun mutableReplaceNode(targetNode: TrieNode<K, V>, newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int, owner: MutabilityOwnership) = when {
+    private fun mutableReplaceNode(newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int, owner: MutabilityOwnership) = when {
         newNode == null ->
             mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
-        targetNode !== newNode ->
-            updateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
-        else -> this
+        else -> updateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
     }
 
     fun remove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int): TrieNode<K, V>? {
@@ -826,7 +823,7 @@ internal class TrieNode<K, V>(
             } else {
                 targetNode.mutableRemove(keyHash, key, value, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
-            return mutableReplaceNode(targetNode, newNode, nodeIndex, keyPositionMask, mutator.ownership)
+            return mutableReplaceNode(newNode, nodeIndex, keyPositionMask, mutator.ownership)
         }
 
         // key is absent

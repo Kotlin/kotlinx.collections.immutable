@@ -10,7 +10,7 @@ import tests.contract.compare
 import tests.contract.setBehavior
 import tests.isDigit
 import tests.isUpperCase
-import tests.stress.IntWrapper
+import tests.IntWrapper
 import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {

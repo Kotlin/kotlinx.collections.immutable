@@ -5,6 +5,7 @@
 
 package tests.stress
 
+import tests.ObjectWrapper
 import kotlin.random.Random
 
 

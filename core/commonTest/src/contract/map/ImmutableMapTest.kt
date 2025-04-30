@@ -11,8 +11,8 @@ import tests.contract.compare
 import tests.contract.mapBehavior
 import tests.contract.setBehavior
 import tests.remove
-import tests.stress.IntWrapper
-import tests.stress.ObjectWrapper
+import tests.IntWrapper
+import tests.ObjectWrapper
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {

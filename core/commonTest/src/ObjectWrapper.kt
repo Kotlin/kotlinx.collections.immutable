@@ -3,7 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
-package tests.stress
+package tests
 
 import kotlinx.collections.immutable.internal.assert
 import kotlin.js.JsName
