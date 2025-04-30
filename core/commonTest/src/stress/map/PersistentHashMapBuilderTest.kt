@@ -11,7 +11,7 @@ import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
 import tests.remove
 import tests.stress.ExecutionTimeMeasuringTest
-import tests.stress.IntWrapper
+import tests.IntWrapper
 import tests.stress.WrapperGenerator
 import kotlin.random.Random
 import kotlin.test.*

@@ -9,7 +9,7 @@ import kotlinx.collections.immutable.implementations.immutableMap.LOG_MAX_BRANCH
 import kotlinx.collections.immutable.implementations.immutableMap.MAX_SHIFT
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.implementations.immutableMap.TrieNode
-import tests.stress.IntWrapper
+import tests.IntWrapper
 import kotlin.test.*
 
 class HashMapTrieNodeTest {

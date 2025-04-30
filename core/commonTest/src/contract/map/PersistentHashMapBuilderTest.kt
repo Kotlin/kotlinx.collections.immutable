@@ -7,7 +7,7 @@ package tests.contract.map
 
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
-import tests.stress.IntWrapper
+import tests.IntWrapper
 import kotlin.collections.iterator
 import kotlin.test.Test
 import kotlin.test.assertEquals
