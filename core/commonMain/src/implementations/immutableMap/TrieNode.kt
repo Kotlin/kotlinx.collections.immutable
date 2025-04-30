@@ -181,7 +181,6 @@ internal class TrieNode<K, V>(
 
     /** The given [newNode] must not be a part of any persistent map instance. */
     private fun updateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership? = null): TrieNode<K, V> {
-//        assert(buffer[nodeIndex] !== newNode)
         val newNodeBuffer = newNode.buffer
         if (newNodeBuffer.size == 2 && newNode.nodeMap == 0) {
             if (buffer.size == 1) {
