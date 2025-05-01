@@ -6,6 +6,8 @@
 package tests.contract.set
 
 import kotlinx.collections.immutable.persistentHashSetOf
+import kotlinx.collections.immutable.minus
+import kotlinx.collections.immutable.toPersistentHashSet
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -26,5 +28,20 @@ class PersistentHashSetTest {
 
         assertEquals(set2, builder.build().toSet())
         assertEquals(set2, builder.build())
+    }
+
+    /**
+     * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/144
+     */
+    @Test
+    fun reproducer() {
+        val firstBatch = listOf(4554, 9380, 4260, 6602)
+        val secondBatch = listOf(1188, 14794)
+        val extraElement = 7450
+
+        val set = firstBatch.plus(secondBatch).plus(extraElement).toPersistentHashSet()
+        val result = set.minus(firstBatch.toPersistentHashSet()).minus(secondBatch)
+        assertEquals(1, result.size)
+        assertEquals(extraElement, result.first())
     }
 }
