@@ -74,9 +74,13 @@ class PersistentHashSetTest {
         val hashSet = HashSet(firstBatch) + secondBatch + extraElement
         assertEquals(hashSet, set)
 
-        val result = set.minus(firstBatch.toPersistentHashSet()).minus(secondBatch)
+        val firstBatchSet = firstBatch.toPersistentHashSet()
+        val firstBatchHashSet: Set<Int> = HashSet(firstBatch)
+        assertEquals(firstBatchHashSet, firstBatchSet)
+
+        val result = set.minus(firstBatchSet).minus(secondBatch)
 
         assertEquals(1, result.size)
-//        assertEquals(extraElement, result.first())
+        assertEquals(extraElement, result.first())
     }
 }
