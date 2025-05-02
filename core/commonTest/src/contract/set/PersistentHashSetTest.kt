@@ -34,22 +34,45 @@ class PersistentHashSetTest {
      * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/144
      */
     @Test
-    fun reproducer() {
-        val firstBatch = listOf(
-            0b0_00100_01110_01010,
-            0b0_00110_01110_01010,
-            0b0_01001_00101_00100,
-            0b0_00100_00101_00100
+    fun reproducer1() {
+        validate(
+            firstBatch = listOf(
+                0b0_00100_01110_01010,
+                0b0_00110_01110_01010,
+                0b0_01001_00101_00100,
+                0b0_00100_00101_00100
+            ),
+            secondBatch = listOf(
+                0b0_01110_01110_01010,
+                0b0_00001_00101_00100
+            ),
+            extraElement =
+                0b0_00111_01000_11010
         )
-        val secondBatch = listOf(
-            0b0_00001_00101_00100,
-            0b0_01110_01110_01010
-        )
-        val extraElement =
-            0b0_00111_01000_11010
+    }
 
+    @Test
+    fun reproducer2() {
+        validate(
+            firstBatch = listOf(
+                0b0_00000_00000_00000,
+                0b0_00001_00000_00000,
+                0b0_00000_00000_00001,
+                0b0_00001_00000_00001,
+            ),
+            secondBatch = listOf(
+                0b0_00010_00000_00000,
+                0b0_00010_00000_00001
+            ),
+            extraElement =
+                0b0_00000_00000_00010
+        )
+    }
+
+    private fun validate(firstBatch: List<Int>, secondBatch: List<Int>, extraElement: Int) {
         val set = firstBatch.plus(secondBatch).plus(extraElement).toPersistentHashSet()
         val result = set.minus(firstBatch.toPersistentHashSet()).minus(secondBatch)
+
         assertEquals(1, result.size)
         assertEquals(extraElement, result.first())
     }
