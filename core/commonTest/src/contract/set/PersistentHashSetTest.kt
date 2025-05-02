@@ -35,9 +35,18 @@ class PersistentHashSetTest {
      */
     @Test
     fun reproducer() {
-        val firstBatch = listOf(4554, 9380, 4260, 6602)
-        val secondBatch = listOf(1188, 14794)
-        val extraElement = 7450
+        val firstBatch = listOf(
+            0b0_00100_01110_01010,
+            0b0_00110_01110_01010,
+            0b0_01001_00101_00100,
+            0b0_00100_00101_00100
+        )
+        val secondBatch = listOf(
+            0b0_00001_00101_00100,
+            0b0_01110_01110_01010
+        )
+        val extraElement =
+            0b0_00111_01000_11010
 
         val set = firstBatch.plus(secondBatch).plus(extraElement).toPersistentHashSet()
         val result = set.minus(firstBatch.toPersistentHashSet()).minus(secondBatch)
