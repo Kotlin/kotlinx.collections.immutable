@@ -5,6 +5,7 @@
 
 package tests.contract.set
 
+import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.toPersistentHashSet
@@ -70,17 +71,15 @@ class PersistentHashSetTest {
     }
 
     private fun validate(firstBatch: List<Int>, secondBatch: List<Int>, extraElement: Int) {
-        val set = firstBatch.plus(secondBatch).plus(extraElement).toPersistentHashSet()
-        val hashSet = HashSet(firstBatch) + secondBatch + extraElement
-        assertEquals(hashSet, set)
+        val set: PersistentHashSet<Int> =
+            firstBatch.plus(secondBatch).plus(extraElement).toPersistentHashSet()
+                    as PersistentHashSet<Int>
 
         val firstBatchSet = firstBatch.toPersistentHashSet()
-        val firstBatchHashSet: Set<Int> = HashSet(firstBatch)
-        assertEquals(firstBatchHashSet, firstBatchSet)
 
-        val result = set.minus(firstBatchSet).minus(secondBatch)
+        val actual = set.minus(firstBatchSet).minus(secondBatch)
+        val expected = persistentHashSetOf(extraElement)
 
-        assertEquals(1, result.size)
-        assertEquals(extraElement, result.first())
+        assertEquals(expected, actual)
     }
 }
