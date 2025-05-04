@@ -78,6 +78,21 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         compareMaps(expected, builder1.build())
     }
 
+    @Test fun buildPersistentHashMap() {
+        val expected = mutableMapOf<String, Int>()
+        val actual = buildPersistentHashMap {
+            for (i in 300..400) {
+                put("$i", i)
+                expected["$i"] = i
+            }
+            for (i in 0..200) {
+                put("$i", i)
+                expected["$i"] = i
+            }
+        }
+        compareMapsUnordered(expected, actual)
+    }
+
     @Test fun regressionGithubIssue109() {
         // https://github.com/Kotlin/kotlinx.collections.immutable/issues/109
         val map0 = immutableMapOf<Int, Int>().put(0, 0).put(1, 1).put(32, 32)
@@ -138,6 +153,21 @@ class ImmutableOrderedMapTest : ImmutableMapTest() {
         assertEquals(1, builder.filter { it.key === changing }.size)
         changing.add("break iteration")
         assertFailsWith<ConcurrentModificationException> { builder.filter { it.key === changing } }
+    }
+
+    @Test fun buildPersistentMap() {
+        val expected = mutableMapOf<String, Int>()
+        val actual = buildPersistentMap {
+            for (i in 300..400) {
+                put("$i", i)
+                expected["$i"] = i
+            }
+            for (i in 0..200) {
+                put("$i", i)
+                expected["$i"] = i
+            }
+        }
+        compareMaps(expected, actual)
     }
 }
 
