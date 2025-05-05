@@ -96,7 +96,7 @@ class PersistentHashSetTest {
                     as PersistentHashSet<Int>
 
         val actual: PersistentHashSet<Int> =
-            set.minus(batchSet)
+            (set - batchSet)
                     as PersistentHashSet<Int>
 
         val expected: PersistentHashSet<Int> =
