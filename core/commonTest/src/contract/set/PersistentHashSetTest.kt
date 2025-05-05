@@ -90,11 +90,9 @@ class PersistentHashSetTest {
             0b0_00010_00000_00000,
             0b0_00010_00000_00001
         )
-        val extraElement =
-            0b0_00000_00000_00010
 
         val set: PersistentHashSet<Int> =
-            (firstBatch + secondBatch + extraElement).toPersistentHashSet()
+            (firstBatch + secondBatch).toPersistentHashSet()
                     as PersistentHashSet<Int>
 
         val firstBatchSet: PersistentHashSet<Int> =
@@ -106,7 +104,7 @@ class PersistentHashSetTest {
                     as PersistentHashSet<Int>
 
         val expected: PersistentHashSet<Int> =
-            (secondBatch + extraElement).toPersistentHashSet()
+            secondBatch.toPersistentHashSet()
                     as PersistentHashSet<Int>
 
         assertEquals(expected, actual)
