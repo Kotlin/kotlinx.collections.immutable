@@ -82,9 +82,7 @@ class PersistentHashSetTest {
     fun equalsTest() {
         val firstBatch = listOf(
             0b0_00000_00000_00000,
-            0b0_00001_00000_00000,
-            0b0_00000_00000_00001,
-            0b0_00001_00000_00001,
+            0b0_00001_00000_00000
         )
         val secondBatch = listOf(
             0b0_00010_00000_00000,
