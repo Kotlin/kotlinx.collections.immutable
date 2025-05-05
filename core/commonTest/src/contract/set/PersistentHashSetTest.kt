@@ -71,14 +71,43 @@ class PersistentHashSetTest {
     }
 
     private fun validate(firstBatch: List<Int>, secondBatch: List<Int>, extraElement: Int) {
+        val set = firstBatch.plus(secondBatch).plus(extraElement).toPersistentHashSet()
+        val result = set.minus(firstBatch.toPersistentHashSet()).minus(secondBatch)
+
+        assertEquals(1, result.size)
+        assertEquals(extraElement, result.first())
+    }
+
+    @Test
+    fun equalsTest() {
+        val firstBatch = listOf(
+            0b0_00000_00000_00000,
+            0b0_00001_00000_00000,
+            0b0_00000_00000_00001,
+            0b0_00001_00000_00001,
+        )
+        val secondBatch = listOf(
+            0b0_00010_00000_00000,
+            0b0_00010_00000_00001
+        )
+        val extraElement =
+            0b0_00000_00000_00010
+
         val set: PersistentHashSet<Int> =
-            firstBatch.plus(secondBatch).plus(extraElement).toPersistentHashSet()
+            (firstBatch + secondBatch + extraElement).toPersistentHashSet()
                     as PersistentHashSet<Int>
 
-        val firstBatchSet = firstBatch.toPersistentHashSet()
+        val firstBatchSet: PersistentHashSet<Int> =
+            firstBatch.toPersistentHashSet()
+                    as PersistentHashSet<Int>
 
-        val actual = set.minus(firstBatchSet).minus(secondBatch)
-        val expected = persistentHashSetOf(extraElement)
+        val actual: PersistentHashSet<Int> =
+            set.minus(firstBatchSet)
+                    as PersistentHashSet<Int>
+
+        val expected: PersistentHashSet<Int> =
+            (secondBatch + extraElement).toPersistentHashSet()
+                    as PersistentHashSet<Int>
 
         assertEquals(expected, actual)
     }
