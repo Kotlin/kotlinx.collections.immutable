@@ -80,29 +80,27 @@ class PersistentHashSetTest {
 
     @Test
     fun equalsTest() {
-        val firstBatch = listOf(
+        val batch = listOf(
             0b0_00000_00000_00000,
             0b0_00001_00000_00000
         )
-        val secondBatch = listOf(
-            0b0_00010_00000_00000,
-            0b0_00010_00000_00001
-        )
+        val singleElement =
+            0b0_00010_00000_00000
 
         val set: PersistentHashSet<Int> =
-            (firstBatch + secondBatch).toPersistentHashSet()
+            (batch + singleElement).toPersistentHashSet()
                     as PersistentHashSet<Int>
 
-        val firstBatchSet: PersistentHashSet<Int> =
-            firstBatch.toPersistentHashSet()
+        val batchSet: PersistentHashSet<Int> =
+            batch.toPersistentHashSet()
                     as PersistentHashSet<Int>
 
         val actual: PersistentHashSet<Int> =
-            set.minus(firstBatchSet)
+            set.minus(batchSet)
                     as PersistentHashSet<Int>
 
         val expected: PersistentHashSet<Int> =
-            secondBatch.toPersistentHashSet()
+            persistentHashSetOf(singleElement)
                     as PersistentHashSet<Int>
 
         assertEquals(expected, actual)
