@@ -46,10 +46,29 @@ allprojects {
         }
     }
 
+    val setAllWarningsAsError = providers.gradleProperty("kotlin_Werror_override").map {
+        when (it) {
+            "enable" -> true
+            "disable" -> false
+            else -> error("Unexpected value for 'kotlin_Werror_override' property: $it")
+        }
+    }
+
     tasks.withType(KotlinCompilationTask::class).configureEach {
         compilerOptions {
-            allWarningsAsErrors = true
-            freeCompilerArgs.add("-Xexpect-actual-classes")
+            if (setAllWarningsAsError.orNull != false) {
+                allWarningsAsErrors = true
+            } else {
+                freeCompilerArgs.addAll(
+                    "-Wextra",
+                    "-Xuse-fir-experimental-checkers"
+                )
+            }
+            freeCompilerArgs.addAll(
+                "-Xexpect-actual-classes",
+                "-Xreport-all-warnings",
+                "-Xrender-internal-diagnostic-names"
+            )
         }
         if (this is KotlinJsCompile) {
             compilerOptions {
@@ -59,6 +78,18 @@ allprojects {
             compilerOptions {
                 freeCompilerArgs.add("-Xjvm-default=disable")
             }
+        }
+
+        val extraOpts = providers.gradleProperty("kotlin_additional_cli_options").orNull
+        extraOpts?.split(' ')?.map(String::trim)?.filter(String::isNotBlank)?.let { opts ->
+            if (opts.isNotEmpty()) {
+                compilerOptions.freeCompilerArgs.addAll(opts)
+            }
+        }
+
+        doFirst {
+            logger.info("Added Kotlin compiler flags: ${compilerOptions.freeCompilerArgs.get().joinToString(", ")}")
+            logger.info("allWarningsAsErrors=${compilerOptions.allWarningsAsErrors.get()}")
         }
     }
 }
