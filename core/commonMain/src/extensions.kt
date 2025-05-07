@@ -31,6 +31,11 @@ import kotlinx.collections.immutable.implementations.persistentOrderedSet.Persis
 public inline fun <T> PersistentSet<T>.mutate(mutator: (MutableSet<T>) -> Unit): PersistentSet<T> = builder().apply(mutator).build()
 
 /**
+ * Returns this [ImmutableSet] if it's not `null` and the empty [ImmutableSet] otherwise.
+ */
+public inline fun <T> ImmutableSet<T>?.orEmpty(): ImmutableSet<T> = this ?: persistentSetOf()
+
+/**
  * Returns the result of applying the provided modifications on this list.
  *
  * The mutable list passed to the [mutator] closure has the same contents as this persistent list.
@@ -52,6 +57,10 @@ public inline fun <T> PersistentList<T>.mutate(mutator: (MutableList<T>) -> Unit
 public inline fun <K, V> PersistentMap<out K, V>.mutate(mutator: (MutableMap<K, V>) -> Unit): PersistentMap<K, V> =
         (this as PersistentMap<K, V>).builder().apply(mutator).build()
 
+/**
+ * Returns this [ImmutableList] if it's not `null` and the empty [ImmutableList] otherwise.
+ */
+public inline fun <T> ImmutableList<T>?.orEmpty(): ImmutableList<T> = this ?: persistentListOf()
 
 /**
  * Returns the result of adding the specified [element] to this collection.
@@ -440,6 +449,10 @@ public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Array<out K>): Pe
 public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): PersistentMap<K, V>
         = mutate { it.minusAssign(keys) }
 
+/**
+ * Returns the [ImmutableMap] if it's not `null`, or the empty [ImmutableMap] otherwise.
+ */
+public fun <K, V> ImmutableMap<K, V>?.orEmpty(): ImmutableMap<K, V> = this ?: persistentMapOf()
 
 /**
  * Returns a new persistent list of the specified elements.
