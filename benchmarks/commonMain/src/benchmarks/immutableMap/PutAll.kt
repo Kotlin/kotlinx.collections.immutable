@@ -8,6 +8,7 @@ package benchmarks.immutableMap
 import benchmarks.*
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 
 @State(Scope.Benchmark)
@@ -21,10 +22,10 @@ open class PutAll {
     @Param(ASCENDING_HASH_CODE, RANDOM_HASH_CODE, COLLISION_HASH_CODE)
     var hashCodeType = ""
 
-    private var lhs = persistentMapOf<IntWrapper, String>()
-    private var lhsSmall = persistentMapOf<IntWrapper, String>()
-    private var rhs = persistentMapOf<IntWrapper, String>()
-    private var rhsSmall = persistentMapOf<IntWrapper, String>()
+    private var lhs = emptyPersistentMap<IntWrapper, String>()
+    private var lhsSmall = emptyPersistentMap<IntWrapper, String>()
+    private var rhs = emptyPersistentMap<IntWrapper, String>()
+    private var rhsSmall = emptyPersistentMap<IntWrapper, String>()
 
     @Setup
     fun prepare() {

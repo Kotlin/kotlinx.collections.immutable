@@ -9,6 +9,7 @@ import benchmarks.*
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentList
 import kotlin.random.Random
 
 @State(Scope.Benchmark)
@@ -84,7 +85,7 @@ open class RemoveAll {
 
     private fun persistentListBuilderAddIndexes(): PersistentList.Builder<Int> {
         val immutableSize = immutableSize(size, immutablePercentage)
-        var list = persistentListOf<Int>()
+        var list = emptyPersistentList<Int>()
         for (i in 0 until immutableSize) {
             list = list.add(i)
         }

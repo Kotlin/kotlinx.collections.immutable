@@ -9,6 +9,7 @@ import benchmarks.*
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentMap
 
 
 /**
@@ -35,13 +36,13 @@ open class Canonicalization {
 
     private var keys = listOf<IntWrapper>()
     private var keysToRemove = listOf<IntWrapper>()
-    private var persistentMap = persistentMapOf<IntWrapper, String>()
+    private var persistentMap = emptyPersistentMap<IntWrapper, String>()
 
     /**
      * Expected height of this persistent map is equal to the [persistentMap]'s expected height divided by 2.
      * Obtained by removing some entries of the [persistentMap].
      */
-    private var halfHeightPersistentMap = persistentMapOf<IntWrapper, String>()
+    private var halfHeightPersistentMap = emptyPersistentMap<IntWrapper, String>()
 
     @Setup
     fun prepare() {
