@@ -120,7 +120,7 @@ collection.mutate { some_actions_on(it) }
 
 The library is published to Maven Central repository.
 
-The library depends on the Kotlin Standard Library of the version at least `1.9.21`.
+The library depends on the Kotlin Standard Library of the version at least `2.1.20`.
 
 ### Gradle
 
