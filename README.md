@@ -5,6 +5,8 @@
 [![GitHub license](https://img.shields.io/github/license/kotlin/kotlinx.collections.immutable)](LICENSE.txt) 
 [![Build status](https://teamcity.jetbrains.com/guestAuth/app/rest/builds/buildType:(id:KotlinTools_KotlinxCollectionsImmutable_Build_All)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=KotlinTools_KotlinxCollectionsImmutable_Build_All)
 [![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-collections-immutable.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-collections-immutable)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.1.20-blue.svg?logo=kotlin)](http://kotlinlang.org)
+
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
