@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.3.9
+## 0.4
 
 - Fixed the equality bug in PersistentMap — Added proper node promotion during mutable operations to ensure a consistent internal tree structure [#217](https://github.com/Kotlin/kotlinx.collections.immutable/pull/217)
 - Fixed the bug in PersistentMap equals implementation — Ensured proper node promotion during mutable key removal even when nodes share the same owner [#218](https://github.com/Kotlin/kotlinx.collections.immutable/pull/218)
