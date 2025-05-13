@@ -139,7 +139,7 @@ kotlin {
     sourceSets {
         commonMain {
              dependencies {
-                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4")
+                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
              }
         }
     }
@@ -155,7 +155,7 @@ Add dependencies (you can also add other modules that you need):
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
     <artifactId>kotlinx-collections-immutable-jvm</artifactId>
-    <version>0.4</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
