@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.4.0
+
+- Fixed the equality bug in PersistentMap — Added proper node promotion during mutable operations to ensure a consistent internal tree structure [#217](https://github.com/Kotlin/kotlinx.collections.immutable/pull/217)
+- Fixed the bug in PersistentMap equals implementation — Ensured proper node promotion during mutable key removal even when nodes share the same owner [#218](https://github.com/Kotlin/kotlinx.collections.immutable/pull/218)
+- Fixed the ghost element issue in PersistentHashSet — Corrected condition check order to ensure proper recursive element promotion after collision removal [#219](https://github.com/Kotlin/kotlinx.collections.immutable/pull/219)
+- Updated Kotlin to version 2.1.20 and core dependencies [#213](https://github.com/Kotlin/kotlinx.collections.immutable/pull/213)
+- Enabled '-Xjvm-default=disable' explicitly to prevent API dump changes [#210](https://github.com/Kotlin/kotlinx.collections.immutable/pull/210)
+
 ## 0.3.8
 
 - Add extension functions to convert Array to persistent collections [#159](https://github.com/Kotlin/kotlinx.collections.immutable/issues/159)
