@@ -6,6 +6,7 @@
 package tests.stress.list
 
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.emptyPersistentList
 import kotlinx.collections.immutable.persistentListOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
@@ -17,7 +18,7 @@ import kotlin.test.*
 class PersistentListTest : ExecutionTimeMeasuringTest() {
     @Test
     fun isEmptyTests() {
-        var vector = persistentListOf<String>()
+        var vector = emptyPersistentList<String>()
 
         assertTrue(vector.isEmpty())
         assertFalse(vector.add("last").isEmpty())
@@ -39,7 +40,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun sizeTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertTrue(vector.size == 0)
         assertEquals(1, vector.add(1).size)
@@ -59,7 +60,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun firstTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertNull(vector.firstOrNull())
         assertEquals(1, vector.add(0, 1).first())
@@ -80,7 +81,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun lastTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertNull(vector.lastOrNull())
         assertEquals(1, vector.add(0, 1).last())
@@ -101,27 +102,27 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun toListTest() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertEquals(emptyList<Int>(), vector.toList())
         assertEquals(listOf(1), vector.add(1).toList())
 
         assertEquals(
-                listOf(1, 2, 3, 4, 5, 6),
-                vector
-                        .add(1).add(2).add(3).add(4).add(5)
-                        .add(6)
-                        .toList()
+            listOf(1, 2, 3, 4, 5, 6),
+            vector
+                .add(1).add(2).add(3).add(4).add(5)
+                .add(6)
+                .toList()
         )
 
         assertEquals(
-                listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
-                vector
-                        .add(1).add(2).add(3).add(4).add(5)
-                        .add(6).add(7).add(8).add(9).add(10)
-                        .add(11).add(12).add(13).add(14).add(15)
-                        .add(16).add(17).add(18).add(19).add(20)
-                        .toList()
+            listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
+            vector
+                .add(1).add(2).add(3).add(4).add(5)
+                .add(6).add(7).add(8).add(9).add(10)
+                .add(11).add(12).add(13).add(14).add(15)
+                .add(16).add(17).add(18).add(19).add(20)
+                .toList()
         )
 
         val elementsToAdd = NForAlgorithmComplexity.O_NN
@@ -137,7 +138,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun addFirstTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertNull(vector.firstOrNull())
         assertEquals(1, vector.add(0, 1).first())
@@ -160,7 +161,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun addLastTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertEquals(1, vector.add(1)[0])
 
@@ -181,7 +182,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeFirstTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
             vector.removeAt(0)
@@ -207,7 +208,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeLastTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
             vector.removeAt(vector.size - 1)
@@ -246,7 +247,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun getTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
             vector[0]
@@ -273,7 +274,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun setTests() {
-        var vector = persistentListOf<Int>()
+        var vector = emptyPersistentList<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
             vector.set(0, 0)
@@ -315,7 +316,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         for (initialSize in listSizes) {
 
             val initialElements = List(initialSize) { it }
-            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.add(element) }
+            val list = initialElements.fold(emptyPersistentList<Int>()) { list, element -> list.add(element) }
 
             val addIndex = mutableListOf(
                     initialSize // append
@@ -359,7 +360,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         for (initialSize in listSizes) {
 
             val initialElements = List(initialSize) { it }
-            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.add(element) }
+            val list = initialElements.fold(emptyPersistentList<Int>()) { list, element -> list.add(element) }
 
             val removeElements = mutableListOf(
                     initialElements // all
@@ -409,7 +410,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         repeat(times = 1) {
 
             val lists = List(20) { mutableListOf<Int>() }
-            val vectors = MutableList(20) { persistentListOf<Int>() }
+            val vectors = MutableList(20) { emptyPersistentList<Int>() }
 
             val operationCount = NForAlgorithmComplexity.O_NlogN
 

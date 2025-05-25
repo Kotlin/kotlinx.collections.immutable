@@ -6,16 +6,14 @@
 package benchmarks.immutableMap
 
 import benchmarks.*
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.*
 import kotlin.math.ceil
 import kotlin.math.log
 
 
 fun <K, V> emptyPersistentMap(implementation: String): PersistentMap<K, V> = when (implementation) {
-    HASH_IMPL -> persistentHashMapOf()
-    ORDERED_IMPL -> persistentMapOf()
+    HASH_IMPL -> emptyPersistentHashMap()
+    ORDERED_IMPL -> emptyPersistentMap()
     else -> throw AssertionError("Unknown PersistentMap implementation: $implementation")
 }
 

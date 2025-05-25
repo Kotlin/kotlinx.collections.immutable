@@ -9,6 +9,7 @@ import benchmarks.*
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentList
 
 @State(Scope.Benchmark)
 open class Set {
@@ -18,7 +19,7 @@ open class Set {
     @Param(IP_100, IP_99_09, IP_95, IP_70, IP_50, IP_30, IP_0)
     var immutablePercentage: Double = 0.0
 
-    private var builder = persistentListOf<String>().builder()
+    private var builder = emptyPersistentList<String>().builder()
     private var randomIndices = listOf<Int>()
 
     @Setup

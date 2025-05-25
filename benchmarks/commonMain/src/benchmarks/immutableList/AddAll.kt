@@ -9,6 +9,7 @@ import benchmarks.*
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentList
 
 @State(Scope.Benchmark)
 open class AddAll {
@@ -35,7 +36,7 @@ open class AddAll {
      */
     @Benchmark
     fun addAllLast(): ImmutableList<String> {
-        return persistentListOf<String>().addAll(listToAdd)
+        return emptyPersistentList<String>().addAll(listToAdd)
     }
 
     /**

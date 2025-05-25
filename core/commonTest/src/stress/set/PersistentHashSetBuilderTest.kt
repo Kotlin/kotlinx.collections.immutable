@@ -5,6 +5,7 @@
 
 package tests.stress.set
 
+import kotlinx.collections.immutable.emptyPersistentHashSet
 import kotlinx.collections.immutable.persistentHashSetOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
@@ -20,7 +21,7 @@ import kotlin.test.assertTrue
 class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
     @Test
     fun isEmptyTests() {
-        val builder = persistentHashSetOf<Int>().builder()
+        val builder = emptyPersistentHashSet<Int>().builder()
 
         assertTrue(builder.isEmpty())
 
@@ -40,7 +41,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun sizeTests() {
-        val builder = persistentHashSetOf<Int>().builder()
+        val builder = emptyPersistentHashSet<Int>().builder()
 
         assertTrue(builder.size == 0)
 
@@ -64,7 +65,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun storedElementsTests() {
-        val builder = persistentHashSetOf<Int>().builder()
+        val builder = emptyPersistentHashSet<Int>().builder()
         assertTrue(builder.isEmpty())
 
         val mutableSet = mutableSetOf<Int>()
@@ -91,7 +92,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun iteratorTests() {
-        val builder = persistentHashSetOf<Int>().builder()
+        val builder = emptyPersistentHashSet<Int>().builder()
         assertFalse(builder.iterator().hasNext())
 
         val mutableSet = mutableSetOf<Int>()
@@ -132,7 +133,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeTests() {
-        val builder = persistentHashSetOf<Int>().builder()
+        val builder = emptyPersistentHashSet<Int>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
@@ -150,7 +151,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun containsTests() {
-        val builder = persistentHashSetOf<String>().builder()
+        val builder = emptyPersistentHashSet<String>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
@@ -173,7 +174,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun addTests() {
-        val builder = persistentHashSetOf<Int>().builder()
+        val builder = emptyPersistentHashSet<Int>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
@@ -192,7 +193,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
             }
         }
         repeat(times = elementsToAdd) { index ->
-            for (i in index until elementsToAdd ) {
+            for (i in index until elementsToAdd) {
                 val element = elementsToAdd - index + i
 
                 assertTrue(builder.contains(element))
@@ -210,7 +211,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun collisionTests() {
-        val builder = persistentHashSetOf<IntWrapper>().builder()
+        val builder = emptyPersistentHashSet<IntWrapper>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
@@ -260,7 +261,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun randomOperationsTests() {
-        val setGen = mutableListOf(List(20) { persistentHashSetOf<IntWrapper>() })
+        val setGen = mutableListOf(List(20) { emptyPersistentHashSet<IntWrapper>() })
         val expected = mutableListOf(List(20) { setOf<IntWrapper>() })
 
         repeat(times = 5) {
