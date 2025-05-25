@@ -1,4 +1,9 @@
 public final class kotlinx/collections/immutable/ExtensionsKt {
+	public static final fun buildPersistentHashMap (Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun buildPersistentHashSet (Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentSet;
+	public static final fun buildPersistentList (Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentList;
+	public static final fun buildPersistentMap (Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentMap;
+	public static final fun buildPersistentSet (Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun immutableHashMapOf ([Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun immutableHashSetOf ([Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentSet;
 	public static final fun immutableListOf ()Lkotlinx/collections/immutable/PersistentList;
