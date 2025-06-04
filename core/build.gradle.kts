@@ -158,7 +158,7 @@ dokka {
         skipDeprecated.set(true)
         sourceLink {
             localDirectory.set(rootDir)
-            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/latest-release")
+            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/v0.4.0")
             remoteLineSuffix.set("#L")
         }
     }
