@@ -8,5 +8,5 @@ and aren't related to the library's release cycle.
 
 The folder is defined as a source for custom templates by the templatesDir property through Dokka's plugin configuration.
 
-[Here](https://kotlin.github.io/dokka/1.7.20-SNAPSHOT/user_guide/output-formats/html/#custom-html-pages), you can
+[Here](https://kotlinlang.org/docs/dokka-html.html#templates), you can
 find more about the customization of Dokka's HTML output.
