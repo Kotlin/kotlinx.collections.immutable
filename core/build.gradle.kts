@@ -160,6 +160,7 @@ dokka {
         failOnWarning.set(true)
         // Enum members and undocumented toString()
         suppressInheritedMembers.set(true)
+        outputDirectory.set(rootDir.resolve("docs"))
     }
 
     dokkaSourceSets.configureEach {
