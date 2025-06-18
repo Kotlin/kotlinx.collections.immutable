@@ -8,6 +8,10 @@ pluginManagement {
             maven(kotlinRepoUrl)
         }
     }
+    val dokkaVersion: String by settings
+    plugins {
+        id("org.jetbrains.dokka") version dokkaVersion
+    }
 }
 
 rootProject.name = "Kotlin-Immutable-Collections" // TODO: Make readable name when it's not used in js module names

@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("kotlin-multiplatform")
+    id("org.jetbrains.dokka")
     `maven-publish`
 }
 
@@ -136,6 +137,29 @@ kotlin {
         val nativeMain by getting {
         }
         val nativeTest by getting {
+        }
+    }
+}
+
+dokka {
+    pluginsConfiguration.html {
+        templatesDir.set(projectDir.resolve("dokka-templates"))
+    }
+
+    dokkaPublications.html {
+        failOnWarning.set(true)
+        // Enum members and undocumented toString()
+        suppressInheritedMembers.set(true)
+    }
+
+    dokkaSourceSets.configureEach {
+        val platform = name.dropLast(4)
+        samples.from("$platform/test")
+        skipDeprecated.set(true)
+        sourceLink {
+            localDirectory.set(rootDir)
+            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/v0.4.0")
+            remoteLineSuffix.set("#L")
         }
     }
 }
