@@ -62,7 +62,7 @@ fun Project.deployToCentral(platform: Platform, startDeployment: BuildType) = bu
     params {
         //param(versionSuffixParameter, "${startDeployment.depParamRefs["VERSION"]}")
         param(releaseVersionParameter, "${startDeployment.depParamRefs["Version"]}")
-        param("system.publishing_repository", "${startDeployment.depParamRefs["Repository"]}")
+        param("system.publication_repository", "${startDeployment.depParamRefs["Repository"]}")
     }
 
     vcs {
