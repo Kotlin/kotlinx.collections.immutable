@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-    id("kotlinx.team.infra") version "0.4.0-dev-85"
+    id("kotlinx.team.infra") version "0.4.0-dev-86"
     id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.17.0"
 }
 
@@ -18,9 +18,14 @@ infra {
         include(":kotlinx-collections-immutable")
 
         libraryRepoUrl = "https://github.com/Kotlin/kotlinx.collections.immutable"
-        sonatype {
-            libraryStagingRepoDescription = project.name
+        if (project.findProperty("publication_repository") == "central") {
+            central {}
+        } else {
+            sonatype {
+                libraryStagingRepoDescription = project.name
+            }
         }
+
     }
 }
 
