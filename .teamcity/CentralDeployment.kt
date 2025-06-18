@@ -61,7 +61,7 @@ fun Project.deployToCentral(platform: Platform, startDeployment: BuildType) = bu
     maxRunningBuilds = 1
     params {
         //param(versionSuffixParameter, "${startDeployment.depParamRefs["VERSION"]}")
-        param(releaseVersionParameter, "${startDeployment.depParamRefs["VERSION"]}")
+        param(releaseVersionParameter, "${startDeployment.depParamRefs["Version"]}")
         param("system.publishing_repository", "${startDeployment.depParamRefs["Repository"]}")
     }
 
