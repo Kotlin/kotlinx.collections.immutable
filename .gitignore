@@ -1,5 +1,7 @@
 /.idea/*
 !/.idea/copyright
+/benchmarks-libraries/.idea/*
+!/benchmarks-libraries/.idea/copyright
 .gradle
 *.iml
 target
