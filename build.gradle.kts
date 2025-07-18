@@ -58,11 +58,6 @@ allprojects {
         compilerOptions {
             if (setAllWarningsAsError.orNull != false) {
                 allWarningsAsErrors = true
-            } else {
-                freeCompilerArgs.addAll(
-                    "-Wextra",
-                    "-Xuse-fir-experimental-checkers"
-                )
             }
             freeCompilerArgs.addAll(
                 "-Xexpect-actual-classes",
