@@ -5,14 +5,13 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.assert
 import kotlinx.collections.immutable.mutate
 
-internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : ImmutableList<E>, AbstractPersistentList<E>() {
+internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : AbstractPersistentList<E>() {
 
     init {
         assert(buffer.size <= MAX_BUFFER_SIZE)

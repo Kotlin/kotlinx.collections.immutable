@@ -9,7 +9,6 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.assert
-import kotlinx.collections.immutable.mutate
 
 /**
  * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having
@@ -24,7 +23,7 @@ import kotlinx.collections.immutable.mutate
 internal class PersistentVector<E>(private val root: Array<Any?>,
                                    private val tail: Array<Any?>,
                                    override val size: Int,
-                                   private val rootShift: Int) : PersistentList<E>, AbstractPersistentList<E>() {
+                                   private val rootShift: Int) : AbstractPersistentList<E>() {
 
     init {
         require(size > MAX_BUFFER_SIZE) { "Trie-based persistent vector should have at least ${MAX_BUFFER_SIZE + 1} elements, got $size" }
