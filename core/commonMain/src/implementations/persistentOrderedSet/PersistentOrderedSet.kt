@@ -38,7 +38,7 @@ internal class PersistentOrderedSet<E>(
             return this
         }
         if (isEmpty()) {
-            val newMap = hashMap.put(element, Links())
+            val newMap = hashMap.putting(element, Links())
             return PersistentOrderedSet(element, element, newMap)
         }
         @Suppress("UNCHECKED_CAST")
@@ -47,8 +47,8 @@ internal class PersistentOrderedSet<E>(
 //        assert(!lastLinks.hasNext)
 
         val newMap = hashMap
-                .put(lastElement, lastLinks.withNext(element))
-                .put(element, Links(previous = lastElement))
+                .putting(lastElement, lastLinks.withNext(element))
+                .putting(element, Links(previous = lastElement))
         return PersistentOrderedSet(firstElement, element, newMap)
     }
 
@@ -65,13 +65,13 @@ internal class PersistentOrderedSet<E>(
             val previousLinks = newMap[links.previous]!!
 //            assert(previousLinks.next == element)
             @Suppress("UNCHECKED_CAST")
-            newMap = newMap.put(links.previous as E, previousLinks.withNext(links.next))
+            newMap = newMap.putting(links.previous as E, previousLinks.withNext(links.next))
         }
         if (links.hasNext) {
             val nextLinks = newMap[links.next]!!
 //            assert(nextLinks.previous == element)
             @Suppress("UNCHECKED_CAST")
-            newMap = newMap.put(links.next as E, nextLinks.withPrevious(links.previous))
+            newMap = newMap.putting(links.next as E, nextLinks.withPrevious(links.previous))
         }
         val newFirstElement = if (!links.hasPrevious) links.next else firstElement
         val newLastElement = if (!links.hasNext) links.previous else lastElement

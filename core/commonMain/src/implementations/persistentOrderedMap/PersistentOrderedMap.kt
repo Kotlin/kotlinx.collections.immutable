@@ -64,9 +64,9 @@ internal class PersistentOrderedMap<K, V>(
 
     override fun get(key: K): V? = hashMap[key]?.value
 
-    override fun put(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
+    override fun putting(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
         if (isEmpty()) {
-            val newMap = hashMap.put(key, LinkedValue(value))
+            val newMap = hashMap.putting(key, LinkedValue(value))
             return PersistentOrderedMap(key, key, newMap)
         }
 
@@ -75,7 +75,7 @@ internal class PersistentOrderedMap<K, V>(
             if (links.value === value) {
                 return this
             }
-            val newMap = hashMap.put(key, links.withValue(value))
+            val newMap = hashMap.putting(key, links.withValue(value))
             return PersistentOrderedMap(firstKey, lastKey, newMap)
         }
 
@@ -84,8 +84,8 @@ internal class PersistentOrderedMap<K, V>(
         val lastLinks = hashMap[lastKey]!!
 //        assert(!lastLink.hasNext)
         val newMap = hashMap
-                .put(lastKey, lastLinks.withNext(key))
-                .put(key, LinkedValue(value, previous = lastKey))
+                .putting(lastKey, lastLinks.withNext(key))
+                .putting(key, LinkedValue(value, previous = lastKey))
         return PersistentOrderedMap(firstKey, key, newMap)
     }
 
@@ -97,13 +97,13 @@ internal class PersistentOrderedMap<K, V>(
             val previousLinks = newMap[links.previous]!!
 //            assert(previousLinks.next == key)
             @Suppress("UNCHECKED_CAST")
-            newMap = newMap.put(links.previous as K, previousLinks.withNext(links.next))
+            newMap = newMap.putting(links.previous as K, previousLinks.withNext(links.next))
         }
         if (links.hasNext) {
             val nextLinks = newMap[links.next]!!
 //            assert(nextLinks.previous == key)
             @Suppress("UNCHECKED_CAST")
-            newMap = newMap.put(links.next as K, nextLinks.withPrevious(links.previous))
+            newMap = newMap.putting(links.next as K, nextLinks.withPrevious(links.previous))
         }
 
         val newFirstKey = if (!links.hasPrevious) links.next else firstKey
