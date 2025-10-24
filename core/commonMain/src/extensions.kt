@@ -301,7 +301,7 @@ public operator fun <E> PersistentSet<E>.minus(elements: Sequence<E>): Persisten
  * or this instance if no modifications were made in the result of this operation.
  */
 public infix fun <E> PersistentSet<E>.intersect(elements: Iterable<E>): PersistentSet<E>
-        = if (elements is Collection) retainAll(elements) else mutate { it.retainAll(elements) }
+        = if (elements is Collection) retainingAll(elements) else mutate { it.retainAll(elements) }
 
 /**
  * Returns all elements in this collection that are also
