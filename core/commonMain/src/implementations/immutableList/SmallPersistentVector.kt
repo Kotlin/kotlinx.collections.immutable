@@ -48,7 +48,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return mutate { it.addAll(elements) }
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
+    override fun removingAll(predicate: (E) -> Boolean): PersistentList<E> {
         var newSize = size
         var removeMask = 0
 

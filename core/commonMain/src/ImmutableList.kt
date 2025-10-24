@@ -123,7 +123,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * @return a new persistent list with elements matching the specified [predicate] removed;
      * or this instance if no elements match the predicate.
      */
-    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E>
+    override fun removingAll(predicate: (E) -> Boolean): PersistentList<E>
+
+    /**
+     * See [removingAll].
+     */
+    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
+    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> = removingAll(predicate)
 
     /**
      * Returns all elements in this list that are also

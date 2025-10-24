@@ -292,7 +292,7 @@ abstract class ImmutableSetTestBase {
         expectSet("abcyz12", set - 'x')
         expectSet("abcy12", set.removingAll(setOf('x', 'z')))
         expectSet("abcy12", set - setOf('x', 'z'))
-        expectSet("abcxyz", set.removeAll { it.isDigit() })
+        expectSet("abcxyz", set.removingAll { it.isDigit() })
 
         compareSets(emptySet(), set - set)
         compareSets(emptySet(), set.clear())
@@ -343,7 +343,7 @@ abstract class ImmutableSetTestBase {
             testNoOperation({ addingAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
             testNoOperation({ removing('d') }, { remove('d') })
             testNoOperation({ removingAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
-            testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
+            testNoOperation({ removingAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
             testNoOperation({ removingAll(emptySet()) }, { removeAll(emptySet()) })
         }
     }

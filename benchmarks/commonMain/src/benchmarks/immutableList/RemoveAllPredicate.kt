@@ -50,37 +50,37 @@ open class RemoveAllPredicate {
     /** Removes all elements. */
     @Benchmark
     fun removeAll_All(): PersistentList<String> {
-        return persistentList.removeAll(truePredicate)
+        return persistentList.removingAll(truePredicate)
     }
 
     /** Removes no elements. */
     @Benchmark
     fun removeAll_Non(): PersistentList<String> {
-        return persistentList.removeAll(falsePredicate)
+        return persistentList.removingAll(falsePredicate)
     }
 
     /** Removes half of the elements randomly selected. */
     @Benchmark
     fun removeAll_RandomHalf(): PersistentList<String> {
-        return persistentList.removeAll(randomHalfElementsPredicate)
+        return persistentList.removingAll(randomHalfElementsPredicate)
     }
 
     /** Removes 10 random elements. */
     @Benchmark
     fun removeAll_RandomTen(): PersistentList<String> {
-        return persistentList.removeAll(randomTenElementsPredicate)
+        return persistentList.removingAll(randomTenElementsPredicate)
     }
 
     /** Removes a random element. */
     @Benchmark
     fun removeAll_RandomOne(): PersistentList<String> {
-        return persistentList.removeAll(randomOneElementPredicate)
+        return persistentList.removingAll(randomOneElementPredicate)
     }
 
     /** Removes last [tailSize] elements. */
     @Benchmark
     fun removeAll_Tail(): PersistentList<String> {
-        return persistentList.removeAll(tailElementsPredicate)
+        return persistentList.removingAll(tailElementsPredicate)
     }
 
     private fun randomIndexes(count: Int): List<Int> {

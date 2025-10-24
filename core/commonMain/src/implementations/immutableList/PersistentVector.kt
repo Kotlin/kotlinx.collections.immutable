@@ -259,7 +259,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
+    override fun removingAll(predicate: (E) -> Boolean): PersistentList<E> {
         return builder().also { it.removeAllWithPredicate(predicate) }.build()
     }
 
