@@ -92,7 +92,7 @@ internal class PersistentOrderedSet<E>(
         return mutate { it.retainAll(elements) }
     }
 
-    override fun clear(): PersistentSet<E> {
+    override fun cleared(): PersistentSet<E> {
         return PersistentOrderedSet.emptyOf()
     }
 

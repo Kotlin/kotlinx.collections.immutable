@@ -295,7 +295,7 @@ abstract class ImmutableSetTestBase {
         expectSet("abcxyz", set.removingAll { it.isDigit() })
 
         compareSets(emptySet(), set - set)
-        compareSets(emptySet(), set.clear())
+        compareSets(emptySet(), set.cleared())
     }
 
     @Test fun builder() {
@@ -334,7 +334,7 @@ abstract class ImmutableSetTestBase {
     }
 
     @Test open fun noOperation() {
-        immutableSetOf<Int>().testNoOperation({ clear() }, { clear() })
+        immutableSetOf<Int>().testNoOperation({ cleared() }, { clear() })
 
         val set = immutableSetOf("abcxyz12".toList())
         with(set) {
