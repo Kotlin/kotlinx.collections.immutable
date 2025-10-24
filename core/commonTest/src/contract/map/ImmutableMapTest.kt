@@ -238,7 +238,7 @@ abstract class ImmutableMapTest {
         assertEquals(mapOf("x" to 1), map.removing(null, "x"))
         assertEquals(map, map.removing("x", 2))
 
-        assertEquals(emptyMap(), map.clear())
+        assertEquals(emptyMap(), map.cleared())
         assertEquals(emptyMap(), map.removing("x").removing(null))
     }
 
@@ -292,7 +292,7 @@ abstract class ImmutableMapTest {
     }
 
     @Test fun noOperation() {
-        immutableMapOf<String, String>().toPersistentMap().testNoOperation({ clear() }, { clear() })
+        immutableMapOf<String, String>().toPersistentMap().testNoOperation({ cleared() }, { clear() })
 
         val key = ObjectWrapper("x", "x".hashCode())
         val equalKey = ObjectWrapper("x", "x".hashCode()) // equalKey == key && equalKey !== key
