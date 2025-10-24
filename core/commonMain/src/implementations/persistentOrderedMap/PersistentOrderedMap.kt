@@ -111,7 +111,7 @@ internal class PersistentOrderedMap<K, V>(
         return PersistentOrderedMap(newFirstKey, newLastKey, newMap)
     }
 
-    override fun remove(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
+    override fun removing(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
         val links = hashMap[key] ?: return this
         return if (links.value == value) this.removing(key) else this
     }
