@@ -179,7 +179,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun set(index: Int, element: @UnsafeVariance E): PersistentList<E>
+    public fun replacingAt(index: Int, element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * See [replacingAt].
+     */
+    @Deprecated("Use replacingAt() instead.", replaceWith = ReplaceWith("replacingAt(index, element)"))
+    public fun set(index: Int, element: @UnsafeVariance E): PersistentList<E> = replacingAt(index, element)
 
     /**
      * Returns a new persistent list with the specified [element] inserted at the specified [index].
