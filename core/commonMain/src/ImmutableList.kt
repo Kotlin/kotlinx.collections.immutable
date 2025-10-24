@@ -79,7 +79,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * @return a new persistent list with elements of the specified [elements] collection appended;
      * or this instance if the specified collection is empty.
      */
-    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
+    override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
+
+    /**
+     * See [addingAll].
+     */
+    @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
+    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = addingAll(elements)
 
     /**
      * Returns the result of removing the first appearance of the specified [element] from this list.

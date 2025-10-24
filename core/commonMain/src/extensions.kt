@@ -77,7 +77,7 @@ public inline operator fun <E> PersistentCollection<E>.minus(element: E): Persis
  * or this instance if no modifications were made in the result of this operation.
  */
 public operator fun <E> PersistentCollection<E>.plus(elements: Iterable<E>): PersistentCollection<E>
-        = if (elements is Collection) addAll(elements) else builder().also { it.addAll(elements) }.build()
+        = if (elements is Collection) addingAll(elements) else builder().also { it.addAll(elements) }.build()
 
 /**
  * Returns the result of adding all elements of the specified [elements] array to this collection.
@@ -155,7 +155,7 @@ public inline operator fun <E> PersistentList<E>.minus(element: E): PersistentLi
  * or this instance if the specified collection is empty.
  */
 public operator fun <E> PersistentList<E>.plus(elements: Iterable<E>): PersistentList<E>
-        = if (elements is Collection) addAll(elements) else mutate { it.addAll(elements) }
+        = if (elements is Collection) addingAll(elements) else mutate { it.addAll(elements) }
 
 /**
  * Returns the result of appending all elements of the specified [elements] array to this list.
@@ -238,7 +238,7 @@ public inline operator fun <E> PersistentSet<E>.minus(element: E): PersistentSet
  * or this instance if it already contains every element of the specified collection.
  */
 public operator fun <E> PersistentSet<E>.plus(elements: Iterable<E>): PersistentSet<E>
-        = if (elements is Collection) addAll(elements) else mutate { it.addAll(elements) }
+        = if (elements is Collection) addingAll(elements) else mutate { it.addAll(elements) }
 
 /**
  * Returns the result of adding all elements of the specified [elements] array to this set.
@@ -444,7 +444,7 @@ public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): Per
 /**
  * Returns a new persistent list of the specified elements.
  */
-public fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persistentVectorOf<E>().addAll(elements.asList())
+public fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persistentVectorOf<E>().addingAll(elements.asList())
 
 /**
  * Returns an empty persistent list.
@@ -457,7 +457,7 @@ public fun <E> persistentListOf(): PersistentList<E> = persistentVectorOf()
  *
  * Elements of the returned set are iterated in the order they were specified.
  */
-public fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>().addAll(elements.asList())
+public fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>().addingAll(elements.asList())
 
 /**
  * Returns an empty persistent set.
@@ -470,7 +470,7 @@ public fun <E> persistentSetOf(): PersistentSet<E> = PersistentOrderedSet.emptyO
  *
  * Order of the elements in the returned set is unspecified.
  */
-public fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHashSet.emptyOf<E>().addAll(elements.asList())
+public fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHashSet.emptyOf<E>().addingAll(elements.asList())
 
 /**
  * Returns an empty persistent set.
