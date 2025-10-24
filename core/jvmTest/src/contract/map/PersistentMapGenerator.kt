@@ -27,7 +27,7 @@ class PersistentMapGenerator {
 
         object PutEach : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
-                return entries.fold(persistentHashMapOf()) { map, entry -> map.put(entry.key, entry.value) }
+                return entries.fold(persistentHashMapOf()) { map, entry -> map.putting(entry.key, entry.value) }
             }
         }
 
@@ -82,7 +82,7 @@ class PersistentMapGenerator {
 
         object PutEach : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
-                return entries.fold(persistentMapOf()) { map, entry -> map.put(entry.key, entry.value) }
+                return entries.fold(persistentMapOf()) { map, entry -> map.putting(entry.key, entry.value) }
             }
         }
 

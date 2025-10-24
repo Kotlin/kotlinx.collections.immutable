@@ -47,7 +47,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [value] associated with the specified [key];
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+
+    /**
+     * See [putting].
+     */
+    @Deprecated("Use putting() instead.", ReplaceWith("putting(key, value)"))
+    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = putting(key, value)
 
     /**
      * Returns the result of removing the specified [key] and its corresponding value from this map.
