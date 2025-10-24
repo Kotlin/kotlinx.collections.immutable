@@ -91,7 +91,13 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * @return a new persistent set with elements matching the specified [predicate] removed;
      * or this instance if no elements match the predicate.
      */
-    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E>
+    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E>
+
+    /**
+     * See [removingAll].
+     */
+    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
+    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> = removingAll(predicate)
 
     /**
      * Returns all elements in this set that are also
