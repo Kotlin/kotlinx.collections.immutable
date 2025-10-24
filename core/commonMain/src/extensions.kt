@@ -411,7 +411,7 @@ public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): P
  */
 @Suppress("UNCHECKED_CAST")
 public operator fun <K, V> PersistentMap<out K, V>.minus(key: K): PersistentMap<K, V>
-        = (this as PersistentMap<K, V>).remove(key)
+        = (this as PersistentMap<K, V>).removing(key)
 
 /**
  * Returns the result of removing the specified [keys] and their corresponding values from this map.
