@@ -30,7 +30,7 @@ fun <E> persistentSetAdd(implementation: String, elements: List<E>): PersistentS
 fun <E> persistentSetRemove(persistentSet: PersistentSet<E>, elements: List<E>): PersistentSet<E> {
     var set = persistentSet
     for (element in elements) {
-        set = set.remove(element)
+        set = set.removing(element)
     }
     return set
 }

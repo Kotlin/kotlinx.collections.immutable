@@ -26,7 +26,7 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return mutate { it.addAll(index, c) }
     }
 
-    override fun remove(element: E): PersistentList<E> {
+    override fun removing(element: E): PersistentList<E> {
         val index = this.indexOf(element)
         if (index != -1) {
             return this.removeAt(index)
