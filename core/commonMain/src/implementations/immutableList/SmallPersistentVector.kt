@@ -24,7 +24,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return arrayOfNulls<Any?>(size)
     }
 
-    override fun add(element: E): PersistentList<E> {
+    override fun adding(element: E): PersistentList<E> {
         if (size < MAX_BUFFER_SIZE) {
             val newBuffer = buffer.copyOf(size + 1)
             newBuffer[size] = element
@@ -97,7 +97,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
-            return add(element)
+            return adding(element)
         }
 
         if (size < MAX_BUFFER_SIZE) {

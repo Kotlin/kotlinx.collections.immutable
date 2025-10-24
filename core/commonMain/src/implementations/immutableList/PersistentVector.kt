@@ -32,7 +32,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
 
     private fun rootSize(): Int = rootSize(size)
 
-    override fun add(element: E): PersistentList<E> {
+    override fun adding(element: E): PersistentList<E> {
         val tailSize = size - rootSize()
         if (tailSize < MAX_BUFFER_SIZE) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)
@@ -81,7 +81,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
-            return add(element)
+            return adding(element)
         }
 
         val rootSize = rootSize()

@@ -22,7 +22,7 @@ fun <E> emptyPersistentSet(implementation: String): PersistentSet<E> = when (imp
 fun <E> persistentSetAdd(implementation: String, elements: List<E>): PersistentSet<E> {
     var set = emptyPersistentSet<E>(implementation)
     for (element in elements) {
-        set = set.add(element)
+        set = set.adding(element)
     }
     return set
 }
