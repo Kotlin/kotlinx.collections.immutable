@@ -395,7 +395,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
                 val resultPredicate = list.let {
                     val hashSet = elements.toHashSet()
-                    it.removeAll { e -> hashSet.contains(e) }
+                    it.removingAll { e -> hashSet.contains(e) }
                 }
 
                 assertEquals<List<*>>(expected, result)
