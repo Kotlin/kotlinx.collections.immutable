@@ -109,7 +109,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * contained in the specified [elements] collection removed;
      * or this instance if no modifications were made in the result of this operation.
      */
-    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+    override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+
+    /**
+     * See [removingAll].
+     */
+    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
+    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = removingAll(elements)
 
     /**
      * Returns the result of removing all elements in this list that match the specified [predicate].
