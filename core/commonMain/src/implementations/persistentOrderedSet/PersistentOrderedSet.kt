@@ -87,7 +87,7 @@ internal class PersistentOrderedSet<E>(
         return mutate { it.removeAll(predicate) }
     }
 
-    override fun retainAll(elements: Collection<E>): PersistentSet<E> {
+    override fun retainingAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return PersistentOrderedSet.emptyOf<E>()
         return mutate { it.retainAll(elements) }
     }

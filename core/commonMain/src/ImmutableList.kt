@@ -139,7 +139,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * contained in the specified [elements] collection;
      * or this instance if no modifications were made in the result of this operation.
      */
-    override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+    override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+
+    /**
+     * See [retainingAll].
+     */
+    @Deprecated("Use retainingAll() instead.", replaceWith = ReplaceWith("retainingAll(elements)"))
+    override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = retainingAll(elements)
 
     /**
      * Returns an empty persistent list.
