@@ -30,7 +30,7 @@ fun <K> persistentMapPut(implementation: String, keys: List<K>): PersistentMap<K
 fun <K> persistentMapRemove(persistentMap: PersistentMap<K, String>, keys: List<K>): PersistentMap<K, String> {
     var map = persistentMap
     for (key in keys) {
-        map = map.remove(key)
+        map = map.removing(key)
     }
     return map
 }
