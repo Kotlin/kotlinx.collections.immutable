@@ -64,7 +64,7 @@ class ImmutableListTest {
         list.removeAt(0)
         assertNotEquals<List<*>>(list, immList)
 
-        immList = immList.toPersistentList().removeAt(0)
+        immList = immList.toPersistentList().removingAt(0)
         compareLists(list, immList)
     }
 
@@ -105,7 +105,7 @@ class ImmutableListTest {
             compareLists(content.toList(), list)
         }
 
-        expectList("bcxaxyz12", list.removeAt(0))
+        expectList("bcxaxyz12", list.removingAt(0))
         expectList("abcaxyz12", list.removing('x'))
         expectList("abcaxyz12", list - 'x')
         expectList("abcayz12", list.removingAll(listOf('x')))
@@ -120,7 +120,7 @@ class ImmutableListTest {
     fun smallPersistentListFromMutableBuffer() {
         val list = List(33) { it }
         var vector = persistentListOf<Int>().mutate { it.addAll(list) }
-        vector = vector.removeAt(vector.lastIndex)
+        vector = vector.removingAt(vector.lastIndex)
         assertEquals(list.dropLast(1), vector)
     }
 

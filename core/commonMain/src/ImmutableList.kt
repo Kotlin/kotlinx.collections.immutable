@@ -205,7 +205,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun removeAt(index: Int): PersistentList<E>
+    public fun removingAt(index: Int): PersistentList<E>
+
+    /**
+     * See [removingAt].
+     */
+    @Deprecated("Use removingAt() instead.", replaceWith = ReplaceWith("removingAt(index)"))
+    public fun removeAt(index: Int): PersistentList<E> = removingAt(index)
 
     /**
      * A generic builder of the persistent list. Builder exposes its modification operations through the [MutableList] interface.
