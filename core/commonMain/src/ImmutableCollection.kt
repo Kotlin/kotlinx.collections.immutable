@@ -105,6 +105,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * contained in the specified [elements] collection;
      * or this instance if no modifications were made in the result of this operation.
      */
+    public fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+
+    /**
+     * See [retainingAll].
+     */
+    @Deprecated("Use retainingAll() instead.", ReplaceWith("retainingAll(elements)"))
     public fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
