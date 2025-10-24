@@ -116,6 +116,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns an empty persistent collection.
      */
+    public fun cleared(): PersistentCollection<E>
+
+    /**
+     * See [cleared].
+     */
+    @Deprecated("Use cleared() instead.", ReplaceWith("cleared()"))
     public fun clear(): PersistentCollection<E>
 
     /**

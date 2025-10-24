@@ -118,7 +118,13 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * Returns an empty persistent set.
      */
-    override fun clear(): PersistentSet<E>
+    override fun cleared(): PersistentSet<E>
+
+    /**
+     * See [cleared].
+     */
+    @Deprecated("Use cleared() instead.", replaceWith = ReplaceWith("cleared()"))
+    override fun clear(): PersistentSet<E> = cleared()
 
     /**
      * A generic builder of the persistent set. Builder exposes its modification operations through the [MutableSet] interface.

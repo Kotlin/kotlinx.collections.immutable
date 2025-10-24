@@ -113,7 +113,7 @@ class ImmutableListTest {
         expectList("abcxaxyz", list.removingAll { it.isDigit() })
 
         assertEquals(emptyList<Char>(), list - list)
-        assertEquals(emptyList<Char>(), list.clear())
+        assertEquals(emptyList<Char>(), list.cleared())
     }
 
     @Test
@@ -194,7 +194,7 @@ class ImmutableListTest {
     }
 
     @Test fun noOperation() {
-        persistentListOf<Int>().testNoOperation({ clear() }, { clear() })
+        persistentListOf<Int>().testNoOperation({ cleared() }, { clear() })
 
         val list = "abcxaxyz12".toPersistentList()
         with(list) {

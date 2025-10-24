@@ -55,7 +55,7 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
         return super.containsAll(elements)
     }
 
-    override fun clear(): PersistentSet<E> {
+    override fun cleared(): PersistentSet<E> {
         return PersistentHashSet.emptyOf()
     }
 

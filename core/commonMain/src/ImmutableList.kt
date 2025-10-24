@@ -150,8 +150,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns an empty persistent list.
      */
-    override fun clear(): PersistentList<E>
+    override fun cleared(): PersistentList<E>
 
+    /**
+     * See [cleared].
+     */
+    @Deprecated("Use cleared() instead.", replaceWith = ReplaceWith("cleared()"))
+    override fun clear(): PersistentList<E> = cleared()
 
     /**
      * Returns the result of inserting the specified [c] collection at the specified [index].
