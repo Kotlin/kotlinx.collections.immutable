@@ -37,16 +37,16 @@ open class PutAll {
 
     @Benchmark
     fun putAllEqualSize(): PersistentMap<IntWrapper, String> {
-        return lhs.putAll(rhs)
+        return lhs.puttingAll(rhs)
     }
 
     @Benchmark
     fun putAllSmallIntoLarge(): PersistentMap<IntWrapper, String> {
-        return lhs.putAll(rhsSmall)
+        return lhs.puttingAll(rhsSmall)
     }
 
     @Benchmark
     fun putAllLargeIntoSmall(): PersistentMap<IntWrapper, String> {
-        return lhsSmall.putAll(rhs)
+        return lhsSmall.puttingAll(rhs)
     }
 }

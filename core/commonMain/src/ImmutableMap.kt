@@ -92,7 +92,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with keys and values from the specified map [m] associated;
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
+    public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
+
+    /**
+     * See [puttingAll].
+     */
+    @Deprecated("Use puttingAll() instead.", ReplaceWith("puttingAll(m)"))
+    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = puttingAll(m)
 
     /**
      * Returns an empty persistent map.
