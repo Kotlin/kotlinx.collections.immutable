@@ -93,7 +93,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * @return a new persistent list with the first appearance of the specified [element] removed;
      * or this instance if there is no such element in this list.
      */
-    override fun remove(element: @UnsafeVariance E): PersistentList<E>
+    override fun removing(element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * See [removing].
+     */
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(element)"))
+    override fun remove(element: @UnsafeVariance E): PersistentList<E> = removing(element)
 
     /**
      * Returns the result of removing all elements in this list that are also

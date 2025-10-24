@@ -59,6 +59,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with a single appearance of the specified [element] removed;
      * or this instance if there is no such element in this collection.
      */
+    public fun removing(element: @UnsafeVariance E): PersistentCollection<E>
+
+    /**
+     * See [removing].
+     */
+    @Deprecated("Use removing() instead.", ReplaceWith("removing(element)"))
     public fun remove(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**

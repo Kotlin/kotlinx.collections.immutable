@@ -57,7 +57,7 @@ internal class PersistentOrderedSet<E>(
         return this.mutate { it.addAll(elements) }
     }
 
-    override fun remove(element: E): PersistentSet<E> {
+    override fun removing(element: E): PersistentSet<E> {
         val links = hashMap[element] ?: return this
 
         var newMap = hashMap.remove(element)
