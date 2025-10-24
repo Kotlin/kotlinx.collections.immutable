@@ -33,10 +33,10 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             assertFalse(map.isEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
-            map = map.remove(index)
+            map = map.removing(index)
             assertFalse(map.isEmpty())
         }
-        map = map.remove(elementsToAdd - 1)
+        map = map.removing(elementsToAdd - 1)
         assertTrue(map.isEmpty())
     }
 
@@ -60,10 +60,10 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             assertEquals(index + 1, map.size)
         }
         repeat(times = elementsToAdd) { index ->
-            map = map.remove(index)
+            map = map.removing(index)
             assertEquals(elementsToAdd - index - 1, map.size)
 
-            map = map.remove(index)
+            map = map.removing(index)
             assertEquals(elementsToAdd - index - 1, map.size)
         }
     }
@@ -103,7 +103,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
         set.toMutableSet().forEach { key ->
             set.remove(key)
-            map = map.remove(key)
+            map = map.removing(key)
 
             testProperties(set, map)
         }
@@ -112,7 +112,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     @Test
     fun removeTests() {
         var map = persistentHashMapOf<Int, String>()
-        assertTrue(map.putting(0, "0").remove(0).isEmpty())
+        assertTrue(map.putting(0, "0").removing(0).isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
@@ -123,7 +123,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, map.size)
             assertEquals(values[index], map[index])
-            map = map.remove(index)
+            map = map.removing(index)
             assertNull(map[index])
         }
         assertTrue(map.isEmpty())
@@ -172,7 +172,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                 assertEquals(values[i], map[i])
             }
 
-            map = map.remove(index)
+            map = map.removing(index)
         }
     }
 
@@ -204,7 +204,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                 assertEquals(values[valueIndex - 1], map[i])
             }
 
-            map = map.remove(index)
+            map = map.removing(index)
         }
         assertTrue(map.isEmpty())
     }
@@ -264,11 +264,11 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                             map.remove(key, key.obj)
                         } else {
                             val nonExistingKey = IntWrapper(Int.MIN_VALUE, key.hashCode)
-                            val sameMap = map.remove(nonExistingKey)
+                            val sameMap = map.removing(nonExistingKey)
                             assertEquals(map.size, sameMap.size)
                             assertEquals(key.obj, sameMap[key])
 
-                            map.remove(key)
+                            map.removing(key)
                         }
 
                         assertNull(map[key])
@@ -311,7 +311,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                 val newImmutableMap = when {
                     shouldRemoveByKey -> {
                         mutableMap.remove(key)
-                        immutableMap.remove(key)
+                        immutableMap.removing(key)
                     }
                     shouldRemoveByKeyAndValue -> {
                         val shouldBeCurrentValue = Random.nextDouble() < 0.8
@@ -343,7 +343,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                 val keys = mutableMap.keys.toMutableList()
                 for (key in keys) {
                     mutableMap.remove(key)
-                    immutableMap = immutableMap.remove(key)
+                    immutableMap = immutableMap.removing(key)
 
                     testAfterOperation(mutableMap, immutableMap, key)
                 }

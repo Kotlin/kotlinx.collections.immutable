@@ -61,7 +61,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [key] and its corresponding value removed;
      * or this instance if it contains no mapping for the key.
      */
-    public fun remove(key: K): PersistentMap<K, V>
+    public fun removing(key: K): PersistentMap<K, V>
+
+    /**
+     * See [removing].
+     */
+    @Deprecated("Use removing() instead.", ReplaceWith("removing(key)"))
+    public fun remove(key: K): PersistentMap<K, V> = removing(key)
 
     /**
      * Returns the result of removing the entry that maps the specified [key] to the specified [value].
