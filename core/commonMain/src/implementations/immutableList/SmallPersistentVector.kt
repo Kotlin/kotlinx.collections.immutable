@@ -94,7 +94,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return mutate { it.addAll(index, c) }
     }
 
-    override fun add(index: Int, element: E): PersistentList<E> {
+    override fun adding(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
             return adding(element)
