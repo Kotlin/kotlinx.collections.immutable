@@ -48,7 +48,7 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return node.get(key.hashCode(), key, 0)
     }
 
-    override fun put(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
+    override fun putting(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val newNodeResult = node.put(key.hashCode(), key, value, 0) ?: return this
         return PersistentHashMap(newNodeResult.node, size + newNodeResult.sizeDelta)
     }

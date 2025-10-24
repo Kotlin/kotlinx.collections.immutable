@@ -23,13 +23,13 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
         var map = persistentHashMapOf<Int, String>()
 
         assertTrue(map.isEmpty())
-        assertFalse(map.put(0, "last").isEmpty())
+        assertFalse(map.putting(0, "last").isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, values[index])
+            map = map.putting(index, values[index])
             assertFalse(map.isEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
@@ -45,18 +45,18 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
         var map = persistentHashMapOf<Int, Int>()
 
         assertTrue(map.size == 0)
-        assertEquals(1, map.put(1, 1).size)
+        assertEquals(1, map.putting(1, 1).size)
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, index)
+            map = map.putting(index, index)
             assertEquals(index + 1, map.size)
 
-            map = map.put(index, index)
+            map = map.putting(index, index)
             assertEquals(index + 1, map.size)
 
-            map = map.put(index, 7)
+            map = map.putting(index, 7)
             assertEquals(index + 1, map.size)
         }
         repeat(times = elementsToAdd) { index ->
@@ -96,7 +96,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
         repeat(times = elementsToAdd) {
             val key = Random.nextInt()
             set.add(key)
-            map = map.put(key, key)
+            map = map.putting(key, key)
 
             testProperties(set, map)
         }
@@ -112,13 +112,13 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     @Test
     fun removeTests() {
         var map = persistentHashMapOf<Int, String>()
-        assertTrue(map.put(0, "0").remove(0).isEmpty())
+        assertTrue(map.putting(0, "0").remove(0).isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, values[index])
+            map = map.putting(index, values[index])
         }
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, map.size)
@@ -132,14 +132,14 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     @Test
     fun removeEntryTests() {
         var map = persistentHashMapOf<Int, String>()
-        assertTrue(map.put(0, "0").remove(0, "0").isEmpty())
-        assertFalse(map.put(0, "0").remove(0, "x").isEmpty())
+        assertTrue(map.putting(0, "0").remove(0, "0").isEmpty())
+        assertFalse(map.putting(0, "0").remove(0, "x").isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         val values = distinctStringValues(elementsToAdd + 1)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, values[index])
+            map = map.putting(index, values[index])
         }
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, map.size)
@@ -155,13 +155,13 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     @Test
     fun getTests() {
         var map = persistentHashMapOf<Int, String>()
-        assertEquals("1", map.put(1, "1")[1])
+        assertEquals("1", map.putting(1, "1")[1])
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
         val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, values[index])
+            map = map.putting(index, values[index])
 
             for (i in 0..index) {
                 assertEquals(values[i], map[i])
@@ -179,19 +179,19 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     @Test
     fun putTests() {
         var map = persistentHashMapOf<Int, String>()
-        assertEquals("2", map.put(1, "1").put(1, "2")[1])
+        assertEquals("2", map.putting(1, "1").putting(1, "2")[1])
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
         val values = distinctStringValues(2 * elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            map = map.put(index, values[2 * index])
+            map = map.putting(index, values[2 * index])
 
             for (i in 0..index) {
                 val valueIndex = i + index
 
                 assertEquals(values[valueIndex], map[i])
-                map = map.put(i, values[valueIndex + 1])
+                map = map.putting(i, values[valueIndex + 1])
                 assertEquals(values[valueIndex + 1], map[i])
             }
         }
@@ -200,7 +200,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                 val valueIndex = elementsToAdd - index + i
 
                 assertEquals(values[valueIndex], map[i])
-                map = map.put(i, values[valueIndex - 1])
+                map = map.putting(i, values[valueIndex - 1])
                 assertEquals(values[valueIndex - 1], map[i])
             }
 
@@ -215,8 +215,8 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
         val oneWrapper = IntWrapper(1, 1)
         val twoWrapper = IntWrapper(2, 1)
-        assertEquals(1, map.put(oneWrapper, 1).put(twoWrapper, 2)[oneWrapper])
-        assertEquals(2, map.put(oneWrapper, 1).put(twoWrapper, 2)[twoWrapper])
+        assertEquals(1, map.putting(oneWrapper, 1).putting(twoWrapper, 2)[oneWrapper])
+        assertEquals(2, map.putting(oneWrapper, 1).putting(twoWrapper, 2)[twoWrapper])
 
         repeat(times = 2) { removeEntryPredicate ->
 
@@ -229,11 +229,11 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             }
 
             repeat(times = elementsToAdd) { index ->
-                map = map.put(key(index), Int.MIN_VALUE)
+                map = map.putting(key(index), Int.MIN_VALUE)
                 assertEquals(Int.MIN_VALUE, map[key(index)])
                 assertEquals(index + 1, map.size)
 
-                map = map.put(key(index), index)
+                map = map.putting(key(index), index)
                 assertEquals(index + 1, map.size)
 
                 val collisions = keyGen.wrappersByHashCode(key(index).hashCode)
@@ -323,7 +323,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                         val shouldPutNullValue = Random.nextDouble() < 0.001
                         val value = if (shouldPutNullValue) null else Random.nextInt()
                         mutableMap[key] = value
-                        immutableMap.put(key, value)
+                        immutableMap.putting(key, value)
                     }
                 }
 
