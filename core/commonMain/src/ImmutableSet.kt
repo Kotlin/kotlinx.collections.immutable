@@ -61,7 +61,13 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * @return a new persistent set with the specified [element] removed;
      * or this instance if there is no such element in this set.
      */
-    override fun remove(element: @UnsafeVariance E): PersistentSet<E>
+    override fun removing(element: @UnsafeVariance E): PersistentSet<E>
+
+    /**
+     * See [removing].
+     */
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(element)"))
+    override fun remove(element: @UnsafeVariance E): PersistentSet<E> = removing(element)
 
     /**
      * Returns the result of removing all elements in this set that are also
