@@ -36,7 +36,7 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
         return mutate { it.removeAll(elements) }
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> {
+    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> {
         return mutate { it.removeAll(predicate) }
     }
 

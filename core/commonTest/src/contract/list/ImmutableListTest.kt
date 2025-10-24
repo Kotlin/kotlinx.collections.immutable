@@ -110,7 +110,7 @@ class ImmutableListTest {
         expectList("abcaxyz12", list - 'x')
         expectList("abcayz12", list.removingAll(listOf('x')))
         expectList("abcayz12", list - listOf('x'))
-        expectList("abcxaxyz", list.removeAll { it.isDigit() })
+        expectList("abcxaxyz", list.removingAll { it.isDigit() })
 
         assertEquals(emptyList<Char>(), list - list)
         assertEquals(emptyList<Char>(), list.clear())
@@ -200,7 +200,7 @@ class ImmutableListTest {
         with(list) {
             testNoOperation({ removing('d') }, { remove('d') })
             testNoOperation({ removingAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
-            testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
+            testNoOperation({ removingAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
             testNoOperation({ removingAll(emptyList()) }, { removeAll(emptyList())})
             testNoOperation({ addingAll(emptyList()) }, { addAll(emptyList())})
             testNoOperation({ addAll(2, emptyList()) }, { addAll(2, emptyList())})

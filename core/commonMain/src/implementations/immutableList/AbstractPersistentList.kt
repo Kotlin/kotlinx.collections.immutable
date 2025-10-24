@@ -36,12 +36,12 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
 
     override fun removingAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
-        return removeAll { elements.contains(it) }
+        return removingAll { elements.contains(it) }
     }
 
     override fun retainAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return persistentVectorOf()
-        return removeAll { !elements.contains(it) }
+        return removingAll { !elements.contains(it) }
     }
 
     override fun clear(): PersistentList<E> {
