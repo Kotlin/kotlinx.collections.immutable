@@ -14,7 +14,7 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
         return node.contains(element.hashCode(), element, 0)
     }
 
-    override fun add(element: E): PersistentSet<E> {
+    override fun adding(element: E): PersistentSet<E> {
         val newNode = node.add(element.hashCode(), element, 0)
         if (node === newNode) { return this }
         return PersistentHashSet(newNode, size + 1)
