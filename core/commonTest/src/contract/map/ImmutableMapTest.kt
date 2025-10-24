@@ -80,7 +80,7 @@ class ImmutableHashMapTest : ImmutableMapTest() {
 
     @Test fun regressionGithubIssue109() {
         // https://github.com/Kotlin/kotlinx.collections.immutable/issues/109
-        val map0 = immutableMapOf<Int, Int>().put(0, 0).put(1, 1).put(32, 32)
+        val map0 = immutableMapOf<Int, Int>().putting(0, 0).putting(1, 1).putting(32, 32)
         val map1 = map0.mutate { it.remove(0) }
         map1.mutate {
             it.remove(1)
@@ -200,8 +200,8 @@ abstract class ImmutableMapTest {
 
     @Test fun putElements() {
         var map = immutableMapOf<String, Int?>().toPersistentMap()
-        map = map.put("x", 0)
-        map = map.put("x", 1)
+        map = map.putting("x", 0)
+        map = map.putting("x", 1)
         map = map.putAll(arrayOf("x" to null))
         map = map + ("y" to null)
         map += "y" to 1
@@ -220,11 +220,11 @@ abstract class ImmutableMapTest {
         val map = immutableMapOf("x" to Value(1))
 
         val newValue = Value(1)
-        val newMap = map.put("x", newValue)
+        val newMap = map.putting("x", newValue)
         assertNotSame(map, newMap)
         assertEquals(map, newMap)
 
-        val sameMap = newMap.put("x", newValue)
+        val sameMap = newMap.putting("x", newValue)
         assertSame(newMap, sameMap)
     }
 
@@ -317,8 +317,8 @@ abstract class ImmutableMapTest {
         map.testNoOperation({ remove(key, notEqualValue) }, { remove(key, notEqualValue) })
         map.testNotNoOperation({ remove(key, equalValue) }, { remove(key, equalValue) })
 
-        map.testNoOperation({ put(equalKey, value) }, { put(equalKey, value) })
-        map.testNotNoOperation({ put(equalKey, equalValue) }, { put(equalKey, equalValue) })
+        map.testNoOperation({ putting(equalKey, value) }, { put(equalKey, value) })
+        map.testNotNoOperation({ putting(equalKey, equalValue) }, { put(equalKey, equalValue) })
 
         map.testNoOperation({ putAll(this) }, { putAll(this) })
         map.testNoOperation({ putAll(emptyMap()) }, { putAll(emptyMap()) })

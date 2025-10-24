@@ -119,7 +119,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             val key = IntWrapper(keyValue, keyHash)
 
             expected[key] = keyValue
-            map = map.put(key, keyValue)
+            map = map.putting(key, keyValue)
 
             val shouldTest = Random.nextDouble() < 0.1
             if (shouldTest) {
@@ -279,7 +279,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             val keyValue = Random.nextInt()
             val key = keyGen.wrapper(keyValue)
             expectedKeys.add(key)
-            map = map.put(key, keyValue)
+            map = map.putting(key, keyValue)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
 

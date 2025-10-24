@@ -30,7 +30,7 @@ class HashMapTrieNodeTest {
         testEmptyMap(map)
 
         val wrapper1 = IntWrapper(1, 0b100_01101)
-        map = map.put(wrapper1, 1)
+        map = map.putting(wrapper1, 1)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
@@ -59,7 +59,7 @@ class HashMapTrieNodeTest {
     fun canonicalization() {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper33 = IntWrapper(33, 0b1_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper33, 33)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper33, 33)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             if  (shift == 0) {
@@ -104,7 +104,7 @@ class HashMapTrieNodeTest {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper33 = IntWrapper(33, 0b1_00001)
         val wrapper1057 = IntWrapper(1057, 0b1_00001_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper33, 33).put(wrapper1057, 1057)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper33, 33).putting(wrapper1057, 1057)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             when (shift) {
@@ -161,7 +161,7 @@ class HashMapTrieNodeTest {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper33 = IntWrapper(33, 0b1_00001)
         val wrapper1057 = IntWrapper(1057, 0b1_00001_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper33, 33).put(wrapper1057, 1057)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper33, 33).putting(wrapper1057, 1057)
 
         map.remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             when (shift) {
@@ -215,7 +215,7 @@ class HashMapTrieNodeTest {
     fun collision() {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper2 = IntWrapper(2, 0b1)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper2, 2)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             if (shift > MAX_SHIFT) {
@@ -266,7 +266,7 @@ class HashMapTrieNodeTest {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper2 = IntWrapper(2, 0b1)
         val wrapper3 = IntWrapper(3, 0b1_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper2, 2).put(wrapper3, 3)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2).putting(wrapper3, 3)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             when (shift) {
@@ -334,7 +334,7 @@ class HashMapTrieNodeTest {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper2 = IntWrapper(2, 0b1)
         val wrapper3 = IntWrapper(3, 0b1_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper2, 2).put(wrapper3, 3)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2).putting(wrapper3, 3)
 
         map.remove(wrapper3).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             when (shift) {
