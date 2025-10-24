@@ -166,7 +166,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
+    public fun addingAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
+
+    /**
+     * See [addingAll].
+     */
+    @Deprecated("Use addingAll(index, c) instead.", replaceWith = ReplaceWith("addingAll(index, c)"))
+    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> = addingAll(index, c)
 
     /**
      * Returns a new persistent list with the element at the specified [index] replaced with the specified [element].
