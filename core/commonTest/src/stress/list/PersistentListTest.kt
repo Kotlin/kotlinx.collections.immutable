@@ -276,9 +276,9 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         var vector = persistentListOf<Int>()
 
         assertFailsWith<IndexOutOfBoundsException> {
-            vector.set(0, 0)
+            vector.replacingAt(0, 0)
         }
-        assertEquals(2, vector.adding(1).set(0, 2)[0])
+        assertEquals(2, vector.adding(1).replacingAt(0, 2)[0])
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
@@ -287,7 +287,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
             for (i in 0..index) {
                 assertEquals(i + index, vector[i])
-                vector = vector.set(i, i + index + 1)
+                vector = vector.replacingAt(i, i + index + 1)
                 assertEquals(i + index + 1, vector[i])
             }
         }
@@ -296,7 +296,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
                 val expected = elementsToAdd + i
 
                 assertEquals(expected, vector[i])
-                vector = vector.set(i, expected - 1)
+                vector = vector.replacingAt(i, expected - 1)
                 assertEquals(expected - 1, vector[i])
             }
 
@@ -430,7 +430,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
                 } else if (list.isNotEmpty() && shouldSet) {
                     val value = Random.nextInt()
                     list[operationIndex] = value
-                    vector.set(operationIndex, value)
+                    vector.replacingAt(operationIndex, value)
                 } else {
                     val value = Random.nextInt()
                     list.add(operationIndex, value)
