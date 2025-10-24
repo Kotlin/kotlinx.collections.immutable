@@ -63,7 +63,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the specified [element] appended.
      */
-    override fun add(element: @UnsafeVariance E): PersistentList<E>
+    override fun adding(element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * See [adding].
+     */
+    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
+    override fun add(element: @UnsafeVariance E): PersistentList<E> = adding(element)
 
     /**
      * Returns the result of appending all elements of the specified [elements] collection to this list.

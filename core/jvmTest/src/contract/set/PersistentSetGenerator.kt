@@ -26,7 +26,7 @@ class PersistentSetGenerator {
 
         object AddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return elements.fold(persistentHashSetOf()) { set, element -> set.add(element) }
+                return elements.fold(persistentHashSetOf()) { set, element -> set.adding(element) }
             }
         }
 
@@ -80,7 +80,7 @@ class PersistentSetGenerator {
 
         object AddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return elements.fold(persistentSetOf()) { set, element -> set.add(element) }
+                return elements.fold(persistentSetOf()) { set, element -> set.adding(element) }
             }
         }
 

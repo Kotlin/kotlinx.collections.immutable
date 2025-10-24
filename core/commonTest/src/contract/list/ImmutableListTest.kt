@@ -77,7 +77,7 @@ class ImmutableListTest {
 
     @Test fun addElements() {
         var list = persistentListOf<String>()
-        list = list.add("x")
+        list = list.adding("x")
         list = list.add(0, "a")
         list = list.addAll(list)
         list = list.addAll(1, listOf("b", "c"))

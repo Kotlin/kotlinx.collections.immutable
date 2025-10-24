@@ -11,7 +11,7 @@ import kotlinx.collections.immutable.persistentListOf
 fun persistentListAdd(size: Int): PersistentList<String> {
     var list = persistentListOf<String>()
     repeat(times = size) {
-        list = list.add("some element")
+        list = list.adding("some element")
     }
     return list
 }

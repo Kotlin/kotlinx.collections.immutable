@@ -59,7 +59,7 @@ public inline fun <K, V> PersistentMap<out K, V>.mutate(mutator: (MutableMap<K, 
  * @returns a new persistent collection with the specified [element] added;
  * or this instance if this collection does not support duplicates and it already contains the element.
  */
-public inline operator fun <E> PersistentCollection<E>.plus(element: E): PersistentCollection<E> = add(element)
+public inline operator fun <E> PersistentCollection<E>.plus(element: E): PersistentCollection<E> = adding(element)
 
 /**
  * Returns the result of removing a single appearance of the specified [element] from this collection.
@@ -135,7 +135,7 @@ public operator fun <E> PersistentCollection<E>.minus(elements: Sequence<E>): Pe
 /**
  * Returns a new persistent list with the specified [element] appended.
  */
-public inline operator fun <E> PersistentList<E>.plus(element: E): PersistentList<E> = add(element)
+public inline operator fun <E> PersistentList<E>.plus(element: E): PersistentList<E> = adding(element)
 
 /**
  * Returns the result of removing the first appearance of the specified [element] from this list.
@@ -220,7 +220,7 @@ public operator fun <E> PersistentList<E>.minus(elements: Sequence<E>): Persiste
  * @return a new persistent set with the specified [element] added;
  * or this instance if it already contains the element.
  */
-public inline operator fun <E> PersistentSet<E>.plus(element: E): PersistentSet<E> = add(element)
+public inline operator fun <E> PersistentSet<E>.plus(element: E): PersistentSet<E> = adding(element)
 
 /**
  * Returns the result of removing the specified [element] from this set.
