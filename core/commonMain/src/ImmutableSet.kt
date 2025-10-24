@@ -47,7 +47,13 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * @return a new persistent set with elements of the specified [elements] collection added;
      * or this instance if it already contains every element of the specified collection.
      */
-    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
+    override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
+
+    /**
+     * See [addingAll].
+     */
+    @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
+    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = addingAll(elements)
 
     /**
      * Returns the result of removing the specified [element] from this set.

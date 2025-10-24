@@ -79,7 +79,7 @@ class ImmutableListTest {
         var list = persistentListOf<String>()
         list = list.adding("x")
         list = list.add(0, "a")
-        list = list.addAll(list)
+        list = list.addingAll(list)
         list = list.addAll(1, listOf("b", "c"))
         list = list + "y"
         list += "z"
@@ -202,7 +202,7 @@ class ImmutableListTest {
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
             testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
             testNoOperation({ removeAll(emptyList()) }, { removeAll(emptyList())})
-            testNoOperation({ addAll(emptyList()) }, { addAll(emptyList())})
+            testNoOperation({ addingAll(emptyList()) }, { addAll(emptyList())})
             testNoOperation({ addAll(2, emptyList()) }, { addAll(2, emptyList())})
         }
     }
