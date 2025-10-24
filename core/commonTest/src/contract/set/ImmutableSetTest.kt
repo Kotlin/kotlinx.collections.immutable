@@ -87,8 +87,8 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     @Test fun retainAllElements() {
         run {
             val left = immutableSetOf<Int>() + (1..2000)
-            compareSets(immutableSetOf(), left.retainAll(immutableSetOf()))
-            compareSets(immutableSetOf(), immutableSetOf<Int>().retainAll(left))
+            compareSets(immutableSetOf(), left.retainingAll(immutableSetOf()))
+            compareSets(immutableSetOf(), immutableSetOf<Int>().retainingAll(left))
         }
 
         run {

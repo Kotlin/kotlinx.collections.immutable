@@ -107,7 +107,13 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * contained in the specified [elements] collection;
      * or this instance if no modifications were made in the result of this operation.
      */
-    override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
+    override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
+
+    /**
+     * See [retainingAll].
+     */
+    @Deprecated("Use retainingAll() instead.", replaceWith = ReplaceWith("retainingAll(elements)"))
+    override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = retainingAll(elements)
 
     /**
      * Returns an empty persistent set.
