@@ -116,7 +116,7 @@ class ImmutableOrderedMapTest : ImmutableMapTest() {
         map += "x" to 1
         compare(setOf("x", "y"), map.keys) { setBehavior(ordered = true) }
 
-        map = map.remove("x")
+        map = map.removing("x")
         map += "x" to 2
         compare(setOf("y", "x"), map.keys) { setBehavior(ordered = true) }
         compare(listOf(1, 2), map.values) { collectionBehavior(ordered = true) }
@@ -188,7 +188,7 @@ abstract class ImmutableMapTest {
         map.remove(null)
         assertNotEquals<Map<*, *>>(map, immMap)
 
-        immMap = immMap.remove(null)
+        immMap = immMap.removing(null)
         assertEquals<Map<*, *>>(map, immMap) // problem
     }
 
@@ -234,12 +234,12 @@ abstract class ImmutableMapTest {
 
         fun <K, V> assertEquals(expected: Map<out K, V>, actual: Map<out K, V>) = kotlin.test.assertEquals(expected, actual)
 
-        assertEquals(mapOf("x" to 1), map.remove(null))
+        assertEquals(mapOf("x" to 1), map.removing(null))
         assertEquals(mapOf("x" to 1), map.remove(null, "x"))
         assertEquals(map, map.remove("x", 2))
 
         assertEquals(emptyMap(), map.clear())
-        assertEquals(emptyMap(), map.remove("x").remove(null))
+        assertEquals(emptyMap(), map.removing("x").removing(null))
     }
 
     @Test
@@ -312,8 +312,8 @@ abstract class ImmutableMapTest {
          */
         val map = immutableMapOf(key to value, null to "x").toPersistentMap()
 
-        map.testNoOperation({ remove(notEqualKey) }, { remove(notEqualKey) })
-        map.testNotNoOperation({ remove(equalKey) }, { remove(equalKey) })
+        map.testNoOperation({ removing(notEqualKey) }, { remove(notEqualKey) })
+        map.testNotNoOperation({ removing(equalKey) }, { remove(equalKey) })
 
         map.testNoOperation({ remove(key, notEqualValue) }, { val _ = remove(key, notEqualValue) })
         map.testNotNoOperation({ remove(key, equalValue) }, { val _ = remove(key, equalValue) })

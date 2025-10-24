@@ -60,7 +60,7 @@ internal class PersistentOrderedSet<E>(
     override fun removing(element: E): PersistentSet<E> {
         val links = hashMap[element] ?: return this
 
-        var newMap = hashMap.remove(element)
+        var newMap = hashMap.removing(element)
         if (links.hasPrevious) {
             val previousLinks = newMap[links.previous]!!
 //            assert(previousLinks.next == element)

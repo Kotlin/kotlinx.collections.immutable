@@ -270,7 +270,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         val elementsToRemoveFromMap = expectedKeys.size / 2
         expectedKeys.take(elementsToRemoveFromMap).forEach { key ->
             expectedKeys.remove(key)
-            map = map.remove(key)
+            map = map.removing(key)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
 
@@ -285,7 +285,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
         expectedKeys.toHashSet().forEach { key ->
             expectedKeys.remove(key)
-            map = map.remove(key)
+            map = map.removing(key)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
     }
