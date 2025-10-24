@@ -25,7 +25,7 @@ class PersistentListGenerator {
 
         object AddEach : TestStringListGenerator() {
             override fun create(elements: Array<out String>): List<String> {
-                return elements.fold(persistentListOf()) { list, element -> list.add(element) }
+                return elements.fold(persistentListOf()) { list, element -> list.adding(element) }
             }
         }
 
