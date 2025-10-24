@@ -192,7 +192,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
+    public fun adding(index: Int, element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * See [adding].
+     */
+    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(index, element)"))
+    public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E> = adding(index, element)
 
     /**
      * Returns a new persistent list with the element at the specified [index] removed.

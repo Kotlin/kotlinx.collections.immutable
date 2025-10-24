@@ -46,7 +46,7 @@ open class Add {
      */
     @Benchmark
     fun addFirst(): ImmutableList<String> {
-        return persistentListAdd(size - 1).add(0, "another element")
+        return persistentListAdd(size - 1).adding(0, "another element")
     }
 
     /**
@@ -60,6 +60,6 @@ open class Add {
      */
     @Benchmark
     fun addMiddle(): ImmutableList<String> {
-        return persistentListAdd(size - 1).add(size / 2, "another element")
+        return persistentListAdd(size - 1).adding(size / 2, "another element")
     }
 }
