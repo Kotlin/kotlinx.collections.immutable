@@ -27,7 +27,7 @@ open class Remove {
     fun removeLast(): ImmutableList<String> {
         var list = persistentList
         repeat(times = size) {
-            list = list.removeAt(list.size - 1)
+            list = list.removingAt(list.size - 1)
         }
         return list
     }
@@ -43,7 +43,7 @@ open class Remove {
     @Benchmark
     fun removeFirst(): ImmutableList<String> {
         val list = persistentList
-        return list.removeAt(0)
+        return list.removingAt(0)
     }
 
     /**
@@ -57,6 +57,6 @@ open class Remove {
     @Benchmark
     fun removeMiddle(): ImmutableList<String> {
         val list = persistentList
-        return list.removeAt(size / 2)
+        return list.removingAt(size / 2)
     }
 }

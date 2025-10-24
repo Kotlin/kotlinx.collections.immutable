@@ -143,7 +143,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    override fun removeAt(index: Int): PersistentList<E> {
+    override fun removingAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         val rootSize = rootSize()
         if (index >= rootSize) {
