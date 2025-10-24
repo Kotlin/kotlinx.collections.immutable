@@ -89,6 +89,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with elements matching the specified [predicate] removed;
      * or this instance if no elements match the predicate.
      */
+    public fun removingAll(predicate: (E) -> Boolean): PersistentCollection<E>
+
+    /**
+     * See [removingAll].
+     */
+    @Deprecated("Use removingAll() instead.", ReplaceWith("removingAll(predicate)"))
     public fun removeAll(predicate: (E) -> Boolean): PersistentCollection<E>
 
     /**
