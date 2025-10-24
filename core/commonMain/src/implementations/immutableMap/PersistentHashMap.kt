@@ -72,7 +72,7 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return this.mutate { it.putAll(m) }
     }
 
-    override fun clear(): PersistentMap<K, V> {
+    override fun cleared(): PersistentMap<K, V> {
         return PersistentHashMap.emptyOf()
     }
 

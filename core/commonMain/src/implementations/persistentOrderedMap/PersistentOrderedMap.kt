@@ -121,7 +121,7 @@ internal class PersistentOrderedMap<K, V>(
         return this.mutate { it.putAll(m) }
     }
 
-    override fun clear(): PersistentMap<K, V> {
+    override fun cleared(): PersistentMap<K, V> {
         return emptyOf()
     }
 
