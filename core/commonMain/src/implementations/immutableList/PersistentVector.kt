@@ -296,7 +296,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
-    override fun set(index: Int, element: E): PersistentList<E> {
+    override fun replacingAt(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         if (rootSize() <= index) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)

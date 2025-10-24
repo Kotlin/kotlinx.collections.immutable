@@ -151,7 +151,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return buffer[index] as E
     }
 
-    override fun set(index: Int, element: E): PersistentList<E> {
+    override fun replacingAt(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         val newBuffer = buffer.copyOf()
         newBuffer[index] = element
