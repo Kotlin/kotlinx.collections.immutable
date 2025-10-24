@@ -22,26 +22,26 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     @Test fun addAllElements() {
         run {
             val left = immutableSetOf<Int>() + (1..2000)
-            assertSame(left, left.addAll(immutableSetOf()))
-            compareSets(left, immutableSetOf<Int>().addAll(left))
+            assertSame(left, left.addingAll(immutableSetOf()))
+            compareSets(left, immutableSetOf<Int>().addingAll(left))
         }
 
         run {
             val left = immutableSetOf<Int>() + (1..2000)
             val right = immutableSetOf<Int>() + (200..3000)
-            compareSets(left.toSet() + right.toSet(), left.addAll(right))
+            compareSets(left.toSet() + right.toSet(), left.addingAll(right))
         }
 
         run {
             val left = immutableSetOf<IntWrapper>() + (1..2000).map { IntWrapper(it, it % 200) }
             val right = immutableSetOf<IntWrapper>() + (200..3000).map { IntWrapper(it, it % 200) }
-            compareSets(left.toSet() + right.toSet(), left.addAll(right))
+            compareSets(left.toSet() + right.toSet(), left.addingAll(right))
         }
 
         run {
             val left = immutableSetOf<String>() + (1..2000).map { "$it" }
             val right = immutableSetOf<String>() + (200..3000).map { "$it" }
-            compareSets(left.toSet() + right.toSet(), left.addAll(right))
+            compareSets(left.toSet() + right.toSet(), left.addingAll(right))
         }
 
         run {
@@ -274,7 +274,7 @@ abstract class ImmutableSetTestBase {
     @Test fun addElements() {
         var set = immutableSetOf<String>()
         set = set.adding("x")
-        set = set.addAll(set)
+        set = set.addingAll(set)
         set = set + "y"
         set += "z"
         set += arrayOf("1", "2").asIterable()
@@ -339,8 +339,8 @@ abstract class ImmutableSetTestBase {
         val set = immutableSetOf("abcxyz12".toList())
         with(set) {
             testNoOperation({ adding('a') }, { add('a') })
-            testNoOperation({ addAll(emptySet()) }, { addAll(emptySet()) })
-            testNoOperation({ addAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
+            testNoOperation({ addingAll(emptySet()) }, { addAll(emptySet()) })
+            testNoOperation({ addingAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
             testNoOperation({ remove('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
             testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
