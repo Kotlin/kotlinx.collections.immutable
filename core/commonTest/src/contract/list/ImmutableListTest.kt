@@ -35,7 +35,7 @@ class ImmutableListTest {
                 *(1..1885).map { it }.toTypedArray()
         )
 
-        xs = xs.removeAll(
+        xs = xs.removingAll(
                 (1..1837).map { it }
         )
 
@@ -108,7 +108,7 @@ class ImmutableListTest {
         expectList("bcxaxyz12", list.removeAt(0))
         expectList("abcaxyz12", list.removing('x'))
         expectList("abcaxyz12", list - 'x')
-        expectList("abcayz12", list.removeAll(listOf('x')))
+        expectList("abcayz12", list.removingAll(listOf('x')))
         expectList("abcayz12", list - listOf('x'))
         expectList("abcxaxyz", list.removeAll { it.isDigit() })
 
@@ -199,9 +199,9 @@ class ImmutableListTest {
         val list = "abcxaxyz12".toPersistentList()
         with(list) {
             testNoOperation({ removing('d') }, { remove('d') })
-            testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
+            testNoOperation({ removingAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
             testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
-            testNoOperation({ removeAll(emptyList()) }, { removeAll(emptyList())})
+            testNoOperation({ removingAll(emptyList()) }, { removeAll(emptyList())})
             testNoOperation({ addingAll(emptyList()) }, { addAll(emptyList())})
             testNoOperation({ addAll(2, emptyList()) }, { addAll(2, emptyList())})
         }

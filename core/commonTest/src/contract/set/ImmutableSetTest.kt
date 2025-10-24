@@ -141,8 +141,8 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     @Test fun removeAllElements() {
         run {
             val left = immutableSetOf<Int>() + (1..2000)
-            assertSame(left, left.removeAll(immutableSetOf()))
-            assertSame(immutableSetOf(), immutableSetOf<Int>().removeAll(left))
+            assertSame(left, left.removingAll(immutableSetOf()))
+            assertSame(immutableSetOf(), immutableSetOf<Int>().removingAll(left))
         }
 
         run {
@@ -290,7 +290,7 @@ abstract class ImmutableSetTestBase {
 
         expectSet("abcyz12", set.removing('x'))
         expectSet("abcyz12", set - 'x')
-        expectSet("abcy12", set.removeAll(setOf('x', 'z')))
+        expectSet("abcy12", set.removingAll(setOf('x', 'z')))
         expectSet("abcy12", set - setOf('x', 'z'))
         expectSet("abcxyz", set.removeAll { it.isDigit() })
 
@@ -342,9 +342,9 @@ abstract class ImmutableSetTestBase {
             testNoOperation({ addingAll(emptySet()) }, { addAll(emptySet()) })
             testNoOperation({ addingAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
             testNoOperation({ removing('d') }, { remove('d') })
-            testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
+            testNoOperation({ removingAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
             testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
-            testNoOperation({ removeAll(emptySet()) }, { removeAll(emptySet()) })
+            testNoOperation({ removingAll(emptySet()) }, { removeAll(emptySet()) })
         }
     }
 

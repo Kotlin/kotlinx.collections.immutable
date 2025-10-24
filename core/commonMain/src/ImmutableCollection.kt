@@ -75,6 +75,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * contained in the specified [elements] collection removed;
      * or this instance if no modifications were made in the result of this operation.
      */
+    public fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+
+    /**
+     * See [removingAll].
+     */
+    @Deprecated("Use removingAll() instead.", ReplaceWith("removingAll(elements)"))
     public fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**

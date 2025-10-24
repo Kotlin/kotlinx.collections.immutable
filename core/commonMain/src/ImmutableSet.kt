@@ -77,7 +77,13 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * contained in the specified [elements] collection removed;
      * or this instance if no modifications were made in the result of this operation.
      */
-    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
+    override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
+
+    /**
+     * See [removingAll].
+     */
+    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
+    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = removingAll(elements)
 
     /**
      * Returns the result of removing all elements in this set that match the specified [predicate].

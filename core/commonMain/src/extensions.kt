@@ -107,7 +107,7 @@ public operator fun <E> PersistentCollection<E>.plus(elements: Sequence<E>): Per
  * or this instance if no modifications were made in the result of this operation.
  */
 public operator fun <E> PersistentCollection<E>.minus(elements: Iterable<E>): PersistentCollection<E>
-        = if (elements is Collection) removeAll(elements) else builder().also { it.removeAll(elements) }.build()
+        = if (elements is Collection) removingAll(elements) else builder().also { it.removeAll(elements) }.build()
 
 /**
  * Returns the result of removing all elements in this collection that are also
@@ -189,7 +189,7 @@ public operator fun <E> PersistentList<E>.plus(elements: Sequence<E>): Persisten
  * or this instance if no modifications were made in the result of this operation.
  */
 public operator fun <E> PersistentList<E>.minus(elements: Iterable<E>): PersistentList<E>
-        = if (elements is Collection) removeAll(elements) else mutate { it.removeAll(elements) }
+        = if (elements is Collection) removingAll(elements) else mutate { it.removeAll(elements) }
 
 /**
  * Returns the result of removing all elements in this list that are also
@@ -268,7 +268,7 @@ public operator fun <E> PersistentSet<E>.plus(elements: Sequence<E>): Persistent
  * or this instance if no modifications were made in the result of this operation.
  */
 public operator fun <E> PersistentSet<E>.minus(elements: Iterable<E>): PersistentSet<E>
-        = if (elements is Collection) removeAll(elements) else mutate { it.removeAll(elements) }
+        = if (elements is Collection) removingAll(elements) else mutate { it.removeAll(elements) }
 
 /**
  * Returns the result of removing all elements in this set that are also

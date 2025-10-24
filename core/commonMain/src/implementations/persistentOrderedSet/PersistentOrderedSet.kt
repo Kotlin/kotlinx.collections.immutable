@@ -78,7 +78,7 @@ internal class PersistentOrderedSet<E>(
         return PersistentOrderedSet(newFirstElement, newLastElement, newMap)
     }
 
-    override fun removeAll(elements: Collection<E>): PersistentSet<E> {
+    override fun removingAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return mutate { it.removeAll(elements) }
     }

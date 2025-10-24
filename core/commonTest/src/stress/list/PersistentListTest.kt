@@ -391,7 +391,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
 //                println("${initialElements.size} -> ${expected.size} : ${initialElements.size.toDouble() / expected.size}")
 
-                val result = list.removeAll(elements)
+                val result = list.removingAll(elements)
 
                 val resultPredicate = list.let {
                     val hashSet = elements.toHashSet()
