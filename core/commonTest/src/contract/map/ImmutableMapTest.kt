@@ -24,27 +24,27 @@ class ImmutableHashMapTest : ImmutableMapTest() {
     @Test fun putAllElements() {
         run {
             val x = immutableMapOf<String, Int>() + (11..200).map { "$it" to it }
-            compareMaps(x.toMap(), x.putAll(immutableMapOf()))
-            compareMaps(x.toMap(), immutableMapOf<String, Int>().putAll(x))
+            compareMaps(x.toMap(), x.puttingAll(immutableMapOf()))
+            compareMaps(x.toMap(), immutableMapOf<String, Int>().puttingAll(x))
         }
 
         run {
             val x = immutableMapOf<Int, Int>() + (11..200).map { it to it }
             val y = immutableMapOf<Int, Int>() + (120..400).map { it to it }
-            compareMaps(x.toMap() + y.toMap(), x.putAll(y))
+            compareMaps(x.toMap() + y.toMap(), x.puttingAll(y))
         }
 
         run {
             val x = immutableMapOf<String, Int>() + (11..200).map { "$it" to it }
             val y = immutableMapOf<String, Int>() + (120..400).map { "$it" to it }
-            compareMaps(x.toMap() + y.toMap(), x.putAll(y))
+            compareMaps(x.toMap() + y.toMap(), x.puttingAll(y))
         }
 
         run {
             val x = immutableMapOf<IntWrapper, Int>() + (11..200).map { IntWrapper(it, it % 30) to it }
             val y = immutableMapOf<IntWrapper, Int>() + (120..400).map { IntWrapper(it, it % 30) to it }
-            compareMaps(x.toMap() + y.toMap(), x.putAll(y))
-            compareMaps(y.toMap() + x.toMap(), y.putAll(x))
+            compareMaps(x.toMap() + y.toMap(), x.puttingAll(y))
+            compareMaps(y.toMap() + x.toMap(), y.puttingAll(x))
         }
 
         run {
@@ -321,8 +321,8 @@ abstract class ImmutableMapTest {
         map.testNoOperation({ putting(equalKey, value) }, { put(equalKey, value) })
         map.testNotNoOperation({ putting(equalKey, equalValue) }, { put(equalKey, equalValue) })
 
-        map.testNoOperation({ putAll(this) }, { putAll(this) })
-        map.testNoOperation({ putAll(emptyMap()) }, { putAll(emptyMap()) })
+        map.testNoOperation({ puttingAll(this) }, { putAll(this) })
+        map.testNoOperation({ puttingAll(emptyMap()) }, { putAll(emptyMap()) })
     }
 
     fun <K, V> PersistentMap<K, V>.testNoOperation(persistent: PersistentMap<K, V>.() -> PersistentMap<K, V>, mutating: MutableMap<K, V>.() -> Unit) {

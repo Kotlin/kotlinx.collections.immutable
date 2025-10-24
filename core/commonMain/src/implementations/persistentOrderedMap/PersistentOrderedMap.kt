@@ -116,7 +116,7 @@ internal class PersistentOrderedMap<K, V>(
         return if (links.value == value) this.removing(key) else this
     }
 
-    override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
+    override fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
         if (m.isEmpty()) return this
         return this.mutate { it.putAll(m) }
     }
