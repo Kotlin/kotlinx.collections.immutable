@@ -234,8 +234,8 @@ abstract class ImmutableMapTest {
         fun <K, V> assertEquals(expected: Map<out K, V>, actual: Map<out K, V>) = kotlin.test.assertEquals(expected, actual)
 
         assertEquals(mapOf("x" to 1), map.removing(null))
-        assertEquals(mapOf("x" to 1), map.remove(null, "x"))
-        assertEquals(map, map.remove("x", 2))
+        assertEquals(mapOf("x" to 1), map.removing(null, "x"))
+        assertEquals(map, map.removing("x", 2))
 
         assertEquals(emptyMap(), map.clear())
         assertEquals(emptyMap(), map.removing("x").removing(null))
@@ -314,8 +314,8 @@ abstract class ImmutableMapTest {
         map.testNoOperation({ removing(notEqualKey) }, { remove(notEqualKey) })
         map.testNotNoOperation({ removing(equalKey) }, { remove(equalKey) })
 
-        map.testNoOperation({ remove(key, notEqualValue) }, { remove(key, notEqualValue) })
-        map.testNotNoOperation({ remove(key, equalValue) }, { remove(key, equalValue) })
+        map.testNoOperation({ removing(key, notEqualValue) }, { remove(key, notEqualValue) })
+        map.testNotNoOperation({ removing(key, equalValue) }, { remove(key, equalValue) })
 
         map.testNoOperation({ putting(equalKey, value) }, { put(equalKey, value) })
         map.testNotNoOperation({ putting(equalKey, equalValue) }, { put(equalKey, equalValue) })

@@ -132,8 +132,8 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     @Test
     fun removeEntryTests() {
         var map = persistentHashMapOf<Int, String>()
-        assertTrue(map.putting(0, "0").remove(0, "0").isEmpty())
-        assertFalse(map.putting(0, "0").remove(0, "x").isEmpty())
+        assertTrue(map.putting(0, "0").removing(0, "0").isEmpty())
+        assertFalse(map.putting(0, "0").removing(0, "x").isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
@@ -144,9 +144,9 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, map.size)
             assertEquals(values[index], map[index])
-            map = map.remove(index, values[index + 1])
+            map = map.removing(index, values[index + 1])
             assertEquals(values[index], map[index])
-            map = map.remove(index, values[index])
+            map = map.removing(index, values[index])
             assertNull(map[index])
         }
         assertTrue(map.isEmpty())
@@ -257,11 +257,11 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
                         map = if (removeEntryPredicate == 1) {
                             val nonExistingValue = Int.MIN_VALUE
-                            val sameMap = map.remove(key, nonExistingValue)
+                            val sameMap = map.removing(key, nonExistingValue)
                             assertEquals(map.size, sameMap.size)
                             assertEquals(key.obj, sameMap[key])
 
-                            map.remove(key, key.obj)
+                            map.removing(key, key.obj)
                         } else {
                             val nonExistingKey = IntWrapper(Int.MIN_VALUE, key.hashCode)
                             val sameMap = map.removing(nonExistingKey)
@@ -317,7 +317,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                         val shouldBeCurrentValue = Random.nextDouble() < 0.8
                         val value = if (shouldOperateOnExistingKey && shouldBeCurrentValue) mutableMap[key] else Random.nextInt()
                         mutableMap.remove(key, value)
-                        immutableMap.remove(key, value)
+                        immutableMap.removing(key, value)
                     }
                     else -> {
                         val shouldPutNullValue = Random.nextDouble() < 0.001
