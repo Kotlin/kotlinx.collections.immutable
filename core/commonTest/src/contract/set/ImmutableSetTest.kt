@@ -273,7 +273,7 @@ abstract class ImmutableSetTestBase {
 
     @Test fun addElements() {
         var set = immutableSetOf<String>()
-        set = set.add("x")
+        set = set.adding("x")
         set = set.addAll(set)
         set = set + "y"
         set += "z"
@@ -338,7 +338,7 @@ abstract class ImmutableSetTestBase {
 
         val set = immutableSetOf("abcxyz12".toList())
         with(set) {
-            testNoOperation({ add('a') }, { add('a') })
+            testNoOperation({ adding('a') }, { add('a') })
             testNoOperation({ addAll(emptySet()) }, { addAll(emptySet()) })
             testNoOperation({ addAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
             testNoOperation({ remove('d') }, { remove('d') })
