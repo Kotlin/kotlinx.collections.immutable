@@ -80,7 +80,7 @@ class ImmutableListTest {
         list = list.adding("x")
         list = list.add(0, "a")
         list = list.addingAll(list)
-        list = list.addAll(1, listOf("b", "c"))
+        list = list.addingAll(1, listOf("b", "c"))
         list = list + "y"
         list += "z"
         list += arrayOf("1", "2").asIterable()
@@ -203,7 +203,7 @@ class ImmutableListTest {
             testNoOperation({ removingAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
             testNoOperation({ removingAll(emptyList()) }, { removeAll(emptyList())})
             testNoOperation({ addingAll(emptyList()) }, { addAll(emptyList())})
-            testNoOperation({ addAll(2, emptyList()) }, { addAll(2, emptyList())})
+            testNoOperation({ addingAll(2, emptyList()) }, { addAll(2, emptyList())})
         }
     }
 
