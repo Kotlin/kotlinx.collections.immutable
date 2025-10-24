@@ -324,7 +324,7 @@ public infix fun <E> PersistentCollection<E>.intersect(elements: Iterable<E>): P
  */
 @Suppress("UNCHECKED_CAST")
 public inline operator fun <K, V> PersistentMap<out K, V>.plus(pair: Pair<K, V>): PersistentMap<K, V>
-        = (this as PersistentMap<K, V>).put(pair.first, pair.second)
+        = (this as PersistentMap<K, V>).putting(pair.first, pair.second)
 
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
