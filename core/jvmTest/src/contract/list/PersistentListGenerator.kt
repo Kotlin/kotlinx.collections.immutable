@@ -19,7 +19,7 @@ class PersistentListGenerator {
 
         object AddAll : TestStringListGenerator() {
             override fun create(elements: Array<out String>): List<String> {
-                return persistentListOf<String>().addAll(elements.toList())
+                return persistentListOf<String>().addingAll(elements.toList())
             }
         }
 
@@ -44,7 +44,7 @@ class PersistentListGenerator {
         object HeadSubList : TestStringListGenerator() {
             override fun create(elements: Array<out String>): List<String> {
                 return persistentListOf<String>()
-                        .addAll(listOf(*elements, "f", "g"))
+                        .addingAll(listOf(*elements, "f", "g"))
                         .subList(0, elements.size)
             }
         }
@@ -52,7 +52,7 @@ class PersistentListGenerator {
         object TailSubList : TestStringListGenerator() {
             override fun create(elements: Array<String>): List<String> {
                 return persistentListOf<String>()
-                        .addAll(listOf("f", "g", *elements))
+                        .addingAll(listOf("f", "g", *elements))
                         .subList(2, elements.size + 2)
             }
         }
@@ -61,7 +61,7 @@ class PersistentListGenerator {
             override fun create(elements: Array<String>): List<String> {
 
                 return persistentListOf<String>()
-                        .addAll(listOf("f", "g", *elements, "h", "i"))
+                        .addingAll(listOf("f", "g", *elements, "h", "i"))
                         .subList(2, elements.size + 2)
             }
         }

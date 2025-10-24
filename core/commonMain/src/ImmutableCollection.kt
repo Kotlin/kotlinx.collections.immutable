@@ -45,6 +45,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with elements of the specified [elements] collection added;
      * or this instance if no modifications were made in the result of this operation.
      */
+    public fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+
+    /**
+     * See [addingAll].
+     */
+    @Deprecated("Use addingAll() instead.", ReplaceWith("addingAll(elements)"))
     public fun addAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**

@@ -15,7 +15,7 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return super<PersistentList>.subList(fromIndex, toIndex)
     }
 
-    override fun addAll(elements: Collection<E>): PersistentList<E> {
+    override fun addingAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
         return mutate { it.addAll(elements) }
     }
