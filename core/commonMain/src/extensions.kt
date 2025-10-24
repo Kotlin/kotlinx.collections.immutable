@@ -67,7 +67,7 @@ public inline operator fun <E> PersistentCollection<E>.plus(element: E): Persist
  * @return a new persistent collection with a single appearance of the specified [element] removed;
  * or this instance if there is no such element in this collection.
  */
-public inline operator fun <E> PersistentCollection<E>.minus(element: E): PersistentCollection<E> = remove(element)
+public inline operator fun <E> PersistentCollection<E>.minus(element: E): PersistentCollection<E> = removing(element)
 
 
 /**
@@ -143,7 +143,7 @@ public inline operator fun <E> PersistentList<E>.plus(element: E): PersistentLis
  * @return a new persistent list with the first appearance of the specified [element] removed;
  * or this instance if there is no such element in this list.
  */
-public inline operator fun <E> PersistentList<E>.minus(element: E): PersistentList<E> = remove(element)
+public inline operator fun <E> PersistentList<E>.minus(element: E): PersistentList<E> = removing(element)
 
 
 /**
@@ -228,7 +228,7 @@ public inline operator fun <E> PersistentSet<E>.plus(element: E): PersistentSet<
  * @return a new persistent set with the specified [element] removed;
  * or this instance if there is no such element in this set.
  */
-public inline operator fun <E> PersistentSet<E>.minus(element: E): PersistentSet<E> = remove(element)
+public inline operator fun <E> PersistentSet<E>.minus(element: E): PersistentSet<E> = removing(element)
 
 
 /**

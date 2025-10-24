@@ -106,7 +106,7 @@ class ImmutableListTest {
         }
 
         expectList("bcxaxyz12", list.removeAt(0))
-        expectList("abcaxyz12", list.remove('x'))
+        expectList("abcaxyz12", list.removing('x'))
         expectList("abcaxyz12", list - 'x')
         expectList("abcayz12", list.removeAll(listOf('x')))
         expectList("abcayz12", list - listOf('x'))
@@ -198,7 +198,7 @@ class ImmutableListTest {
 
         val list = "abcxaxyz12".toPersistentList()
         with(list) {
-            testNoOperation({ remove('d') }, { remove('d') })
+            testNoOperation({ removing('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
             testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
             testNoOperation({ removeAll(emptyList()) }, { removeAll(emptyList())})

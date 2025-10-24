@@ -267,7 +267,7 @@ abstract class ImmutableSetTestBase {
         hashSet.remove("a")
         assertNotEquals<Set<*>>(hashSet, immSet)
 
-        immSet = immSet.remove("a")
+        immSet = immSet.removing("a")
         compareSetsUnordered(hashSet, immSet)
     }
 
@@ -288,7 +288,7 @@ abstract class ImmutableSetTestBase {
             compareSets(content.toSet(), set)
         }
 
-        expectSet("abcyz12", set.remove('x'))
+        expectSet("abcyz12", set.removing('x'))
         expectSet("abcyz12", set - 'x')
         expectSet("abcy12", set.removeAll(setOf('x', 'z')))
         expectSet("abcy12", set - setOf('x', 'z'))
@@ -341,7 +341,7 @@ abstract class ImmutableSetTestBase {
             testNoOperation({ adding('a') }, { add('a') })
             testNoOperation({ addingAll(emptySet()) }, { addAll(emptySet()) })
             testNoOperation({ addingAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
-            testNoOperation({ remove('d') }, { remove('d') })
+            testNoOperation({ removing('d') }, { remove('d') })
             testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
             testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
             testNoOperation({ removeAll(emptySet()) }, { removeAll(emptySet()) })
