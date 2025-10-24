@@ -103,7 +103,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     /**
      * Returns an empty persistent map.
      */
-    public fun clear(): PersistentMap<K, V>
+    public fun cleared(): PersistentMap<K, V>
+
+    /**
+     * See [cleared].
+     */
+    @Deprecated("Use cleared() method instead.", ReplaceWith("cleared()"))
+    public fun clear(): PersistentMap<K, V> = cleared()
 
     /**
      * A generic builder of the persistent map. Builder exposes its modification operations through the [MutableMap] interface.
