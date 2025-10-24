@@ -91,12 +91,12 @@ class ImmutableListTest {
         var list = "abcxaxab12".toImmutableList().toPersistentList()
 
         for (i in list.indices) {
-            list = list.set(i, list[i] + i)
+            list = list.replacingAt(i, list[i] + i)
         }
 
         assertEquals("ace{e}gi9;", list.joinToString(""))
-        assertFailsWith<IndexOutOfBoundsException> { list.set(-1, '0') }
-        assertFailsWith<IndexOutOfBoundsException> { list.set(list.size + 1, '0') }
+        assertFailsWith<IndexOutOfBoundsException> { list.replacingAt(-1, '0') }
+        assertFailsWith<IndexOutOfBoundsException> { list.replacingAt(list.size + 1, '0') }
     }
 
     @Test fun removeElements() {
