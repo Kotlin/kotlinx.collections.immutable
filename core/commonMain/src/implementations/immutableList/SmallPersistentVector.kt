@@ -116,7 +116,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return PersistentVector(root, tail, size + 1, 0)
     }
 
-    override fun removeAt(index: Int): PersistentList<E> {
+    override fun removingAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         if (size == 1) {
             return EMPTY

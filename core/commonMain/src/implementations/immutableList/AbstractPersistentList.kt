@@ -29,7 +29,7 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
     override fun removing(element: E): PersistentList<E> {
         val index = this.indexOf(element)
         if (index != -1) {
-            return this.removeAt(index)
+            return this.removingAt(index)
         }
         return this
     }
