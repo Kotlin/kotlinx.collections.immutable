@@ -20,7 +20,7 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return mutate { it.addAll(elements) }
     }
 
-    override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
+    override fun addingAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
         return mutate { it.addAll(index, c) }
