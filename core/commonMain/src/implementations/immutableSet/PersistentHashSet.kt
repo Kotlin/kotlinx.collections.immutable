@@ -31,7 +31,7 @@ internal class PersistentHashSet<E>(internal val node: TrieNode<E>,
         return PersistentHashSet(newNode, size - 1)
     }
 
-    override fun removeAll(elements: Collection<E>): PersistentSet<E> {
+    override fun removingAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return mutate { it.removeAll(elements) }
     }

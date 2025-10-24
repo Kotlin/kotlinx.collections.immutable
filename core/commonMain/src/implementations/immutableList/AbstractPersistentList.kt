@@ -34,7 +34,7 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return this
     }
 
-    override fun removeAll(elements: Collection<E>): PersistentList<E> {
+    override fun removingAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
         return removeAll { elements.contains(it) }
     }
