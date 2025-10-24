@@ -52,7 +52,7 @@ internal class PersistentOrderedSet<E>(
         return PersistentOrderedSet(firstElement, element, newMap)
     }
 
-    override fun addAll(elements: Collection<E>): PersistentSet<E> {
+    override fun addingAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return this.mutate { it.addAll(elements) }
     }

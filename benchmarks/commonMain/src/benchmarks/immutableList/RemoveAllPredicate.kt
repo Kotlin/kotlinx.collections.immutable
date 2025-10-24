@@ -39,7 +39,7 @@ open class RemoveAllPredicate {
         tailElementsPredicate = { it in tailElements }
 
         val allElements = List(size) { it.toString() }
-        persistentList = persistentListOf<String>().addAll(allElements)
+        persistentList = persistentListOf<String>().addingAll(allElements)
     }
 
     // The benchmarks measure (time and memory spent in `removeAll` operation) / size

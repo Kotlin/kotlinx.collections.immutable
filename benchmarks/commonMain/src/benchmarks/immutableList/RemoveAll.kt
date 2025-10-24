@@ -20,7 +20,7 @@ open class RemoveAll {
 
     @Setup
     fun prepare() {
-        persistentList = persistentListOf<Int>().addAll(List(size) { it })
+        persistentList = persistentListOf<Int>().addingAll(List(size) { it })
     }
 
     // Results of the following benchmarks do not indicate memory or time spent per operation,
