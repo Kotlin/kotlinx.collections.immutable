@@ -332,7 +332,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(pair: Pair<K, V>)
  * @return a new persistent map with entries from the specified key-value pairs added;
  * or this instance if no modifications were made in the result of this operation.
  */
-public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V> = putAll(pairs)
+public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
@@ -340,7 +340,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Iterable<P
  * @return a new persistent map with entries from the specified key-value pairs added;
  * or this instance if no modifications were made in the result of this operation.
  */
-public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Array<out Pair<K, V>>): PersistentMap<K, V> = putAll(pairs)
+public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Array<out Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
@@ -348,7 +348,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Array<out 
  * @return a new persistent map with entries from the specified key-value pairs added;
  * or this instance if no modifications were made in the result of this operation.
  */
-public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V> = putAll(pairs)
+public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
 /**
  * Returns the result of merging the specified [map] with this map.
@@ -359,7 +359,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Sequence<P
  * @return a new persistent map with keys and values from the specified [map] associated;
  * or this instance if no modifications were made in the result of this operation.
  */
-public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V>): PersistentMap<K, V> = putAll(map)
+public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V>): PersistentMap<K, V> = puttingAll(map)
 
 
 /**
@@ -372,17 +372,15 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V
  * or this instance if no modifications were made in the result of this operation.
  */
 @Suppress("UNCHECKED_CAST")
-public fun <K, V> PersistentMap<out K, V>.putAll(map: Map<out K, V>): PersistentMap<K, V> =
+public fun <K, V> PersistentMap<out K, V>.puttingAll(map: Map<out K, V>): PersistentMap<K, V> =
         (this as PersistentMap<K, V>).puttingAll(map)
 
 /**
- * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
- *
- * @return a new persistent map with entries from the specified key-value pairs added;
- * or this instance if no modifications were made in the result of this operation.
+ * See [puttingAll].
  */
-public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V>
-        = mutate { it.putAll(pairs) }
+@Deprecated("Use puttingAll() instead.", ReplaceWith("puttingAll(map)"))
+@Suppress("UNCHECKED_CAST")
+public fun <K, V> PersistentMap<out K, V>.putAll(map: Map<out K, V>): PersistentMap<K, V> = puttingAll(map)
 
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
@@ -390,8 +388,14 @@ public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Iterable<Pair<K, V>>): P
  * @return a new persistent map with entries from the specified key-value pairs added;
  * or this instance if no modifications were made in the result of this operation.
  */
-public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Array<out Pair<K, V>>): PersistentMap<K, V>
+public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V>
         = mutate { it.putAll(pairs) }
+
+/**
+ * See [puttingAll].
+ */
+@Deprecated("Use puttingAll() instead.", ReplaceWith("puttingAll(pairs)"))
+public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
@@ -399,9 +403,29 @@ public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Array<out Pair<K, V>>): 
  * @return a new persistent map with entries from the specified key-value pairs added;
  * or this instance if no modifications were made in the result of this operation.
  */
-public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V>
+public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Array<out Pair<K, V>>): PersistentMap<K, V>
         = mutate { it.putAll(pairs) }
 
+/**
+ * See [puttingAll].
+ */
+@Deprecated("Use puttingAll() instead.", ReplaceWith("puttingAll(pairs)"))
+public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Array<out Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
+
+/**
+ * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
+ *
+ * @return a new persistent map with entries from the specified key-value pairs added;
+ * or this instance if no modifications were made in the result of this operation.
+ */
+public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V>
+        = mutate { it.putAll(pairs) }
+
+/**
+ * See [puttingAll].
+ */
+@Deprecated("Use puttingAll() instead.", ReplaceWith("puttingAll(pairs)"))
+public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
 /**
  * Returns the result of removing the specified [key] and its corresponding value from this map.
