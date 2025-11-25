@@ -20,7 +20,7 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return mutate { it.addAll(elements) }
     }
 
-    override fun addingAll(index: Int, c: Collection<E>): PersistentList<E> {
+    override fun copyingAddAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
         return mutate { it.addAll(index, c) }
@@ -29,7 +29,7 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
     override fun copyingRemove(element: E): PersistentList<E> {
         val index = this.indexOf(element)
         if (index != -1) {
-            return this.removingAt(index)
+            return this.copyingRemoveAt(index)
         }
         return this
     }

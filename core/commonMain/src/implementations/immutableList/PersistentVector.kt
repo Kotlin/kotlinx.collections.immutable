@@ -78,7 +78,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRootNode
     }
 
-    override fun adding(index: Int, element: E): PersistentList<E> {
+    override fun copyingAdd(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
             return copyingAdd(element)
@@ -143,7 +143,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    override fun removingAt(index: Int): PersistentList<E> {
+    override fun copyingRemoveAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         val rootSize = rootSize()
         if (index >= rootSize) {
@@ -296,7 +296,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
-    override fun replacingAt(index: Int, element: E): PersistentList<E> {
+    override fun copyingSet(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         if (rootSize() <= index) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)

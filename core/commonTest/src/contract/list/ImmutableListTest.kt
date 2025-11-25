@@ -64,7 +64,7 @@ class ImmutableListTest {
         list.removeAt(0)
         assertNotEquals<List<*>>(list, immList)
 
-        immList = immList.toPersistentList().removingAt(0)
+        immList = immList.toPersistentList().copyingRemoveAt(0)
         compareLists(list, immList)
     }
 
@@ -78,9 +78,9 @@ class ImmutableListTest {
     @Test fun addElements() {
         var list = persistentListOf<String>()
         list = list.copyingAdd("x")
-        list = list.adding(0, "a")
+        list = list.copyingAdd(0, "a")
         list = list.copyingAddAll(list)
-        list = list.addingAll(1, listOf("b", "c"))
+        list = list.copyingAddAll(1, listOf("b", "c"))
         list = list + "y"
         list += "z"
         list += arrayOf("1", "2").asIterable()
@@ -91,12 +91,12 @@ class ImmutableListTest {
         var list = "abcxaxab12".toImmutableList().toPersistentList()
 
         for (i in list.indices) {
-            list = list.replacingAt(i, list[i] + i)
+            list = list.copyingSet(i, list[i] + i)
         }
 
         assertEquals("ace{e}gi9;", list.joinToString(""))
-        assertFailsWith<IndexOutOfBoundsException> { list.replacingAt(-1, '0') }
-        assertFailsWith<IndexOutOfBoundsException> { list.replacingAt(list.size + 1, '0') }
+        assertFailsWith<IndexOutOfBoundsException> { list.copyingSet(-1, '0') }
+        assertFailsWith<IndexOutOfBoundsException> { list.copyingSet(list.size + 1, '0') }
     }
 
     @Test fun removeElements() {
@@ -105,7 +105,7 @@ class ImmutableListTest {
             compareLists(content.toList(), list)
         }
 
-        expectList("bcxaxyz12", list.removingAt(0))
+        expectList("bcxaxyz12", list.copyingRemoveAt(0))
         expectList("abcaxyz12", list.copyingRemove('x'))
         expectList("abcaxyz12", list - 'x')
         expectList("abcayz12", list.copyingRemoveAll(listOf('x')))
@@ -120,7 +120,7 @@ class ImmutableListTest {
     fun smallPersistentListFromMutableBuffer() {
         val list = List(33) { it }
         var vector = persistentListOf<Int>().mutate { it.addAll(list) }
-        vector = vector.removingAt(vector.lastIndex)
+        vector = vector.copyingRemoveAt(vector.lastIndex)
         assertEquals(list.dropLast(1), vector)
     }
 
@@ -203,7 +203,7 @@ class ImmutableListTest {
             testNoOperation({ copyingRemoveAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
             testNoOperation({ copyingRemoveAll(emptyList()) }, { removeAll(emptyList())})
             testNoOperation({ copyingAddAll(emptyList()) }, { addAll(emptyList())})
-            testNoOperation({ addingAll(2, emptyList()) }, { addAll(2, emptyList())})
+            testNoOperation({ copyingAddAll(2, emptyList()) }, { addAll(2, emptyList())})
         }
     }
 

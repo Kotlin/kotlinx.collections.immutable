@@ -68,7 +68,7 @@ open class AddAll {
     fun addAllFirst_Half(): ImmutableList<String> {
         val initialSize = size / 2
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addingAll(0, subListToAdd)
+        return persistentListAdd(initialSize).copyingAddAll(0, subListToAdd)
     }
 
     /**
@@ -79,7 +79,7 @@ open class AddAll {
     fun addAllFirst_OneThird(): ImmutableList<String> {
         val initialSize = size - size / 3
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addingAll(0, subListToAdd)
+        return persistentListAdd(initialSize).copyingAddAll(0, subListToAdd)
     }
 
     /**
@@ -91,7 +91,7 @@ open class AddAll {
         val initialSize = size / 2
         val index = initialSize / 2
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addingAll(index, subListToAdd)
+        return persistentListAdd(initialSize).copyingAddAll(index, subListToAdd)
     }
 
     /**
@@ -103,6 +103,6 @@ open class AddAll {
         val initialSize = size - size / 3
         val index = initialSize / 2
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addingAll(index, subListToAdd)
+        return persistentListAdd(initialSize).copyingAddAll(index, subListToAdd)
     }
 }
