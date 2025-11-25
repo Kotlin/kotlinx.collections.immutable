@@ -67,7 +67,7 @@ public inline operator fun <E> PersistentCollection<E>.plus(element: E): Persist
  * @return a new persistent collection with a single appearance of the specified [element] removed;
  * or this instance if there is no such element in this collection.
  */
-public inline operator fun <E> PersistentCollection<E>.minus(element: E): PersistentCollection<E> = removing(element)
+public inline operator fun <E> PersistentCollection<E>.minus(element: E): PersistentCollection<E> = copyingRemove(element)
 
 
 /**
@@ -77,7 +77,7 @@ public inline operator fun <E> PersistentCollection<E>.minus(element: E): Persis
  * or this instance if no modifications were made in the result of this operation.
  */
 public operator fun <E> PersistentCollection<E>.plus(elements: Iterable<E>): PersistentCollection<E>
-        = if (elements is Collection) addingAll(elements) else builder().also { it.addAll(elements) }.build()
+        = if (elements is Collection) copyingAddAll(elements) else builder().also { it.addAll(elements) }.build()
 
 /**
  * Returns the result of adding all elements of the specified [elements] array to this collection.
@@ -107,7 +107,7 @@ public operator fun <E> PersistentCollection<E>.plus(elements: Sequence<E>): Per
  * or this instance if no modifications were made in the result of this operation.
  */
 public operator fun <E> PersistentCollection<E>.minus(elements: Iterable<E>): PersistentCollection<E>
-        = if (elements is Collection) removingAll(elements) else builder().also { it.removeAll(elements) }.build()
+        = if (elements is Collection) copyingRemoveAll(elements) else builder().also { it.removeAll(elements) }.build()
 
 /**
  * Returns the result of removing all elements in this collection that are also
@@ -143,7 +143,7 @@ public inline operator fun <E> PersistentList<E>.plus(element: E): PersistentLis
  * @return a new persistent list with the first appearance of the specified [element] removed;
  * or this instance if there is no such element in this list.
  */
-public inline operator fun <E> PersistentList<E>.minus(element: E): PersistentList<E> = removing(element)
+public inline operator fun <E> PersistentList<E>.minus(element: E): PersistentList<E> = copyingRemove(element)
 
 
 /**
@@ -155,7 +155,7 @@ public inline operator fun <E> PersistentList<E>.minus(element: E): PersistentLi
  * or this instance if the specified collection is empty.
  */
 public operator fun <E> PersistentList<E>.plus(elements: Iterable<E>): PersistentList<E>
-        = if (elements is Collection) addingAll(elements) else mutate { it.addAll(elements) }
+        = if (elements is Collection) copyingAddAll(elements) else mutate { it.addAll(elements) }
 
 /**
  * Returns the result of appending all elements of the specified [elements] array to this list.
@@ -189,7 +189,7 @@ public operator fun <E> PersistentList<E>.plus(elements: Sequence<E>): Persisten
  * or this instance if no modifications were made in the result of this operation.
  */
 public operator fun <E> PersistentList<E>.minus(elements: Iterable<E>): PersistentList<E>
-        = if (elements is Collection) removingAll(elements) else mutate { it.removeAll(elements) }
+        = if (elements is Collection) copyingRemoveAll(elements) else mutate { it.removeAll(elements) }
 
 /**
  * Returns the result of removing all elements in this list that are also
@@ -228,7 +228,7 @@ public inline operator fun <E> PersistentSet<E>.plus(element: E): PersistentSet<
  * @return a new persistent set with the specified [element] removed;
  * or this instance if there is no such element in this set.
  */
-public inline operator fun <E> PersistentSet<E>.minus(element: E): PersistentSet<E> = removing(element)
+public inline operator fun <E> PersistentSet<E>.minus(element: E): PersistentSet<E> = copyingRemove(element)
 
 
 /**
@@ -238,7 +238,7 @@ public inline operator fun <E> PersistentSet<E>.minus(element: E): PersistentSet
  * or this instance if it already contains every element of the specified collection.
  */
 public operator fun <E> PersistentSet<E>.plus(elements: Iterable<E>): PersistentSet<E>
-        = if (elements is Collection) addingAll(elements) else mutate { it.addAll(elements) }
+        = if (elements is Collection) copyingAddAll(elements) else mutate { it.addAll(elements) }
 
 /**
  * Returns the result of adding all elements of the specified [elements] array to this set.
@@ -268,7 +268,7 @@ public operator fun <E> PersistentSet<E>.plus(elements: Sequence<E>): Persistent
  * or this instance if no modifications were made in the result of this operation.
  */
 public operator fun <E> PersistentSet<E>.minus(elements: Iterable<E>): PersistentSet<E>
-        = if (elements is Collection) removingAll(elements) else mutate { it.removeAll(elements) }
+        = if (elements is Collection) copyingRemoveAll(elements) else mutate { it.removeAll(elements) }
 
 /**
  * Returns the result of removing all elements in this set that are also
@@ -301,7 +301,7 @@ public operator fun <E> PersistentSet<E>.minus(elements: Sequence<E>): Persisten
  * or this instance if no modifications were made in the result of this operation.
  */
 public infix fun <E> PersistentSet<E>.intersect(elements: Iterable<E>): PersistentSet<E>
-        = if (elements is Collection) retainingAll(elements) else mutate { it.retainAll(elements) }
+        = if (elements is Collection) copyingRetainAll(elements) else mutate { it.retainAll(elements) }
 
 /**
  * Returns all elements in this collection that are also
@@ -468,7 +468,7 @@ public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): Per
 /**
  * Returns a new persistent list of the specified elements.
  */
-public fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persistentVectorOf<E>().addingAll(elements.asList())
+public fun <E> persistentListOf(vararg elements: E): PersistentList<E> = persistentVectorOf<E>().copyingAddAll(elements.asList())
 
 /**
  * Returns an empty persistent list.
@@ -481,7 +481,7 @@ public fun <E> persistentListOf(): PersistentList<E> = persistentVectorOf()
  *
  * Elements of the returned set are iterated in the order they were specified.
  */
-public fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>().addingAll(elements.asList())
+public fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>().copyingAddAll(elements.asList())
 
 /**
  * Returns an empty persistent set.
@@ -494,7 +494,7 @@ public fun <E> persistentSetOf(): PersistentSet<E> = PersistentOrderedSet.emptyO
  *
  * Order of the elements in the returned set is unspecified.
  */
-public fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHashSet.emptyOf<E>().addingAll(elements.asList())
+public fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> = PersistentHashSet.emptyOf<E>().copyingAddAll(elements.asList())
 
 /**
  * Returns an empty persistent set.

@@ -391,11 +391,11 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
 //                println("${initialElements.size} -> ${expected.size} : ${initialElements.size.toDouble() / expected.size}")
 
-                val result = list.removingAll(elements)
+                val result = list.copyingRemoveAll(elements)
 
                 val resultPredicate = list.let {
                     val hashSet = elements.toHashSet()
-                    it.removingAll { e -> hashSet.contains(e) }
+                    it.copyingRemoveAll { e -> hashSet.contains(e) }
                 }
 
                 assertEquals<List<*>>(expected, result)

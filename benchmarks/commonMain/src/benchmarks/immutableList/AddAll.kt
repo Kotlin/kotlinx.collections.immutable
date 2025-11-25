@@ -35,7 +35,7 @@ open class AddAll {
      */
     @Benchmark
     fun addAllLast(): ImmutableList<String> {
-        return persistentListOf<String>().addingAll(listToAdd)
+        return persistentListOf<String>().copyingAddAll(listToAdd)
     }
 
     /**
@@ -46,7 +46,7 @@ open class AddAll {
     fun addAllLast_Half(): ImmutableList<String> {
         val initialSize = size / 2
         val subListToAdd = listToAdd.subList(0, size - initialSize) // assuming subList creation is neglectable
-        return persistentListAdd(initialSize).addingAll(subListToAdd)
+        return persistentListAdd(initialSize).copyingAddAll(subListToAdd)
     }
 
     /**
@@ -57,7 +57,7 @@ open class AddAll {
     fun addAllLast_OneThird(): ImmutableList<String> {
         val initialSize = size - size / 3
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addingAll(subListToAdd)
+        return persistentListAdd(initialSize).copyingAddAll(subListToAdd)
     }
 
     /**

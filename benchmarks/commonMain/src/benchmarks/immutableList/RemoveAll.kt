@@ -20,7 +20,7 @@ open class RemoveAll {
 
     @Setup
     fun prepare() {
-        persistentList = persistentListOf<Int>().addingAll(List(size) { it })
+        persistentList = persistentListOf<Int>().copyingAddAll(List(size) { it })
     }
 
     // Results of the following benchmarks do not indicate memory or time spent per operation,
@@ -38,7 +38,7 @@ open class RemoveAll {
     fun removeAll_All(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = List(size) { it }
-        return list.removingAll(elementsToRemove)
+        return list.copyingRemoveAll(elementsToRemove)
     }
 
     /**
@@ -48,7 +48,7 @@ open class RemoveAll {
     fun removeAll_RandomHalf(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = randomIndexes(size / 2)
-        return list.removingAll(elementsToRemove)
+        return list.copyingRemoveAll(elementsToRemove)
     }
 
     /**
@@ -58,7 +58,7 @@ open class RemoveAll {
     fun removeAll_RandomTen(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = randomIndexes(10)
-        return list.removingAll(elementsToRemove)
+        return list.copyingRemoveAll(elementsToRemove)
     }
 
     /**
@@ -68,7 +68,7 @@ open class RemoveAll {
     fun removeAll_Tail(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = List(tailSize()) { size - 1 - it }
-        return list.removingAll(elementsToRemove)
+        return list.copyingRemoveAll(elementsToRemove)
     }
 
     /**
@@ -78,7 +78,7 @@ open class RemoveAll {
     fun removeAll_NonExisting(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = randomIndexes(10).map { size + it }
-        return list.removingAll(elementsToRemove)
+        return list.copyingRemoveAll(elementsToRemove)
     }
 
     private fun randomIndexes(count: Int): List<Int> {

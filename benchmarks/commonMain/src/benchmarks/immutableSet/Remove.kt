@@ -37,7 +37,7 @@ open class Remove {
     fun remove(): ImmutableSet<IntWrapper> {
         var set = persistentSet
         repeat(times = size) { index ->
-            set = set.removing(elements[index])
+            set = set.copyingRemove(elements[index])
         }
         return set
     }

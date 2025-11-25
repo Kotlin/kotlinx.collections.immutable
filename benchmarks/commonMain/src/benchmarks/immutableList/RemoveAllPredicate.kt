@@ -39,7 +39,7 @@ open class RemoveAllPredicate {
         tailElementsPredicate = { it in tailElements }
 
         val allElements = List(size) { it.toString() }
-        persistentList = persistentListOf<String>().addingAll(allElements)
+        persistentList = persistentListOf<String>().copyingAddAll(allElements)
     }
 
     // The benchmarks measure (time and memory spent in `removeAll` operation) / size
@@ -50,37 +50,37 @@ open class RemoveAllPredicate {
     /** Removes all elements. */
     @Benchmark
     fun removeAll_All(): PersistentList<String> {
-        return persistentList.removingAll(truePredicate)
+        return persistentList.copyingRemoveAll(truePredicate)
     }
 
     /** Removes no elements. */
     @Benchmark
     fun removeAll_Non(): PersistentList<String> {
-        return persistentList.removingAll(falsePredicate)
+        return persistentList.copyingRemoveAll(falsePredicate)
     }
 
     /** Removes half of the elements randomly selected. */
     @Benchmark
     fun removeAll_RandomHalf(): PersistentList<String> {
-        return persistentList.removingAll(randomHalfElementsPredicate)
+        return persistentList.copyingRemoveAll(randomHalfElementsPredicate)
     }
 
     /** Removes 10 random elements. */
     @Benchmark
     fun removeAll_RandomTen(): PersistentList<String> {
-        return persistentList.removingAll(randomTenElementsPredicate)
+        return persistentList.copyingRemoveAll(randomTenElementsPredicate)
     }
 
     /** Removes a random element. */
     @Benchmark
     fun removeAll_RandomOne(): PersistentList<String> {
-        return persistentList.removingAll(randomOneElementPredicate)
+        return persistentList.copyingRemoveAll(randomOneElementPredicate)
     }
 
     /** Removes last [tailSize] elements. */
     @Benchmark
     fun removeAll_Tail(): PersistentList<String> {
-        return persistentList.removingAll(tailElementsPredicate)
+        return persistentList.copyingRemoveAll(tailElementsPredicate)
     }
 
     private fun randomIndexes(count: Int): List<Int> {

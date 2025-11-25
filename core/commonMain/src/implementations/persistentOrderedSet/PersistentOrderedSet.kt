@@ -52,12 +52,12 @@ internal class PersistentOrderedSet<E>(
         return PersistentOrderedSet(firstElement, element, newMap)
     }
 
-    override fun addingAll(elements: Collection<E>): PersistentSet<E> {
+    override fun copyingAddAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return this.mutate { it.addAll(elements) }
     }
 
-    override fun removing(element: E): PersistentSet<E> {
+    override fun copyingRemove(element: E): PersistentSet<E> {
         val links = hashMap[element] ?: return this
 
         var newMap = hashMap.removing(element)
@@ -78,21 +78,21 @@ internal class PersistentOrderedSet<E>(
         return PersistentOrderedSet(newFirstElement, newLastElement, newMap)
     }
 
-    override fun removingAll(elements: Collection<E>): PersistentSet<E> {
+    override fun copyingRemoveAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return mutate { it.removeAll(elements) }
     }
 
-    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> {
+    override fun copyingRemoveAll(predicate: (E) -> Boolean): PersistentSet<E> {
         return mutate { it.removeAll(predicate) }
     }
 
-    override fun retainingAll(elements: Collection<E>): PersistentSet<E> {
+    override fun copyingRetainAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return PersistentOrderedSet.emptyOf<E>()
         return mutate { it.retainAll(elements) }
     }
 
-    override fun cleared(): PersistentSet<E> {
+    override fun copyingClear(): PersistentSet<E> {
         return PersistentOrderedSet.emptyOf()
     }
 

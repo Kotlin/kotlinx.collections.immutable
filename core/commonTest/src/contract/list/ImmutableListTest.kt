@@ -35,7 +35,7 @@ class ImmutableListTest {
                 *(1..1885).map { it }.toTypedArray()
         )
 
-        xs = xs.removingAll(
+        xs = xs.copyingRemoveAll(
                 (1..1837).map { it }
         )
 
@@ -79,7 +79,7 @@ class ImmutableListTest {
         var list = persistentListOf<String>()
         list = list.copyingAdd("x")
         list = list.adding(0, "a")
-        list = list.addingAll(list)
+        list = list.copyingAddAll(list)
         list = list.addingAll(1, listOf("b", "c"))
         list = list + "y"
         list += "z"
@@ -106,14 +106,14 @@ class ImmutableListTest {
         }
 
         expectList("bcxaxyz12", list.removingAt(0))
-        expectList("abcaxyz12", list.removing('x'))
+        expectList("abcaxyz12", list.copyingRemove('x'))
         expectList("abcaxyz12", list - 'x')
-        expectList("abcayz12", list.removingAll(listOf('x')))
+        expectList("abcayz12", list.copyingRemoveAll(listOf('x')))
         expectList("abcayz12", list - listOf('x'))
-        expectList("abcxaxyz", list.removingAll { it.isDigit() })
+        expectList("abcxaxyz", list.copyingRemoveAll { it.isDigit() })
 
         assertEquals(emptyList<Char>(), list - list)
-        assertEquals(emptyList<Char>(), list.cleared())
+        assertEquals(emptyList<Char>(), list.copyingClear())
     }
 
     @Test
@@ -194,15 +194,15 @@ class ImmutableListTest {
     }
 
     @Test fun noOperation() {
-        persistentListOf<Int>().testNoOperation({ cleared() }, { clear() })
+        persistentListOf<Int>().testNoOperation({ copyingClear() }, { clear() })
 
         val list = "abcxaxyz12".toPersistentList()
         with(list) {
-            testNoOperation({ removing('d') }, { remove('d') })
-            testNoOperation({ removingAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
-            testNoOperation({ removingAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
-            testNoOperation({ removingAll(emptyList()) }, { removeAll(emptyList())})
-            testNoOperation({ addingAll(emptyList()) }, { addAll(emptyList())})
+            testNoOperation({ copyingRemove('d') }, { remove('d') })
+            testNoOperation({ copyingRemoveAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
+            testNoOperation({ copyingRemoveAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
+            testNoOperation({ copyingRemoveAll(emptyList()) }, { removeAll(emptyList())})
+            testNoOperation({ copyingAddAll(emptyList()) }, { addAll(emptyList())})
             testNoOperation({ addingAll(2, emptyList()) }, { addAll(2, emptyList())})
         }
     }

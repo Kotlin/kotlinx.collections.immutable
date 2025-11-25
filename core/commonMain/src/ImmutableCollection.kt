@@ -36,7 +36,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * See [copyingAdd].
      */
-    @Deprecated("Use adding() instead.", ReplaceWith("adding(element)"))
+    @Deprecated("Use copyingAdd() instead.", ReplaceWith("copyingAdd(element)"))
     public fun add(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
@@ -45,12 +45,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with elements of the specified [elements] collection added;
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun copyingAddAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
-     * See [addingAll].
+     * See [copyingAddAll].
      */
-    @Deprecated("Use addingAll() instead.", ReplaceWith("addingAll(elements)"))
+    @Deprecated("Use copyingAddAll() instead.", ReplaceWith("copyingAddAll(elements)"))
     public fun addAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
@@ -59,12 +59,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with a single appearance of the specified [element] removed;
      * or this instance if there is no such element in this collection.
      */
-    public fun removing(element: @UnsafeVariance E): PersistentCollection<E>
+    public fun copyingRemove(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
-     * See [removing].
+     * See [copyingRemove].
      */
-    @Deprecated("Use removing() instead.", ReplaceWith("removing(element)"))
+    @Deprecated("Use copyingRemove() instead.", ReplaceWith("copyingRemove(element)"))
     public fun remove(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
@@ -75,12 +75,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * contained in the specified [elements] collection removed;
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun copyingRemoveAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
-     * See [removingAll].
+     * See [copyingRemoveAll].
      */
-    @Deprecated("Use removingAll() instead.", ReplaceWith("removingAll(elements)"))
+    @Deprecated("Use copyingRemoveAll() instead.", ReplaceWith("copyingRemoveAll(elements)"))
     public fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
@@ -89,12 +89,12 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with elements matching the specified [predicate] removed;
      * or this instance if no elements match the predicate.
      */
-    public fun removingAll(predicate: (E) -> Boolean): PersistentCollection<E>
+    public fun copyingRemoveAll(predicate: (E) -> Boolean): PersistentCollection<E>
 
     /**
-     * See [removingAll].
+     * See [copyingRemoveAll].
      */
-    @Deprecated("Use removingAll() instead.", ReplaceWith("removingAll(predicate)"))
+    @Deprecated("Use copyingRemoveAll() instead.", ReplaceWith("copyingRemoveAll(predicate)"))
     public fun removeAll(predicate: (E) -> Boolean): PersistentCollection<E>
 
     /**
@@ -105,23 +105,23 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * contained in the specified [elements] collection;
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun copyingRetainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
-     * See [retainingAll].
+     * See [copyingRetainAll].
      */
-    @Deprecated("Use retainingAll() instead.", ReplaceWith("retainingAll(elements)"))
+    @Deprecated("Use copyingRetainAll() instead.", ReplaceWith("copyingRetainAll(elements)"))
     public fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
      * Returns an empty persistent collection.
      */
-    public fun cleared(): PersistentCollection<E>
+    public fun copyingClear(): PersistentCollection<E>
 
     /**
-     * See [cleared].
+     * See [copyingClear].
      */
-    @Deprecated("Use cleared() instead.", ReplaceWith("cleared()"))
+    @Deprecated("Use copyingClear() instead.", ReplaceWith("copyingClear()"))
     public fun clear(): PersistentCollection<E>
 
     /**

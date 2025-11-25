@@ -22,26 +22,26 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     @Test fun addAllElements() {
         run {
             val left = immutableSetOf<Int>() + (1..2000)
-            assertSame(left, left.addingAll(immutableSetOf()))
-            compareSets(left, immutableSetOf<Int>().addingAll(left))
+            assertSame(left, left.copyingAddAll(immutableSetOf()))
+            compareSets(left, immutableSetOf<Int>().copyingAddAll(left))
         }
 
         run {
             val left = immutableSetOf<Int>() + (1..2000)
             val right = immutableSetOf<Int>() + (200..3000)
-            compareSets(left.toSet() + right.toSet(), left.addingAll(right))
+            compareSets(left.toSet() + right.toSet(), left.copyingAddAll(right))
         }
 
         run {
             val left = immutableSetOf<IntWrapper>() + (1..2000).map { IntWrapper(it, it % 200) }
             val right = immutableSetOf<IntWrapper>() + (200..3000).map { IntWrapper(it, it % 200) }
-            compareSets(left.toSet() + right.toSet(), left.addingAll(right))
+            compareSets(left.toSet() + right.toSet(), left.copyingAddAll(right))
         }
 
         run {
             val left = immutableSetOf<String>() + (1..2000).map { "$it" }
             val right = immutableSetOf<String>() + (200..3000).map { "$it" }
-            compareSets(left.toSet() + right.toSet(), left.addingAll(right))
+            compareSets(left.toSet() + right.toSet(), left.copyingAddAll(right))
         }
 
         run {
@@ -87,8 +87,8 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     @Test fun retainAllElements() {
         run {
             val left = immutableSetOf<Int>() + (1..2000)
-            compareSets(immutableSetOf(), left.retainingAll(immutableSetOf()))
-            compareSets(immutableSetOf(), immutableSetOf<Int>().retainingAll(left))
+            compareSets(immutableSetOf(), left.copyingRetainAll(immutableSetOf()))
+            compareSets(immutableSetOf(), immutableSetOf<Int>().copyingRetainAll(left))
         }
 
         run {
@@ -141,8 +141,8 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
     @Test fun removeAllElements() {
         run {
             val left = immutableSetOf<Int>() + (1..2000)
-            assertSame(left, left.removingAll(immutableSetOf()))
-            assertSame(immutableSetOf(), immutableSetOf<Int>().removingAll(left))
+            assertSame(left, left.copyingRemoveAll(immutableSetOf()))
+            assertSame(immutableSetOf(), immutableSetOf<Int>().copyingRemoveAll(left))
         }
 
         run {
@@ -267,14 +267,14 @@ abstract class ImmutableSetTestBase {
         hashSet.remove("a")
         assertNotEquals<Set<*>>(hashSet, immSet)
 
-        immSet = immSet.removing("a")
+        immSet = immSet.copyingRemove("a")
         compareSetsUnordered(hashSet, immSet)
     }
 
     @Test fun addElements() {
         var set = immutableSetOf<String>()
         set = set.copyingAdd("x")
-        set = set.addingAll(set)
+        set = set.copyingAddAll(set)
         set = set + "y"
         set += "z"
         set += arrayOf("1", "2").asIterable()
@@ -288,14 +288,14 @@ abstract class ImmutableSetTestBase {
             compareSets(content.toSet(), set)
         }
 
-        expectSet("abcyz12", set.removing('x'))
+        expectSet("abcyz12", set.copyingRemove('x'))
         expectSet("abcyz12", set - 'x')
-        expectSet("abcy12", set.removingAll(setOf('x', 'z')))
+        expectSet("abcy12", set.copyingRemoveAll(setOf('x', 'z')))
         expectSet("abcy12", set - setOf('x', 'z'))
-        expectSet("abcxyz", set.removingAll { it.isDigit() })
+        expectSet("abcxyz", set.copyingRemoveAll { it.isDigit() })
 
         compareSets(emptySet(), set - set)
-        compareSets(emptySet(), set.cleared())
+        compareSets(emptySet(), set.copyingClear())
     }
 
     @Test fun builder() {
@@ -334,17 +334,17 @@ abstract class ImmutableSetTestBase {
     }
 
     @Test open fun noOperation() {
-        immutableSetOf<Int>().testNoOperation({ cleared() }, { clear() })
+        immutableSetOf<Int>().testNoOperation({ copyingClear() }, { clear() })
 
         val set = immutableSetOf("abcxyz12".toList())
         with(set) {
             testNoOperation({ copyingAdd('a') }, { add('a') })
-            testNoOperation({ addingAll(emptySet()) }, { addAll(emptySet()) })
-            testNoOperation({ addingAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
-            testNoOperation({ removing('d') }, { remove('d') })
-            testNoOperation({ removingAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
-            testNoOperation({ removingAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
-            testNoOperation({ removingAll(emptySet()) }, { removeAll(emptySet()) })
+            testNoOperation({ copyingAddAll(emptySet()) }, { addAll(emptySet()) })
+            testNoOperation({ copyingAddAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
+            testNoOperation({ copyingRemove('d') }, { remove('d') })
+            testNoOperation({ copyingRemoveAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
+            testNoOperation({ copyingRemoveAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
+            testNoOperation({ copyingRemoveAll(emptySet()) }, { removeAll(emptySet()) })
         }
     }
 

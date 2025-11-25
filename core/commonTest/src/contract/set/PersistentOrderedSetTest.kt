@@ -24,7 +24,7 @@ class PersistentOrderedSetTest {
         assertEquals(set1, builder.build())
         assertEquals(set1, builder.build().toSet())
 
-        val set2 = set1.removing(0)
+        val set2 = set1.copyingRemove(0)
         builder.remove(0)
 
         assertEquals(set2, builder.build().toSet())

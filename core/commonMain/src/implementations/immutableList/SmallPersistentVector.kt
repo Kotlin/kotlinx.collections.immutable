@@ -34,7 +34,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return PersistentVector(buffer, tail, size + 1, 0)
     }
 
-    override fun addingAll(elements: Collection<E>): PersistentList<E> {
+    override fun copyingAddAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
         if (size + elements.size <= MAX_BUFFER_SIZE) {
             val newBuffer = buffer.copyOf(size + elements.size)
@@ -48,7 +48,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return mutate { it.addAll(elements) }
     }
 
-    override fun removingAll(predicate: (E) -> Boolean): PersistentList<E> {
+    override fun copyingRemoveAll(predicate: (E) -> Boolean): PersistentList<E> {
         var newSize = size
         var removeMask = 0
 
