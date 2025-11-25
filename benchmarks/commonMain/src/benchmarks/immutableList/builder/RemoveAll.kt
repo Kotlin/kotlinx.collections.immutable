@@ -86,7 +86,7 @@ open class RemoveAll {
         val immutableSize = immutableSize(size, immutablePercentage)
         var list = persistentListOf<Int>()
         for (i in 0 until immutableSize) {
-            list = list.adding(i)
+            list = list.copyingAdd(i)
         }
         val builder = list.builder()
         for (i in immutableSize until size) {

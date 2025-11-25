@@ -68,7 +68,7 @@ open class Canonicalization {
         var set = persistentSetRemove(persistentSet, elementsToRemove)
 
         for (element in elementsToRemove) {
-            set = set.adding(element)
+            set = set.copyingAdd(element)
         }
 
         return set
@@ -111,7 +111,7 @@ open class Canonicalization {
         var set = halfHeightPersistentSet
 
         for (element in elementsToRemove) {
-            set = set.adding(element)
+            set = set.copyingAdd(element)
         }
 
         return set

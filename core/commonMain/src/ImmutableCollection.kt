@@ -31,10 +31,10 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @returns a new persistent collection with the specified [element] added;
      * or this instance if this collection does not support duplicates, and it already contains the element.
      */
-    public fun adding(element: @UnsafeVariance E): PersistentCollection<E>
+    public fun copyingAdd(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
-     * See [adding].
+     * See [copyingAdd].
      */
     @Deprecated("Use adding() instead.", ReplaceWith("adding(element)"))
     public fun add(element: @UnsafeVariance E): PersistentCollection<E>

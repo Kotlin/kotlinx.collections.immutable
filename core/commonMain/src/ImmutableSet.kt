@@ -33,13 +33,13 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * @return a new persistent set with the specified [element] added;
      * or this instance if it already contains the element.
      */
-    override fun adding(element: @UnsafeVariance E): PersistentSet<E>
+    override fun copyingAdd(element: @UnsafeVariance E): PersistentSet<E>
 
     /**
-     * See [adding].
+     * See [copyingAdd].
      */
     @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
-    override fun add(element: @UnsafeVariance E): PersistentSet<E> = adding(element)
+    override fun add(element: @UnsafeVariance E): PersistentSet<E> = copyingAdd(element)
 
     /**
      * Returns the result of adding all elements of the specified [elements] collection to this set.

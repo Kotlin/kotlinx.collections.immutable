@@ -63,13 +63,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the specified [element] appended.
      */
-    override fun adding(element: @UnsafeVariance E): PersistentList<E>
+    override fun copyingAdd(element: @UnsafeVariance E): PersistentList<E>
 
     /**
-     * See [adding].
+     * See [copyingAdd].
      */
     @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
-    override fun add(element: @UnsafeVariance E): PersistentList<E> = adding(element)
+    override fun add(element: @UnsafeVariance E): PersistentList<E> = copyingAdd(element)
 
     /**
      * Returns the result of appending all elements of the specified [elements] collection to this list.
@@ -195,7 +195,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     public fun adding(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
-     * See [adding].
+     * See [copyingAdd].
      */
     @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(index, element)"))
     public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E> = adding(index, element)

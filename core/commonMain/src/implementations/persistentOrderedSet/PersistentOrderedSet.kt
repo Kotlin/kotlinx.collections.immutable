@@ -33,7 +33,7 @@ internal class PersistentOrderedSet<E>(
 
     override fun contains(element: E): Boolean = hashMap.containsKey(element)
 
-    override fun adding(element: E): PersistentSet<E> {
+    override fun copyingAdd(element: E): PersistentSet<E> {
         if (hashMap.containsKey(element)) {
             return this
         }
