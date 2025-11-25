@@ -202,7 +202,7 @@ abstract class ImmutableMapTest {
         var map = immutableMapOf<String, Int?>().toPersistentMap()
         map = map.copyingPut("x", 0)
         map = map.copyingPut("x", 1)
-        map = map.puttingAll(arrayOf("x" to null))
+        map = map.copyingPutAll(arrayOf("x" to null))
         map = map + ("y" to null)
         map += "y" to 1
         assertEquals(mapOf("x" to null, "y" to 1), map)
