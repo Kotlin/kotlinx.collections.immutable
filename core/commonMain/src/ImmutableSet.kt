@@ -38,7 +38,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * See [copyingAdd].
      */
-    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
+    @Deprecated("Use copyingAdd() instead.", replaceWith = ReplaceWith("copyingAdd(element)"))
     override fun add(element: @UnsafeVariance E): PersistentSet<E> = copyingAdd(element)
 
     /**
@@ -52,7 +52,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * See [copyingAddAll].
      */
-    @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
+    @Deprecated("Use copyingAddAll() instead.", replaceWith = ReplaceWith("copyingAddAll(elements)"))
     override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = copyingAddAll(elements)
 
     /**
@@ -66,7 +66,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * See [copyingRemove].
      */
-    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(element)"))
+    @Deprecated("Use copyingRemove() instead.", replaceWith = ReplaceWith("copyingRemove(element)"))
     override fun remove(element: @UnsafeVariance E): PersistentSet<E> = copyingRemove(element)
 
     /**
@@ -82,7 +82,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * See [copyingRemoveAll].
      */
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
+    @Deprecated("Use copyingRemoveAll() instead.", replaceWith = ReplaceWith("copyingRemoveAll(elements)"))
     override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = copyingRemoveAll(elements)
 
     /**
@@ -96,7 +96,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * See [copyingRemoveAll].
      */
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
+    @Deprecated("Use copyingRemoveAll() instead.", replaceWith = ReplaceWith("copyingRemoveAll(predicate)"))
     override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> = copyingRemoveAll(predicate)
 
     /**
@@ -112,7 +112,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * See [copyingRetainAll].
      */
-    @Deprecated("Use retainingAll() instead.", replaceWith = ReplaceWith("retainingAll(elements)"))
+    @Deprecated("Use copyingRetainAll() instead.", replaceWith = ReplaceWith("copyingRetainAll(elements)"))
     override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = copyingRetainAll(elements)
 
     /**
@@ -123,7 +123,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * See [copyingClear].
      */
-    @Deprecated("Use cleared() instead.", replaceWith = ReplaceWith("cleared()"))
+    @Deprecated("Use copyingClear() instead.", replaceWith = ReplaceWith("copyingClear()"))
     override fun clear(): PersistentSet<E> = copyingClear()
 
     /**
