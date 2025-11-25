@@ -119,7 +119,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             val key = IntWrapper(keyValue, keyHash)
 
             expected[key] = keyValue
-            map = map.putting(key, keyValue)
+            map = map.copyingPut(key, keyValue)
 
             val shouldTest = Random.nextDouble() < 0.1
             if (shouldTest) {
@@ -270,7 +270,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         val elementsToRemoveFromMap = expectedKeys.size / 2
         expectedKeys.take(elementsToRemoveFromMap).forEach { key ->
             expectedKeys.remove(key)
-            map = map.removing(key)
+            map = map.copyingRemove(key)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
 
@@ -279,13 +279,13 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             val keyValue = Random.nextInt()
             val key = keyGen.wrapper(keyValue)
             expectedKeys.add(key)
-            map = map.putting(key, keyValue)
+            map = map.copyingPut(key, keyValue)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
 
         expectedKeys.toHashSet().forEach { key ->
             expectedKeys.remove(key)
-            map = map.removing(key)
+            map = map.copyingRemove(key)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
     }

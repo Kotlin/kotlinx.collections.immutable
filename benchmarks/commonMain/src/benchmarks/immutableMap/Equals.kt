@@ -30,7 +30,7 @@ open class Equals {
         val keys = generateKeys(hashCodeType, size * 2)
         persistentMap = persistentMapPut(implementation, keys.take(size))
         sameMap = persistentMapPut(implementation, keys.take(size))
-        slightlyDifferentMap = sameMap.putting(keys[size], "different value").removing(keys[0])
+        slightlyDifferentMap = sameMap.copyingPut(keys[size], "different value").copyingRemove(keys[0])
         veryDifferentMap = persistentMapPut(implementation, keys.drop(size))
     }
 

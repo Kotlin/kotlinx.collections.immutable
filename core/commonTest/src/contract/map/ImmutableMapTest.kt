@@ -24,27 +24,27 @@ class ImmutableHashMapTest : ImmutableMapTest() {
     @Test fun putAllElements() {
         run {
             val x = immutableMapOf<String, Int>() + (11..200).map { "$it" to it }
-            compareMaps(x.toMap(), x.puttingAll(immutableMapOf()))
-            compareMaps(x.toMap(), immutableMapOf<String, Int>().puttingAll(x))
+            compareMaps(x.toMap(), x.copyingPutAll(immutableMapOf()))
+            compareMaps(x.toMap(), immutableMapOf<String, Int>().copyingPutAll(x))
         }
 
         run {
             val x = immutableMapOf<Int, Int>() + (11..200).map { it to it }
             val y = immutableMapOf<Int, Int>() + (120..400).map { it to it }
-            compareMaps(x.toMap() + y.toMap(), x.puttingAll(y))
+            compareMaps(x.toMap() + y.toMap(), x.copyingPutAll(y))
         }
 
         run {
             val x = immutableMapOf<String, Int>() + (11..200).map { "$it" to it }
             val y = immutableMapOf<String, Int>() + (120..400).map { "$it" to it }
-            compareMaps(x.toMap() + y.toMap(), x.puttingAll(y))
+            compareMaps(x.toMap() + y.toMap(), x.copyingPutAll(y))
         }
 
         run {
             val x = immutableMapOf<IntWrapper, Int>() + (11..200).map { IntWrapper(it, it % 30) to it }
             val y = immutableMapOf<IntWrapper, Int>() + (120..400).map { IntWrapper(it, it % 30) to it }
-            compareMaps(x.toMap() + y.toMap(), x.puttingAll(y))
-            compareMaps(y.toMap() + x.toMap(), y.puttingAll(x))
+            compareMaps(x.toMap() + y.toMap(), x.copyingPutAll(y))
+            compareMaps(y.toMap() + x.toMap(), y.copyingPutAll(x))
         }
 
         run {
@@ -80,7 +80,7 @@ class ImmutableHashMapTest : ImmutableMapTest() {
 
     @Test fun regressionGithubIssue109() {
         // https://github.com/Kotlin/kotlinx.collections.immutable/issues/109
-        val map0 = immutableMapOf<Int, Int>().putting(0, 0).putting(1, 1).putting(32, 32)
+        val map0 = immutableMapOf<Int, Int>().copyingPut(0, 0).copyingPut(1, 1).copyingPut(32, 32)
         val map1 = map0.mutate { it.remove(0) }
         map1.mutate {
             it.remove(1)
@@ -115,7 +115,7 @@ class ImmutableOrderedMapTest : ImmutableMapTest() {
         map += "x" to 1
         compare(setOf("x", "y"), map.keys) { setBehavior(ordered = true) }
 
-        map = map.removing("x")
+        map = map.copyingRemove("x")
         map += "x" to 2
         compare(setOf("y", "x"), map.keys) { setBehavior(ordered = true) }
         compare(listOf(1, 2), map.values) { collectionBehavior(ordered = true) }
@@ -187,7 +187,7 @@ abstract class ImmutableMapTest {
         map.remove(null)
         assertNotEquals<Map<*, *>>(map, immMap)
 
-        immMap = immMap.removing(null)
+        immMap = immMap.copyingRemove(null)
         assertEquals<Map<*, *>>(map, immMap) // problem
     }
 
@@ -200,8 +200,8 @@ abstract class ImmutableMapTest {
 
     @Test fun putElements() {
         var map = immutableMapOf<String, Int?>().toPersistentMap()
-        map = map.putting("x", 0)
-        map = map.putting("x", 1)
+        map = map.copyingPut("x", 0)
+        map = map.copyingPut("x", 1)
         map = map.puttingAll(arrayOf("x" to null))
         map = map + ("y" to null)
         map += "y" to 1
@@ -220,11 +220,11 @@ abstract class ImmutableMapTest {
         val map = immutableMapOf("x" to Value(1))
 
         val newValue = Value(1)
-        val newMap = map.putting("x", newValue)
+        val newMap = map.copyingPut("x", newValue)
         assertNotSame(map, newMap)
         assertEquals(map, newMap)
 
-        val sameMap = newMap.putting("x", newValue)
+        val sameMap = newMap.copyingPut("x", newValue)
         assertSame(newMap, sameMap)
     }
 
@@ -233,12 +233,12 @@ abstract class ImmutableMapTest {
 
         fun <K, V> assertEquals(expected: Map<out K, V>, actual: Map<out K, V>) = kotlin.test.assertEquals(expected, actual)
 
-        assertEquals(mapOf("x" to 1), map.removing(null))
-        assertEquals(mapOf("x" to 1), map.removing(null, "x"))
-        assertEquals(map, map.removing("x", 2))
+        assertEquals(mapOf("x" to 1), map.copyingRemove(null))
+        assertEquals(mapOf("x" to 1), map.copyingRemove(null, "x"))
+        assertEquals(map, map.copyingRemove("x", 2))
 
-        assertEquals(emptyMap(), map.cleared())
-        assertEquals(emptyMap(), map.removing("x").removing(null))
+        assertEquals(emptyMap(), map.copyingClear())
+        assertEquals(emptyMap(), map.copyingRemove("x").copyingRemove(null))
     }
 
     @Test
@@ -291,7 +291,7 @@ abstract class ImmutableMapTest {
     }
 
     @Test fun noOperation() {
-        immutableMapOf<String, String>().toPersistentMap().testNoOperation({ cleared() }, { clear() })
+        immutableMapOf<String, String>().toPersistentMap().testNoOperation({ copyingClear() }, { clear() })
 
         val key = ObjectWrapper("x", "x".hashCode())
         val equalKey = ObjectWrapper("x", "x".hashCode()) // equalKey == key && equalKey !== key
@@ -311,17 +311,17 @@ abstract class ImmutableMapTest {
          */
         val map = immutableMapOf(key to value, null to "x").toPersistentMap()
 
-        map.testNoOperation({ removing(notEqualKey) }, { remove(notEqualKey) })
-        map.testNotNoOperation({ removing(equalKey) }, { remove(equalKey) })
+        map.testNoOperation({ copyingRemove(notEqualKey) }, { remove(notEqualKey) })
+        map.testNotNoOperation({ copyingRemove(equalKey) }, { remove(equalKey) })
 
-        map.testNoOperation({ removing(key, notEqualValue) }, { remove(key, notEqualValue) })
-        map.testNotNoOperation({ removing(key, equalValue) }, { remove(key, equalValue) })
+        map.testNoOperation({ copyingRemove(key, notEqualValue) }, { remove(key, notEqualValue) })
+        map.testNotNoOperation({ copyingRemove(key, equalValue) }, { remove(key, equalValue) })
 
-        map.testNoOperation({ putting(equalKey, value) }, { put(equalKey, value) })
-        map.testNotNoOperation({ putting(equalKey, equalValue) }, { put(equalKey, equalValue) })
+        map.testNoOperation({ copyingPut(equalKey, value) }, { put(equalKey, value) })
+        map.testNotNoOperation({ copyingPut(equalKey, equalValue) }, { put(equalKey, equalValue) })
 
-        map.testNoOperation({ puttingAll(this) }, { putAll(this) })
-        map.testNoOperation({ puttingAll(emptyMap()) }, { putAll(emptyMap()) })
+        map.testNoOperation({ copyingPutAll(this) }, { putAll(this) })
+        map.testNoOperation({ copyingPutAll(emptyMap()) }, { putAll(emptyMap()) })
     }
 
     fun <K, V> PersistentMap<K, V>.testNoOperation(persistent: PersistentMap<K, V>.() -> PersistentMap<K, V>, mutating: MutableMap<K, V>.() -> Unit) {

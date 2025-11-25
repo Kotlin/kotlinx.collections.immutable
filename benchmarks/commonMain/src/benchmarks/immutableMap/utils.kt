@@ -22,7 +22,7 @@ fun <K, V> emptyPersistentMap(implementation: String): PersistentMap<K, V> = whe
 fun <K> persistentMapPut(implementation: String, keys: List<K>): PersistentMap<K, String> {
     var map = emptyPersistentMap<K, String>(implementation)
     for (key in keys) {
-        map = map.putting(key, "some value")
+        map = map.copyingPut(key, "some value")
     }
     return map
 }
@@ -30,7 +30,7 @@ fun <K> persistentMapPut(implementation: String, keys: List<K>): PersistentMap<K
 fun <K> persistentMapRemove(persistentMap: PersistentMap<K, String>, keys: List<K>): PersistentMap<K, String> {
     var map = persistentMap
     for (key in keys) {
-        map = map.removing(key)
+        map = map.copyingRemove(key)
     }
     return map
 }

@@ -64,9 +64,9 @@ internal class PersistentOrderedMap<K, V>(
 
     override fun get(key: K): V? = hashMap[key]?.value
 
-    override fun putting(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
+    override fun copyingPut(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
         if (isEmpty()) {
-            val newMap = hashMap.putting(key, LinkedValue(value))
+            val newMap = hashMap.copyingPut(key, LinkedValue(value))
             return PersistentOrderedMap(key, key, newMap)
         }
 
@@ -75,7 +75,7 @@ internal class PersistentOrderedMap<K, V>(
             if (links.value === value) {
                 return this
             }
-            val newMap = hashMap.putting(key, links.withValue(value))
+            val newMap = hashMap.copyingPut(key, links.withValue(value))
             return PersistentOrderedMap(firstKey, lastKey, newMap)
         }
 
@@ -84,26 +84,26 @@ internal class PersistentOrderedMap<K, V>(
         val lastLinks = hashMap[lastKey]!!
 //        assert(!lastLink.hasNext)
         val newMap = hashMap
-                .putting(lastKey, lastLinks.withNext(key))
-                .putting(key, LinkedValue(value, previous = lastKey))
+                .copyingPut(lastKey, lastLinks.withNext(key))
+                .copyingPut(key, LinkedValue(value, previous = lastKey))
         return PersistentOrderedMap(firstKey, key, newMap)
     }
 
-    override fun removing(key: K): PersistentOrderedMap<K, V> {
+    override fun copyingRemove(key: K): PersistentOrderedMap<K, V> {
         val links = hashMap[key] ?: return this
 
-        var newMap = hashMap.removing(key)
+        var newMap = hashMap.copyingRemove(key)
         if (links.hasPrevious) {
             val previousLinks = newMap[links.previous]!!
 //            assert(previousLinks.next == key)
             @Suppress("UNCHECKED_CAST")
-            newMap = newMap.putting(links.previous as K, previousLinks.withNext(links.next))
+            newMap = newMap.copyingPut(links.previous as K, previousLinks.withNext(links.next))
         }
         if (links.hasNext) {
             val nextLinks = newMap[links.next]!!
 //            assert(nextLinks.previous == key)
             @Suppress("UNCHECKED_CAST")
-            newMap = newMap.putting(links.next as K, nextLinks.withPrevious(links.previous))
+            newMap = newMap.copyingPut(links.next as K, nextLinks.withPrevious(links.previous))
         }
 
         val newFirstKey = if (!links.hasPrevious) links.next else firstKey
@@ -111,17 +111,17 @@ internal class PersistentOrderedMap<K, V>(
         return PersistentOrderedMap(newFirstKey, newLastKey, newMap)
     }
 
-    override fun removing(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
+    override fun copyingRemove(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
         val links = hashMap[key] ?: return this
-        return if (links.value == value) this.removing(key) else this
+        return if (links.value == value) this.copyingRemove(key) else this
     }
 
-    override fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
+    override fun copyingPutAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
         if (m.isEmpty()) return this
         return this.mutate { it.putAll(m) }
     }
 
-    override fun cleared(): PersistentMap<K, V> {
+    override fun copyingClear(): PersistentMap<K, V> {
         return emptyOf()
     }
 

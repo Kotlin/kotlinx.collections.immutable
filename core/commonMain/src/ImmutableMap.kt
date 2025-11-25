@@ -47,13 +47,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [value] associated with the specified [key];
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun copyingPut(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
-     * See [putting].
+     * See [copyingPut].
      */
-    @Deprecated("Use putting() instead.", ReplaceWith("putting(key, value)"))
-    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = putting(key, value)
+    @Deprecated("Use copyingPut() instead.", ReplaceWith("copyingPut(key, value)"))
+    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = copyingPut(key, value)
 
     /**
      * Returns the result of removing the specified [key] and its corresponding value from this map.
@@ -61,13 +61,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [key] and its corresponding value removed;
      * or this instance if it contains no mapping for the key.
      */
-    public fun removing(key: K): PersistentMap<K, V>
+    public fun copyingRemove(key: K): PersistentMap<K, V>
 
     /**
-     * See [removing].
+     * See [copyingRemove].
      */
-    @Deprecated("Use removing() instead.", ReplaceWith("removing(key)"))
-    public fun remove(key: K): PersistentMap<K, V> = removing(key)
+    @Deprecated("Use copyingRemove() instead.", ReplaceWith("copyingRemove(key)"))
+    public fun remove(key: K): PersistentMap<K, V> = copyingRemove(key)
 
     /**
      * Returns the result of removing the entry that maps the specified [key] to the specified [value].
@@ -75,13 +75,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the entry for the specified [key] and [value] removed;
      * or this instance if it contains no entry with the specified key and value.
      */
-    public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun copyingRemove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
-     * See [removing].
+     * See [copyingRemove].
      */
-    @Deprecated("Use removing() instead.", ReplaceWith("removing(key, value)"))
-    public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = removing(key, value)
+    @Deprecated("Use copyingRemove() instead.", ReplaceWith("copyingRemove(key, value)"))
+    public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = copyingRemove(key, value)
 
     /**
      * Returns the result of merging the specified [m] map with this map.
@@ -92,24 +92,24 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with keys and values from the specified map [m] associated;
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
+    public fun copyingPutAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
 
     /**
-     * See [puttingAll].
+     * See [copyingPutAll].
      */
-    @Deprecated("Use puttingAll() instead.", ReplaceWith("puttingAll(m)"))
-    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = puttingAll(m)
+    @Deprecated("Use copyingPutAll() instead.", ReplaceWith("copyingPutAll(m)"))
+    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = copyingPutAll(m)
 
     /**
      * Returns an empty persistent map.
      */
-    public fun cleared(): PersistentMap<K, V>
+    public fun copyingClear(): PersistentMap<K, V>
 
     /**
-     * See [cleared].
+     * See [copyingClear].
      */
-    @Deprecated("Use cleared() method instead.", ReplaceWith("cleared()"))
-    public fun clear(): PersistentMap<K, V> = cleared()
+    @Deprecated("Use copyingClear() method instead.", ReplaceWith("copyingClear()"))
+    public fun clear(): PersistentMap<K, V> = copyingClear()
 
     /**
      * A generic builder of the persistent map. Builder exposes its modification operations through the [MutableMap] interface.

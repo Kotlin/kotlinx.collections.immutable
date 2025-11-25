@@ -68,7 +68,7 @@ open class Canonicalization {
         var map = persistentMapRemove(persistentMap, keysToRemove)
 
         for (key in keysToRemove) {
-            map = map.putting(key, "new value")
+            map = map.copyingPut(key, "new value")
         }
 
         return map
@@ -111,7 +111,7 @@ open class Canonicalization {
         var map = halfHeightPersistentMap
 
         repeat(size - halfHeightPersistentMap.size) { index ->
-            map = map.putting(keys[index], "new value")
+            map = map.copyingPut(keys[index], "new value")
         }
 
         return map

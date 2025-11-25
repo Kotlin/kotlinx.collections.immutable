@@ -48,31 +48,31 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return node.get(key.hashCode(), key, 0)
     }
 
-    override fun putting(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
+    override fun copyingPut(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val newNodeResult = node.put(key.hashCode(), key, value, 0) ?: return this
         return PersistentHashMap(newNodeResult.node, size + newNodeResult.sizeDelta)
     }
 
-    override fun removing(key: K): PersistentHashMap<K, V> {
+    override fun copyingRemove(key: K): PersistentHashMap<K, V> {
         val newNode = node.remove(key.hashCode(), key, 0)
         if (node === newNode) { return this }
         if (newNode == null) { return emptyOf() }
         return PersistentHashMap(newNode, size - 1)
     }
 
-    override fun removing(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
+    override fun copyingRemove(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val newNode = node.remove(key.hashCode(), key, value, 0)
         if (node === newNode) { return this }
         if (newNode == null) { return emptyOf() }
         return PersistentHashMap(newNode, size - 1)
     }
 
-    override fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
+    override fun copyingPutAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
         if (m.isEmpty()) return this
         return this.mutate { it.putAll(m) }
     }
 
-    override fun cleared(): PersistentMap<K, V> {
+    override fun copyingClear(): PersistentMap<K, V> {
         return PersistentHashMap.emptyOf()
     }
 

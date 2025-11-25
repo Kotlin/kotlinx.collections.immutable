@@ -42,7 +42,7 @@ class KT41278Test {
     @Test
     fun persistentOrderedMap() {
         val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentMapOf<String, Int>()) { map, pair ->
-            map.putting(pair.first, pair.second)
+            map.copyingPut(pair.first, pair.second)
         }
 
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
@@ -55,7 +55,7 @@ class KT41278Test {
     @Test
     fun persistentHashMap() {
         val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentHashMapOf<String, Int>()) { map, pair ->
-            map.putting(pair.first, pair.second)
+            map.copyingPut(pair.first, pair.second)
         }
 
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)

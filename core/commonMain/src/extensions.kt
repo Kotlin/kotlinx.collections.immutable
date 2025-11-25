@@ -324,7 +324,7 @@ public infix fun <E> PersistentCollection<E>.intersect(elements: Iterable<E>): P
  */
 @Suppress("UNCHECKED_CAST")
 public inline operator fun <K, V> PersistentMap<out K, V>.plus(pair: Pair<K, V>): PersistentMap<K, V>
-        = (this as PersistentMap<K, V>).putting(pair.first, pair.second)
+        = (this as PersistentMap<K, V>).copyingPut(pair.first, pair.second)
 
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
@@ -373,7 +373,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V
  */
 @Suppress("UNCHECKED_CAST")
 public fun <K, V> PersistentMap<out K, V>.puttingAll(map: Map<out K, V>): PersistentMap<K, V> =
-        (this as PersistentMap<K, V>).puttingAll(map)
+        (this as PersistentMap<K, V>).copyingPutAll(map)
 
 /**
  * See [puttingAll].
@@ -435,7 +435,7 @@ public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): P
  */
 @Suppress("UNCHECKED_CAST")
 public operator fun <K, V> PersistentMap<out K, V>.minus(key: K): PersistentMap<K, V>
-        = (this as PersistentMap<K, V>).removing(key)
+        = (this as PersistentMap<K, V>).copyingRemove(key)
 
 /**
  * Returns the result of removing the specified [keys] and their corresponding values from this map.
@@ -763,7 +763,7 @@ public fun CharSequence.toPersistentHashSet(): PersistentSet<Char> =
 public fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
     = this as? ImmutableMap
         ?: (this as? PersistentMap.Builder)?.build()
-        ?: persistentMapOf<K, V>().puttingAll(this)
+        ?: persistentMapOf<K, V>().copyingPutAll(this)
 
 /**
  * Returns a persistent map containing all entries from this map.
@@ -776,7 +776,7 @@ public fun <K, V> Map<K, V>.toImmutableMap(): ImmutableMap<K, V>
 public fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
     = this as? PersistentOrderedMap<K, V>
         ?: (this as? PersistentOrderedMapBuilder<K, V>)?.build()
-        ?: PersistentOrderedMap.emptyOf<K, V>().puttingAll(this)
+        ?: PersistentOrderedMap.emptyOf<K, V>().copyingPutAll(this)
 
 /**
  * Returns an immutable map containing all entries from this map.
@@ -789,4 +789,4 @@ public fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V>
 public fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
         = this as? PersistentHashMap
         ?: (this as? PersistentHashMapBuilder<K, V>)?.build()
-        ?: PersistentHashMap.emptyOf<K, V>().puttingAll(this)
+        ?: PersistentHashMap.emptyOf<K, V>().copyingPutAll(this)

@@ -37,7 +37,7 @@ open class Remove {
     fun remove(): PersistentMap<IntWrapper, String> {
         var map = persistentMap
         repeat(times = size) { index ->
-            map = map.removing(keys[index])
+            map = map.copyingRemove(keys[index])
         }
         return map
     }
