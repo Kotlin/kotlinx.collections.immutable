@@ -66,7 +66,8 @@ allprojects {
             freeCompilerArgs.addAll(
                 "-Xexpect-actual-classes",
                 "-Xreport-all-warnings",
-                "-Xrender-internal-diagnostic-names"
+                "-Xrender-internal-diagnostic-names",
+                "-XXLanguage:-JvmEnhancedBridges"
             )
         }
         if (this is KotlinJsCompile) {
