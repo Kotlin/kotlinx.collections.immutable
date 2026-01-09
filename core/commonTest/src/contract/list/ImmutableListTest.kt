@@ -35,7 +35,7 @@ class ImmutableListTest {
                 *(1..1885).map { it }.toTypedArray()
         )
 
-        xs = xs.removeAll(
+        xs = xs.copyingRemoveAll(
                 (1..1837).map { it }
         )
 
@@ -64,7 +64,7 @@ class ImmutableListTest {
         list.removeAt(0)
         assertNotEquals<List<*>>(list, immList)
 
-        immList = immList.toPersistentList().removeAt(0)
+        immList = immList.toPersistentList().copyingRemoveAt(0)
         compareLists(list, immList)
     }
 
@@ -77,10 +77,10 @@ class ImmutableListTest {
 
     @Test fun addElements() {
         var list = persistentListOf<String>()
-        list = list.add("x")
-        list = list.add(0, "a")
-        list = list.addAll(list)
-        list = list.addAll(1, listOf("b", "c"))
+        list = list.copyingAdd("x")
+        list = list.copyingAdd(0, "a")
+        list = list.copyingAddAll(list)
+        list = list.copyingAddAll(1, listOf("b", "c"))
         list = list + "y"
         list += "z"
         list += arrayOf("1", "2").asIterable()
@@ -91,12 +91,12 @@ class ImmutableListTest {
         var list = "abcxaxab12".toImmutableList().toPersistentList()
 
         for (i in list.indices) {
-            list = list.set(i, list[i] + i)
+            list = list.copyingSet(i, list[i] + i)
         }
 
         assertEquals("ace{e}gi9;", list.joinToString(""))
-        assertFailsWith<IndexOutOfBoundsException> { list.set(-1, '0') }
-        assertFailsWith<IndexOutOfBoundsException> { list.set(list.size + 1, '0') }
+        assertFailsWith<IndexOutOfBoundsException> { list.copyingSet(-1, '0') }
+        assertFailsWith<IndexOutOfBoundsException> { list.copyingSet(list.size + 1, '0') }
     }
 
     @Test fun removeElements() {
@@ -105,22 +105,22 @@ class ImmutableListTest {
             compareLists(content.toList(), list)
         }
 
-        expectList("bcxaxyz12", list.removeAt(0))
-        expectList("abcaxyz12", list.remove('x'))
+        expectList("bcxaxyz12", list.copyingRemoveAt(0))
+        expectList("abcaxyz12", list.copyingRemove('x'))
         expectList("abcaxyz12", list - 'x')
-        expectList("abcayz12", list.removeAll(listOf('x')))
+        expectList("abcayz12", list.copyingRemoveAll(listOf('x')))
         expectList("abcayz12", list - listOf('x'))
-        expectList("abcxaxyz", list.removeAll { it.isDigit() })
+        expectList("abcxaxyz", list.copyingRemoveAll { it.isDigit() })
 
         assertEquals(emptyList<Char>(), list - list)
-        assertEquals(emptyList<Char>(), list.clear())
+        assertEquals(emptyList<Char>(), list.copyingClear())
     }
 
     @Test
     fun smallPersistentListFromMutableBuffer() {
         val list = List(33) { it }
         var vector = persistentListOf<Int>().mutate { it.addAll(list) }
-        vector = vector.removeAt(vector.lastIndex)
+        vector = vector.copyingRemoveAt(vector.lastIndex)
         assertEquals(list.dropLast(1), vector)
     }
 
@@ -194,16 +194,16 @@ class ImmutableListTest {
     }
 
     @Test fun noOperation() {
-        persistentListOf<Int>().testNoOperation({ clear() }, { clear() })
+        persistentListOf<Int>().testNoOperation({ copyingClear() }, { clear() })
 
         val list = "abcxaxyz12".toPersistentList()
         with(list) {
-            testNoOperation({ remove('d') }, { remove('d') })
-            testNoOperation({ removeAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
-            testNoOperation({ removeAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
-            testNoOperation({ removeAll(emptyList()) }, { removeAll(emptyList())})
-            testNoOperation({ addAll(emptyList()) }, { addAll(emptyList())})
-            testNoOperation({ addAll(2, emptyList()) }, { addAll(2, emptyList())})
+            testNoOperation({ copyingRemove('d') }, { remove('d') })
+            testNoOperation({ copyingRemoveAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
+            testNoOperation({ copyingRemoveAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
+            testNoOperation({ copyingRemoveAll(emptyList()) }, { removeAll(emptyList())})
+            testNoOperation({ copyingAddAll(emptyList()) }, { addAll(emptyList())})
+            testNoOperation({ copyingAddAll(2, emptyList()) }, { addAll(2, emptyList())})
         }
     }
 

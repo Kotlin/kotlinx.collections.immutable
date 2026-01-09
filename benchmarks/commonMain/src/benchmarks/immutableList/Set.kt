@@ -28,7 +28,7 @@ open class Set {
     @Benchmark
     fun setByIndex(): ImmutableList<String> {
         repeat(times = size) { index ->
-            persistentList = persistentList.set(index, "another element")
+            persistentList = persistentList.copyingSet(index, "another element")
         }
         return persistentList
     }
@@ -36,7 +36,7 @@ open class Set {
     @Benchmark
     fun setByRandomIndex(): ImmutableList<String> {
         repeat(times = size) { index ->
-            persistentList = persistentList.set(randomIndices[index], "another element")
+            persistentList = persistentList.copyingSet(randomIndices[index], "another element")
         }
         return persistentList
     }

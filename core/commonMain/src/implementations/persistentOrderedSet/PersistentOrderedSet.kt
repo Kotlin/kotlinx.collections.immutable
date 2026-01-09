@@ -33,12 +33,12 @@ internal class PersistentOrderedSet<E>(
 
     override fun contains(element: E): Boolean = hashMap.containsKey(element)
 
-    override fun add(element: E): PersistentSet<E> {
+    override fun copyingAdd(element: E): PersistentSet<E> {
         if (hashMap.containsKey(element)) {
             return this
         }
         if (isEmpty()) {
-            val newMap = hashMap.put(element, Links())
+            val newMap = hashMap.copyingPut(element, Links())
             return PersistentOrderedSet(element, element, newMap)
         }
         @Suppress("UNCHECKED_CAST")
@@ -47,52 +47,52 @@ internal class PersistentOrderedSet<E>(
 //        assert(!lastLinks.hasNext)
 
         val newMap = hashMap
-                .put(lastElement, lastLinks.withNext(element))
-                .put(element, Links(previous = lastElement))
+                .copyingPut(lastElement, lastLinks.withNext(element))
+                .copyingPut(element, Links(previous = lastElement))
         return PersistentOrderedSet(firstElement, element, newMap)
     }
 
-    override fun addAll(elements: Collection<E>): PersistentSet<E> {
+    override fun copyingAddAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return this.mutate { it.addAll(elements) }
     }
 
-    override fun remove(element: E): PersistentSet<E> {
+    override fun copyingRemove(element: E): PersistentSet<E> {
         val links = hashMap[element] ?: return this
 
-        var newMap = hashMap.remove(element)
+        var newMap = hashMap.copyingRemove(element)
         if (links.hasPrevious) {
             val previousLinks = newMap[links.previous]!!
 //            assert(previousLinks.next == element)
             @Suppress("UNCHECKED_CAST")
-            newMap = newMap.put(links.previous as E, previousLinks.withNext(links.next))
+            newMap = newMap.copyingPut(links.previous as E, previousLinks.withNext(links.next))
         }
         if (links.hasNext) {
             val nextLinks = newMap[links.next]!!
 //            assert(nextLinks.previous == element)
             @Suppress("UNCHECKED_CAST")
-            newMap = newMap.put(links.next as E, nextLinks.withPrevious(links.previous))
+            newMap = newMap.copyingPut(links.next as E, nextLinks.withPrevious(links.previous))
         }
         val newFirstElement = if (!links.hasPrevious) links.next else firstElement
         val newLastElement = if (!links.hasNext) links.previous else lastElement
         return PersistentOrderedSet(newFirstElement, newLastElement, newMap)
     }
 
-    override fun removeAll(elements: Collection<E>): PersistentSet<E> {
+    override fun copyingRemoveAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return mutate { it.removeAll(elements) }
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> {
+    override fun copyingRemoveAll(predicate: (E) -> Boolean): PersistentSet<E> {
         return mutate { it.removeAll(predicate) }
     }
 
-    override fun retainAll(elements: Collection<E>): PersistentSet<E> {
+    override fun copyingRetainAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return PersistentOrderedSet.emptyOf<E>()
         return mutate { it.retainAll(elements) }
     }
 
-    override fun clear(): PersistentSet<E> {
+    override fun copyingClear(): PersistentSet<E> {
         return PersistentOrderedSet.emptyOf()
     }
 
