@@ -20,13 +20,13 @@ class PersistentSetGenerator {
 
         object AddAll : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentHashSetOf<String>().addAll(elements.toList())
+                return persistentHashSetOf<String>().addingAll(elements.toList())
             }
         }
 
         object AddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return elements.fold(persistentHashSetOf()) { set, element -> set.add(element) }
+                return elements.fold(persistentHashSetOf()) { set, element -> set.adding(element) }
             }
         }
 
@@ -74,13 +74,13 @@ class PersistentSetGenerator {
 
         object AddAll : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentSetOf<String>().addAll(elements.toList())
+                return persistentSetOf<String>().addingAll(elements.toList())
             }
         }
 
         object AddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return elements.fold(persistentSetOf()) { set, element -> set.add(element) }
+                return elements.fold(persistentSetOf()) { set, element -> set.adding(element) }
             }
         }
 

@@ -47,7 +47,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [value] associated with the specified [key];
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+
+    /**
+     * See [putting].
+     */
+    @Deprecated("Use putting() instead.", ReplaceWith("putting(key, value)"))
+    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = putting(key, value)
 
     /**
      * Returns the result of removing the specified [key] and its corresponding value from this map.
@@ -55,7 +61,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [key] and its corresponding value removed;
      * or this instance if it contains no mapping for the key.
      */
-    public fun remove(key: K): PersistentMap<K, V>
+    public fun removing(key: K): PersistentMap<K, V>
+
+    /**
+     * See [removing].
+     */
+    @Deprecated("Use removing() instead.", ReplaceWith("removing(key)"))
+    public fun remove(key: K): PersistentMap<K, V> = removing(key)
 
     /**
      * Returns the result of removing the entry that maps the specified [key] to the specified [value].
@@ -63,7 +75,13 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the entry for the specified [key] and [value] removed;
      * or this instance if it contains no entry with the specified key and value.
      */
-    public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+
+    /**
+     * See [removing].
+     */
+    @Deprecated("Use removing() instead.", ReplaceWith("removing(key, value)"))
+    public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = removing(key, value)
 
     /**
      * Returns the result of merging the specified [m] map with this map.
@@ -74,12 +92,24 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with keys and values from the specified map [m] associated;
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
+    public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
+
+    /**
+     * See [puttingAll].
+     */
+    @Deprecated("Use puttingAll() instead.", ReplaceWith("puttingAll(m)"))
+    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = puttingAll(m)
 
     /**
      * Returns an empty persistent map.
      */
-    public fun clear(): PersistentMap<K, V>
+    public fun cleared(): PersistentMap<K, V>
+
+    /**
+     * See [cleared].
+     */
+    @Deprecated("Use cleared() method instead.", ReplaceWith("cleared()"))
+    public fun clear(): PersistentMap<K, V> = cleared()
 
     /**
      * A generic builder of the persistent map. Builder exposes its modification operations through the [MutableMap] interface.
