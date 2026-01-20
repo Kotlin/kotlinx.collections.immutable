@@ -24,19 +24,19 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
         var set = persistentHashSetOf<Int>()
 
         assertTrue(set.isEmpty())
-        assertFalse(set.add(0).isEmpty())
+        assertFalse(set.copyingAdd(0).isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         repeat(times = elementsToAdd) { index ->
-            set = set.add(index)
+            set = set.copyingAdd(index)
             assertFalse(set.isEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
-            set = set.remove(index)
+            set = set.copyingRemove(index)
             assertFalse(set.isEmpty())
         }
-        set = set.remove(elementsToAdd - 1)
+        set = set.copyingRemove(elementsToAdd - 1)
         assertTrue(set.isEmpty())
     }
 
@@ -45,22 +45,22 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
         var set = persistentHashSetOf<Int>()
 
         assertTrue(set.size == 0)
-        assertEquals(1, set.add(1).size)
+        assertEquals(1, set.copyingAdd(1).size)
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         repeat(times = elementsToAdd) { index ->
-            set = set.add(index)
+            set = set.copyingAdd(index)
             assertEquals(index + 1, set.size)
 
-            set = set.add(index)
+            set = set.copyingAdd(index)
             assertEquals(index + 1, set.size)
         }
         repeat(times = elementsToAdd) { index ->
-            set = set.remove(index)
+            set = set.copyingRemove(index)
             assertEquals(elementsToAdd - index - 1, set.size)
 
-            set = set.remove(index)
+            set = set.copyingRemove(index)
             assertEquals(elementsToAdd - index - 1, set.size)
         }
     }
@@ -76,14 +76,14 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
         repeat(times = elementsToAdd) {
             val element = Random.nextInt()
             mutableSet.add(element)
-            set = set.add(element)
+            set = set.copyingAdd(element)
 
             assertEquals<Set<*>>(set, mutableSet)
         }
 
         mutableSet.toMutableList().forEach { element ->
             mutableSet.remove(element)
-            set = set.remove(element)
+            set = set.copyingRemove(element)
 
             assertEquals<Set<*>>(set, mutableSet)
         }
@@ -94,18 +94,18 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
     @Test
     fun removeTests() {
         var set = persistentHashSetOf<Int>()
-        assertTrue(set.add(0).remove(0).isEmpty())
+        assertTrue(set.copyingAdd(0).copyingRemove(0).isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         repeat(times = elementsToAdd) { index ->
-            set = set.add(index)
+            set = set.copyingAdd(index)
         }
         repeat(times = elementsToAdd) { index ->
             assertEquals(elementsToAdd - index, set.size)
 
             assertTrue(set.contains(index))
-            set = set.remove(index)
+            set = set.copyingRemove(index)
             assertFalse(set.contains(index))
         }
         assertTrue(set.isEmpty())
@@ -114,13 +114,13 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
     @Test
     fun containsTests() {
         var set = persistentHashSetOf<String>()
-        assertTrue(set.add("1").contains("1"))
+        assertTrue(set.copyingAdd("1").contains("1"))
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
         val elements = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            set = set.add(elements[index])
+            set = set.copyingAdd(elements[index])
 
             for (i in 0..index) {
                 assertTrue(set.contains(elements[i]))
@@ -131,28 +131,28 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
                 assertTrue(set.contains(elements[i]))
             }
 
-            set = set.remove(elements[index])
+            set = set.copyingRemove(elements[index])
         }
     }
 
     @Test
     fun addTests() {
         var set = persistentHashSetOf<Int>()
-        assertTrue(set.add(1).add(1).contains(1))
+        assertTrue(set.copyingAdd(1).copyingAdd(1).contains(1))
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
         repeat(times = elementsToAdd) { index ->
-            set = set.add(index * 2)
+            set = set.copyingAdd(index * 2)
 
             for (i in index downTo 0) {
                 val element = i + index
 
                 assertTrue(set.contains(element))
-                set = set.remove(element)
+                set = set.copyingRemove(element)
                 assertFalse(set.contains(element))
                 assertFalse(set.contains(element + 1))
-                set = set.add(element + 1)
+                set = set.copyingAdd(element + 1)
                 assertTrue(set.contains(element + 1))
             }
         }
@@ -161,14 +161,14 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
                 val element = elementsToAdd - index + i
 
                 assertTrue(set.contains(element))
-                set = set.remove(element)
+                set = set.copyingRemove(element)
                 assertFalse(set.contains(element))
                 assertFalse(set.contains(element - 1))
-                set = set.add(element - 1)
+                set = set.copyingAdd(element - 1)
                 assertTrue(set.contains(element - 1))
             }
 
-            set = set.remove(elementsToAdd - 1)
+            set = set.copyingRemove(elementsToAdd - 1)
         }
         assertTrue(set.isEmpty())
     }
@@ -177,7 +177,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
     fun collisionTests() {
         var set = persistentHashSetOf<IntWrapper>()
 
-        assertTrue(set.add(IntWrapper(1, 1)).contains(IntWrapper(1, 1)))
+        assertTrue(set.copyingAdd(IntWrapper(1, 1)).contains(IntWrapper(1, 1)))
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
@@ -188,11 +188,11 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
         }
 
         repeat(times = elementsToAdd) { index ->
-            set = set.add(wrapper(index))
+            set = set.copyingAdd(wrapper(index))
             assertTrue(set.contains(wrapper(index)))
             assertEquals(index + 1, set.size)
 
-            set = set.add(wrapper(index))
+            set = set.copyingAdd(wrapper(index))
             assertEquals(index + 1, set.size)
 
             val collisions = eGen.wrappersByHashCode(wrapper(index).hashCode)
@@ -215,11 +215,11 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
                     assertTrue(set.contains(wrapper))
 
                     val nonExistingElement = IntWrapper(wrapper.obj.inv(), wrapper.hashCode)
-                    val sameSet = set.remove(nonExistingElement)
+                    val sameSet = set.copyingRemove(nonExistingElement)
                     assertEquals(set.size, sameSet.size)
                     assertTrue(sameSet.contains(wrapper))
 
-                    set = set.remove(wrapper)
+                    set = set.copyingRemove(wrapper)
                     assertFalse(set.contains(wrapper))
                 }
             }
@@ -256,11 +256,11 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
                 val newImmutableSet = when {
                     shouldRemove -> {
                         mutableSet.remove(element)
-                        immutableSet.remove(element)
+                        immutableSet.copyingRemove(element)
                     }
                     else -> {
                         mutableSet.add(element)
-                        immutableSet.add(element)
+                        immutableSet.copyingAdd(element)
                     }
                 }
 
@@ -280,7 +280,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
                 val elements = mutableSet.toMutableList()
                 for (element in elements) {
                     mutableSet.remove(element)
-                    immutableSet = immutableSet.remove(element)
+                    immutableSet = immutableSet.copyingRemove(element)
 
                     testAfterOperation(mutableSet, immutableSet, element)
                 }

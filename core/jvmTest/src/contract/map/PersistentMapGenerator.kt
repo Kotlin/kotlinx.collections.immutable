@@ -21,13 +21,13 @@ class PersistentMapGenerator {
         object PutAll : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
                 val map = mutableMapOf<String, String>().apply { entries.forEach { this[it.key] = it.value } }
-                return persistentHashMapOf<String, String>().putAll(map)
+                return persistentHashMapOf<String, String>().copyingPutAll(map)
             }
         }
 
         object PutEach : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
-                return entries.fold(persistentHashMapOf()) { map, entry -> map.put(entry.key, entry.value) }
+                return entries.fold(persistentHashMapOf()) { map, entry -> map.copyingPut(entry.key, entry.value) }
             }
         }
 
@@ -76,13 +76,13 @@ class PersistentMapGenerator {
         object PutAll : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
                 val map = mutableMapOf<String, String>().apply { entries.forEach { this[it.key] = it.value } }
-                return persistentMapOf<String, String>().putAll(map)
+                return persistentMapOf<String, String>().copyingPutAll(map)
             }
         }
 
         object PutEach : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
-                return entries.fold(persistentMapOf()) { map, entry -> map.put(entry.key, entry.value) }
+                return entries.fold(persistentMapOf()) { map, entry -> map.copyingPut(entry.key, entry.value) }
             }
         }
 

@@ -25,7 +25,7 @@ class PersistentHashMapTest {
         assertEquals(map1, map2.toMap())
         assertEquals(map1, map2)
 
-        val map3 = map1.remove(0)
+        val map3 = map1.copyingRemove(0)
         builder.remove(0)
         val map4 = builder.build()
 
@@ -64,7 +64,7 @@ class PersistentHashMapTest {
         val original: PersistentHashMap<IntWrapper, String> =
             persistentHashMapOf(a to "a", b to "b", c to "c", d to "d") as PersistentHashMap<IntWrapper, String>
 
-        val afterImmutableRemoving = original.remove(b).remove(c)
+        val afterImmutableRemoving = original.copyingRemove(b).copyingRemove(c)
 
         val builder = original.builder()
         builder.remove(b)
