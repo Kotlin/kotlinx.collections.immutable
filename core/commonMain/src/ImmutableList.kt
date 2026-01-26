@@ -29,7 +29,11 @@ public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
      */
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = SubList(this, fromIndex, toIndex)
 
-    private class SubList<E>(private val source: ImmutableList<E>, private val fromIndex: Int, private val toIndex: Int) : ImmutableList<E>, AbstractList<E>() {
+    private class SubList<E>(
+        private val source: ImmutableList<E>,
+        private val fromIndex: Int,
+        private val toIndex: Int
+    ) : ImmutableList<E>, AbstractList<E>() {
         private var _size: Int = 0
 
         init {
@@ -84,7 +88,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * @return a new persistent list with elements of the specified [elements] collection appended;
      *         or this instance if the specified collection is empty.
      */
-    override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = @Suppress("DEPRECATION") addAll(elements)
+    override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
+        @Suppress("DEPRECATION") addAll(elements)
 
     /**
      * Returns the result of appending all elements of the specified [elements] collection to this list.
@@ -132,7 +137,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *         contained in the specified [elements] collection removed;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = @Suppress("DEPRECATION") removeAll(elements)
+    override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
+        @Suppress("DEPRECATION") removeAll(elements)
 
     /**
      * Returns the result of removing all elements in this list that are also
@@ -154,7 +160,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * @return a new persistent list with elements matching the specified [predicate] removed;
      *         or this instance if no elements match the predicate.
      */
-    override fun removingAll(predicate: (E) -> Boolean): PersistentList<E> = @Suppress("DEPRECATION") removeAll(predicate)
+    override fun removingAll(predicate: (E) -> Boolean): PersistentList<E> =
+        @Suppress("DEPRECATION") removeAll(predicate)
 
     /**
      * Returns the result of removing all elements in this list that match the specified [predicate].
@@ -176,7 +183,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = @Suppress("DEPRECATION") retainAll(elements)
+    override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
+        @Suppress("DEPRECATION") retainAll(elements)
 
     /**
      * Returns all elements in this list that are also
@@ -218,7 +226,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun insertingAllAt(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> = @Suppress("DEPRECATION") addAll(index, c)
+    public fun insertingAllAt(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> =
+        @Suppress("DEPRECATION") addAll(index, c)
 
     /**
      * Returns the result of inserting the specified [c] collection at the specified [index].
@@ -243,7 +252,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun replacingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> = @Suppress("DEPRECATION") set(index, element)
+    public fun replacingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> =
+        @Suppress("DEPRECATION") set(index, element)
 
     /**
      * Returns the result with the element at the specified [index] replaced with the specified [element].
@@ -267,7 +277,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun insertingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> = @Suppress("DEPRECATION") add(index, element)
+    public fun insertingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> =
+        @Suppress("DEPRECATION") add(index, element)
 
     /**
      * Returns a new persistent list with the specified [element] inserted at the specified [index].
@@ -324,7 +335,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    public interface Builder<E>: MutableList<E>, PersistentCollection.Builder<E> {
+    public interface Builder<E> : MutableList<E>, PersistentCollection.Builder<E> {
         override fun build(): PersistentList<E>
     }
 
