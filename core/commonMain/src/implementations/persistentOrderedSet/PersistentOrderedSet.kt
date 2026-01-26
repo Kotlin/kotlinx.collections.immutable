@@ -33,7 +33,8 @@ internal class PersistentOrderedSet<E>(
 
     override fun contains(element: E): Boolean = hashMap.containsKey(element)
 
-    override fun adding(element: E): PersistentSet<E> {
+    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
+    override fun add(element: E): PersistentSet<E> {
         if (hashMap.containsKey(element)) {
             return this
         }
@@ -52,12 +53,14 @@ internal class PersistentOrderedSet<E>(
         return PersistentOrderedSet(firstElement, element, newMap)
     }
 
-    override fun addingAll(elements: Collection<E>): PersistentSet<E> {
+    @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
+    override fun addAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return this.mutate { it.addAll(elements) }
     }
 
-    override fun removing(element: E): PersistentSet<E> {
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(element)"))
+    override fun remove(element: E): PersistentSet<E> {
         val links = hashMap[element] ?: return this
 
         var newMap = hashMap.removing(element)
@@ -78,21 +81,25 @@ internal class PersistentOrderedSet<E>(
         return PersistentOrderedSet(newFirstElement, newLastElement, newMap)
     }
 
-    override fun removingAll(elements: Collection<E>): PersistentSet<E> {
+    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
+    override fun removeAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return mutate { it.removeAll(elements) }
     }
 
-    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> {
+    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
+    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> {
         return mutate { it.removeAll(predicate) }
     }
 
-    override fun retainingAll(elements: Collection<E>): PersistentSet<E> {
+    @Deprecated("Use retainingAll() instead.", replaceWith = ReplaceWith("retainingAll(elements)"))
+    override fun retainAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return PersistentOrderedSet.emptyOf<E>()
         return mutate { it.retainAll(elements) }
     }
 
-    override fun cleared(): PersistentSet<E> {
+    @Deprecated("Use cleared() instead.", replaceWith = ReplaceWith("cleared()"))
+    override fun clear(): PersistentSet<E> {
         return PersistentOrderedSet.emptyOf()
     }
 
