@@ -339,7 +339,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
                 for (size in addSize..(addSize + maxBufferSize)) {
 
                     val elementsToAdd = List(size) { initialSize + it }
-                    val result = list.addingAll(index, elementsToAdd)
+                    val result = list.insertingAllAt(index, elementsToAdd)
 
                     val expected = initialElements.toMutableList().also { it.addAll(index, elementsToAdd) }
                     assertEquals<List<*>>(expected, result)
