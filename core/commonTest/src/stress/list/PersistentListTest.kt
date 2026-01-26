@@ -62,13 +62,13 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         var vector = persistentListOf<Int>()
 
         assertNull(vector.firstOrNull())
-        assertEquals(1, vector.adding(0, 1).first())
+        assertEquals(1, vector.insertingAt(0, 1).first())
         assertEquals(1, vector.adding(1).first())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NN
 
         repeat(times = elementsToAdd) { index ->
-            vector = vector.adding(0, index)
+            vector = vector.insertingAt(0, index)
             assertEquals(index, vector.first())
         }
         repeat(times = elementsToAdd) { index ->
@@ -83,7 +83,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         var vector = persistentListOf<Int>()
 
         assertNull(vector.lastOrNull())
-        assertEquals(1, vector.adding(0, 1).last())
+        assertEquals(1, vector.insertingAt(0, 1).last())
         assertEquals(1, vector.adding(1).last())
 
         val elementsToAdd = NForAlgorithmComplexity.O_N
@@ -140,14 +140,14 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         var vector = persistentListOf<Int>()
 
         assertNull(vector.firstOrNull())
-        assertEquals(1, vector.adding(0, 1).first())
-        assertEquals(1, vector.adding(0, 1).last())
+        assertEquals(1, vector.insertingAt(0, 1).first())
+        assertEquals(1, vector.insertingAt(0, 1).last())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NN
 
         val allElements = List(elementsToAdd) { elementsToAdd - it - 1 }
         repeat(times = elementsToAdd) { index ->
-            vector = vector.adding(0, index)
+            vector = vector.insertingAt(0, index)
 
             assertEquals(index, vector.first())
             assertEquals(0, vector.last())
@@ -187,7 +187,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
             vector.removingAt(0)
         }
         assertTrue(vector.adding(1).removingAt(0).isEmpty())
-        assertTrue(vector.adding(0, 1).removingAt(0).isEmpty())
+        assertTrue(vector.insertingAt(0, 1).removingAt(0).isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NN
 
@@ -213,13 +213,13 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
             vector.removingAt(vector.size - 1)
         }
         assertTrue(vector.adding(1).removingAt(0).isEmpty())
-        assertTrue(vector.adding(0, 1).removingAt(0).isEmpty())
+        assertTrue(vector.insertingAt(0, 1).removingAt(0).isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NN
 
         val allElements = List(elementsToAdd) { elementsToAdd - it - 1 }
         repeat(times = elementsToAdd) { index ->
-            vector = vector.adding(0, index)
+            vector = vector.insertingAt(0, index)
         }
         repeat(times = elementsToAdd) { index ->
             assertEquals(index, vector.last())
@@ -434,7 +434,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
                 } else {
                     val value = Random.nextInt()
                     list.add(operationIndex, value)
-                    vector.adding(operationIndex, value)
+                    vector.insertingAt(operationIndex, value)
                 }
 
                 testAfterOperation(list, newVector, operationIndex)
