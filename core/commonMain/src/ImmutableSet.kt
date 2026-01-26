@@ -31,12 +31,20 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Returns the result of adding the specified [element] to this set.
      *
      * @return a new persistent set with the specified [element] added;
-     * or this instance if it already contains the element.
+     *         or this instance if it already contains the element.
      */
     override fun adding(element: @UnsafeVariance E): PersistentSet<E>
 
     /**
-     * See [adding].
+     * Returns the result of adding the specified [element] to this set.
+     *
+     * @return a new persistent set with the specified [element] added;
+     *         or this instance if it already contains the element.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
+     * @see adding
      */
     @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
     override fun add(element: @UnsafeVariance E): PersistentSet<E> = adding(element)
@@ -45,12 +53,20 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Returns the result of adding all elements of the specified [elements] collection to this set.
      *
      * @return a new persistent set with elements of the specified [elements] collection added;
-     * or this instance if it already contains every element of the specified collection.
+     *         or this instance if it already contains every element of the specified collection.
      */
     override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
 
     /**
-     * See [addingAll].
+     * Returns the result of adding all elements of the specified [elements] collection to this set.
+     *
+     * @return a new persistent set with elements of the specified [elements] collection added;
+     *         or this instance if it already contains every element of the specified collection.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
+     * @see addingAll
      */
     @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
     override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = addingAll(elements)
@@ -59,12 +75,20 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Returns the result of removing the specified [element] from this set.
      *
      * @return a new persistent set with the specified [element] removed;
-     * or this instance if there is no such element in this set.
+     *         or this instance if there is no such element in this set.
      */
     override fun removing(element: @UnsafeVariance E): PersistentSet<E>
 
     /**
-     * See [removing].
+     * Returns the result of removing the specified [element] from this set.
+     *
+     * @return a new persistent set with the specified [element] removed;
+     *         or this instance if there is no such element in this set.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
+     * @see removing
      */
     @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(element)"))
     override fun remove(element: @UnsafeVariance E): PersistentSet<E> = removing(element)
@@ -74,13 +98,21 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * contained in the specified [elements] collection.
      *
      * @return a new persistent set with elements in this set that are also
-     * contained in the specified [elements] collection removed;
-     * or this instance if no modifications were made in the result of this operation.
+     *         contained in the specified [elements] collection removed;
+     *         or this instance if no modifications were made in the result of this operation.
      */
     override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
 
     /**
-     * See [removingAll].
+     * Returns the result of removing all elements in this set that are also
+     * contained in the specified [elements] collection.
+     *
+     * @return a new persistent set with elements in this set that are also
+     *         contained in the specified [elements] collection removed;
+     *         or this instance if no modifications were made in the result of this operation.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
      */
     @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
     override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = removingAll(elements)
@@ -89,12 +121,18 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Returns the result of removing all elements in this set that match the specified [predicate].
      *
      * @return a new persistent set with elements matching the specified [predicate] removed;
-     * or this instance if no elements match the predicate.
+     *         or this instance if no elements match the predicate.
      */
     override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E>
 
     /**
-     * See [removingAll].
+     * Returns the result of removing all elements in this set that match the specified [predicate].
+     *
+     * @return a new persistent set with elements matching the specified [predicate] removed;
+     *         or this instance if no elements match the predicate.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
      */
     @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
     override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> = removingAll(predicate)
@@ -104,13 +142,23 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * contained in the specified [elements] collection.
      *
      * @return a new persistent set with elements in this set that are also
-     * contained in the specified [elements] collection;
-     * or this instance if no modifications were made in the result of this operation.
+     *         contained in the specified [elements] collection;
+     *         or this instance if no modifications were made in the result of this operation.
      */
     override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
 
     /**
-     * See [retainingAll].
+     * Returns all elements in this set that are also
+     * contained in the specified [elements] collection.
+     *
+     * @return a new persistent set with elements in this set that are also
+     *         contained in the specified [elements] collection;
+     *         or this instance if no modifications were made in the result of this operation.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
+     * @see retainingAll
      */
     @Deprecated("Use retainingAll() instead.", replaceWith = ReplaceWith("retainingAll(elements)"))
     override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = retainingAll(elements)
@@ -121,7 +169,12 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     override fun cleared(): PersistentSet<E>
 
     /**
-     * See [cleared].
+     * Returns an empty persistent set.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
+     * @see cleared
      */
     @Deprecated("Use cleared() instead.", replaceWith = ReplaceWith("cleared()"))
     override fun clear(): PersistentSet<E> = cleared()
