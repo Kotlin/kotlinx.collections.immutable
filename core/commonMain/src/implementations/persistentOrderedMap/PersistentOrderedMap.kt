@@ -64,7 +64,8 @@ internal class PersistentOrderedMap<K, V>(
 
     override fun get(key: K): V? = hashMap[key]?.value
 
-    override fun putting(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
+    @Deprecated("Use putting() instead.", replaceWith = ReplaceWith("putting(key, value)"))
+    override fun put(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
         if (isEmpty()) {
             val newMap = hashMap.putting(key, LinkedValue(value))
             return PersistentOrderedMap(key, key, newMap)
@@ -89,7 +90,10 @@ internal class PersistentOrderedMap<K, V>(
         return PersistentOrderedMap(firstKey, key, newMap)
     }
 
-    override fun removing(key: K): PersistentOrderedMap<K, V> {
+    override fun putting(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> = @Suppress("DEPRECATION") put(key, value)
+
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(key)"))
+    override fun remove(key: K): PersistentOrderedMap<K, V> {
         val links = hashMap[key] ?: return this
 
         var newMap = hashMap.removing(key)
@@ -111,17 +115,22 @@ internal class PersistentOrderedMap<K, V>(
         return PersistentOrderedMap(newFirstKey, newLastKey, newMap)
     }
 
-    override fun removing(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
+    override fun removing(key: K): PersistentOrderedMap<K, V> = @Suppress("DEPRECATION") remove(key)
+
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(key, value)"))
+    override fun remove(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> {
         val links = hashMap[key] ?: return this
         return if (links.value == value) this.removing(key) else this
     }
 
-    override fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
+    @Deprecated("Use puttingAll() instead.", replaceWith = ReplaceWith("puttingAll(m)"))
+    override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
         if (m.isEmpty()) return this
         return this.mutate { it.putAll(m) }
     }
 
-    override fun cleared(): PersistentMap<K, V> {
+    @Deprecated("Use cleared() method instead.", replaceWith = ReplaceWith("cleared()"))
+    override fun clear(): PersistentMap<K, V> {
         return emptyOf()
     }
 
