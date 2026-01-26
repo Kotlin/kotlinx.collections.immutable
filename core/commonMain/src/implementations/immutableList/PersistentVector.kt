@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -32,6 +32,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
 
     private fun rootSize(): Int = rootSize(size)
 
+    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
     override fun add(element: E): PersistentList<E> {
         val tailSize = size - rootSize()
         if (tailSize < MAX_BUFFER_SIZE) {
@@ -78,10 +79,11 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRootNode
     }
 
+    @Deprecated("Use insertingAt() instead.", replaceWith = ReplaceWith("insertingAt(index, element)"))
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
-            return add(element)
+            return adding(element)
         }
 
         val rootSize = rootSize()
@@ -143,6 +145,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
+    @Deprecated("Use removingAt() instead.", replaceWith = ReplaceWith("removingAt(index)"))
     override fun removeAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         val rootSize = rootSize()
@@ -259,6 +262,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
+    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
         return builder().also { it.removeAllWithPredicate(predicate) }.build()
     }
@@ -296,6 +300,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
+    @Deprecated("Use replacingAt() instead.", replaceWith = ReplaceWith("replacingAt(index, element)"))
     override fun set(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         if (rootSize() <= index) {

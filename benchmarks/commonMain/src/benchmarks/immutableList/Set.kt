@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -28,7 +28,7 @@ open class Set {
     @Benchmark
     fun setByIndex(): ImmutableList<String> {
         repeat(times = size) { index ->
-            persistentList = persistentList.set(index, "another element")
+            persistentList = persistentList.replacingAt(index, "another element")
         }
         return persistentList
     }
@@ -36,7 +36,7 @@ open class Set {
     @Benchmark
     fun setByRandomIndex(): ImmutableList<String> {
         repeat(times = size) { index ->
-            persistentList = persistentList.set(randomIndices[index], "another element")
+            persistentList = persistentList.replacingAt(randomIndices[index], "another element")
         }
         return persistentList
     }
