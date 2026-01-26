@@ -45,42 +45,64 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * If this map already contains a mapping for the key, the old value is replaced by the specified value.
      *
      * @return a new persistent map with the specified [value] associated with the specified [key];
-     * or this instance if no modifications were made in the result of this operation.
+     *         or this instance if no modifications were made in the result of this operation.
      */
     public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
-     * See [putting].
+     * Returns the result of associating the specified [value] with the specified [key] in this map.
+     *
+     * If this map already contains a mapping for the key, the old value is replaced by the specified value.
+     *
+     * @return a new persistent map with the specified [value] associated with the specified [key];
+     *         or this instance if no modifications were made in the result of this operation.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
+     * @see putting
      */
-    @Deprecated("Use putting() instead.", ReplaceWith("putting(key, value)"))
+    @Deprecated("Use putting() instead.", replaceWith = ReplaceWith("putting(key, value)"))
     public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = putting(key, value)
 
     /**
      * Returns the result of removing the specified [key] and its corresponding value from this map.
      *
      * @return a new persistent map with the specified [key] and its corresponding value removed;
-     * or this instance if it contains no mapping for the key.
+     *         or this instance if it contains no mapping for the key.
      */
     public fun removing(key: K): PersistentMap<K, V>
 
     /**
-     * See [removing].
+     * Returns the result of removing the specified [key] and its corresponding value from this map.
+     *
+     * @return a new persistent map with the specified [key] and its corresponding value removed;
+     *         or this instance if it contains no mapping for the key.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
      */
-    @Deprecated("Use removing() instead.", ReplaceWith("removing(key)"))
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(key)"))
     public fun remove(key: K): PersistentMap<K, V> = removing(key)
 
     /**
      * Returns the result of removing the entry that maps the specified [key] to the specified [value].
      *
      * @return a new persistent map with the entry for the specified [key] and [value] removed;
-     * or this instance if it contains no entry with the specified key and value.
+     *         or this instance if it contains no entry with the specified key and value.
      */
     public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
-     * See [removing].
+     * Returns the result of removing the entry that maps the specified [key] to the specified [value].
+     *
+     * @return a new persistent map with the entry for the specified [key] and [value] removed;
+     *         or this instance if it contains no entry with the specified key and value.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
      */
-    @Deprecated("Use removing() instead.", ReplaceWith("removing(key, value)"))
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(key, value)"))
     public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = removing(key, value)
 
     /**
@@ -90,14 +112,25 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * mapping from key `k` to value `v` in the specified map.
      *
      * @return a new persistent map with keys and values from the specified map [m] associated;
-     * or this instance if no modifications were made in the result of this operation.
+     *         or this instance if no modifications were made in the result of this operation.
      */
     public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
 
     /**
-     * See [puttingAll].
+     * Returns the result of merging the specified [m] map with this map.
+     *
+     * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+     * mapping from key `k` to value `v` in the specified map.
+     *
+     * @return a new persistent map with keys and values from the specified map [m] associated;
+     *         or this instance if no modifications were made in the result of this operation.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
+     * @see puttingAll
      */
-    @Deprecated("Use puttingAll() instead.", ReplaceWith("puttingAll(m)"))
+    @Deprecated("Use puttingAll() instead.", replaceWith = ReplaceWith("puttingAll(m)"))
     public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = puttingAll(m)
 
     /**
@@ -106,9 +139,14 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     public fun cleared(): PersistentMap<K, V>
 
     /**
-     * See [cleared].
+     * Returns an empty persistent map.
+     *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
+     * @see cleared
      */
-    @Deprecated("Use cleared() method instead.", ReplaceWith("cleared()"))
+    @Deprecated("Use cleared() method instead.", replaceWith = ReplaceWith("cleared()"))
     public fun clear(): PersistentMap<K, V> = cleared()
 
     /**
