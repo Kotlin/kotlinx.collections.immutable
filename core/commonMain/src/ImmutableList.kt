@@ -82,7 +82,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
 
     /**
-     * See [addingAll].
+     * See [insertingAllAt].
      */
     @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
     override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = addingAll(elements)
@@ -166,13 +166,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun addingAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
+    public fun insertingAllAt(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
 
     /**
-     * See [addingAll].
+     * See [insertingAllAt].
      */
     @Deprecated("Use addingAll(index, c) instead.", replaceWith = ReplaceWith("addingAll(index, c)"))
-    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> = addingAll(index, c)
+    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> = insertingAllAt(index, c)
 
     /**
      * Returns a new persistent list with the element at the specified [index] replaced with the specified [element].
