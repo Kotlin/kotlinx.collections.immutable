@@ -78,7 +78,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         }
     }
 
-    override fun addingAll(index: Int, c: Collection<E>): PersistentList<E> {
+    override fun insertingAllAt(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
         if (size + c.size <= MAX_BUFFER_SIZE) {
