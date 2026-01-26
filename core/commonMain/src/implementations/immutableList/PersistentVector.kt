@@ -78,7 +78,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRootNode
     }
 
-    override fun adding(index: Int, element: E): PersistentList<E> {
+    override fun insertingAt(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
             return adding(element)
