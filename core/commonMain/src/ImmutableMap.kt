@@ -19,7 +19,7 @@ package kotlinx.collections.immutable
  *          can accept key as a parameter (of [containsKey] for example) and return it in [keys] set.
  * @param V the type of map values. The map is covariant on its value type.
  */
-public interface ImmutableMap<K, out V>: Map<K, V> {
+public interface ImmutableMap<K, out V> : Map<K, V> {
 
     override val keys: ImmutableSet<K>
 
@@ -91,7 +91,8 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the entry for the specified [key] and [value] removed;
      *         or this instance if it contains no entry with the specified key and value.
      */
-    public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = @Suppress("DEPRECATION") remove(key, value)
+    public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V> =
+        @Suppress("DEPRECATION") remove(key, value)
 
     /**
      * Returns the result of removing the entry that maps the specified [key] to the specified [value].
@@ -165,7 +166,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    public interface Builder<K, V>: MutableMap<K, V> {
+    public interface Builder<K, V> : MutableMap<K, V> {
         /**
          * Returns a persistent map with the same contents as this builder.
          *

@@ -16,7 +16,7 @@ package kotlinx.collections.immutable
  *
  * @param E the type of elements contained in the set. The set is covariant on its element type.
  */
-public interface ImmutableSet<out E>: Set<E>, ImmutableCollection<E>
+public interface ImmutableSet<out E> : Set<E>, ImmutableCollection<E>
 
 /**
  * A generic persistent unordered collection of elements that does not support duplicate elements, and supports
@@ -55,7 +55,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * @return a new persistent set with elements of the specified [elements] collection added;
      *         or this instance if it already contains every element of the specified collection.
      */
-    override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = @Suppress("DEPRECATION") addAll(elements)
+    override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> =
+        @Suppress("DEPRECATION") addAll(elements)
 
     /**
      * Returns the result of adding all elements of the specified [elements] collection to this set.
@@ -101,7 +102,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      *         contained in the specified [elements] collection removed;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = @Suppress("DEPRECATION") removeAll(elements)
+    override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> =
+        @Suppress("DEPRECATION") removeAll(elements)
 
     /**
      * Returns the result of removing all elements in this set that are also
@@ -123,7 +125,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * @return a new persistent set with elements matching the specified [predicate] removed;
      *         or this instance if no elements match the predicate.
      */
-    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> = @Suppress("DEPRECATION") removeAll(predicate)
+    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> =
+        @Suppress("DEPRECATION") removeAll(predicate)
 
     /**
      * Returns the result of removing all elements in this set that match the specified [predicate].
@@ -145,7 +148,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> = @Suppress("DEPRECATION") retainAll(elements)
+    override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> =
+        @Suppress("DEPRECATION") retainAll(elements)
 
     /**
      * Returns all elements in this set that are also
@@ -195,7 +199,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    public interface Builder<E>: MutableSet<E>, PersistentCollection.Builder<E> {
+    public interface Builder<E> : MutableSet<E>, PersistentCollection.Builder<E> {
         override fun build(): PersistentSet<E>
     }
 
