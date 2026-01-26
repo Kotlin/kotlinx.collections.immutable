@@ -15,7 +15,7 @@ package kotlinx.collections.immutable
  *
  * @param E the type of elements contained in the collection. The immutable collection is covariant on its element type.
  */
-public interface ImmutableCollection<out E>: Collection<E>
+public interface ImmutableCollection<out E> : Collection<E>
 
 /**
  * A generic persistent collection of elements that supports adding and removing elements.
@@ -193,7 +193,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    public interface Builder<E>: MutableCollection<E> {
+    public interface Builder<E> : MutableCollection<E> {
         /**
          * Returns a persistent collection with the same contents as this builder.
          *
