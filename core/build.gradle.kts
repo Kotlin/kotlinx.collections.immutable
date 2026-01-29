@@ -50,9 +50,11 @@ kotlin {
     mingwX64()
     watchosDeviceArm64()
 
+    jvmToolchain(21)
     jvm {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_1_8)
+            freeCompilerArgs.add("-Xjdk-release=8")
         }
     }
 

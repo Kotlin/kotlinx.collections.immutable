@@ -92,6 +92,17 @@ allprojects {
             logger.info("allWarningsAsErrors=${compilerOptions.allWarningsAsErrors.get()}")
         }
     }
+
+    tasks.withType(Jar::class).configureEach {
+        manifest {
+            attributes(
+                "Multi-Release" to true,
+                "Implementation-Vendor" to "JetBrains",
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version,
+            )
+        }
+    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
