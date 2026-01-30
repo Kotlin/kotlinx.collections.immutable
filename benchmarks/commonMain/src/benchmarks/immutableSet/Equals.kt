@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -30,7 +30,7 @@ open class Equals {
         val keys = generateKeys(hashCodeType, size * 2)
         persistentSet = persistentSetAdd(implementation, keys.take(size))
         sameSet = persistentSetAdd(implementation, keys.take(size))
-        slightlyDifferentSet = sameSet.add(keys[size]).remove(keys[0])
+        slightlyDifferentSet = sameSet.adding(keys[size]).removing(keys[0])
         veryDifferentSet = persistentSetAdd(implementation, keys.drop(size))
     }
 

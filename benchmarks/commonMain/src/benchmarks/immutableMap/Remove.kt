@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -37,7 +37,7 @@ open class Remove {
     fun remove(): PersistentMap<IntWrapper, String> {
         var map = persistentMap
         repeat(times = size) { index ->
-            map = map.remove(keys[index])
+            map = map.removing(keys[index])
         }
         return map
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -68,7 +68,7 @@ open class Canonicalization {
         var set = persistentSetRemove(persistentSet, elementsToRemove)
 
         for (element in elementsToRemove) {
-            set = set.add(element)
+            set = set.adding(element)
         }
 
         return set
@@ -111,7 +111,7 @@ open class Canonicalization {
         var set = halfHeightPersistentSet
 
         for (element in elementsToRemove) {
-            set = set.add(element)
+            set = set.adding(element)
         }
 
         return set

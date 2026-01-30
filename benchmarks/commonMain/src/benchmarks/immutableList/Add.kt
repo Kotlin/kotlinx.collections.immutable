@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -46,7 +46,7 @@ open class Add {
      */
     @Benchmark
     fun addFirst(): ImmutableList<String> {
-        return persistentListAdd(size - 1).add(0, "another element")
+        return persistentListAdd(size - 1).insertingAt(0, "another element")
     }
 
     /**
@@ -60,6 +60,6 @@ open class Add {
      */
     @Benchmark
     fun addMiddle(): ImmutableList<String> {
-        return persistentListAdd(size - 1).add(size / 2, "another element")
+        return persistentListAdd(size - 1).insertingAt(size / 2, "another element")
     }
 }
