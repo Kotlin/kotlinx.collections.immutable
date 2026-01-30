@@ -163,4 +163,6 @@ Add dependencies (you can also add other modules that you need):
 
 You can build and install artifacts to maven local with:
 
-    gradlew build install
+```bash
+./gradlew build publishToMavenLocal
+```
