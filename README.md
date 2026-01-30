@@ -161,7 +161,7 @@ Add dependencies (you can also add other modules that you need):
 
 ## Building from source
 
-You can build and install artifacts to maven local with:
+You can build and publish artifacts to Maven Local with:
 
 ```bash
 ./gradlew build publishToMavenLocal
