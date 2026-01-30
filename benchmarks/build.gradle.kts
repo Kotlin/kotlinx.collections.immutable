@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("kotlin-multiplatform")
-    id("org.jetbrains.kotlinx.benchmark") version "0.4.15"
+    id("org.jetbrains.kotlinx.benchmark")
 }
 
 
@@ -46,7 +46,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.13")
+                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:${property("kotlinxBenchmarkVersion")}")
                 implementation(project(":kotlinx-collections-immutable"))
             }
         }
