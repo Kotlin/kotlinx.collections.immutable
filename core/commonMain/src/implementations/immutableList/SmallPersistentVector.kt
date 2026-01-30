@@ -24,7 +24,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return arrayOfNulls<Any?>(size)
     }
 
-    override fun add(element: E): PersistentList<E> {
+    override fun copyingAdd(element: E): PersistentList<E> {
         if (size < MAX_BUFFER_SIZE) {
             val newBuffer = buffer.copyOf(size + 1)
             newBuffer[size] = element
@@ -34,7 +34,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return PersistentVector(buffer, tail, size + 1, 0)
     }
 
-    override fun addAll(elements: Collection<E>): PersistentList<E> {
+    override fun copyingAddAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
         if (size + elements.size <= MAX_BUFFER_SIZE) {
             val newBuffer = buffer.copyOf(size + elements.size)
@@ -48,7 +48,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return mutate { it.addAll(elements) }
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
+    override fun copyingRemoveAll(predicate: (E) -> Boolean): PersistentList<E> {
         var newSize = size
         var removeMask = 0
 
@@ -78,7 +78,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         }
     }
 
-    override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
+    override fun copyingAddAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
         if (size + c.size <= MAX_BUFFER_SIZE) {
@@ -94,10 +94,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return mutate { it.addAll(index, c) }
     }
 
-    override fun add(index: Int, element: E): PersistentList<E> {
+    override fun copyingAdd(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
-            return add(element)
+            return copyingAdd(element)
         }
 
         if (size < MAX_BUFFER_SIZE) {
@@ -116,7 +116,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return PersistentVector(root, tail, size + 1, 0)
     }
 
-    override fun removeAt(index: Int): PersistentList<E> {
+    override fun copyingRemoveAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         if (size == 1) {
             return EMPTY
@@ -151,7 +151,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return buffer[index] as E
     }
 
-    override fun set(index: Int, element: E): PersistentList<E> {
+    override fun copyingSet(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         val newBuffer = buffer.copyOf()
         newBuffer[index] = element

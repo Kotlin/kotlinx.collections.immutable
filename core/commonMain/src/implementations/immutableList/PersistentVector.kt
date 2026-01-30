@@ -32,7 +32,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
 
     private fun rootSize(): Int = rootSize(size)
 
-    override fun add(element: E): PersistentList<E> {
+    override fun copyingAdd(element: E): PersistentList<E> {
         val tailSize = size - rootSize()
         if (tailSize < MAX_BUFFER_SIZE) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)
@@ -78,10 +78,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRootNode
     }
 
-    override fun add(index: Int, element: E): PersistentList<E> {
+    override fun copyingAdd(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
-            return add(element)
+            return copyingAdd(element)
         }
 
         val rootSize = rootSize()
@@ -143,7 +143,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    override fun removeAt(index: Int): PersistentList<E> {
+    override fun copyingRemoveAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         val rootSize = rootSize()
         if (index >= rootSize) {
@@ -259,7 +259,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
+    override fun copyingRemoveAll(predicate: (E) -> Boolean): PersistentList<E> {
         return builder().also { it.removeAllWithPredicate(predicate) }.build()
     }
 
@@ -296,7 +296,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
-    override fun set(index: Int, element: E): PersistentList<E> {
+    override fun copyingSet(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         if (rootSize() <= index) {
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)

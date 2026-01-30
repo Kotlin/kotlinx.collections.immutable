@@ -308,7 +308,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
     private fun <E> PersistentList(size: Int, producer: (Int) -> E): PersistentList<E> {
         var list = persistentListOf<E>()
         repeat(times = size) { index ->
-            list = list.add(producer(index))
+            list = list.copyingAdd(producer(index))
         }
         return list
     }
@@ -491,7 +491,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
         for (initialSize in listSizes) {
 
             val initialElements = List(initialSize) { it }
-            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.add(element) }
+            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.copyingAdd(element) }
 
             val addIndex = mutableListOf(
                     initialSize // append
@@ -535,7 +535,7 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
         for (initialSize in listSizes) {
 
             val initialElements = List(initialSize) { it }
-            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.add(element) }
+            val list = initialElements.fold(persistentListOf<Int>()) { list, element -> list.copyingAdd(element) }
 
             val removeElements = mutableListOf(
                     initialElements // all

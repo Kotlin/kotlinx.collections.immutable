@@ -63,7 +63,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the specified [element] appended.
      */
-    override fun add(element: @UnsafeVariance E): PersistentList<E>
+    override fun copyingAdd(element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * See [copyingAdd].
+     */
+    @Deprecated("Use copyingAdd() instead.", replaceWith = ReplaceWith("copyingAdd(element)"))
+    override fun add(element: @UnsafeVariance E): PersistentList<E> = copyingAdd(element)
 
     /**
      * Returns the result of appending all elements of the specified [elements] collection to this list.
@@ -73,7 +79,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * @return a new persistent list with elements of the specified [elements] collection appended;
      * or this instance if the specified collection is empty.
      */
-    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
+    override fun copyingAddAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
+
+    /**
+     * See [copyingAddAll].
+     */
+    @Deprecated("Use copyingAddAll() instead.", replaceWith = ReplaceWith("copyingAddAll(elements)"))
+    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = copyingAddAll(elements)
 
     /**
      * Returns the result of removing the first appearance of the specified [element] from this list.
@@ -81,7 +93,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * @return a new persistent list with the first appearance of the specified [element] removed;
      * or this instance if there is no such element in this list.
      */
-    override fun remove(element: @UnsafeVariance E): PersistentList<E>
+    override fun copyingRemove(element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * See [copyingRemove].
+     */
+    @Deprecated("Use copyingRemove() instead.", replaceWith = ReplaceWith("copyingRemove(element)"))
+    override fun remove(element: @UnsafeVariance E): PersistentList<E> = copyingRemove(element)
 
     /**
      * Returns the result of removing all elements in this list that are also
@@ -91,7 +109,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * contained in the specified [elements] collection removed;
      * or this instance if no modifications were made in the result of this operation.
      */
-    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+    override fun copyingRemoveAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+
+    /**
+     * See [copyingRemoveAll].
+     */
+    @Deprecated("Use copyingRemoveAll() instead.", replaceWith = ReplaceWith("copyingRemoveAll(elements)"))
+    override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = copyingRemoveAll(elements)
 
     /**
      * Returns the result of removing all elements in this list that match the specified [predicate].
@@ -99,7 +123,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * @return a new persistent list with elements matching the specified [predicate] removed;
      * or this instance if no elements match the predicate.
      */
-    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E>
+    override fun copyingRemoveAll(predicate: (E) -> Boolean): PersistentList<E>
+
+    /**
+     * See [copyingRemoveAll].
+     */
+    @Deprecated("Use copyingRemoveAll() instead.", replaceWith = ReplaceWith("copyingRemoveAll(predicate)"))
+    override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> = copyingRemoveAll(predicate)
 
     /**
      * Returns all elements in this list that are also
@@ -109,13 +139,24 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * contained in the specified [elements] collection;
      * or this instance if no modifications were made in the result of this operation.
      */
-    override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+    override fun copyingRetainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
+
+    /**
+     * See [copyingRetainAll].
+     */
+    @Deprecated("Use copyingRetainAll() instead.", replaceWith = ReplaceWith("copyingRetainAll(elements)"))
+    override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> = copyingRetainAll(elements)
 
     /**
      * Returns an empty persistent list.
      */
-    override fun clear(): PersistentList<E>
+    override fun copyingClear(): PersistentList<E>
 
+    /**
+     * See [copyingClear].
+     */
+    @Deprecated("Use copyingClear() instead.", replaceWith = ReplaceWith("copyingClear()"))
+    override fun clear(): PersistentList<E> = copyingClear()
 
     /**
      * Returns the result of inserting the specified [c] collection at the specified [index].
@@ -125,28 +166,52 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
+    public fun copyingAddAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
+
+    /**
+     * See [copyingAddAll].
+     */
+    @Deprecated("Use copyingAddAll(index, c) instead.", replaceWith = ReplaceWith("copyingAddAll(index, c)"))
+    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> = copyingAddAll(index, c)
 
     /**
      * Returns a new persistent list with the element at the specified [index] replaced with the specified [element].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun set(index: Int, element: @UnsafeVariance E): PersistentList<E>
+    public fun copyingSet(index: Int, element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * See [copyingSet].
+     */
+    @Deprecated("Use copyingSet() instead.", replaceWith = ReplaceWith("copyingSet(index, element)"))
+    public fun set(index: Int, element: @UnsafeVariance E): PersistentList<E> = copyingSet(index, element)
 
     /**
      * Returns a new persistent list with the specified [element] inserted at the specified [index].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
+    public fun copyingAdd(index: Int, element: @UnsafeVariance E): PersistentList<E>
+
+    /**
+     * See [copyingAdd].
+     */
+    @Deprecated("Use copyingAdd() instead.", replaceWith = ReplaceWith("copyingAdd(index, element)"))
+    public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E> = copyingAdd(index, element)
 
     /**
      * Returns a new persistent list with the element at the specified [index] removed.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun removeAt(index: Int): PersistentList<E>
+    public fun copyingRemoveAt(index: Int): PersistentList<E>
+
+    /**
+     * See [copyingRemoveAt].
+     */
+    @Deprecated("Use copyingRemoveAt() instead.", replaceWith = ReplaceWith("copyingRemoveAt(index)"))
+    public fun removeAt(index: Int): PersistentList<E> = copyingRemoveAt(index)
 
     /**
      * A generic builder of the persistent list. Builder exposes its modification operations through the [MutableList] interface.

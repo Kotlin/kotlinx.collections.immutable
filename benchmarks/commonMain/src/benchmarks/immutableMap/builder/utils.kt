@@ -19,7 +19,7 @@ fun persistentMapBuilderPut(
 
     var map = emptyPersistentMap<IntWrapper, String>(implementation)
     for (index in 0 until immutableSize) {
-        map = map.put(keys[index], "some value")
+        map = map.copyingPut(keys[index], "some value")
     }
 
     val builder = map.builder()

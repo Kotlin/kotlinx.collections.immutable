@@ -15,36 +15,36 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return super<PersistentList>.subList(fromIndex, toIndex)
     }
 
-    override fun addAll(elements: Collection<E>): PersistentList<E> {
+    override fun copyingAddAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
         return mutate { it.addAll(elements) }
     }
 
-    override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
+    override fun copyingAddAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
         return mutate { it.addAll(index, c) }
     }
 
-    override fun remove(element: E): PersistentList<E> {
+    override fun copyingRemove(element: E): PersistentList<E> {
         val index = this.indexOf(element)
         if (index != -1) {
-            return this.removeAt(index)
+            return this.copyingRemoveAt(index)
         }
         return this
     }
 
-    override fun removeAll(elements: Collection<E>): PersistentList<E> {
+    override fun copyingRemoveAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
-        return removeAll { elements.contains(it) }
+        return copyingRemoveAll { elements.contains(it) }
     }
 
-    override fun retainAll(elements: Collection<E>): PersistentList<E> {
+    override fun copyingRetainAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return persistentVectorOf()
-        return removeAll { !elements.contains(it) }
+        return copyingRemoveAll { !elements.contains(it) }
     }
 
-    override fun clear(): PersistentList<E> {
+    override fun copyingClear(): PersistentList<E> {
         return persistentVectorOf()
     }
 

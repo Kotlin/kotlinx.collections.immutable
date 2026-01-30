@@ -18,7 +18,7 @@ fun <E> persistentSetBuilderAdd(
 
     var set = emptyPersistentSet<E>(implementation)
     for (index in 0 until immutableSize) {
-        set = set.add(elements[index])
+        set = set.copyingAdd(elements[index])
     }
 
     val builder = set.builder()

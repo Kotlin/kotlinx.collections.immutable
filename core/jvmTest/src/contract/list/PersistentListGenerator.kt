@@ -19,13 +19,13 @@ class PersistentListGenerator {
 
         object AddAll : TestStringListGenerator() {
             override fun create(elements: Array<out String>): List<String> {
-                return persistentListOf<String>().addAll(elements.toList())
+                return persistentListOf<String>().copyingAddAll(elements.toList())
             }
         }
 
         object AddEach : TestStringListGenerator() {
             override fun create(elements: Array<out String>): List<String> {
-                return elements.fold(persistentListOf()) { list, element -> list.add(element) }
+                return elements.fold(persistentListOf()) { list, element -> list.copyingAdd(element) }
             }
         }
 
@@ -44,7 +44,7 @@ class PersistentListGenerator {
         object HeadSubList : TestStringListGenerator() {
             override fun create(elements: Array<out String>): List<String> {
                 return persistentListOf<String>()
-                        .addAll(listOf(*elements, "f", "g"))
+                        .copyingAddAll(listOf(*elements, "f", "g"))
                         .subList(0, elements.size)
             }
         }
@@ -52,7 +52,7 @@ class PersistentListGenerator {
         object TailSubList : TestStringListGenerator() {
             override fun create(elements: Array<String>): List<String> {
                 return persistentListOf<String>()
-                        .addAll(listOf("f", "g", *elements))
+                        .copyingAddAll(listOf("f", "g", *elements))
                         .subList(2, elements.size + 2)
             }
         }
@@ -61,7 +61,7 @@ class PersistentListGenerator {
             override fun create(elements: Array<String>): List<String> {
 
                 return persistentListOf<String>()
-                        .addAll(listOf("f", "g", *elements, "h", "i"))
+                        .copyingAddAll(listOf("f", "g", *elements, "h", "i"))
                         .subList(2, elements.size + 2)
             }
         }
