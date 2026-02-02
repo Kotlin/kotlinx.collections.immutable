@@ -47,6 +47,7 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
  *
  * return number of elements written to [newArray]
  **/
+@IgnorableReturnValue
 private inline fun Array<Any?>.filterTo(
         newArray: Array<Any?>,
         newArrayOffset: Int = 0,

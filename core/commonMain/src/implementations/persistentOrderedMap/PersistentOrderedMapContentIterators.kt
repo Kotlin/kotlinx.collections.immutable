@@ -17,6 +17,7 @@ internal open class PersistentOrderedMapLinksIterator<K, V>(
         return index < hashMap.size
     }
 
+    @IgnorableReturnValue
     override fun next(): LinkedValue<V> {
         if (!hasNext()) {
             throw NoSuchElementException()

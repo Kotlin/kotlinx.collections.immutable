@@ -170,7 +170,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                 repeat(expectedSize) {
                     assertTrue(iterator.hasNext())
 
-                    iterator.next()
+                    val _ = iterator.next()
 
                     val shouldRemove = Random.nextDouble() < 0.2
                     if (shouldRemove) {

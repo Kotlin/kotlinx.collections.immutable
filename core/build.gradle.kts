@@ -22,6 +22,9 @@ mavenPublicationsPom {
 kotlin {
     applyDefaultHierarchyTemplate()
     explicitApi()
+    compilerOptions {
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
+    }
 
     // According to https://kotlinlang.org/docs/native-target-support.html
     // Tier 1

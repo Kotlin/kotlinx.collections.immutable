@@ -206,6 +206,7 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
         return true
     }
 
+    @IgnorableReturnValue
     private fun copyToBuffer(buffer: Array<Any?>, bufferIndex: Int, sourceIterator: Iterator<Any?>): Array<Any?> {
         var index = bufferIndex
         while (index < MAX_BUFFER_SIZE && sourceIterator.hasNext()) {
@@ -251,6 +252,7 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      *
      * Returns the resulting root.
      */
+    @IgnorableReturnValue
     private fun pushBuffers(root: Array<Any?>?, rootSize: Int, shift: Int, buffersIterator: Iterator<Array<Any?>>): Array<Any?> {
         check(buffersIterator.hasNext())
         check(shift >= 0)
@@ -565,6 +567,7 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
         return elementCarry.value as E
     }
 
+    @IgnorableReturnValue
     private fun removeFromTailAt(root: Array<Any?>?, rootSize: Int, shift: Int, index: Int): Any? {
         val tailSize = size - rootSize
         assert(index < tailSize)
@@ -686,6 +689,7 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
         return removeAllWithPredicate { elements.contains(it) }
     }
 
+    @IgnorableReturnValue
     fun removeAllWithPredicate(predicate: (E) -> Boolean): Boolean {
         val anyRemoved = removeAll(predicate)
         if (anyRemoved) {
