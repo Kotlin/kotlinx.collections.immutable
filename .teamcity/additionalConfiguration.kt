@@ -9,6 +9,7 @@ import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 
 fun Project.additionalConfiguration() {
     subProject(benchmarksProject(knownBuilds.buildVersion))
+    subProject(deploymentProject())
 
     knownBuilds.buildAll.features {
         commitStatusPublisher {
