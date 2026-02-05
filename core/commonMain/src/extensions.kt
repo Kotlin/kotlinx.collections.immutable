@@ -766,3 +766,66 @@ public fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V>
         = this as? PersistentHashMap
         ?: (this as? PersistentHashMapBuilder<K, V>)?.build()
         ?: PersistentHashMap.emptyOf<K, V>().putAll(this)
+
+/**
+ * Builds a new [PersistentList] by populating a [MutableList] using the given [builderAction]
+ * and returning an immutable list with the same elements.
+ *
+ * The list passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ */
+public inline fun <T> buildPersistentList(builderAction: MutableList<T>.() -> Unit): PersistentList<T> {
+        return persistentListOf<T>().mutate(builderAction)
+}
+
+/**
+ * Builds a new [PersistentSet] by populating a [MutableSet] using the given [builderAction]
+ * and returning an immutable set with the same elements.
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ *
+ * Elements of the set are iterated in the order they were added by the [builderAction].
+ */
+public inline fun <T> buildPersistentSet(builderAction: MutableSet<T>.() -> Unit): PersistentSet<T> {
+        return persistentSetOf<T>().mutate(builderAction)
+}
+
+/**
+ * Builds a new [PersistentSet] by populating a [MutableSet] using the given [builderAction]
+ * and returning an immutable set with the same elements.
+ *
+ * The set passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ *
+ * Order of the elements in the returned set is unspecified.
+ */
+public inline fun <T> buildPersistentHashSet(builderAction: MutableSet<T>.() -> Unit): PersistentSet<T> {
+        return persistentHashSetOf<T>().mutate(builderAction)
+}
+
+/**
+ * Builds a new [PersistentMap] by populating a [MutableMap] using the given [builderAction]
+ * and returning an immutable map with the same key-value pairs.
+ *
+ * The map passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ *
+ * Entries of the map are iterated in the order they were added by the [builderAction].
+ */
+public inline fun <K, V> buildPersistentMap(builderAction: MutableMap<K, V>.() -> Unit): PersistentMap<K, V> {
+        return persistentMapOf<K, V>().mutate(builderAction)
+}
+
+/**
+ * Builds a new [PersistentMap] by populating a [MutableMap] using the given [builderAction]
+ * and returning an immutable map with the same key-value pairs.
+ *
+ * The map passed as a receiver to the [builderAction] is valid only inside that function.
+ * Using it outside the function produces an unspecified behavior.
+ *
+ * Order of the entries in the returned map is unspecified.
+ */
+public inline fun <K, V> buildPersistentHashMap(builderAction: MutableMap<K, V>.() -> Unit): PersistentMap<K, V> {
+        return persistentHashMapOf<K, V>().mutate(builderAction)
+}
