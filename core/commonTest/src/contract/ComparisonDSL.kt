@@ -20,14 +20,14 @@ class CompareContext<out T>(val expected: T, val actual: T) {
     fun <P> propertyEquals(message: String = "", getter: T.() -> P) {
         assertEquals(expected.getter(), actual.getter(), message)
     }
-    fun propertyFails(getter: T.() -> Unit) { assertFailEquals({expected.getter()}, {actual.getter()}) }
-    inline fun <reified E> propertyFailsWith(noinline getter: T.() -> Unit) = propertyFailsWith({ it is E }, getter)
-    fun propertyFailsWith(exceptionPredicate: (Throwable) -> Boolean, getter: T.() -> Unit) { assertFailEquals({expected.getter()}, {actual.getter()}, exceptionPredicate) }
+    fun propertyFails(getter: T.() -> Any?) { assertFailEquals({expected.getter()}, {actual.getter()}) }
+    inline fun <reified E> propertyFailsWith(noinline getter: T.() -> Any?) = propertyFailsWith({ it is E }, getter)
+    fun propertyFailsWith(exceptionPredicate: (Throwable) -> Boolean, getter: T.() -> Any?) { assertFailEquals({expected.getter()}, {actual.getter()}, exceptionPredicate) }
     fun <P> compareProperty(getter: T.() -> P, block: CompareContext<P>.() -> Unit) {
         compare(expected.getter(), actual.getter(), block)
     }
 
-    private fun assertFailEquals(expected: () -> Unit, actual: () -> Unit, exceptionPredicate: ((Throwable) -> Boolean)? = null) {
+    private fun assertFailEquals(expected: () -> Any?, actual: () -> Any?, exceptionPredicate: ((Throwable) -> Boolean)? = null) {
         val expectedFail = assertFails(expected)
         val actualFail = assertFails(actual)
 

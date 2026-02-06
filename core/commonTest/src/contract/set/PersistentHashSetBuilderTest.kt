@@ -96,7 +96,7 @@ class PersistentHashSetBuilderTest {
         assertFailsWith<ConcurrentModificationException> {
             while (iterator1.hasNext()) {
                 val element1 = iterator1.next()
-                iterator2.next()
+                val _ = iterator2.next()
                 if (element1 == 0) iterator1.remove()
                 if (element1 == 2) iterator2.remove()
             }
@@ -111,7 +111,7 @@ class PersistentHashSetBuilderTest {
         val iterator2 = builder.iterator()
 
         assertFailsWith<ConcurrentModificationException> {
-            iterator1.next()
+            val _ = iterator1.next()
             iterator1.remove()
             iterator2.next()
         }

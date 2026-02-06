@@ -82,12 +82,13 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         // https://github.com/Kotlin/kotlinx.collections.immutable/issues/109
         val map0 = immutableMapOf<Int, Int>().put(0, 0).put(1, 1).put(32, 32)
         val map1 = map0.mutate { it.remove(0) }
-        map1.mutate {
+        val map2 = map1.mutate {
             it.remove(1)
             it.remove(0)
         }
 
         assertTrue(map1.containsKey(32))
+        assertTrue(map2.containsKey(32))
     }
 
     @Test
@@ -314,8 +315,8 @@ abstract class ImmutableMapTest {
         map.testNoOperation({ remove(notEqualKey) }, { remove(notEqualKey) })
         map.testNotNoOperation({ remove(equalKey) }, { remove(equalKey) })
 
-        map.testNoOperation({ remove(key, notEqualValue) }, { remove(key, notEqualValue) })
-        map.testNotNoOperation({ remove(key, equalValue) }, { remove(key, equalValue) })
+        map.testNoOperation({ remove(key, notEqualValue) }, { val _ = remove(key, notEqualValue) })
+        map.testNotNoOperation({ remove(key, equalValue) }, { val _ = remove(key, equalValue) })
 
         map.testNoOperation({ put(equalKey, value) }, { put(equalKey, value) })
         map.testNotNoOperation({ put(equalKey, equalValue) }, { put(equalKey, equalValue) })
