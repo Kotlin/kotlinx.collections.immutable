@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -22,7 +22,7 @@ fun <K, V> emptyPersistentMap(implementation: String): PersistentMap<K, V> = whe
 fun <K> persistentMapPut(implementation: String, keys: List<K>): PersistentMap<K, String> {
     var map = emptyPersistentMap<K, String>(implementation)
     for (key in keys) {
-        map = map.put(key, "some value")
+        map = map.putting(key, "some value")
     }
     return map
 }
@@ -30,7 +30,7 @@ fun <K> persistentMapPut(implementation: String, keys: List<K>): PersistentMap<K
 fun <K> persistentMapRemove(persistentMap: PersistentMap<K, String>, keys: List<K>): PersistentMap<K, String> {
     var map = persistentMap
     for (key in keys) {
-        map = map.remove(key)
+        map = map.removing(key)
     }
     return map
 }

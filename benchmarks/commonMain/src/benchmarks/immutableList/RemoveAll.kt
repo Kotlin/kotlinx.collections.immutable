@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -20,7 +20,7 @@ open class RemoveAll {
 
     @Setup
     fun prepare() {
-        persistentList = persistentListOf<Int>().addAll(List(size) { it })
+        persistentList = persistentListOf<Int>().addingAll(List(size) { it })
     }
 
     // Results of the following benchmarks do not indicate memory or time spent per operation,
@@ -38,7 +38,7 @@ open class RemoveAll {
     fun removeAll_All(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = List(size) { it }
-        return list.removeAll(elementsToRemove)
+        return list.removingAll(elementsToRemove)
     }
 
     /**
@@ -48,7 +48,7 @@ open class RemoveAll {
     fun removeAll_RandomHalf(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = randomIndexes(size / 2)
-        return list.removeAll(elementsToRemove)
+        return list.removingAll(elementsToRemove)
     }
 
     /**
@@ -58,7 +58,7 @@ open class RemoveAll {
     fun removeAll_RandomTen(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = randomIndexes(10)
-        return list.removeAll(elementsToRemove)
+        return list.removingAll(elementsToRemove)
     }
 
     /**
@@ -68,7 +68,7 @@ open class RemoveAll {
     fun removeAll_Tail(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = List(tailSize()) { size - 1 - it }
-        return list.removeAll(elementsToRemove)
+        return list.removingAll(elementsToRemove)
     }
 
     /**
@@ -78,7 +78,7 @@ open class RemoveAll {
     fun removeAll_NonExisting(): PersistentList<Int> {
         val list = persistentList
         val elementsToRemove = randomIndexes(10).map { size + it }
-        return list.removeAll(elementsToRemove)
+        return list.removingAll(elementsToRemove)
     }
 
     private fun randomIndexes(count: Int): List<Int> {

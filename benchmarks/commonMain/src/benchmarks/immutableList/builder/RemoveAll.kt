@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -86,7 +86,7 @@ open class RemoveAll {
         val immutableSize = immutableSize(size, immutablePercentage)
         var list = persistentListOf<Int>()
         for (i in 0 until immutableSize) {
-            list = list.add(i)
+            list = list.adding(i)
         }
         val builder = list.builder()
         for (i in immutableSize until size) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -30,7 +30,7 @@ class HashMapTrieNodeTest {
         testEmptyMap(map)
 
         val wrapper1 = IntWrapper(1, 0b100_01101)
-        map = map.put(wrapper1, 1)
+        map = map.putting(wrapper1, 1)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
@@ -40,7 +40,7 @@ class HashMapTrieNodeTest {
             assertTrue(arrayOf<Any?>(wrapper1, 1) contentEquals node.buffer)
         }
 
-        map = map.remove(wrapper1)
+        map = map.removing(wrapper1)
 
         testEmptyMap(map)
     }
@@ -59,7 +59,7 @@ class HashMapTrieNodeTest {
     fun canonicalization() {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper33 = IntWrapper(33, 0b1_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper33, 33)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper33, 33)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             if  (shift == 0) {
@@ -74,7 +74,7 @@ class HashMapTrieNodeTest {
             }
         }
 
-        map.remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+        map.removing(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
             assertEquals(0, hash)
             assertEquals(0b10, dataMap)
@@ -82,7 +82,7 @@ class HashMapTrieNodeTest {
             assertTrue(arrayOf<Any?>(wrapper33, 33) contentEquals node.buffer)
         }
 
-        testEmptyMap(map.remove(wrapper1).remove(wrapper33))
+        testEmptyMap(map.removing(wrapper1).removing(wrapper33))
     }
 
     //                    Remove (1057, 1057)
@@ -104,7 +104,7 @@ class HashMapTrieNodeTest {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper33 = IntWrapper(33, 0b1_00001)
         val wrapper1057 = IntWrapper(1057, 0b1_00001_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper33, 33).put(wrapper1057, 1057)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper33, 33).putting(wrapper1057, 1057)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             when (shift) {
@@ -128,7 +128,7 @@ class HashMapTrieNodeTest {
             }
         }
 
-        map.remove(wrapper1057).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+        map.removing(wrapper1057).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             if (shift == 0) {
                 assertEquals(0b0, dataMap)
                 assertEquals(0b10, nodeMap)
@@ -161,9 +161,9 @@ class HashMapTrieNodeTest {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper33 = IntWrapper(33, 0b1_00001)
         val wrapper1057 = IntWrapper(1057, 0b1_00001_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper33, 33).put(wrapper1057, 1057)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper33, 33).putting(wrapper1057, 1057)
 
-        map.remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+        map.removing(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             when (shift) {
                 0 -> {
                     assertEquals(0b0, dataMap)
@@ -184,7 +184,7 @@ class HashMapTrieNodeTest {
             }
         }
 
-        map.remove(wrapper1).remove(wrapper1057).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+        map.removing(wrapper1).removing(wrapper1057).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
             assertEquals(0, hash)
             assertEquals(0b10, dataMap)
@@ -192,7 +192,7 @@ class HashMapTrieNodeTest {
             assertTrue(arrayOf<Any?>(wrapper33, 33) contentEquals node.buffer)
         }
 
-        testEmptyMap(map.remove(wrapper1).remove(wrapper1057).remove(wrapper33))
+        testEmptyMap(map.removing(wrapper1).removing(wrapper1057).removing(wrapper33))
     }
 
     // Nodes drawn using square braces are collision nodes.
@@ -215,7 +215,7 @@ class HashMapTrieNodeTest {
     fun collision() {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper2 = IntWrapper(2, 0b1)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper2, 2)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             if (shift > MAX_SHIFT) {
@@ -230,7 +230,7 @@ class HashMapTrieNodeTest {
             }
         }
 
-        map.remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+        map.removing(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
             assertEquals(0, hash)
             assertEquals(0b10, dataMap)
@@ -238,7 +238,7 @@ class HashMapTrieNodeTest {
             assertTrue(arrayOf(wrapper2, 2) contentEquals node.buffer)
         }
 
-        testEmptyMap(map.remove(wrapper1).remove(wrapper2))
+        testEmptyMap(map.removing(wrapper1).removing(wrapper2))
     }
 
     // Nodes drawn using square braces are collision nodes.
@@ -266,7 +266,7 @@ class HashMapTrieNodeTest {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper2 = IntWrapper(2, 0b1)
         val wrapper3 = IntWrapper(3, 0b1_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper2, 2).put(wrapper3, 3)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2).putting(wrapper3, 3)
 
         map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             when (shift) {
@@ -295,7 +295,7 @@ class HashMapTrieNodeTest {
             }
         }
 
-        map.remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+        map.removing(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             if (shift == 0) {
                 assertEquals(0b0, dataMap)
                 assertEquals(0b10, nodeMap)
@@ -334,9 +334,9 @@ class HashMapTrieNodeTest {
         val wrapper1 = IntWrapper(1, 0b1)
         val wrapper2 = IntWrapper(2, 0b1)
         val wrapper3 = IntWrapper(3, 0b1_00001)
-        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().put(wrapper1, 1).put(wrapper2, 2).put(wrapper3, 3)
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2).putting(wrapper3, 3)
 
-        map.remove(wrapper3).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+        map.removing(wrapper3).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             when (shift) {
                 in 0..MAX_SHIFT -> {
                     val code = if (shift == 0) 0 else 1
@@ -354,7 +354,7 @@ class HashMapTrieNodeTest {
             }
         }
 
-        map.remove(wrapper3).remove(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+        map.removing(wrapper3).removing(wrapper1).node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
             assertEquals(0, shift)
             assertEquals(0, hash)
             assertEquals(0b10, dataMap)

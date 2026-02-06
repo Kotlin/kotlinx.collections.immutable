@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -24,7 +24,7 @@ class PersistentHashSetTest {
         assertEquals(set1, builder.build())
         assertEquals(set1, builder.build().toSet())
 
-        val set2 = set1.remove(0)
+        val set2 = set1.removing(0)
         builder.remove(0)
 
         assertEquals(set2, builder.build().toSet())

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -35,7 +35,7 @@ open class AddAll {
      */
     @Benchmark
     fun addAllLast(): ImmutableList<String> {
-        return persistentListOf<String>().addAll(listToAdd)
+        return persistentListOf<String>().addingAll(listToAdd)
     }
 
     /**
@@ -46,7 +46,7 @@ open class AddAll {
     fun addAllLast_Half(): ImmutableList<String> {
         val initialSize = size / 2
         val subListToAdd = listToAdd.subList(0, size - initialSize) // assuming subList creation is neglectable
-        return persistentListAdd(initialSize).addAll(subListToAdd)
+        return persistentListAdd(initialSize).addingAll(subListToAdd)
     }
 
     /**
@@ -57,7 +57,7 @@ open class AddAll {
     fun addAllLast_OneThird(): ImmutableList<String> {
         val initialSize = size - size / 3
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addAll(subListToAdd)
+        return persistentListAdd(initialSize).addingAll(subListToAdd)
     }
 
     /**
@@ -68,7 +68,7 @@ open class AddAll {
     fun addAllFirst_Half(): ImmutableList<String> {
         val initialSize = size / 2
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addAll(0, subListToAdd)
+        return persistentListAdd(initialSize).insertingAllAt(0, subListToAdd)
     }
 
     /**
@@ -79,7 +79,7 @@ open class AddAll {
     fun addAllFirst_OneThird(): ImmutableList<String> {
         val initialSize = size - size / 3
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addAll(0, subListToAdd)
+        return persistentListAdd(initialSize).insertingAllAt(0, subListToAdd)
     }
 
     /**
@@ -91,7 +91,7 @@ open class AddAll {
         val initialSize = size / 2
         val index = initialSize / 2
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addAll(index, subListToAdd)
+        return persistentListAdd(initialSize).insertingAllAt(index, subListToAdd)
     }
 
     /**
@@ -103,6 +103,6 @@ open class AddAll {
         val initialSize = size - size / 3
         val index = initialSize / 2
         val subListToAdd = listToAdd.subList(0, size - initialSize)
-        return persistentListAdd(initialSize).addAll(index, subListToAdd)
+        return persistentListAdd(initialSize).insertingAllAt(index, subListToAdd)
     }
 }

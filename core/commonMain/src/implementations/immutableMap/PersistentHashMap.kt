@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -48,11 +48,15 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return node.get(key.hashCode(), key, 0)
     }
 
+    @Deprecated("Use putting() instead.", replaceWith = ReplaceWith("putting(key, value)"))
     override fun put(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val newNodeResult = node.put(key.hashCode(), key, value, 0) ?: return this
         return PersistentHashMap(newNodeResult.node, size + newNodeResult.sizeDelta)
     }
 
+    override fun putting(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> = @Suppress("DEPRECATION") put(key, value)
+
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(key)"))
     override fun remove(key: K): PersistentHashMap<K, V> {
         val newNode = node.remove(key.hashCode(), key, 0)
         if (node === newNode) { return this }
@@ -60,6 +64,9 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return PersistentHashMap(newNode, size - 1)
     }
 
+    override fun removing(key: K): PersistentHashMap<K, V> = @Suppress("DEPRECATION") remove(key)
+
+    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(key, value)"))
     override fun remove(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val newNode = node.remove(key.hashCode(), key, value, 0)
         if (node === newNode) { return this }
@@ -67,11 +74,13 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return PersistentHashMap(newNode, size - 1)
     }
 
+    @Deprecated("Use puttingAll() instead.", replaceWith = ReplaceWith("puttingAll(m)"))
     override fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
         if (m.isEmpty()) return this
         return this.mutate { it.putAll(m) }
     }
 
+    @Deprecated("Use cleared() method instead.", replaceWith = ReplaceWith("cleared()"))
     override fun clear(): PersistentMap<K, V> {
         return PersistentHashMap.emptyOf()
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -18,7 +18,7 @@ fun <E> persistentSetBuilderAdd(
 
     var set = emptyPersistentSet<E>(implementation)
     for (index in 0 until immutableSize) {
-        set = set.add(elements[index])
+        set = set.adding(elements[index])
     }
 
     val builder = set.builder()
