@@ -146,7 +146,14 @@ kotlin {
     }
 }
 
+dependencies {
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-playground-samples-plugin")
+}
+
 dokka {
+    val releaseVersion = version.toString().removeSuffix("-${properties["versionSuffix"]}")
+    moduleVersion.set(releaseVersion)
+
     pluginsConfiguration.html {
         templatesDir.set(projectDir.resolve("dokka-templates"))
     }
@@ -163,14 +170,10 @@ dokka {
         skipDeprecated.set(true)
         sourceLink {
             localDirectory.set(rootDir)
-            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/v$version")
+            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/v$releaseVersion")
             remoteLineSuffix.set("#L")
         }
     }
-}
-
-dependencies {
-    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-playground-samples-plugin")
 }
 
 tasks {
