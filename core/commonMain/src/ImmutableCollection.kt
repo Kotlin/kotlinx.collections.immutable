@@ -28,7 +28,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns the result of adding the specified [element] to this collection.
      *
-     * @returns a new persistent collection with the specified [element] added;
+     * @return a new persistent collection with the specified [element] added;
      * or this instance if this collection does not support duplicates, and it already contains the element.
      */
     public fun adding(element: @UnsafeVariance E): PersistentCollection<E>
@@ -36,7 +36,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns the result of adding the specified [element] to this collection.
      *
-     * @returns a new persistent collection with the specified [element] added;
+     * @return a new persistent collection with the specified [element] added;
      * or this instance if this collection does not support duplicates, and it already contains the element.
      *
      * Imperative names mirror MutableCollection's mutating API.
