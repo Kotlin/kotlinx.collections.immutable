@@ -151,9 +151,6 @@ dependencies {
 }
 
 dokka {
-    val releaseVersion = version.toString().removeSuffix("-${properties["versionSuffix"]}")
-    moduleVersion.set(releaseVersion)
-
     pluginsConfiguration.html {
         templatesDir.set(projectDir.resolve("dokka-templates"))
     }
@@ -170,7 +167,9 @@ dokka {
         skipDeprecated.set(true)
         sourceLink {
             localDirectory.set(rootDir)
-            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/v$releaseVersion")
+            val branch = if (version.toString().endsWith(properties["versionSuffix"].toString()))
+                "master" else "v$version"
+            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/$branch")
             remoteLineSuffix.set("#L")
         }
     }
