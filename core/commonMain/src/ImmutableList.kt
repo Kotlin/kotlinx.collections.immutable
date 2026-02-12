@@ -226,7 +226,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun insertingAllAt(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> =
+    public fun addingAllAt(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> =
         @Suppress("DEPRECATION") addAll(index, c)
 
     /**
@@ -240,9 +240,9 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
      *
-     * @see insertingAllAt
+     * @see addingAllAt
      */
-    @Deprecated("Use insertingAllAt(index, c) instead.", replaceWith = ReplaceWith("insertingAllAt(index, c)"))
+    @Deprecated("Use addingAllAt(index, c) instead.", replaceWith = ReplaceWith("addingAllAt(index, c)"))
     public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
@@ -277,7 +277,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun insertingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> =
+    public fun addingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> =
         @Suppress("DEPRECATION") add(index, element)
 
     /**
@@ -290,9 +290,9 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
      *
-     * @see insertingAt
+     * @see addingAt
      */
-    @Deprecated("Use insertingAt() instead.", replaceWith = ReplaceWith("insertingAt(index, element)"))
+    @Deprecated("Use addingAt() instead.", replaceWith = ReplaceWith("addingAt(index, element)"))
     public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**

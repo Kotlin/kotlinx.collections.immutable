@@ -21,7 +21,7 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return mutate { it.addAll(elements) }
     }
 
-    @Deprecated("Use insertingAllAt(index, c) instead.", replaceWith = ReplaceWith("insertingAllAt(index, c)"))
+    @Deprecated("Use addingAllAt(index, c) instead.", replaceWith = ReplaceWith("addingAllAt(index, c)"))
     override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
