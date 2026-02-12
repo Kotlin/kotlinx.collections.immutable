@@ -32,7 +32,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      *         or this instance if this collection does not support duplicates,
      *         and it already contains the element.
      */
-    public fun adding(element: @UnsafeVariance E): PersistentCollection<E>
+    public fun adding(element: @UnsafeVariance E): PersistentCollection<E> = @Suppress("DEPRECATION") add(element)
 
     /**
      * Returns the result of adding the specified [element] to this collection.
@@ -55,7 +55,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with elements of the specified [elements] collection added;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    public fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
+        @Suppress("DEPRECATION") addAll(elements)
 
     /**
      * Returns the result of adding all elements of the specified [elements] collection to this collection.
@@ -77,7 +78,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with a single appearance of the specified [element] removed;
      *         or this instance if there is no such element in this collection.
      */
-    public fun removing(element: @UnsafeVariance E): PersistentCollection<E>
+    public fun removing(element: @UnsafeVariance E): PersistentCollection<E> = @Suppress("DEPRECATION") remove(element)
 
     /**
      * Returns the result of removing a single appearance of the specified [element] from this collection.
@@ -101,7 +102,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      *         contained in the specified [elements] collection removed;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    public fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
+        @Suppress("DEPRECATION") removeAll(elements)
 
     /**
      * Returns the result of removing all elements in this collection that are also
@@ -123,7 +125,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * @return a new persistent collection with elements matching the specified [predicate] removed;
      *         or this instance if no elements match the predicate.
      */
-    public fun removingAll(predicate: (E) -> Boolean): PersistentCollection<E>
+    public fun removingAll(predicate: (E) -> Boolean): PersistentCollection<E> =
+        @Suppress("DEPRECATION") removeAll(predicate)
 
     /**
      * Returns the result of removing all elements in this collection that match the specified [predicate].
@@ -145,7 +148,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    public fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
+        @Suppress("DEPRECATION") retainAll(elements)
 
     /**
      * Returns all elements in this collection that are also
@@ -168,7 +172,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      *
      * @return an empty persistent collection.
      */
-    public fun cleared(): PersistentCollection<E>
+    public fun cleared(): PersistentCollection<E> = @Suppress("DEPRECATION") clear()
 
     /**
      * Returns an empty persistent collection.
