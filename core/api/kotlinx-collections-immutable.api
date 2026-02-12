@@ -129,6 +129,16 @@ public abstract interface class kotlinx/collections/immutable/PersistentCollecti
 	public abstract fun build ()Lkotlinx/collections/immutable/PersistentCollection;
 }
 
+public final class kotlinx/collections/immutable/PersistentCollection$DefaultImpls {
+	public static fun adding (Lkotlinx/collections/immutable/PersistentCollection;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentCollection;
+	public static fun addingAll (Lkotlinx/collections/immutable/PersistentCollection;Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentCollection;
+	public static fun cleared (Lkotlinx/collections/immutable/PersistentCollection;)Lkotlinx/collections/immutable/PersistentCollection;
+	public static fun removing (Lkotlinx/collections/immutable/PersistentCollection;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentCollection;
+	public static fun removingAll (Lkotlinx/collections/immutable/PersistentCollection;Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentCollection;
+	public static fun removingAll (Lkotlinx/collections/immutable/PersistentCollection;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentCollection;
+	public static fun retainingAll (Lkotlinx/collections/immutable/PersistentCollection;Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentCollection;
+}
+
 public abstract interface class kotlinx/collections/immutable/PersistentList : kotlinx/collections/immutable/ImmutableList, kotlinx/collections/immutable/PersistentCollection {
 	public abstract fun add (ILjava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public abstract fun add (Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
@@ -194,7 +204,9 @@ public abstract interface class kotlinx/collections/immutable/PersistentMap$Buil
 
 public final class kotlinx/collections/immutable/PersistentMap$DefaultImpls {
 	public static fun cleared (Lkotlinx/collections/immutable/PersistentMap;)Lkotlinx/collections/immutable/PersistentMap;
+	public static fun putting (Lkotlinx/collections/immutable/PersistentMap;Ljava/lang/Object;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentMap;
 	public static fun puttingAll (Lkotlinx/collections/immutable/PersistentMap;Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentMap;
+	public static fun removing (Lkotlinx/collections/immutable/PersistentMap;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentMap;
 	public static fun removing (Lkotlinx/collections/immutable/PersistentMap;Ljava/lang/Object;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentMap;
 }
 
