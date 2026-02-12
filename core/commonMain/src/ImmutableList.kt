@@ -96,11 +96,11 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * The elements are appended in the order they appear in the specified collection.
      *
-     * @return a new persistent list with elements of the specified [elements] collection appended;
-     *         or this instance if the specified collection is empty.
-     *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
+     *
+     * @return a new persistent list with elements of the specified [elements] collection appended;
+     *         or this instance if the specified collection is empty.
      *
      * @see addingAll
      */
@@ -118,11 +118,11 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns the result of removing the first appearance of the specified [element] from this list.
      *
-     * @return a new persistent list with the first appearance of the specified [element] removed;
-     *         or this instance if there is no such element in this list.
-     *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
+     *
+     * @return a new persistent list with the first appearance of the specified [element] removed;
+     *         or this instance if there is no such element in this list.
      *
      * @see removing
      */
@@ -144,12 +144,12 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns the result of removing all elements in this list that are also
      * contained in the specified [elements] collection.
      *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
      * @return a new persistent list with elements in this list that are also
      *         contained in the specified [elements] collection removed;
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
      */
     @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
     override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
@@ -166,11 +166,11 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns the result of removing all elements in this list that match the specified [predicate].
      *
-     * @return a new persistent list with elements matching the specified [predicate] removed;
-     *         or this instance if no elements match the predicate.
-     *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
+     *
+     * @return a new persistent list with elements matching the specified [predicate] removed;
+     *         or this instance if no elements match the predicate.
      */
     @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E>
@@ -190,12 +190,12 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns all elements in this list that are also
      * contained in the specified [elements] collection.
      *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
      * @return a new persistent list with elements in this list that are also
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
      *
      * @see retainingAll
      */
@@ -232,13 +232,13 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns the result of inserting the specified [c] collection at the specified [index].
      *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
      * @return a new persistent list with the specified [c] collection inserted at the specified [index];
      *         or this instance if the specified collection is empty.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
-     *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
      *
      * @see addingAllAt
      */
@@ -258,12 +258,12 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns the result with the element at the specified [index] replaced with the specified [element].
      *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
      * @return a new persistent list with the element at the specified [index] replaced with the specified [element].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
-     *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
      *
      * @see replacingAt
      */
@@ -283,12 +283,12 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the specified [element] inserted at the specified [index].
      *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
      * @return a new persistent list with the specified [element] inserted at the specified [index].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
-     *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
      *
      * @see addingAt
      */
@@ -307,12 +307,12 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the element at the specified [index] removed.
      *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
      * @return a new persistent list with the element at the specified [index] removed.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
-     *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
      *
      * @see removingAt
      */
