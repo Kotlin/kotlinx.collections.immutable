@@ -28,16 +28,18 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns the result of adding the specified [element] to this collection.
      *
-     * @returns a new persistent collection with the specified [element] added;
-     * or this instance if this collection does not support duplicates, and it already contains the element.
+     * @return a new persistent collection with the specified [element] added;
+     *         or this instance if this collection does not support duplicates,
+     *         and it already contains the element.
      */
     public fun adding(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
      * Returns the result of adding the specified [element] to this collection.
      *
-     * @returns a new persistent collection with the specified [element] added;
-     * or this instance if this collection does not support duplicates, and it already contains the element.
+     * @return a new persistent collection with the specified [element] added;
+     *         or this instance if this collection does not support duplicates,
+     *         and it already contains the element.
      *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
@@ -51,7 +53,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns the result of adding all elements of the specified [elements] collection to this collection.
      *
      * @return a new persistent collection with elements of the specified [elements] collection added;
-     * or this instance if no modifications were made in the result of this operation.
+     *         or this instance if no modifications were made in the result of this operation.
      */
     public fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
@@ -59,7 +61,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns the result of adding all elements of the specified [elements] collection to this collection.
      *
      * @return a new persistent collection with elements of the specified [elements] collection added;
-     * or this instance if no modifications were made in the result of this operation.
+     *         or this instance if no modifications were made in the result of this operation.
      *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
@@ -73,7 +75,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns the result of removing a single appearance of the specified [element] from this collection.
      *
      * @return a new persistent collection with a single appearance of the specified [element] removed;
-     * or this instance if there is no such element in this collection.
+     *         or this instance if there is no such element in this collection.
      */
     public fun removing(element: @UnsafeVariance E): PersistentCollection<E>
 
@@ -81,7 +83,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns the result of removing a single appearance of the specified [element] from this collection.
      *
      * @return a new persistent collection with a single appearance of the specified [element] removed;
-     * or this instance if there is no such element in this collection.
+     *         or this instance if there is no such element in this collection.
      *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
@@ -163,11 +165,15 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
 
     /**
      * Returns an empty persistent collection.
+     *
+     * @return an empty persistent collection.
      */
     public fun cleared(): PersistentCollection<E>
 
     /**
      * Returns an empty persistent collection.
+     *
+     * @return an empty persistent collection.
      *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.

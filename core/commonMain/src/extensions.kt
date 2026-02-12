@@ -56,8 +56,9 @@ public inline fun <K, V> PersistentMap<out K, V>.mutate(mutator: (MutableMap<K, 
 /**
  * Returns the result of adding the specified [element] to this collection.
  *
- * @returns a new persistent collection with the specified [element] added;
- * or this instance if this collection does not support duplicates and it already contains the element.
+ * @return a new persistent collection with the specified [element] added;
+ *         or this instance if this collection does not support duplicates,
+ *         and it already contains the element.
  */
 public inline operator fun <E> PersistentCollection<E>.plus(element: E): PersistentCollection<E> = adding(element)
 
