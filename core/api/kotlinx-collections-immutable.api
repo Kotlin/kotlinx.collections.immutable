@@ -136,11 +136,11 @@ public abstract interface class kotlinx/collections/immutable/PersistentList : k
 	public abstract fun addAll (Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
 	public abstract fun adding (Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public abstract fun addingAll (Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
+	public abstract fun addingAllAt (ILjava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
+	public abstract fun addingAt (ILjava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public abstract fun builder ()Lkotlinx/collections/immutable/PersistentList$Builder;
 	public abstract fun clear ()Lkotlinx/collections/immutable/PersistentList;
 	public abstract fun cleared ()Lkotlinx/collections/immutable/PersistentList;
-	public abstract fun insertingAllAt (ILjava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
-	public abstract fun insertingAt (ILjava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public abstract fun remove (Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public abstract fun removeAll (Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
 	public abstract fun removeAll (Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentList;
@@ -162,9 +162,9 @@ public abstract interface class kotlinx/collections/immutable/PersistentList$Bui
 public final class kotlinx/collections/immutable/PersistentList$DefaultImpls {
 	public static fun adding (Lkotlinx/collections/immutable/PersistentList;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public static fun addingAll (Lkotlinx/collections/immutable/PersistentList;Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
+	public static fun addingAllAt (Lkotlinx/collections/immutable/PersistentList;ILjava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
+	public static fun addingAt (Lkotlinx/collections/immutable/PersistentList;ILjava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public static fun cleared (Lkotlinx/collections/immutable/PersistentList;)Lkotlinx/collections/immutable/PersistentList;
-	public static fun insertingAllAt (Lkotlinx/collections/immutable/PersistentList;ILjava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
-	public static fun insertingAt (Lkotlinx/collections/immutable/PersistentList;ILjava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public static fun removing (Lkotlinx/collections/immutable/PersistentList;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public static fun removingAll (Lkotlinx/collections/immutable/PersistentList;Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
 	public static fun removingAll (Lkotlinx/collections/immutable/PersistentList;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentList;
@@ -334,14 +334,14 @@ public abstract class kotlinx/collections/immutable/implementations/immutableLis
 	public fun adding (Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public synthetic fun addingAll (Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentCollection;
 	public fun addingAll (Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
+	public fun addingAllAt (ILjava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
+	public fun addingAt (ILjava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public synthetic fun clear ()Lkotlinx/collections/immutable/PersistentCollection;
 	public fun clear ()Lkotlinx/collections/immutable/PersistentList;
 	public synthetic fun cleared ()Lkotlinx/collections/immutable/PersistentCollection;
 	public fun cleared ()Lkotlinx/collections/immutable/PersistentList;
 	public fun contains (Ljava/lang/Object;)Z
 	public fun containsAll (Ljava/util/Collection;)Z
-	public fun insertingAllAt (ILjava/util/Collection;)Lkotlinx/collections/immutable/PersistentList;
-	public fun insertingAt (ILjava/lang/Object;)Lkotlinx/collections/immutable/PersistentList;
 	public fun iterator ()Ljava/util/Iterator;
 	public fun listIterator ()Ljava/util/ListIterator;
 	public synthetic fun remove (Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentCollection;
