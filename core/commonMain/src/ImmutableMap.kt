@@ -47,7 +47,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [value] associated with the specified [key];
      *         or this instance if no modifications were made in the result of this operation.
      */
-    public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = @Suppress("DEPRECATION") put(key, value)
 
     /**
      * Returns the result of associating the specified [value] with the specified [key] in this map.
@@ -71,7 +71,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * @return a new persistent map with the specified [key] and its corresponding value removed;
      *         or this instance if it contains no mapping for the key.
      */
-    public fun removing(key: K): PersistentMap<K, V>
+    public fun removing(key: K): PersistentMap<K, V> = @Suppress("DEPRECATION") remove(key)
 
     /**
      * Returns the result of removing the specified [key] and its corresponding value from this map.
