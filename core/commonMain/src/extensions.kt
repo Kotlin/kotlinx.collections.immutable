@@ -372,7 +372,6 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V
  * @return a new persistent map with keys and values from the specified [map] associated;
  *         or this instance if no modifications were made in the result of this operation.
  */
-@Suppress("UNCHECKED_CAST")
 public fun <K, V> PersistentMap<out K, V>.puttingAll(map: Map<out K, V>): PersistentMap<K, V> =
     @Suppress("DEPRECATION") putAll(map)
 
