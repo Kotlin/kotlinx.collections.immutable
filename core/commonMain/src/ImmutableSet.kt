@@ -38,11 +38,11 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * Returns the result of adding the specified [element] to this set.
      *
-     * @return a new persistent set with the specified [element] added;
-     *         or this instance if it already contains the element.
-     *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
+     *
+     * @return a new persistent set with the specified [element] added;
+     *         or this instance if it already contains the element.
      *
      * @see adding
      */
@@ -61,11 +61,11 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * Returns the result of adding all elements of the specified [elements] collection to this set.
      *
-     * @return a new persistent set with elements of the specified [elements] collection added;
-     *         or this instance if it already contains every element of the specified collection.
-     *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
+     *
+     * @return a new persistent set with elements of the specified [elements] collection added;
+     *         or this instance if it already contains every element of the specified collection.
      *
      * @see addingAll
      */
@@ -83,11 +83,11 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * Returns the result of removing the specified [element] from this set.
      *
-     * @return a new persistent set with the specified [element] removed;
-     *         or this instance if there is no such element in this set.
-     *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
+     *
+     * @return a new persistent set with the specified [element] removed;
+     *         or this instance if there is no such element in this set.
      *
      * @see removing
      */
@@ -109,12 +109,12 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Returns the result of removing all elements in this set that are also
      * contained in the specified [elements] collection.
      *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
      * @return a new persistent set with elements in this set that are also
      *         contained in the specified [elements] collection removed;
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
      */
     @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
     override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
@@ -131,11 +131,11 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * Returns the result of removing all elements in this set that match the specified [predicate].
      *
-     * @return a new persistent set with elements matching the specified [predicate] removed;
-     *         or this instance if no elements match the predicate.
-     *
      * Imperative names mirror MutableCollection's mutating API.
      * Participial form clarifies that a new instance is returned.
+     *
+     * @return a new persistent set with elements matching the specified [predicate] removed;
+     *         or this instance if no elements match the predicate.
      */
     @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
     override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E>
@@ -155,12 +155,12 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Returns all elements in this set that are also
      * contained in the specified [elements] collection.
      *
+     * Imperative names mirror MutableCollection's mutating API.
+     * Participial form clarifies that a new instance is returned.
+     *
      * @return a new persistent set with elements in this set that are also
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
      *
      * @see retainingAll
      */
