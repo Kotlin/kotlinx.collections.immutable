@@ -79,7 +79,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRootNode
     }
 
-    @Deprecated("Use insertingAt() instead.", replaceWith = ReplaceWith("insertingAt(index, element)"))
+    @Deprecated("Use addingAt() instead.", replaceWith = ReplaceWith("addingAt(index, element)"))
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {

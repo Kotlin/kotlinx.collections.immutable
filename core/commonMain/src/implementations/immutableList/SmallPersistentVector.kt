@@ -81,7 +81,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         }
     }
 
-    @Deprecated("Use insertingAllAt(index, c) instead.", replaceWith = ReplaceWith("insertingAllAt(index, c)"))
+    @Deprecated("Use addingAllAt(index, c) instead.", replaceWith = ReplaceWith("addingAllAt(index, c)"))
     override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
@@ -98,7 +98,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return mutate { it.addAll(index, c) }
     }
 
-    @Deprecated("Use insertingAt() instead.", replaceWith = ReplaceWith("insertingAt(index, element)"))
+    @Deprecated("Use addingAt() instead.", replaceWith = ReplaceWith("addingAt(index, element)"))
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
