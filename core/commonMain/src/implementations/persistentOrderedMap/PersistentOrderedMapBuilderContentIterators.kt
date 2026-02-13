@@ -22,6 +22,7 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
         return index < builder.size
     }
 
+    @IgnorableReturnValue
     override fun next(): LinkedValue<V> {
         checkForComodification()
         checkHasNext()
