@@ -98,7 +98,7 @@ class PersistentHashMapBuilderTest {
         assertFailsWith<ConcurrentModificationException> {
             while (iterator1.hasNext()) {
                 val (key, _) = iterator1.next()
-                iterator2.next()
+                val _ = iterator2.next()
                 if (key == 0) iterator1.remove()
                 if (key == 2) iterator2.remove()
             }
@@ -113,7 +113,7 @@ class PersistentHashMapBuilderTest {
         val iterator2 = builder.entries.iterator()
 
         assertFailsWith<ConcurrentModificationException> {
-            iterator1.next()
+            val _ = iterator1.next()
             iterator1.remove()
             iterator2.next()
         }
