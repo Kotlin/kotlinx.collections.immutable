@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.properties["kotlin_version"]}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${rootProject.properties["kotlinVersion"]}")
     }
 }
 

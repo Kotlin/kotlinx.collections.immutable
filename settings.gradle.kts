@@ -8,9 +8,11 @@ pluginManagement {
             maven(kotlinRepoUrl)
         }
     }
+    val kotlinVersion: String by settings
     val dokkaVersion: String by settings
     val kotlinxBenchmarkVersion: String by settings
     plugins {
+        id("org.jetbrains.kotlin.plugin.power-assert") version kotlinVersion
         id("org.jetbrains.dokka") version dokkaVersion
         id("org.jetbrains.kotlinx.benchmark") version kotlinxBenchmarkVersion
     }
