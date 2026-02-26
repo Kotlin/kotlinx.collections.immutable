@@ -152,11 +152,11 @@ powerAssert {
     functions = listOf(
         "kotlin.check",
         "kotlin.test.assertTrue",
+        "kotlin.test.assertFalse",
         "kotlin.test.assertEquals",
         "kotlin.test.assertNotEquals",
         "kotlin.test.assertNull",
-        "kotlin.test.assertNotNull",
-        "kotlin.test.assertFalse",
+        "kotlin.test.assertNotNull"
     )
 }
 
