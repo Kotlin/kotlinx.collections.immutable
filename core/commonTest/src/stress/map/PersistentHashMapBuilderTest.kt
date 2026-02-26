@@ -29,11 +29,11 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
             builder[index] = values[index]
-            check(!builder.isEmpty())
+            check(builder.isNotEmpty())
         }
         repeat(times = elementsToAdd - 1) {
             builder.remove(builder.size - 1)
-            check(!builder.isEmpty())
+            check(builder.isNotEmpty())
         }
         builder.remove(builder.size - 1)
         assertTrue(builder.isEmpty())

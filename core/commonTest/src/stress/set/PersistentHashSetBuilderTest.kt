@@ -28,11 +28,11 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
-            check(!builder.isEmpty())
+            check(builder.isNotEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
             builder.remove(index)
-            check(!builder.isEmpty())
+            check(builder.isNotEmpty())
         }
         builder.remove(elementsToAdd - 1)
         assertTrue(builder.isEmpty())

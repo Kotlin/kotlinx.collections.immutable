@@ -27,11 +27,11 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         val elements = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(elements[index])
-            check(!vector.isEmpty())
+            check(vector.isNotEmpty())
         }
         repeat(times = elementsToAdd - 1) {
             vector = vector.removeAt(vector.size - 1)
-            check(!vector.isEmpty())
+            check(vector.isNotEmpty())
         }
         vector = vector.removeAt(vector.size - 1)
         assertTrue(vector.isEmpty())

@@ -30,11 +30,11 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             set = set.add(index)
-            check(!set.isEmpty())
+            check(set.isNotEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
             set = set.remove(index)
-            check(!set.isEmpty())
+            check(set.isNotEmpty())
         }
         set = set.remove(elementsToAdd - 1)
         assertTrue(set.isEmpty())

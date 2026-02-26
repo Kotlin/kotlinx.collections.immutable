@@ -30,11 +30,11 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
         val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
             map = map.put(index, values[index])
-            check(!map.isEmpty())
+            check(map.isNotEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
             map = map.remove(index)
-            check(!map.isEmpty())
+            check(map.isNotEmpty())
         }
         map = map.remove(elementsToAdd - 1)
         assertTrue(map.isEmpty())

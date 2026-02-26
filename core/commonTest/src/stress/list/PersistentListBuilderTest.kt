@@ -31,11 +31,11 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
         val elements = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
             builder.add(elements[index])
-            check(!builder.isEmpty())
+            check(builder.isNotEmpty())
         }
         repeat(times = elementsToAdd - 1) {
             builder.removeAt(builder.size - 1)
-            check(!builder.isEmpty())
+            check(builder.isNotEmpty())
         }
         builder.removeAt(builder.size - 1)
         assertTrue(builder.isEmpty())
