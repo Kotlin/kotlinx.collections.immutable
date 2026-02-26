@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("kotlin-multiplatform")
+    id("org.jetbrains.kotlin.plugin.power-assert")
     id("org.jetbrains.dokka")
     `maven-publish`
 }
@@ -144,6 +145,19 @@ kotlin {
         val nativeTest by getting {
         }
     }
+}
+
+@OptIn(ExperimentalKotlinGradlePluginApi::class)
+powerAssert {
+    functions = listOf(
+        "kotlin.check",
+        "kotlin.test.assertTrue",
+        "kotlin.test.assertFalse",
+        "kotlin.test.assertEquals",
+        "kotlin.test.assertNotEquals",
+        "kotlin.test.assertNull",
+        "kotlin.test.assertNotNull"
+    )
 }
 
 dependencies {
