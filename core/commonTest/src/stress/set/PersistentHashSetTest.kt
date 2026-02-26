@@ -30,11 +30,11 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             set = set.add(index)
-            assertFalse(set.isEmpty())
+            check(!set.isEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
             set = set.remove(index)
-            assertFalse(set.isEmpty())
+            check(!set.isEmpty())
         }
         set = set.remove(elementsToAdd - 1)
         assertTrue(set.isEmpty())
@@ -51,17 +51,17 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             set = set.add(index)
-            assertEquals(index + 1, set.size)
+            check(index + 1 == set.size)
 
             set = set.add(index)
-            assertEquals(index + 1, set.size)
+            check(index + 1 == set.size)
         }
         repeat(times = elementsToAdd) { index ->
             set = set.remove(index)
-            assertEquals(elementsToAdd - index - 1, set.size)
+            check(elementsToAdd - index - 1 == set.size)
 
             set = set.remove(index)
-            assertEquals(elementsToAdd - index - 1, set.size)
+            check(elementsToAdd - index - 1 == set.size)
         }
     }
 
@@ -78,14 +78,14 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
             mutableSet.add(element)
             set = set.add(element)
 
-            assertEquals<Set<*>>(set, mutableSet)
+            check(set == mutableSet)
         }
 
         mutableSet.toMutableList().forEach { element ->
             mutableSet.remove(element)
             set = set.remove(element)
 
-            assertEquals<Set<*>>(set, mutableSet)
+            check(set == mutableSet)
         }
 
         assertTrue(set.isEmpty())
@@ -102,11 +102,11 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
             set = set.add(index)
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - index, set.size)
+            check(elementsToAdd - index == set.size)
 
-            assertTrue(set.contains(index))
+            check(set.contains(index))
             set = set.remove(index)
-            assertFalse(set.contains(index))
+            check(!set.contains(index))
         }
         assertTrue(set.isEmpty())
     }
@@ -123,12 +123,12 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
             set = set.add(elements[index])
 
             for (i in 0..index) {
-                assertTrue(set.contains(elements[i]))
+                check(set.contains(elements[i]))
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in elementsToAdd - 1 downTo index) {
-                assertTrue(set.contains(elements[i]))
+                check(set.contains(elements[i]))
             }
 
             set = set.remove(elements[index])
@@ -148,24 +148,24 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
             for (i in index downTo 0) {
                 val element = i + index
 
-                assertTrue(set.contains(element))
+                check(set.contains(element))
                 set = set.remove(element)
-                assertFalse(set.contains(element))
-                assertFalse(set.contains(element + 1))
+                check(!set.contains(element))
+                check(!set.contains(element + 1))
                 set = set.add(element + 1)
-                assertTrue(set.contains(element + 1))
+                check(set.contains(element + 1))
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in index until elementsToAdd ) {
                 val element = elementsToAdd - index + i
 
-                assertTrue(set.contains(element))
+                check(set.contains(element))
                 set = set.remove(element)
-                assertFalse(set.contains(element))
-                assertFalse(set.contains(element - 1))
+                check(!set.contains(element))
+                check(!set.contains(element - 1))
                 set = set.add(element - 1)
-                assertTrue(set.contains(element - 1))
+                check(set.contains(element - 1))
             }
 
             set = set.remove(elementsToAdd - 1)
@@ -189,38 +189,38 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             set = set.add(wrapper(index))
-            assertTrue(set.contains(wrapper(index)))
-            assertEquals(index + 1, set.size)
+            check(set.contains(wrapper(index)))
+            check(index + 1 == set.size)
 
             set = set.add(wrapper(index))
-            assertEquals(index + 1, set.size)
+            check(index + 1 == set.size)
 
             val collisions = eGen.wrappersByHashCode(wrapper(index).hashCode)
-            assertTrue(collisions.contains(wrapper(index)))
+            check(collisions.contains(wrapper(index)))
 
             for (wrapper in collisions) {
-                assertTrue(set.contains(wrapper))
+                check(set.contains(wrapper))
             }
         }
         repeat(times = elementsToAdd) { index ->
             val collisions = eGen.wrappersByHashCode(wrapper(index).hashCode)
-            assertTrue(collisions.contains(wrapper(index)))
+            check(collisions.contains(wrapper(index)))
 
             if (!set.contains(wrapper(index))) {
                 for (wrapper in collisions) {
-                    assertFalse(set.contains(wrapper))
+                    check(!set.contains(wrapper))
                 }
             } else {
                 for (wrapper in collisions) {
-                    assertTrue(set.contains(wrapper))
+                    check(set.contains(wrapper))
 
                     val nonExistingElement = IntWrapper(wrapper.obj.inv(), wrapper.hashCode)
                     val sameSet = set.remove(nonExistingElement)
-                    assertEquals(set.size, sameSet.size)
-                    assertTrue(sameSet.contains(wrapper))
+                    check(set.size == sameSet.size)
+                    check(sameSet.contains(wrapper))
 
                     set = set.remove(wrapper)
-                    assertFalse(set.contains(wrapper))
+                    check(!set.contains(wrapper))
                 }
             }
         }
@@ -289,8 +289,8 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
     }
 
     private fun testAfterOperation(expected: Set<IntWrapper?>, actual: Set<IntWrapper?>, element: IntWrapper?) {
-        assertEquals(expected.size, actual.size)
-        assertEquals(expected.contains(element), actual.contains(element))
-//        assertEquals(expected, actual)
+        check(expected.size == actual.size)
+        check(expected.contains(element) == actual.contains(element))
+//        check(expected == actual)
     }
 }

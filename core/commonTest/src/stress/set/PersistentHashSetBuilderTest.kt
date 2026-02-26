@@ -28,11 +28,11 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
-            assertFalse(builder.isEmpty())
+            check(!builder.isEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
             builder.remove(index)
-            assertFalse(builder.isEmpty())
+            check(!builder.isEmpty())
         }
         builder.remove(elementsToAdd - 1)
         assertTrue(builder.isEmpty())
@@ -48,17 +48,17 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             builder.add(index)
-            assertEquals(index + 1, builder.size)
+            check(index + 1 == builder.size)
 
             builder.add(index)
-            assertEquals(index + 1, builder.size)
+            check(index + 1 == builder.size)
         }
         repeat(times = elementsToAdd) { index ->
             builder.remove(index)
-            assertEquals(elementsToAdd - index - 1, builder.size)
+            check(elementsToAdd - index - 1 == builder.size)
 
             builder.remove(index)
-            assertEquals(elementsToAdd - index - 1, builder.size)
+            check(elementsToAdd - index - 1 == builder.size)
         }
     }
 
@@ -76,14 +76,14 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
             mutableSet.add(element)
             builder.add(element)
 
-            assertEquals(builder, mutableSet)
+            check(builder == mutableSet)
         }
 
         mutableSet.toMutableList().forEach { element ->
             mutableSet.remove(element)
             builder.remove(element)
 
-            assertEquals(builder, mutableSet)
+            check(builder == mutableSet)
         }
 
         assertTrue(builder.isEmpty())
@@ -121,10 +121,10 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
                     iterator = builder.iterator()
                 }
             }
-            assertTrue(didRemove)
+            check(didRemove)
 
-            assertEquals(mutableSet.size, builder.size)
-            assertEquals(mutableSet, builder)
+            check(mutableSet.size == builder.size)
+            check(mutableSet == builder)
         }
 
         assertTrue(builder.isEmpty())
@@ -140,11 +140,11 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
             builder.add(index)
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - index, builder.size)
+            check(elementsToAdd - index == builder.size)
 
-            assertTrue(builder.contains(index))
+            check(builder.contains(index))
             builder.remove(index)
-            assertFalse(builder.contains(index))
+            check(!builder.contains(index))
         }
     }
 
@@ -159,12 +159,12 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
             builder.add(elements[index])
 
             for (i in 0..index) {
-                assertTrue(builder.contains(elements[i]))
+                check(builder.contains(elements[i]))
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in elementsToAdd - 1 downTo index) {
-                assertTrue(builder.contains(elements[i]))
+                check(builder.contains(elements[i]))
             }
 
             builder.remove(elements[index])
@@ -183,24 +183,24 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
             for (i in index downTo 0) {
                 val element = i + index
 
-                assertTrue(builder.contains(element))
+                check(builder.contains(element))
                 builder.remove(element)
-                assertFalse(builder.contains(element))
-                assertFalse(builder.contains(element + 1))
+                check(!builder.contains(element))
+                check(!builder.contains(element + 1))
                 builder.add(element + 1)
-                assertTrue(builder.contains(element + 1))
+                check(builder.contains(element + 1))
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in index until elementsToAdd ) {
                 val element = elementsToAdd - index + i
 
-                assertTrue(builder.contains(element))
+                check(builder.contains(element))
                 builder.remove(element)
-                assertFalse(builder.contains(element))
-                assertFalse(builder.contains(element - 1))
+                check(!builder.contains(element))
+                check(!builder.contains(element - 1))
                 builder.add(element - 1)
-                assertTrue(builder.contains(element - 1))
+                check(builder.contains(element - 1))
             }
 
             builder.remove(elementsToAdd - 1)
@@ -222,36 +222,36 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             builder.add(wrapper(index))
-            assertTrue(builder.contains(wrapper(index)))
-            assertEquals(index + 1, builder.size)
+            check(builder.contains(wrapper(index)))
+            check(index + 1 == builder.size)
 
             builder.add(wrapper(index))
-            assertEquals(index + 1, builder.size)
+            check(index + 1 == builder.size)
 
             val collisions = eGen.wrappersByHashCode(wrapper(index).hashCode)
-            assertTrue(collisions.contains(wrapper(index)))
+            check(collisions.contains(wrapper(index)))
 
             for (wrapper in collisions) {
-                assertTrue(builder.contains(wrapper))
+                check(builder.contains(wrapper))
             }
         }
         repeat(times = elementsToAdd) { index ->
             val collisions = eGen.wrappersByHashCode(wrapper(index).hashCode)
-            assertTrue(collisions.contains(wrapper(index)))
+            check(collisions.contains(wrapper(index)))
 
             if (!builder.contains(wrapper(index))) {
                 for (wrapper in collisions) {
-                    assertFalse(builder.contains(wrapper))
+                    check(!builder.contains(wrapper))
                 }
             } else {
                 for (wrapper in collisions) {
-                    assertTrue(builder.contains(wrapper))
+                    check(builder.contains(wrapper))
 
                     val nonExistingElement = IntWrapper(wrapper.obj.inv(), wrapper.hashCode)
-                    assertFalse(builder.remove(nonExistingElement))
-                    assertTrue(builder.contains(wrapper))
-                    assertTrue(builder.remove(wrapper))
-                    assertFalse(builder.contains(wrapper))
+                    check(!builder.remove(nonExistingElement))
+                    check(builder.contains(wrapper))
+                    check(builder.remove(wrapper))
+                    check(!builder.contains(wrapper))
                 }
             }
         }
@@ -285,10 +285,10 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
                 when {
                     shouldRemove -> {
-                        assertEquals(set.remove(element), builder.remove(element))
+                        check(set.remove(element) == builder.remove(element))
                     }
                     else -> {
-                        assertEquals(set.add(element), builder.add(element))
+                        check(set.add(element) == builder.add(element))
                     }
                 }
 
@@ -318,8 +318,8 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
     }
 
     private fun testAfterOperation(expected: Set<IntWrapper>, actual: Set<IntWrapper>, element: IntWrapper) {
-        assertEquals(expected.size, actual.size)
-        assertEquals(expected.contains(element), actual.contains(element))
-//        assertEquals(expected, actual)
+        check(expected.size == actual.size)
+        check(expected.contains(element) == actual.contains(element))
+//        check(expected == actual)
     }
 }

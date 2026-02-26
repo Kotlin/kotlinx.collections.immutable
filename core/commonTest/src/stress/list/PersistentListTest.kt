@@ -27,11 +27,11 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         val elements = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(elements[index])
-            assertFalse(vector.isEmpty())
+            check(!vector.isEmpty())
         }
         repeat(times = elementsToAdd - 1) {
             vector = vector.removeAt(vector.size - 1)
-            assertFalse(vector.isEmpty())
+            check(!vector.isEmpty())
         }
         vector = vector.removeAt(vector.size - 1)
         assertTrue(vector.isEmpty())
@@ -48,11 +48,11 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index)
-            assertEquals(index + 1, vector.size)
+            check(index + 1 == vector.size)
         }
         repeat(times = elementsToAdd) { index ->
             vector = vector.removeAt(vector.size - 1)
-            assertEquals(elementsToAdd - index - 1, vector.size)
+            check(elementsToAdd - index - 1 == vector.size)
         }
     }
 
@@ -69,10 +69,10 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(0, index)
-            assertEquals(index, vector.first())
+            check(index == vector.first())
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - index - 1, vector.first())
+            check(elementsToAdd - index - 1 == vector.first())
             vector = vector.removeAt(0)
         }
         assertNull(vector.firstOrNull())
@@ -90,10 +90,10 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index)
-            assertEquals(index, vector.last())
+            check(index == vector.last())
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - index - 1, vector.last())
+            check(elementsToAdd - index - 1 == vector.last())
             vector = vector.removeAt(vector.size - 1)
         }
         assertNull(vector.lastOrNull())
@@ -130,7 +130,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         repeat(times = elementsToAdd) { index ->
             list.add(index)
             vector = vector.add(index)
-            assertEquals(list, vector.toList())
+            check(list == vector.toList())
         }
     }
 
@@ -149,12 +149,12 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(0, index)
 
-            assertEquals(index, vector.first())
-            assertEquals(0, vector.last())
-            assertEquals(index + 1, vector.size)
+            check(index == vector.first())
+            check(0 == vector.last())
+            check(index + 1 == vector.size)
 
             val expectedContent = allElements.subList(elementsToAdd - vector.size, elementsToAdd)
-            assertEquals(expectedContent, vector.toList())
+            check(expectedContent == vector.toList())
         }
     }
 
@@ -170,11 +170,11 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
         repeat(times = elementsToAdd) { index ->
             vector = vector.add(index)
 
-            assertEquals(0, vector[0])
-            assertEquals(index, vector[index])
-            assertEquals(index + 1, vector.size)
+            check(0 == vector[0])
+            check(index == vector[index])
+            check(index + 1 == vector.size)
 
-            assertEquals(allElements.subList(0, vector.size), vector)
+            check(allElements.subList(0, vector.size) == vector)
         }
     }
 
@@ -196,10 +196,10 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
             vector = vector.add(index)
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - 1, vector.last())
-            assertEquals(index, vector.first())
-            assertEquals(elementsToAdd - index, vector.size)
-            assertEquals(allElements.subList(index, elementsToAdd), vector)
+            check(elementsToAdd - 1 == vector.last())
+            check(index == vector.first())
+            check(elementsToAdd - index == vector.size)
+            check(allElements.subList(index, elementsToAdd) == vector)
 
             vector = vector.removeAt(0)
         }
@@ -222,10 +222,10 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
             vector = vector.add(0, index)
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(index, vector.last())
-            assertEquals(elementsToAdd - 1, vector.first())
-            assertEquals(elementsToAdd - index, vector.size)
-            assertEquals(allElements.subList(0, vector.size), vector)
+            check(index == vector.last())
+            check(elementsToAdd - 1 == vector.first())
+            check(elementsToAdd - index == vector.size)
+            check(allElements.subList(0, vector.size) == vector)
 
             vector = vector.removeAt(vector.size - 1)
         }
@@ -236,9 +236,9 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
             vector = vector.add(index)
         }
         repeat(times = linear) { index ->
-            assertEquals(linear - 1 - index, vector.last())
-            assertEquals(0, vector.first())
-            assertEquals(linear - index, vector.size)
+            check(linear - 1 - index == vector.last())
+            check(0 == vector.first())
+            check(linear - index == vector.size)
 
             vector = vector.removeAt(vector.size - 1)
         }
@@ -259,12 +259,12 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
             vector = vector.add(index)
 
             for (i in 0..index) {
-                assertEquals(i, vector[i])
+                check(i == vector[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in index until elementsToAdd) {
-                assertEquals(i, vector[i - index])
+                check(i == vector[i - index])
             }
 
             vector = vector.removeAt(0)
@@ -286,18 +286,18 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
             vector = vector.add(index * 2)
 
             for (i in 0..index) {
-                assertEquals(i + index, vector[i])
+                check(i + index == vector[i])
                 vector = vector.set(i, i + index + 1)
-                assertEquals(i + index + 1, vector[i])
+                check(i + index + 1 == vector[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in 0 until elementsToAdd - index) {
                 val expected = elementsToAdd + i
 
-                assertEquals(expected, vector[i])
+                check(expected == vector[i])
                 vector = vector.set(i, expected - 1)
-                assertEquals(expected - 1, vector[i])
+                check(expected - 1 == vector[i])
             }
 
             vector = vector.removeAt(0)
@@ -342,7 +342,7 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
                     val result = list.addAll(index, elementsToAdd)
 
                     val expected = initialElements.toMutableList().also { it.addAll(index, elementsToAdd) }
-                    assertEquals<List<*>>(expected, result)
+                    check(expected == result)
                 }
             }
         }
@@ -398,8 +398,8 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
                     it.removeAll { e -> hashSet.contains(e) }
                 }
 
-                assertEquals<List<*>>(expected, result)
-                assertEquals<List<*>>(expected, resultPredicate)
+                check(expected == result)
+                check(expected == resultPredicate)
             }
         }
     }
@@ -462,19 +462,19 @@ class PersistentListTest : ExecutionTimeMeasuringTest() {
     }
 
     private fun testAfterOperation(list: List<Int>, vector: PersistentList<Int>, operationIndex: Int) {
-        assertEquals(list.firstOrNull(), vector.firstOrNull())
-        assertEquals(list.lastOrNull(), vector.lastOrNull())
-        assertEquals(list.size, vector.size)
+        check(list.firstOrNull() == vector.firstOrNull())
+        check(list.lastOrNull() == vector.lastOrNull())
+        check(list.size == vector.size)
         if (operationIndex < list.size) {
-            assertEquals(list[operationIndex], vector[operationIndex])
+            check(list[operationIndex] == vector[operationIndex])
         }
         if (operationIndex > 0) {
-            assertEquals(list[operationIndex - 1], vector[operationIndex - 1])
+            check(list[operationIndex - 1] == vector[operationIndex - 1])
         }
         if (operationIndex + 1 < list.size) {
-            assertEquals(list[operationIndex + 1], vector[operationIndex + 1])
+            check(list[operationIndex + 1] == vector[operationIndex + 1])
         }
 
-//        assertEquals(list, vector)
+//        check(list == vector)
     }
 }

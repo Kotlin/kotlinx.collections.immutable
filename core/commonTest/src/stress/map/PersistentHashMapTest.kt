@@ -30,11 +30,11 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
         val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
             map = map.put(index, values[index])
-            assertFalse(map.isEmpty())
+            check(!map.isEmpty())
         }
         repeat(times = elementsToAdd - 1) { index ->
             map = map.remove(index)
-            assertFalse(map.isEmpty())
+            check(!map.isEmpty())
         }
         map = map.remove(elementsToAdd - 1)
         assertTrue(map.isEmpty())
@@ -51,20 +51,20 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
         repeat(times = elementsToAdd) { index ->
             map = map.put(index, index)
-            assertEquals(index + 1, map.size)
+            check(index + 1 == map.size)
 
             map = map.put(index, index)
-            assertEquals(index + 1, map.size)
+            check(index + 1 == map.size)
 
             map = map.put(index, 7)
-            assertEquals(index + 1, map.size)
+            check(index + 1 == map.size)
         }
         repeat(times = elementsToAdd) { index ->
             map = map.remove(index)
-            assertEquals(elementsToAdd - index - 1, map.size)
+            check(elementsToAdd - index - 1 == map.size)
 
             map = map.remove(index)
-            assertEquals(elementsToAdd - index - 1, map.size)
+            check(elementsToAdd - index - 1 == map.size)
         }
     }
 
@@ -75,14 +75,14 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             val keys = actualMap.keys
             val entries = actualMap.entries
 
-            assertTrue(listOf(values.size, keys.size, entries.size).all { it == expectedKeys.size })
+            check(listOf(values.size, keys.size, entries.size).all { it == expectedKeys.size })
 
-            assertEquals<Set<*>>(expectedKeys, keys)
-            assertTrue(keys.containsAll(values))
+            check(expectedKeys == keys)
+            check(keys.containsAll(values))
 
             entries.forEach { entry ->
-                assertEquals(entry.key, entry.value)
-                assertTrue(expectedKeys.contains(entry.key))
+                check(entry.key == entry.value)
+                check(expectedKeys.contains(entry.key))
             }
         }
 
@@ -121,10 +121,10 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             map = map.put(index, values[index])
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - index, map.size)
-            assertEquals(values[index], map[index])
+            check(elementsToAdd - index == map.size)
+            check(values[index] == map[index])
             map = map.remove(index)
-            assertNull(map[index])
+            check(map[index] == null)
         }
         assertTrue(map.isEmpty())
     }
@@ -142,12 +142,12 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             map = map.put(index, values[index])
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - index, map.size)
-            assertEquals(values[index], map[index])
+            check(elementsToAdd - index == map.size)
+            check(values[index] == map[index])
             map = map.remove(index, values[index + 1])
-            assertEquals(values[index], map[index])
+            check(values[index] == map[index])
             map = map.remove(index, values[index])
-            assertNull(map[index])
+            check(map[index] == null)
         }
         assertTrue(map.isEmpty())
     }
@@ -164,12 +164,12 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             map = map.put(index, values[index])
 
             for (i in 0..index) {
-                assertEquals(values[i], map[i])
+                check(values[i] == map[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in elementsToAdd - 1 downTo index) {
-                assertEquals(values[i], map[i])
+                check(values[i] == map[i])
             }
 
             map = map.remove(index)
@@ -190,18 +190,18 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             for (i in 0..index) {
                 val valueIndex = i + index
 
-                assertEquals(values[valueIndex], map[i])
+                check(values[valueIndex] == map[i])
                 map = map.put(i, values[valueIndex + 1])
-                assertEquals(values[valueIndex + 1], map[i])
+                check(values[valueIndex + 1] == map[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in index until elementsToAdd) {
                 val valueIndex = elementsToAdd - index + i
 
-                assertEquals(values[valueIndex], map[i])
+                check(values[valueIndex] == map[i])
                 map = map.put(i, values[valueIndex - 1])
-                assertEquals(values[valueIndex - 1], map[i])
+                check(values[valueIndex - 1] == map[i])
             }
 
             map = map.remove(index)
@@ -230,48 +230,48 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
             repeat(times = elementsToAdd) { index ->
                 map = map.put(key(index), Int.MIN_VALUE)
-                assertEquals(Int.MIN_VALUE, map[key(index)])
-                assertEquals(index + 1, map.size)
+                check(Int.MIN_VALUE == map[key(index)])
+                check(index + 1 == map.size)
 
                 map = map.put(key(index), index)
-                assertEquals(index + 1, map.size)
+                check(index + 1 == map.size)
 
                 val collisions = keyGen.wrappersByHashCode(key(index).hashCode)
-                assertTrue(collisions.contains(key(index)))
+                check(collisions.contains(key(index)))
 
                 for (key in collisions) {
-                    assertEquals(key.obj, map[key])
+                    check(key.obj == map[key])
                 }
             }
             repeat(times = elementsToAdd) { index ->
                 val collisions = keyGen.wrappersByHashCode(key(index).hashCode)
-                assertTrue(collisions.contains(key(index)))
+                check(collisions.contains(key(index)))
 
                 if (map[key(index)] == null) {
                     for (key in collisions) {
-                        assertNull(map[key])
+                        check(map[key] == null)
                     }
                 } else {
                     for (key in collisions) {
-                        assertEquals(key.obj, map[key])
+                        check(key.obj == map[key])
 
                         map = if (removeEntryPredicate == 1) {
                             val nonExistingValue = Int.MIN_VALUE
                             val sameMap = map.remove(key, nonExistingValue)
-                            assertEquals(map.size, sameMap.size)
-                            assertEquals(key.obj, sameMap[key])
+                            check(map.size == sameMap.size)
+                            check(key.obj == sameMap[key])
 
                             map.remove(key, key.obj)
                         } else {
                             val nonExistingKey = IntWrapper(Int.MIN_VALUE, key.hashCode)
                             val sameMap = map.remove(nonExistingKey)
-                            assertEquals(map.size, sameMap.size)
-                            assertEquals(key.obj, sameMap[key])
+                            check(map.size == sameMap.size)
+                            check(key.obj == sameMap[key])
 
                             map.remove(key)
                         }
 
-                        assertNull(map[key])
+                        check(map[key] == null)
                     }
                 }
             }
@@ -356,12 +356,12 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             actual: Map<IntWrapper?, Int?>,
             operationKey: IntWrapper?
     ) {
-        assertEquals(expected.size, actual.size)
-        assertEquals(expected[operationKey], actual[operationKey])
-        assertEquals(expected.containsKey(operationKey), actual.containsKey(operationKey))
+        check(expected.size == actual.size)
+        check(expected[operationKey] == actual[operationKey])
+        check(expected.containsKey(operationKey) == actual.containsKey(operationKey))
 
-//        assertEquals(expected.containsValue(operationKey?.obj), actual.containsValue(operationKey?.obj))
-//        assertEquals(expected.keys, actual.keys)
-//        assertEquals(expected.values.sortedBy { it }, actual.values.sortedBy { it })
+//        check(expected.containsValue(operationKey?.obj) == actual.containsValue(operationKey?.obj))
+//        check(expected.keys == actual.keys)
+//        check(expected.values.sortedBy { it } == actual.values.sortedBy { it })
     }
 }

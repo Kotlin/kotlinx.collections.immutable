@@ -29,11 +29,11 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         val values = distinctStringValues(elementsToAdd)
         repeat(times = elementsToAdd) { index ->
             builder[index] = values[index]
-            assertFalse(builder.isEmpty())
+            check(!builder.isEmpty())
         }
         repeat(times = elementsToAdd - 1) {
             builder.remove(builder.size - 1)
-            assertFalse(builder.isEmpty())
+            check(!builder.isEmpty())
         }
         builder.remove(builder.size - 1)
         assertTrue(builder.isEmpty())
@@ -48,21 +48,21 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
         repeat(times = elementsToAdd) { index ->
-            assertNull(builder.put(index, index))
-            assertEquals(index + 1, builder.size)
+            check(builder.put(index, index) == null)
+            check(index + 1 == builder.size)
 
-            assertEquals(index, builder.put(index, 7))
-            assertEquals(index + 1, builder.size)
+            check(index == builder.put(index, 7))
+            check(index + 1 == builder.size)
 
-            assertEquals(7, builder.put(index, index))
-            assertEquals(index + 1, builder.size)
+            check(7 == builder.put(index, index))
+            check(index + 1 == builder.size)
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(index, builder.remove(index))
-            assertEquals(elementsToAdd - index - 1, builder.size)
+            check(index == builder.remove(index))
+            check(elementsToAdd - index - 1 == builder.size)
 
-            assertNull(builder.remove(index))
-            assertEquals(elementsToAdd - index - 1, builder.size)
+            check(builder.remove(index) == null)
+            check(elementsToAdd - index - 1 == builder.size)
         }
     }
 
@@ -73,14 +73,14 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             val keys = actualBuilder.keys
             val entries = actualBuilder.entries
 
-            assertTrue(listOf(values.size, keys.size, entries.size).all { it == expectedKeys.size })
+            check(listOf(values.size, keys.size, entries.size).all { it == expectedKeys.size })
 
-            assertEquals<Set<*>>(expectedKeys, keys)
-            assertTrue(keys.containsAll(values))
+            check(expectedKeys == keys)
+            check(keys.containsAll(values))
 
             entries.forEach { entry ->
-                assertEquals(entry.key, entry.value)
-                assertTrue(expectedKeys.contains(entry.key))
+                check(entry.key == entry.value)
+                check(expectedKeys.contains(entry.key))
             }
         }
 
@@ -133,14 +133,14 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         fun testKeysIterator(expected: MutableMap<IntWrapper, Int>, actual: PersistentMap.Builder<IntWrapper, Int>) {
             var expectedSize = actual.size
             while (expectedSize > 0) {
-                assertEquals(expectedSize, actual.size)
+                check(expectedSize == actual.size)
 
                 val iterator = actual.keys.iterator()
                 repeat(expectedSize) {
-                    assertTrue(iterator.hasNext())
+                    check(iterator.hasNext())
 
                     val nextKey = iterator.next()
-                    assertEquals(expected[nextKey], actual[nextKey])
+                    check(expected[nextKey] == actual[nextKey])
 
                     val shouldRemove = Random.nextDouble() < 0.2
                     if (shouldRemove) {
@@ -148,10 +148,10 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                         expectedSize--
                     }
                 }
-                assertFalse(iterator.hasNext())
+                check(!iterator.hasNext())
             }
 
-            assertTrue(actual.isEmpty())
+            check(actual.isEmpty())
         }
 
         testAfterRandomPut { expected, map ->
@@ -164,11 +164,11 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         fun testValuesIterator(actual: PersistentMap.Builder<IntWrapper, Int>) {
             var expectedSize = actual.size
             while (expectedSize > 0) {
-                assertEquals(expectedSize, actual.size)
+                check(expectedSize == actual.size)
 
                 val iterator = actual.values.iterator()
                 repeat(expectedSize) {
-                    assertTrue(iterator.hasNext())
+                    check(iterator.hasNext())
 
                     val _ = iterator.next()
 
@@ -178,10 +178,10 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                         expectedSize--
                     }
                 }
-                assertFalse(iterator.hasNext())
+                check(!iterator.hasNext())
             }
 
-            assertTrue(actual.isEmpty())
+            check(actual.isEmpty())
         }
 
         testAfterRandomPut { _, map ->
@@ -194,19 +194,19 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         fun testEntriesIterator(expected: MutableMap<IntWrapper, Int>, actual: PersistentMap.Builder<IntWrapper, Int>) {
             var expectedSize = actual.size
             while (expectedSize > 0) {
-                assertEquals(expectedSize, actual.size)
+                check(expectedSize == actual.size)
 
                 val iterator = actual.entries.iterator()
                 repeat(expectedSize) {
-                    assertTrue(iterator.hasNext())
+                    check(iterator.hasNext())
 
                     val nextEntry = iterator.next()
-                    assertEquals(expected[nextEntry.key], actual[nextEntry.key])
+                    check(expected[nextEntry.key] == actual[nextEntry.key])
 
                     val shouldUpdate = Random.nextDouble() < 0.1
                     if (shouldUpdate) {
                         val newValue = Random.nextInt()
-                        assertEquals(expected.put(nextEntry.key, newValue), nextEntry.setValue(newValue))
+                        check(expected.put(nextEntry.key, newValue) == nextEntry.setValue(newValue))
                     }
                     val shouldRemove = Random.nextDouble() < 0.2
                     if (shouldRemove) {
@@ -214,10 +214,10 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                         expectedSize--
                     }
                 }
-                assertFalse(iterator.hasNext())
+                check(!iterator.hasNext())
             }
 
-            assertTrue(actual.isEmpty())
+            check(actual.isEmpty())
         }
 
         testAfterRandomPut { expected, map ->
@@ -236,10 +236,10 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             builder[index] = values[index]
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - index, builder.size)
-            assertEquals(values[index], builder[index])
-            assertEquals(values[index], builder.remove(index))
-            assertNull(builder[index])
+            check(elementsToAdd - index == builder.size)
+            check(values[index] == builder[index])
+            check(values[index] == builder.remove(index))
+            check(builder[index] == null)
         }
     }
 
@@ -301,12 +301,12 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             builder[index] = values[index]
         }
         repeat(times = elementsToAdd) { index ->
-            assertEquals(elementsToAdd - index, builder.size)
-            assertEquals(values[index], builder[index])
-            assertFalse(builder.remove(index, values[index + 1]))
-            assertEquals(values[index], builder[index])
-            assertTrue(builder.remove(index, values[index]))
-            assertNull(builder[index])
+            check(elementsToAdd - index == builder.size)
+            check(values[index] == builder[index])
+            check(!builder.remove(index, values[index + 1]))
+            check(values[index] == builder[index])
+            check(builder.remove(index, values[index]))
+            check(builder[index] == null)
         }
     }
 
@@ -321,12 +321,12 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             builder[index] = values[index]
 
             for (i in 0..index) {
-                assertEquals(values[i], builder[i])
+                check(values[i] == builder[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in elementsToAdd - 1 downTo index) {
-                assertEquals(values[i], builder[i])
+                check(values[i] == builder[i])
             }
 
             builder.remove(index)
@@ -341,23 +341,23 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
         val values = distinctStringValues(2 * elementsToAdd)
         repeat(times = elementsToAdd) { index ->
-            assertNull(builder.put(index, values[2 * index]))
+            check(builder.put(index, values[2 * index]) == null)
 
             for (i in 0..index) {
                 val valueIndex = i + index
 
-                assertEquals(values[valueIndex], builder[i])
-                assertEquals(values[valueIndex], builder.put(i, values[valueIndex + 1]))
-                assertEquals(values[valueIndex + 1], builder[i])
+                check(values[valueIndex] == builder[i])
+                check(values[valueIndex] == builder.put(i, values[valueIndex + 1]))
+                check(values[valueIndex + 1] == builder[i])
             }
         }
         repeat(times = elementsToAdd) { index ->
             for (i in index until elementsToAdd) {
                 val valueIndex = elementsToAdd - index + i
 
-                assertEquals(values[valueIndex], builder[i])
-                assertEquals(values[valueIndex], builder.put(i, values[valueIndex - 1]))
-                assertEquals(values[valueIndex - 1], builder[i])
+                check(values[valueIndex] == builder[i])
+                check(values[valueIndex] == builder.put(i, values[valueIndex - 1]))
+                check(values[valueIndex - 1] == builder[i])
             }
 
             builder.remove(index)
@@ -380,47 +380,47 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             }
 
             repeat(times = elementsToAdd) { index ->
-                assertNull(builder.put(key(index), Int.MIN_VALUE))
-                assertEquals(Int.MIN_VALUE, builder[key(index)])
-                assertEquals(index + 1, builder.size)
+                check(builder.put(key(index), Int.MIN_VALUE) == null)
+                check(Int.MIN_VALUE == builder[key(index)])
+                check(index + 1 == builder.size)
 
-                assertEquals(Int.MIN_VALUE, builder.put(key(index), index))
-                assertEquals(index + 1, builder.size)
+                check(Int.MIN_VALUE == builder.put(key(index), index))
+                check(index + 1 == builder.size)
 
                 val collisions = keyGen.wrappersByHashCode(key(index).hashCode)
-                assertTrue(collisions.contains(key(index)))
+                check(collisions.contains(key(index)))
 
                 for (key in collisions) {
-                    assertEquals(key.obj, builder[key])
+                    check(key.obj == builder[key])
                 }
             }
             repeat(times = elementsToAdd) { index ->
                 val collisions = keyGen.wrappersByHashCode(key(index).hashCode)
-                assertTrue(collisions.contains(key(index)))
+                check(collisions.contains(key(index)))
 
                 if (builder[key(index)] == null) {
                     for (key in collisions) {
-                        assertNull(builder[key])
+                        check(builder[key] == null)
                     }
                 } else {
                     for (key in collisions) {
-                        assertEquals(key.obj, builder[key])
+                        check(key.obj == builder[key])
 
                         if (removeEntryPredicate == 1) {
                             val nonExistingValue = Int.MIN_VALUE
-                            assertFalse(builder.remove(key, nonExistingValue))
-                            assertEquals(key.obj, builder[key])
+                            check(!builder.remove(key, nonExistingValue))
+                            check(key.obj == builder[key])
 
-                            assertTrue(builder.remove(key, key.obj))
+                            check(builder.remove(key, key.obj))
                         } else {
                             val nonExistingKey = IntWrapper(Int.MIN_VALUE, key.hashCode)
-                            assertNull(builder.remove(nonExistingKey))
-                            assertEquals(key.obj, builder[key])
+                            check(builder.remove(nonExistingKey) == null)
+                            check(key.obj == builder[key])
 
-                            assertEquals(key.obj, builder.remove(key))
+                            check(key.obj == builder.remove(key))
                         }
 
-                        assertNull(builder[key])
+                        check(builder[key] == null)
                     }
                 }
             }
@@ -458,16 +458,16 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
                 when {
                     shouldRemoveByKey -> {
-                        assertEquals(map.remove(key), builder.remove(key))
+                        check(map.remove(key) == builder.remove(key))
                     }
                     shouldRemoveByKeyAndValue -> {
                         val shouldBeCurrentValue = Random.nextDouble() < 0.8
                         val value = if (shouldOperateOnExistingKey && shouldBeCurrentValue) map[key]!! else Random.nextInt()
-                        assertEquals(map.remove(key, value), builder.remove(key, value))
+                        check(map.remove(key, value) == builder.remove(key, value))
                     }
                     else -> {
                         val value = Random.nextInt()
-                        assertEquals(map.put(key, value), builder.put(key, value))
+                        check(map.put(key, value) == builder.put(key, value))
                     }
                 }
 
@@ -501,12 +501,12 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             actual: Map<IntWrapper, Int>,
             operationKey: IntWrapper
     ) {
-        assertEquals(expected.size, actual.size)
-        assertEquals(expected[operationKey], actual[operationKey])
-        assertEquals(expected.containsKey(operationKey), actual.containsKey(operationKey))
+        check(expected.size == actual.size)
+        check(expected[operationKey] == actual[operationKey])
+        check(expected.containsKey(operationKey) == actual.containsKey(operationKey))
 
-//        assertEquals(expected.containsValue(operationKey.obj), actual.containsValue(operationKey.obj))
-//        assertEquals(expected.keys, actual.keys)
-//        assertEquals(expected.values.sorted(), actual.values.sorted())
+//        check(expected.containsValue(operationKey.obj) == actual.containsValue(operationKey.obj))
+//        check(expected.keys == actual.keys)
+//        check(expected.values.sorted() == actual.values.sorted())
     }
 }
