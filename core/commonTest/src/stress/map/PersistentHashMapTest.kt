@@ -316,7 +316,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                     shouldRemoveByKeyAndValue -> {
                         val shouldBeCurrentValue = Random.nextDouble() < 0.8
                         val value = if (shouldOperateOnExistingKey && shouldBeCurrentValue) mutableMap[key] else Random.nextInt()
-                        mutableMap.remove(key, value)
+                        val _ = mutableMap.remove(key, value)
                         immutableMap.remove(key, value)
                     }
                     else -> {
