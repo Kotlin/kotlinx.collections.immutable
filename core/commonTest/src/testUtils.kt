@@ -12,6 +12,7 @@ internal fun Char.isUpperCase(): Boolean = this in 'A'..'Z'
 internal fun Char.isDigit(): Boolean = this in '0'..'9'
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+@IgnorableReturnValue
 internal fun <K, V> MutableMap<K, V>.remove(key: K, value: V): Boolean =
         if (key in this && this[key] == value) {
             remove(key)

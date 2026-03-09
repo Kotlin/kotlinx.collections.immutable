@@ -22,6 +22,9 @@ mavenPublicationsPom {
 kotlin {
     applyDefaultHierarchyTemplate()
     explicitApi()
+    compilerOptions {
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
+    }
 
     // According to https://kotlinlang.org/docs/native-target-support.html
     // Tier 1
@@ -143,6 +146,10 @@ kotlin {
     }
 }
 
+dependencies {
+    dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-playground-samples-plugin")
+}
+
 dokka {
     pluginsConfiguration.html {
         templatesDir.set(projectDir.resolve("dokka-templates"))
@@ -160,7 +167,9 @@ dokka {
         skipDeprecated.set(true)
         sourceLink {
             localDirectory.set(rootDir)
-            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/v0.4.0")
+            val branch = if (version.toString().endsWith(properties["versionSuffix"].toString()))
+                "master" else "v$version"
+            remoteUrl("https://github.com/Kotlin/kotlinx.collections.immutable/tree/$branch")
             remoteLineSuffix.set("#L")
         }
     }
