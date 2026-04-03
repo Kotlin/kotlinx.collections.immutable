@@ -8,6 +8,7 @@ package benchmarks.immutableSet.builder
 import benchmarks.*
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentSet
 
 @State(Scope.Benchmark)
 open class Contains {
@@ -24,7 +25,7 @@ open class Contains {
     var immutablePercentage: Double = 0.0
 
     private var elements = listOf<IntWrapper>()
-    private var builder = persistentSetOf<IntWrapper>().builder()
+    private var builder = emptyPersistentSet<IntWrapper>().builder()
 
     @Setup
     fun prepare() {
