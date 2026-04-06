@@ -54,14 +54,7 @@ project {
             param("teamcity.ui.settings.readOnly", "true")
         }
 
-        val deployVersion = deployVersion().apply {
-            // TODO enable lter
-            // dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
-            params {
-                text("reverse.dep.*.releaseVersion", "", label = "Version", description = "Version of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = false)
-                text("reverse.dep.*.versionSuffix", "", label = "Version suffix", description = "Version suffix of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = true)
-            }
-        }
+        val deployVersion = deployVersion()
         val deploys = platforms.map { buildArtifacts(it) }
         val deployUpload = deployUpload().apply {
             dependencies {
@@ -79,65 +72,21 @@ project {
             }
         }
         val deployPublish = deployPublish().apply {
-            // dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
             dependsOnSnapshot(deployUpload)
         }
 
         deploys.forEach { deployVersion.dependsOnSnapshot(it) }
-        deployVersion.dependsOnSnapshot(deployUpload)
-        deployVersion.dependsOnSnapshot(deployPublish)
+        deployVersion.dependsOnSnapshot(deployUpload) {
+            reuseBuilds = ReuseBuilds.NO
+        }
+        deployVersion.dependsOnSnapshot(deployPublish) {
+            reuseBuilds = ReuseBuilds.NO
+        }
 
         buildTypesOrder = listOf(deployVersion, *deploys.toTypedArray(), deployUpload, deployPublish)
     }
 
     subProject(deploymentProject)
-//
-//    val deployVersion = deployVersion().apply {
-//        dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
-//        //dependsOnSnapshot(BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID) {
-//        //    reuseBuilds = ReuseBuilds.NO
-//        //}
-//
-//    }
-//    val deploys = platforms.map { buildArtifacts(it, deployVersion) }
-//    val deployUpload = deployUpload(deployVersion).apply {
-//        dependencies {
-//            deploys.forEach { deploy ->
-//                dependency(deploy.id!!) {
-//                    snapshot {
-//                        onDependencyFailure = FailureAction.FAIL_TO_START
-//                        onDependencyCancel = FailureAction.CANCEL
-//                    }
-//
-//                    artifacts {
-//                        artifactRules = "buildRepo.zip!** => buildRepo"
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    val deployPublish = deployPublish(deployVersion).apply {
-//        dependencies {
-//            snapshot(deployUpload) {
-//                reuseBuilds = ReuseBuilds.NO
-//                onDependencyFailure = FailureAction.FAIL_TO_START
-//            }
-//        }
-//    }
-//
-//    deployVersion.dependencies {
-//        deploys.forEach {
-//            snapshot(it) { }
-//        }
-//        snapshot(deployUpload) {
-//            reuseBuilds = ReuseBuilds.NO
-//        }
-//        snapshot(deployPublish) {
-//            reuseBuilds = ReuseBuilds.NO
-//        }
-//    }
-//
-//    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployUpload, deployVersion, *deploys.toTypedArray())
 
     additionalConfiguration()
 }
@@ -213,21 +162,27 @@ fun Project.build(platform: Platform, versionBuild: BuildType) = buildType("Buil
 fun Project.deployVersion() = BuildType {
     id(DEPLOY_CONFIGURE_VERSION_ID)
     this.name = "Deploy [RUN THIS ONE]"
+    type = BuildTypeSettings.Type.DEPLOYMENT
     commonConfigure()
+
+    buildNumberPattern = "%reverse.dep.*.$releaseVersionParameter% %build.counter%"
 
     params {
         // enable editing of this configuration to set up things
         param("teamcity.ui.settings.readOnly", "false")
         param(versionSuffixParameter, "dev-%build.counter%")
-
-        // TODO: set parameters
+        param("reverse.dep.*.$versionSuffixParameter", "%$versionSuffixParameter%")
+        text("reverse.dep.*.$releaseVersionParameter", "", label = "Version", description = "Version of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = false)
     }
 
+    /*
     requirements {
         // Require Linux for configuration build
         contains("teamcity.agent.jvm.os.name", "Linux")
     }
+     */
 
+    /*
     steps {
         gradle {
             name = "Verify Gradle Configuration"
@@ -237,6 +192,7 @@ fun Project.deployVersion() = BuildType {
             jdkHome = "%env.$jdk%"
         }
     }
+     */
 }.also { buildType(it) }
 
 fun Project.deployUpload() = BuildType {
@@ -258,11 +214,10 @@ fun Project.deployUpload() = BuildType {
 
 fun Project.deployPublish() = BuildType {
     id(DEPLOY_PUBLISH_ID)
-    templates(UPLOAD_DEPLOYMENT_TEMPLATE_ID)
+    templates(PUBLISH_DEPLOYMENT_TEMPLATE_ID)
     name = "Publish deployment"
     type = BuildTypeSettings.Type.DEPLOYMENT
 
-    //buildNumberPattern = configureBuild.depParamRefs.buildNumber.ref
     params {
         password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
         param("DeployVersion", "%$releaseVersionParameter%")
@@ -271,21 +226,19 @@ fun Project.deployPublish() = BuildType {
 }.also { buildType(it) }
 
 
-fun Project.buildArtifacts(platform: Platform) = buildType("Deploy", platform) {
+fun Project.buildArtifacts(platform: Platform) = buildType("Build Artifacts", platform) {
     type = BuildTypeSettings.Type.DEPLOYMENT
     enablePersonalBuilds = false
     maxRunningBuilds = 1
-    //params {
-    //    param(versionSuffixParameter, "")
-    //    param(releaseVersionParameter, "")
-    //}
+
+    buildNumberPattern = "%reverse.dep.*.$releaseVersionParameter% %build.counter%"
 
     vcs {
         cleanCheckout = true
     }
 
     artifactRules = """
-        build/repo/** => buildRepo.zip
+        build/maven/** => buildRepo.zip
     """.trimIndent()
 
     steps {
