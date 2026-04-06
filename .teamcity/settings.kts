@@ -249,4 +249,4 @@ fun Project.buildArtifacts(platform: Platform, configureBuild: BuildType) = buil
             gradleWrapperPath = ""
         }
     }
-}.dependsOnSnapshot(configureBuild)
+}
