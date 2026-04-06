@@ -44,52 +44,100 @@ project {
         }
     }
 
-    val deployVersion = deployVersion().apply {
-        dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
-        //dependsOnSnapshot(BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID) {
-        //    reuseBuilds = ReuseBuilds.NO
-        //}
+    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray())
 
-    }
-    val deploys = platforms.map { buildArtifacts(it, deployVersion) }
-    val deployUpload = deployUpload(deployVersion).apply {
-        dependencies {
-            deploys.forEach { deploy ->
-                dependency(deploy.id!!) {
-                    snapshot {
-                        onDependencyFailure = FailureAction.FAIL_TO_START
-                        onDependencyCancel = FailureAction.CANCEL
-                    }
+    val deploymentProject = Project {
+        id("Deployment")
+        this.name = "Deployment"
 
-                    artifacts {
-                        artifactRules = "buildRepo.zip!** => buildRepo"
+        params {
+            param("teamcity.ui.settings.readOnly", "true")
+        }
+
+        val deployVersion = deployVersion().apply {
+            // TODO enable lter
+            // dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
+            params {
+                text("reverse.dep.*.releaseVersion", "", label = "Version", description = "Version of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = false)
+                text("reverse.dep.*.versionSuffix", "", label = "Version suffix", description = "Version suffix of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = true)
+            }
+        }
+        val deploys = platforms.map { buildArtifacts(it) }
+        val deployUpload = deployUpload().apply {
+            dependencies {
+                deploys.forEach { dep ->
+                    dependency(dep) {
+                        snapshot {
+                            onDependencyFailure = FailureAction.FAIL_TO_START
+                            onDependencyCancel = FailureAction.CANCEL
+                        }
+                        artifacts {
+                            artifactRules = "buildRepo.zip!** => buildRepo"
+                        }
                     }
                 }
             }
         }
-    }
-    val deployPublish = deployPublish(deployVersion).apply {
-        dependencies {
-            snapshot(deployUpload) {
-                reuseBuilds = ReuseBuilds.NO
-                onDependencyFailure = FailureAction.FAIL_TO_START
-            }
+        val deployPublish = deployPublish().apply {
+            // dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
+            dependsOnSnapshot(deployUpload)
         }
+
+        deploys.forEach { deployVersion.dependsOnSnapshot(it) }
+        deployVersion.dependsOnSnapshot(deployUpload)
+        deployVersion.dependsOnSnapshot(deployPublish)
+
+        buildTypesOrder = listOf(deployVersion, *deploys.toTypedArray(), deployUpload, deployPublish)
     }
 
-    deployVersion.dependencies {
-        deploys.forEach {
-            snapshot(it) { }
-        }
-        snapshot(deployUpload) {
-            reuseBuilds = ReuseBuilds.NO
-        }
-        snapshot(deployPublish) {
-            reuseBuilds = ReuseBuilds.NO
-        }
-    }
-
-    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployUpload, deployVersion, *deploys.toTypedArray())
+    subProject(deploymentProject)
+//
+//    val deployVersion = deployVersion().apply {
+//        dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
+//        //dependsOnSnapshot(BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID) {
+//        //    reuseBuilds = ReuseBuilds.NO
+//        //}
+//
+//    }
+//    val deploys = platforms.map { buildArtifacts(it, deployVersion) }
+//    val deployUpload = deployUpload(deployVersion).apply {
+//        dependencies {
+//            deploys.forEach { deploy ->
+//                dependency(deploy.id!!) {
+//                    snapshot {
+//                        onDependencyFailure = FailureAction.FAIL_TO_START
+//                        onDependencyCancel = FailureAction.CANCEL
+//                    }
+//
+//                    artifacts {
+//                        artifactRules = "buildRepo.zip!** => buildRepo"
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    val deployPublish = deployPublish(deployVersion).apply {
+//        dependencies {
+//            snapshot(deployUpload) {
+//                reuseBuilds = ReuseBuilds.NO
+//                onDependencyFailure = FailureAction.FAIL_TO_START
+//            }
+//        }
+//    }
+//
+//    deployVersion.dependencies {
+//        deploys.forEach {
+//            snapshot(it) { }
+//        }
+//        snapshot(deployUpload) {
+//            reuseBuilds = ReuseBuilds.NO
+//        }
+//        snapshot(deployPublish) {
+//            reuseBuilds = ReuseBuilds.NO
+//        }
+//    }
+//
+//    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployUpload, deployVersion, *deploys.toTypedArray())
 
     additionalConfiguration()
 }
@@ -171,6 +219,8 @@ fun Project.deployVersion() = BuildType {
         // enable editing of this configuration to set up things
         param("teamcity.ui.settings.readOnly", "false")
         param(versionSuffixParameter, "dev-%build.counter%")
+
+        // TODO: set parameters
     }
 
     requirements {
@@ -189,10 +239,10 @@ fun Project.deployVersion() = BuildType {
     }
 }.also { buildType(it) }
 
-fun Project.deployUpload(configureBuild: BuildType) = BuildType {
+fun Project.deployUpload() = BuildType {
     templates(AbsoluteId("KotlinTools_KotlinLibrariesDeployLocalBundleToCentral"))
     name = "Upload deployment to central portal"
-    id("UploadDeploymentToCentralPortal")
+    id(DEPLOY_UPLOAD_ID)
 
     artifactRules = """
         %LocalDeploymentPaths%
@@ -201,34 +251,34 @@ fun Project.deployUpload(configureBuild: BuildType) = BuildType {
 
     params {
         param("DeploymentName", "kotlinx.collections.immutable %DeployVersion%")
-        param("DeployVersion", "${configureBuild.reverseDepParamRefs[releaseVersionParameter]}")
+        param("DeployVersion", "%$releaseVersionParameter%")
         password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
     }
 }.also { buildType(it) }
 
-fun Project.deployPublish(configureBuild: BuildType) = BuildType {
+fun Project.deployPublish() = BuildType {
     id(DEPLOY_PUBLISH_ID)
-    templates(AbsoluteId("KotlinTools_KotlinLibrariesPromoteDeployment"))
+    templates(UPLOAD_DEPLOYMENT_TEMPLATE_ID)
     name = "Publish deployment"
     type = BuildTypeSettings.Type.DEPLOYMENT
 
-    buildNumberPattern = configureBuild.depParamRefs.buildNumber.ref
+    //buildNumberPattern = configureBuild.depParamRefs.buildNumber.ref
     params {
         password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
-        param("DeployVersion", "${configureBuild.reverseDepParamRefs[releaseVersionParameter]}")
+        param("DeployVersion", "%$releaseVersionParameter%")
     }
     commonConfigure()
 }.also { buildType(it) }
 
 
-fun Project.buildArtifacts(platform: Platform, configureBuild: BuildType) = buildType("Deploy", platform) {
+fun Project.buildArtifacts(platform: Platform) = buildType("Deploy", platform) {
     type = BuildTypeSettings.Type.DEPLOYMENT
     enablePersonalBuilds = false
     maxRunningBuilds = 1
-    params {
-        param(versionSuffixParameter, "${configureBuild.depParamRefs[versionSuffixParameter]}")
-        param(releaseVersionParameter, "${configureBuild.depParamRefs[releaseVersionParameter]}")
-    }
+    //params {
+    //    param(versionSuffixParameter, "")
+    //    param(releaseVersionParameter, "")
+    //}
 
     vcs {
         cleanCheckout = true
@@ -240,7 +290,7 @@ fun Project.buildArtifacts(platform: Platform, configureBuild: BuildType) = buil
 
     steps {
         gradle {
-            name = "Deploy ${platform.buildTypeName()} Binaries"
+            name = "Build ${platform.buildTypeName()} Binaries"
             jdkHome = "%env.$jdk%"
             jvmArgs = "-Xmx1g"
             gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$releaseVersionParameter=%$releaseVersionParameter%"

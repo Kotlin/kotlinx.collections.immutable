@@ -34,9 +34,11 @@ fun Platform.teamcityAgentName(): String = buildTypeName()
 const val BUILD_CONFIGURE_VERSION_ID = "Build_Version"
 const val BUILD_ALL_ID = "Build_All"
 const val DEPLOY_CONFIGURE_VERSION_ID = "Deploy_Configure"
+const val DEPLOY_UPLOAD_ID = "Deplpy_Upload"
 const val DEPLOY_PUBLISH_ID = "Deploy_Publish"
 
-val BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID = AbsoluteId("KotlinTools_CreateSonatypeStagingRepository")
+val UPLOAD_DEPLOYMENT_TEMPLATE_ID = AbsoluteId("KotlinTools_KotlinLibrariesDeployLocalBundleToCentral")
+val PUBLISH_DEPLOYMENT_TEMPLATE_ID = AbsoluteId("KotlinTools_KotlinLibrariesPromoteDeployment")
 
 class KnownBuilds(private val project: Project) {
     private fun buildWithId(id: String): BuildType {
@@ -49,8 +51,8 @@ class KnownBuilds(private val project: Project) {
     val deployVersion: BuildType get() = buildWithId(DEPLOY_CONFIGURE_VERSION_ID)
     val deployPublish: BuildType get() = buildWithId(DEPLOY_PUBLISH_ID)
 
-    val deployUpload: BuildType get() = buildWithId("UploadDeploymentToCentralPortal")
-    fun deployOn(platform: Platform): BuildType = buildWithId("Deploy_${platform.buildTypeId()}")
+    val deployUpload: BuildType get() = buildWithId(DEPLOY_UPLOAD_ID)
+    fun deployOn(platform: Platform): BuildType = buildWithId("Build_Artifacts_${platform.buildTypeId()}")
 }
 
 val Project.knownBuilds: KnownBuilds get() = KnownBuilds(this)
