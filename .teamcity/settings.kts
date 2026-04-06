@@ -226,7 +226,7 @@ fun Project.deployPublish() = BuildType {
 }.also { buildType(it) }
 
 
-fun Project.buildArtifacts(platform: Platform) = buildType("Build", platform) {
+fun Project.buildArtifacts(platform: Platform) = buildType("Binaries", platform) {
     type = BuildTypeSettings.Type.DEPLOYMENT
     enablePersonalBuilds = false
     maxRunningBuilds = 1
