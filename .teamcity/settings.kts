@@ -46,22 +46,50 @@ project {
 
     val deployVersion = deployVersion().apply {
         dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
-        dependsOnSnapshot(BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID) {
-            reuseBuilds = ReuseBuilds.NO
+        //dependsOnSnapshot(BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID) {
+        //    reuseBuilds = ReuseBuilds.NO
+        //}
+
+    }
+    val deploys = platforms.map { buildArtifacts(it, deployVersion) }
+    val deployUpload = deployUpload(deployVersion).apply {
+        dependencies {
+            deploys.forEach { deploy ->
+                dependency(deploy.id!!) {
+                    snapshot {
+                        onDependencyFailure = FailureAction.FAIL_TO_START
+                        onDependencyCancel = FailureAction.CANCEL
+                    }
+
+                    artifacts {
+                        artifactRules = "buildRepo.zip!** => buildRepo"
+                    }
+                }
+            }
         }
     }
-    val deploys = platforms.map { deploy(it, deployVersion) }
     val deployPublish = deployPublish(deployVersion).apply {
-        dependsOnSnapshot(buildAll, onFailure = FailureAction.IGNORE)
-        dependsOnSnapshot(BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID) {
-            reuseBuilds = ReuseBuilds.NO
-        }
-        deploys.forEach {
-            dependsOnSnapshot(it)
+        dependencies {
+            snapshot(deployUpload) {
+                reuseBuilds = ReuseBuilds.NO
+                onDependencyFailure = FailureAction.FAIL_TO_START
+            }
         }
     }
 
-    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployVersion, *deploys.toTypedArray())
+    deployVersion.dependencies {
+        deploys.forEach {
+            snapshot(it) { }
+        }
+        snapshot(deployUpload) {
+            reuseBuilds = ReuseBuilds.NO
+        }
+        snapshot(deployPublish) {
+            reuseBuilds = ReuseBuilds.NO
+        }
+    }
+
+    buildTypesOrder = listOf(buildAll, buildVersion, *builds.toTypedArray(), deployPublish, deployUpload, deployVersion, *deploys.toTypedArray())
 
     additionalConfiguration()
 }
@@ -136,15 +164,13 @@ fun Project.build(platform: Platform, versionBuild: BuildType) = buildType("Buil
 
 fun Project.deployVersion() = BuildType {
     id(DEPLOY_CONFIGURE_VERSION_ID)
-    this.name = "Deploy (Configure Version)"
+    this.name = "Deploy [RUN THIS ONE]"
     commonConfigure()
 
     params {
         // enable editing of this configuration to set up things
         param("teamcity.ui.settings.readOnly", "false")
         param(versionSuffixParameter, "dev-%build.counter%")
-        param("reverse.dep.$BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID.system.libs.repo.description", libraryStagingRepoDescription)
-        param("env.libs.repository.id", "%dep.$BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID.env.libs.repository.id%")
     }
 
     requirements {
@@ -163,35 +189,54 @@ fun Project.deployVersion() = BuildType {
     }
 }.also { buildType(it) }
 
+fun Project.deployUpload(configureBuild: BuildType) = BuildType {
+    templates(AbsoluteId("KotlinTools_KotlinLibrariesDeployLocalBundleToCentral"))
+    name = "Upload deployment to central portal"
+    id("UploadDeploymentToCentralPortal")
+
+    artifactRules = """
+        %LocalDeploymentPaths%
+        buildRepo => buildRepo.zip
+    """.trimIndent()
+
+    params {
+        param("DeploymentName", "kotlinx.collections.immutable %DeployVersion%")
+        param("DeployVersion", "${configureBuild.reverseDepParamRefs[releaseVersionParameter]}")
+        password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
+    }
+}
+
 fun Project.deployPublish(configureBuild: BuildType) = BuildType {
     id(DEPLOY_PUBLISH_ID)
-    this.name = "Deploy (Publish)"
-    type = BuildTypeSettings.Type.COMPOSITE
-    dependsOnSnapshot(configureBuild)
+    templates(AbsoluteId("KotlinTools_KotlinLibrariesPromoteDeployment"))
+    name = "Publish deployment"
+    type = BuildTypeSettings.Type.DEPLOYMENT
+
     buildNumberPattern = configureBuild.depParamRefs.buildNumber.ref
     params {
-        // Tell configuration build how to get release version parameter from this build
-        // "dev" is the default and means publishing is not releasing to public
-        text(configureBuild.reverseDepParamRefs[releaseVersionParameter].name, "dev", display = ParameterDisplay.PROMPT, label = "Release Version")
-        param("env.libs.repository.id", "%dep.$BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID.env.libs.repository.id%")
+        password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
+        param("DeployVersion", "${configureBuild.reverseDepParamRefs[releaseVersionParameter]}")
     }
     commonConfigure()
 }.also { buildType(it) }
 
 
-fun Project.deploy(platform: Platform, configureBuild: BuildType) = buildType("Deploy", platform) {
+fun Project.buildArtifacts(platform: Platform, configureBuild: BuildType) = buildType("Deploy", platform) {
     type = BuildTypeSettings.Type.DEPLOYMENT
     enablePersonalBuilds = false
     maxRunningBuilds = 1
     params {
         param(versionSuffixParameter, "${configureBuild.depParamRefs[versionSuffixParameter]}")
         param(releaseVersionParameter, "${configureBuild.depParamRefs[releaseVersionParameter]}")
-        param("env.libs.repository.id", "%dep.$BUILD_CREATE_STAGING_REPO_ABSOLUTE_ID.env.libs.repository.id%")
     }
 
     vcs {
         cleanCheckout = true
     }
+
+    artifactRules = """
+        build/repo/** => buildRepo.zip
+    """.trimIndent()
 
     steps {
         gradle {
@@ -199,7 +244,7 @@ fun Project.deploy(platform: Platform, configureBuild: BuildType) = buildType("D
             jdkHome = "%env.$jdk%"
             jvmArgs = "-Xmx1g"
             gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$releaseVersionParameter=%$releaseVersionParameter%"
-            tasks = "clean publish"
+            tasks = "clean publishAllPublicationsToBuildLocalRepository"
             buildFile = ""
             gradleWrapperPath = ""
         }
