@@ -231,7 +231,7 @@ fun Project.buildArtifacts(platform: Platform) = buildType("Binaries", platform)
     enablePersonalBuilds = false
     maxRunningBuilds = 1
 
-    buildNumberPattern = "%reverse.dep.*.$releaseVersionParameter% %build.counter%"
+    buildNumberPattern = "%$releaseVersionParameter% %build.counter%"
 
     vcs {
         cleanCheckout = true
