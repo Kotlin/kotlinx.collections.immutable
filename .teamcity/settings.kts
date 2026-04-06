@@ -204,7 +204,7 @@ fun Project.deployUpload(configureBuild: BuildType) = BuildType {
         param("DeployVersion", "${configureBuild.reverseDepParamRefs[releaseVersionParameter]}")
         password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
     }
-}
+}.also { buildType(it) }
 
 fun Project.deployPublish(configureBuild: BuildType) = BuildType {
     id(DEPLOY_PUBLISH_ID)
