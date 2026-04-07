@@ -55,8 +55,9 @@ project {
         }
 
         val deployVersion = deployVersion()
-        val deploys = platforms.map { buildArtifacts(it) }
-        val deployUpload = deployUpload().apply {
+        val deployAll = deployAll(deployVersion)
+        val deploys = platforms.map { buildArtifacts(deployVersion, it) }
+        val deployUpload = deployUpload(deployVersion).apply {
             dependencies {
                 deploys.forEach { dep ->
                     dependency(dep) {
@@ -71,19 +72,19 @@ project {
                 }
             }
         }
-        val deployPublish = deployPublish().apply {
+        val deployPublish = deployPublish(deployVersion).apply {
             dependsOnSnapshot(deployUpload)
         }
 
-        deploys.forEach { deployVersion.dependsOnSnapshot(it) }
-        deployVersion.dependsOnSnapshot(deployUpload) {
+        deploys.forEach { deployAll.dependsOnSnapshot(it) }
+        deployAll.dependsOnSnapshot(deployUpload) {
             reuseBuilds = ReuseBuilds.NO
         }
-        deployVersion.dependsOnSnapshot(deployPublish) {
+        deployAll.dependsOnSnapshot(deployPublish) {
             reuseBuilds = ReuseBuilds.NO
         }
 
-        buildTypesOrder = listOf(deployVersion, *deploys.toTypedArray(), deployUpload, deployPublish)
+        buildTypesOrder = listOf(deployAll, deployVersion, *deploys.toTypedArray(), deployUpload, deployPublish)
     }
 
     subProject(deploymentProject)
@@ -159,27 +160,59 @@ fun Project.build(platform: Platform, versionBuild: BuildType) = buildType("Buil
     artifactRules = "+:build/maven=>maven\n+:build/api=>api"
 }
 
-fun Project.deployVersion() = BuildType {
-    id(DEPLOY_CONFIGURE_VERSION_ID)
+fun Project.deployAll(deployVersion: BuildType) = BuildType {
+    id(DEPLOY_ALL_ID)
     this.name = "Deploy [RUN THIS ONE]"
-    type = BuildTypeSettings.Type.DEPLOYMENT
+    type = BuildTypeSettings.Type.COMPOSITE
     commonConfigure()
 
-    buildNumberPattern = "%reverse.dep.*.$releaseVersionParameter% %build.counter%"
+    buildNumberPattern = deployVersion.depParamRefs.buildNumber.ref
+    dependsOnSnapshot(deployVersion)
 
     params {
         // enable editing of this configuration to set up things
         param("teamcity.ui.settings.readOnly", "false")
-        // param(versionSuffixParameter, "dev-%build.counter%")
-        param("reverse.dep.*.$versionSuffixParameter", "dev-%build.counter%")
         text("reverse.dep.*.$releaseVersionParameter", "", label = "Version", description = "Version of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = false)
     }
 }.also { buildType(it) }
 
-fun Project.deployUpload() = BuildType {
+fun Project.deployVersion() = BuildType {
+    id(DEPLOY_CONFIGURE_VERSION_ID)
+    this.name = "Generate build version"
+    type = BuildTypeSettings.Type.REGULAR
+    commonConfigure()
+
+    buildNumberPattern = "%$releaseVersionParameter% %build.counter%"
+
+    params {
+        // enable editing of this configuration to set up things
+        param("$releaseVersionParameter", "<override>")
+        param(versionSuffixParameter, "dev-%build.counter%")
+    }
+
+    requirements {
+        // Require Linux for configuration build
+        contains("teamcity.agent.jvm.os.name", "Linux")
+    }
+
+    steps {
+        gradle {
+            name = "Verify Gradle Configuration"
+            tasks = "clean publishPrepareVersion"
+            gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$releaseVersionParameter=%$releaseVersionParameter%"
+            buildFile = ""
+            jdkHome = "%env.$jdk%"
+        }
+    }
+}.also { buildType(it) }
+
+fun Project.deployUpload(deployVersion: BuildType) = BuildType {
     templates(AbsoluteId("KotlinTools_KotlinLibrariesDeployLocalBundleToCentral"))
     name = "Upload deployment to central portal"
     id(DEPLOY_UPLOAD_ID)
+
+    buildNumberPattern = deployVersion.depParamRefs.buildNumber.ref
+    dependsOnSnapshot(deployVersion)
 
     artifactRules = """
         %LocalDeploymentPaths%
@@ -193,11 +226,14 @@ fun Project.deployUpload() = BuildType {
     }
 }.also { buildType(it) }
 
-fun Project.deployPublish() = BuildType {
+fun Project.deployPublish(deployVersion: BuildType) = BuildType {
     id(DEPLOY_PUBLISH_ID)
     templates(PUBLISH_DEPLOYMENT_TEMPLATE_ID)
     name = "Publish deployment"
     type = BuildTypeSettings.Type.DEPLOYMENT
+
+    buildNumberPattern = deployVersion.depParamRefs.buildNumber.ref
+    dependsOnSnapshot(deployVersion)
 
     params {
         password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
@@ -207,12 +243,13 @@ fun Project.deployPublish() = BuildType {
 }.also { buildType(it) }
 
 
-fun Project.buildArtifacts(platform: Platform) = buildType("Binaries", platform) {
+fun Project.buildArtifacts(deployVersion: BuildType, platform: Platform) = buildType("Binaries", platform) {
     type = BuildTypeSettings.Type.DEPLOYMENT
     enablePersonalBuilds = false
     maxRunningBuilds = 1
 
-    buildNumberPattern = "%$releaseVersionParameter% %build.counter%"
+    buildNumberPattern = deployVersion.depParamRefs.buildNumber.ref
+    dependsOnSnapshot(deployVersion)
 
     vcs {
         cleanCheckout = true
@@ -221,6 +258,10 @@ fun Project.buildArtifacts(platform: Platform) = buildType("Binaries", platform)
     artifactRules = """
         build/maven/** => buildRepo.zip
     """.trimIndent()
+
+    params {
+        param(versionSuffixParameter, "${deployVersion.depParamRefs[versionSuffixParameter]}")
+    }
 
     steps {
         gradle {

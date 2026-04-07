@@ -33,6 +33,7 @@ fun Platform.teamcityAgentName(): String = buildTypeName()
 
 const val BUILD_CONFIGURE_VERSION_ID = "Build_Version"
 const val BUILD_ALL_ID = "Build_All"
+const val DEPLOY_ALL_ID = "Deploy_All"
 const val DEPLOY_CONFIGURE_VERSION_ID = "Deploy_Configure"
 const val DEPLOY_UPLOAD_ID = "Deplpy_Upload"
 const val DEPLOY_PUBLISH_ID = "Deploy_Publish"
@@ -48,6 +49,7 @@ class KnownBuilds(private val project: Project) {
     val buildVersion: BuildType get() = buildWithId(BUILD_CONFIGURE_VERSION_ID)
     val buildAll: BuildType get() = buildWithId(BUILD_ALL_ID)
     fun buildOn(platform: Platform): BuildType = buildWithId("Build_${platform.buildTypeId()}")
+    val deployAll: BuildType get() = buildWithId(DEPLOY_ALL_ID)
     val deployVersion: BuildType get() = buildWithId(DEPLOY_CONFIGURE_VERSION_ID)
     val deployPublish: BuildType get() = buildWithId(DEPLOY_PUBLISH_ID)
 
