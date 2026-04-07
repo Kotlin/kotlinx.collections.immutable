@@ -185,8 +185,6 @@ fun Project.deployVersion() = BuildType {
     buildNumberPattern = "%$releaseVersionParameter% %build.counter%"
 
     params {
-        // enable editing of this configuration to set up things
-        param("$releaseVersionParameter", "<override>")
         param(versionSuffixParameter, "dev-%build.counter%")
     }
 
