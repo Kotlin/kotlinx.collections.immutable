@@ -7,6 +7,7 @@ pluginManagement {
         if (kotlinRepoUrl != null) {
             maven(kotlinRepoUrl)
         }
+        mavenLocal()
     }
     val dokkaVersion: String by settings
     val kotlinxBenchmarkVersion: String by settings

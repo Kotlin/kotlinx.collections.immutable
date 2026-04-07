@@ -18,9 +18,6 @@ infra {
         include(":kotlinx-collections-immutable")
 
         libraryRepoUrl = "https://github.com/Kotlin/kotlinx.collections.immutable"
-        sonatype {
-            libraryStagingRepoDescription = project.name
-        }
     }
 }
 

@@ -4,6 +4,7 @@
  */
 
 import jetbrains.buildServer.configs.kotlin.Project
+import jetbrains.buildServer.configs.kotlin.BuildType
 import jetbrains.buildServer.configs.kotlin.DslContext
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 
@@ -21,4 +22,9 @@ fun Project.additionalConfiguration() {
             }
         }
     }
+
+
+    val deploymentProject = knownBuilds.deploymentSubproject
+    val startTask = deploymentProject.knownBuilds.deployStart
+    startTask.params.param("reverse.dep.*.DeploymentName", "kotlinx.collections.immutable %releaseVersion%")
 }
