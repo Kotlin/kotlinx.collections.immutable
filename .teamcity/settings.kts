@@ -171,7 +171,7 @@ fun Project.deployAll(deployVersion: BuildType) = BuildType {
 
     params {
         // enable editing of this configuration to set up things
-        param("teamcity.ui.settings.readOnly", "true")
+        param("teamcity.ui.settings.readOnly", "false")
         text("reverse.dep.*.$releaseVersionParameter", "", label = "Version", description = "Version of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = false)
         password("reverse.dep.*.DeploymentToken", "")
     }
