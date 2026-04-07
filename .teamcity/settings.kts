@@ -170,29 +170,10 @@ fun Project.deployVersion() = BuildType {
     params {
         // enable editing of this configuration to set up things
         param("teamcity.ui.settings.readOnly", "false")
-        param(versionSuffixParameter, "dev-%build.counter%")
-        param("reverse.dep.*.$versionSuffixParameter", "%$versionSuffixParameter%")
+        // param(versionSuffixParameter, "dev-%build.counter%")
+        param("reverse.dep.*.$versionSuffixParameter", "dev-%build.counter%")
         text("reverse.dep.*.$releaseVersionParameter", "", label = "Version", description = "Version of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = false)
     }
-
-    /*
-    requirements {
-        // Require Linux for configuration build
-        contains("teamcity.agent.jvm.os.name", "Linux")
-    }
-     */
-
-    /*
-    steps {
-        gradle {
-            name = "Verify Gradle Configuration"
-            tasks = "clean publishPrepareVersion"
-            gradleParams = "--info --stacktrace -P$versionSuffixParameter=%$versionSuffixParameter% -P$releaseVersionParameter=%$releaseVersionParameter%"
-            buildFile = ""
-            jdkHome = "%env.$jdk%"
-        }
-    }
-     */
 }.also { buildType(it) }
 
 fun Project.deployUpload() = BuildType {
