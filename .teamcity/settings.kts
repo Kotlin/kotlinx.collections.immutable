@@ -171,8 +171,9 @@ fun Project.deployAll(deployVersion: BuildType) = BuildType {
 
     params {
         // enable editing of this configuration to set up things
-        param("teamcity.ui.settings.readOnly", "false")
+        param("teamcity.ui.settings.readOnly", "true")
         text("reverse.dep.*.$releaseVersionParameter", "", label = "Version", description = "Version of artifacts to deploy", display = ParameterDisplay.PROMPT, allowEmpty = false)
+        password("reverse.dep.*.DeploymentToken", "")
     }
 }.also { buildType(it) }
 
@@ -220,7 +221,7 @@ fun Project.deployUpload(deployVersion: BuildType) = BuildType {
     params {
         param("DeploymentName", "kotlinx.collections.immutable %DeployVersion%")
         param("DeployVersion", "%$releaseVersionParameter%")
-        password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
+        //password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
     }
 }.also { buildType(it) }
 
@@ -234,7 +235,7 @@ fun Project.deployPublish(deployVersion: BuildType) = BuildType {
     dependsOnSnapshot(deployVersion)
 
     params {
-        password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
+        //password("DeploymentToken", "???", display = ParameterDisplay.HIDDEN)
         param("DeployVersion", "%$releaseVersionParameter%")
     }
     commonConfigure()
