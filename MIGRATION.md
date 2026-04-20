@@ -1,0 +1,103 @@
+# Migration Guide: Participial Naming for Copy-Returning Operations
+
+Starting with version `0.5.0`, `kotlinx.collections.immutable` aligns its public API
+with [KEEP-0459 — Naming Conventions for Copy-Returning Operations](https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0459-naming-conventions-for-copy-returning-operations.md).
+Copy-returning methods on `PersistentCollection`, `PersistentList`, and `PersistentMap`
+are being renamed from imperative forms (`add`, `remove`, `put`, `clear`, `set`, `removeAt`, …)
+to participial forms (`adding`, `removing`, `putting`, `cleared`, `replacingAt`, `removingAt`, …).
+The old names are preserved as `@Deprecated` overloads with `ReplaceWith` quick-fixes
+so existing code keeps working while you migrate.
+
+This document explains why we are doing this, lists the renames, and describes
+the multi-release deprecation timeline so you can plan your upgrade.
+
+## Why this change
+
+Persistent collections are immutable, so every "mutating-looking" call actually
+returns a new collection. Using the same imperative names as `MutableCollection`
+(`list.add(x)`, `map.put(k, v)`, `list.removeAt(i)`) made this easy to misread at
+a call site: the method looks like it mutates `this`, but its result must be used
+or the call is effectively a no-op. This has been a recurring source of bugs and
+cognitive overhead during code review.
+
+KEEP-0459 establishes a uniform rule across Kotlin APIs: the imperative form is
+reserved for in-place mutation, while the participial form (`-ed`, `-ing`)
+is reserved for operations that return a copy. This mirrors the pattern already
+used in the Kotlin standard library (`sort()` / `sorted()`, `reverse()` /
+`reversed()`). Adopting the convention makes intent obvious at the call site
+and keeps the persistent API consistent with the rest of the ecosystem.
+
+Full rationale and rules live in the KEEP itself; this document is intentionally
+a short migration reference.
+
+## What is renamed
+
+### `PersistentCollection<E>`
+
+| Deprecated | Replacement |
+| --- | --- |
+| `add(element)` | `adding(element)` |
+| `addAll(elements)` | `addingAll(elements)` |
+| `remove(element)` | `removing(element)` |
+| `removeAll(elements)` | `removingAll(elements)` |
+| `removeAll(predicate)` | `removingAll(predicate)` |
+| `retainAll(elements)` | `retainingAll(elements)` |
+| `clear()` | `cleared()` |
+
+### `PersistentList<E>`
+
+Inherits every rename above, plus the indexed operations:
+
+| Deprecated | Replacement |
+| --- | --- |
+| `add(index, element)` | `addingAt(index, element)` |
+| `addAll(index, c)` | `addingAllAt(index, c)` |
+| `set(index, element)` | `replacingAt(index, element)` |
+| `removeAt(index)` | `removingAt(index)` |
+
+### `PersistentMap<K, V>`
+
+| Deprecated | Replacement |
+| --- | --- |
+| `put(key, value)` | `putting(key, value)` |
+| `putAll(m)` | `puttingAll(m)` |
+| `remove(key)` | `removing(key)` |
+| `remove(key, value)` | `removing(key, value)` |
+| `clear()` | `cleared()` |
+
+### Not affected
+
+Builder interfaces — `PersistentCollection.Builder`, `PersistentList.Builder`,
+`PersistentSet.Builder`, `PersistentMap.Builder` — are **not** renamed. Builders
+mutate in place, so their imperative names are correct under KEEP-0459 and stay
+as-is.
+
+## Deprecation timeline
+
+The old names are being phased out gradually over three releases so that
+downstream projects have time to migrate without being forced into a flag-day
+upgrade.
+
+| Version | `DeprecationLevel` | What happens | Action required |
+| --- | --- | --- | --- |
+| `0.5.0` | `WARNING` — introduced in [#233](https://github.com/Kotlin/kotlinx.collections.immutable/pull/233) | Old names still compile. IDE shows deprecation warnings with `ReplaceWith` quick-fixes. Binary compatible. | None immediately. Start migrating at your own pace. |
+| `0.6.0` | `ERROR` | Old names still resolve at runtime (binary compatible) but no longer compile from source. | Migrate all call sites before upgrading. |
+| `0.7.0` | Removed | Old names are deleted from the API entirely. | Migration must be complete before upgrading. |
+
+## How to migrate
+
+- **Use the IDE quick-fix.** Every deprecated method carries
+  `@Deprecated(message, ReplaceWith(...))`. In IntelliJ IDEA / Android Studio,
+  place the caret on the warning and choose *Replace with …*, or run
+  *Code → Inspect Code → Deprecated API usages* to apply replacements across
+  the whole module.
+- **Bulk-migrate with the compiler.** On `0.5.x` you can temporarily raise the
+  deprecation warnings to errors (`-Werror` or per-file `@file:Suppress`
+  auditing) to make the remaining call sites easy to find.
+- **No behavior changes.** The new methods are exact renames — same semantics,
+  same return types, same complexity. No call-site logic needs to be adjusted.
+
+## Feedback
+
+Questions, edge cases, or problems with the migration? Please comment on
+[issue #232](https://github.com/Kotlin/kotlinx.collections.immutable/issues/232).
