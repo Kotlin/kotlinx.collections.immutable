@@ -24,4 +24,7 @@ fun Project.additionalConfiguration() {
     val deploymentProject = knownBuilds.deploymentSubproject
     val startTask = deploymentProject.knownBuilds.deployStart
     startTask.params.param("reverse.dep.*.DeploymentName", "kotlinx.collections.immutable %releaseVersion%")
+    deploymentProject.knownBuilds.deployPublish.params {
+        param("DeploymentId", "${deploymentProject.knownBuilds.deployUpload.depParamRefs["output.DeploymentId"]}")
+    }
 }
