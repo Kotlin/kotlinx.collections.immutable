@@ -72,7 +72,7 @@ internal class PersistentOrderedMapBuilderEntriesIterator<K, V>(map: PersistentO
     override fun next(): MutableMap.MutableEntry<K, V> {
         val links = internal.next()
         @Suppress("UNCHECKED_CAST")
-        return MutableMapEntry(internal.builder.hashMapBuilder, internal.lastIteratedKey as K, links)
+        return MutableMapEntry(internal.builder, internal.lastIteratedKey as K, links)
     }
 
     override fun remove() {
@@ -80,7 +80,7 @@ internal class PersistentOrderedMapBuilderEntriesIterator<K, V>(map: PersistentO
     }
 }
 
-private class MutableMapEntry<K, V>(private val mutableMap: MutableMap<K, LinkedValue<V>>,
+private class MutableMapEntry<K, V>(private val builder: PersistentOrderedMapBuilder<K, V>,
                                     key: K,
                                     private var links: LinkedValue<V>) : MapEntry<K, V>(key, links.value), MutableMap.MutableEntry<K, V> {
     override val value: V
@@ -89,7 +89,7 @@ private class MutableMapEntry<K, V>(private val mutableMap: MutableMap<K, Linked
     override fun setValue(newValue: V): V {
         val result = links.value
         links = links.withValue(newValue)
-        mutableMap[key] = links
+        builder.setEntryValue(key, links)
         return result
     }
 }

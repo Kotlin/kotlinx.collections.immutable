@@ -86,6 +86,11 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         }
     }
 
+    internal fun setEntryValue(key: K, links: LinkedValue<V>) {
+        builtMap = null
+        hashMapBuilder[key] = links
+    }
+
     override fun remove(key: K): V? {
         val links = hashMapBuilder.remove(key) ?: return null
         builtMap = null
