@@ -6,9 +6,7 @@
 package tests.contract.set
 
 import com.google.common.collect.testing.TestStringSetGenerator
-import kotlinx.collections.immutable.mutate
-import kotlinx.collections.immutable.persistentHashSetOf
-import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.*
 
 class PersistentSetGenerator {
     object HashSet {
@@ -20,25 +18,25 @@ class PersistentSetGenerator {
 
         object AddAll : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentHashSetOf<String>().addAll(elements.toList())
+                return emptyPersistentHashSet<String>().addAll(elements.toList())
             }
         }
 
         object AddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return elements.fold(persistentHashSetOf()) { set, element -> set.add(element) }
+                return elements.fold(emptyPersistentHashSet()) { set, element -> set.add(element) }
             }
         }
 
         object MutateAddAll : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentHashSetOf<String>().mutate { it.addAll(elements) }
+                return emptyPersistentHashSet<String>().mutate { it.addAll(elements) }
             }
         }
 
         object MutateAddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentHashSetOf<String>().mutate { builder -> elements.forEach { builder.add(it) } }
+                return emptyPersistentHashSet<String>().mutate { builder -> elements.forEach { builder.add(it) } }
             }
         }
 
@@ -52,13 +50,13 @@ class PersistentSetGenerator {
 
             object AddAll : TestStringSetGenerator() {
                 override fun create(elements: Array<out String>): MutableSet<String> {
-                    return persistentHashSetOf<String>().builder().apply { addAll(elements) }
+                    return emptyPersistentHashSet<String>().builder().apply { addAll(elements) }
                 }
             }
 
             object AddEach : TestStringSetGenerator() {
                 override fun create(elements: Array<out String>): MutableSet<String> {
-                    return persistentHashSetOf<String>().builder().apply { elements.forEach { add(it) } }
+                    return emptyPersistentHashSet<String>().builder().apply { elements.forEach { add(it) } }
                 }
             }
         }
@@ -74,25 +72,25 @@ class PersistentSetGenerator {
 
         object AddAll : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentSetOf<String>().addAll(elements.toList())
+                return emptyPersistentSet<String>().addAll(elements.toList())
             }
         }
 
         object AddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return elements.fold(persistentSetOf()) { set, element -> set.add(element) }
+                return elements.fold(emptyPersistentSet()) { set, element -> set.add(element) }
             }
         }
 
         object MutateAddAll : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentSetOf<String>().mutate { it.addAll(elements) }
+                return emptyPersistentSet<String>().mutate { it.addAll(elements) }
             }
         }
 
         object MutateAddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentSetOf<String>().mutate { builder -> elements.forEach { builder.add(it) } }
+                return emptyPersistentSet<String>().mutate { builder -> elements.forEach { builder.add(it) } }
             }
         }
 
@@ -106,13 +104,13 @@ class PersistentSetGenerator {
 
             object AddAll : TestStringSetGenerator() {
                 override fun create(elements: Array<out String>): MutableSet<String> {
-                    return persistentSetOf<String>().builder().apply { addAll(elements) }
+                    return emptyPersistentSet<String>().builder().apply { addAll(elements) }
                 }
             }
 
             object AddEach : TestStringSetGenerator() {
                 override fun create(elements: Array<out String>): MutableSet<String> {
-                    return persistentSetOf<String>().builder().apply { elements.forEach { add(it) } }
+                    return emptyPersistentSet<String>().builder().apply { elements.forEach { add(it) } }
                 }
             }
         }

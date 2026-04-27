@@ -8,6 +8,7 @@ package benchmarks.immutableList
 import benchmarks.*
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.benchmark.*
+import kotlinx.collections.immutable.emptyPersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.random.Random
 
@@ -16,7 +17,7 @@ open class RemoveAllPredicate {
     @Param(BM_1, BM_10, BM_100, BM_1000, BM_10000, BM_100000, BM_1000000, BM_10000000)
     var size: Int = 0
 
-    private var persistentList = persistentListOf<String>()
+    private var persistentList = emptyPersistentList<String>()
     private val truePredicate: (String) -> Boolean = { true }
     private val falsePredicate: (String) -> Boolean = { false }
     private var randomHalfElementsPredicate: (String) -> Boolean = truePredicate
@@ -39,7 +40,7 @@ open class RemoveAllPredicate {
         tailElementsPredicate = { it in tailElements }
 
         val allElements = List(size) { it.toString() }
-        persistentList = persistentListOf<String>().addAll(allElements)
+        persistentList = emptyPersistentList<String>().addAll(allElements)
     }
 
     // The benchmarks measure (time and memory spent in `removeAll` operation) / size
