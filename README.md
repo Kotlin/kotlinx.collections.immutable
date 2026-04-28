@@ -13,7 +13,7 @@ Immutable collection interfaces and implementation prototypes for Kotlin.
 This is a multiplatform library providing implementations for `jvm`, `js`, `wasmJs`, `wasmWasi`
 and all [targets supported by the Kotlin/Native compiler](https://kotlinlang.org/docs/native-target-support.html).
 
-For further details see the [proposal](proposal.md).
+For further details see the [proposal](docs/proposal.md).
 
 ## What's in this library
 ### Interfaces and implementations
