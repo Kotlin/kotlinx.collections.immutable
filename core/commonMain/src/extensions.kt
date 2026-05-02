@@ -382,13 +382,20 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(map: Map<out K, V>): Persis
  * The effect of this call is equivalent to that of calling `put(k, v)` once for each
  * mapping from key `k` to value `v` in the specified map.
  *
- * Imperative names mirror MutableCollection's mutating API.
- * Participial form clarifies that a new instance is returned.
+ * Use the function [puttingAll] to make it clear that a new map is returned.
+ *
+ * Old functions mimicking [MutableMap] names, like this one,
+ * were deprecated and will be removed in future releases. Refer to the
+ * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+ * for more details and guidance with the migration.
  *
  * @return a new persistent map with keys and values from the specified [map] associated;
  *         or this instance if no modifications were made in the result of this operation.
  */
-@Deprecated("Use puttingAll() instead.", replaceWith = ReplaceWith("puttingAll(map)"))
+@Deprecated(
+    "Use puttingAll() instead. For more details, read the documentation for this function.",
+    replaceWith = ReplaceWith("puttingAll(map)")
+)
 public fun <K, V> PersistentMap<out K, V>.putAll(map: Map<out K, V>): PersistentMap<K, V> = puttingAll(map)
 
 /**
@@ -403,13 +410,20 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Iterable<Pair<K, V>>
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
  *
- * Imperative names mirror MutableCollection's mutating API.
- * Participial form clarifies that a new instance is returned.
+ * Use the function [puttingAll] to make it clear that a new map is returned.
+ *
+ * Old functions mimicking [MutableMap] names, like this one,
+ * were deprecated and will be removed in future releases.
+ * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+ * for more details and guidance with the migration.
  *
  * @return a new persistent map with entries from the specified key-value pairs added;
  *         or this instance if no modifications were made in the result of this operation.
  */
-@Deprecated("Use puttingAll() instead.", replaceWith = ReplaceWith("puttingAll(pairs)"))
+@Deprecated(
+    "Use puttingAll() instead. For more details, read the documentation for this function.",
+    replaceWith = ReplaceWith("puttingAll(pairs)")
+)
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
 /**
@@ -424,13 +438,20 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Array<out Pair<K, V>
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
  *
- * Imperative names mirror MutableCollection's mutating API.
- * Participial form clarifies that a new instance is returned.
+ * Use the function [puttingAll] to make it clear that a new map is returned.
+ *
+ * Old functions mimicking [MutableMap] names, like this one,
+ * were deprecated and will be removed in future releases.
+ * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+ * for more details and guidance with the migration.
  *
  * @return a new persistent map with entries from the specified key-value pairs added;
  *         or this instance if no modifications were made in the result of this operation.
  */
-@Deprecated("Use puttingAll() instead.", replaceWith = ReplaceWith("puttingAll(pairs)"))
+@Deprecated(
+    "Use puttingAll() instead. For more details, read the documentation for this function.",
+    replaceWith = ReplaceWith("puttingAll(pairs)")
+)
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Array<out Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
 /**
@@ -445,13 +466,20 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Sequence<Pair<K, V>>
 /**
  * Returns the result of replacing or adding entries to this map from the specified key-value pairs.
  *
- * Imperative names mirror MutableCollection's mutating API.
- * Participial form clarifies that a new instance is returned.
+ * Use the function [puttingAll] to make it clear that a new map is returned.
+ *
+ * Old functions mimicking [MutableMap] names, like this one,
+ * were deprecated and will be removed in future releases.
+ * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+ * for more details and guidance with the migration.
  *
  * @return a new persistent map with entries from the specified key-value pairs added;
  *         or this instance if no modifications were made in the result of this operation.
  */
-@Deprecated("Use puttingAll() instead.", replaceWith = ReplaceWith("puttingAll(pairs)"))
+@Deprecated(
+    "Use puttingAll() instead. For more details, read the documentation for this function.",
+    replaceWith = ReplaceWith("puttingAll(pairs)")
+)
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
 /**

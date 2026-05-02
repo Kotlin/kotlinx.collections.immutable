@@ -37,16 +37,21 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns the result of adding the specified [element] to this collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [adding] to make it clear that a new collection is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent collection with the specified [element] added;
      *         or this instance if this collection does not support duplicates,
      *         and it already contains the element.
-     *
-     * @see adding
      */
-    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
+    @Deprecated(
+        "Use adding() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("adding(element)")
+    )
     public fun add(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
@@ -61,15 +66,20 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns the result of adding all elements of the specified [elements] collection to this collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [addingAll] to make it clear that a new collection is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent collection with elements of the specified [elements] collection added;
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * @see addingAll
      */
-    @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
+    @Deprecated(
+        "Use addingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAll(elements)")
+    )
     public fun addAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
@@ -83,15 +93,20 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns the result of removing a single appearance of the specified [element] from this collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removing] to make it clear that a new collection is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent collection with a single appearance of the specified [element] removed;
      *         or this instance if there is no such element in this collection.
-     *
-     * @see removing
      */
-    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(element)"))
+    @Deprecated(
+        "Use removing() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removing(element)")
+    )
     public fun remove(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
@@ -109,14 +124,21 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns the result of removing all elements in this collection that are also
      * contained in the specified [elements] collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removingAll] to make it clear that a new collection is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent collection with elements in this collection that are also
      *         contained in the specified [elements] collection removed;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(elements)")
+    )
     public fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
@@ -131,13 +153,20 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns the result of removing all elements in this collection that match the specified [predicate].
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removingAll] to make it clear that a new collection is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent collection with elements matching the specified [predicate] removed;
      *         or this instance if no elements match the predicate.
      */
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(predicate)")
+    )
     public fun removeAll(predicate: (E) -> Boolean): PersistentCollection<E>
 
     /**
@@ -155,16 +184,21 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns all elements in this collection that are also
      * contained in the specified [elements] collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [retainingAll] to make it clear that a new collection is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent set with elements in this set that are also
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * @see retainingAll
      */
-    @Deprecated("Use retainingAll() instead.", replaceWith = ReplaceWith("retainingAll(elements)"))
+    @Deprecated(
+        "Use retainingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("retainingAll(elements)")
+    )
     public fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
@@ -177,14 +211,19 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns an empty persistent collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [cleared] to make it clear that a new collection is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return an empty persistent collection.
-     *
-     * @see cleared
      */
-    @Deprecated("Use cleared() instead.", replaceWith = ReplaceWith("cleared()"))
+    @Deprecated(
+        "Use cleared() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("cleared()")
+    )
     public fun clear(): PersistentCollection<E>
 
     /**

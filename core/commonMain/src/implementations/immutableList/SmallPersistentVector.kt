@@ -24,7 +24,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return arrayOfNulls<Any?>(size)
     }
 
-    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
+    @Deprecated(
+        "Use adding() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("adding(element)")
+    )
     override fun add(element: E): PersistentList<E> {
         if (size < MAX_BUFFER_SIZE) {
             val newBuffer = buffer.copyOf(size + 1)
@@ -35,7 +38,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return PersistentVector(buffer, tail, size + 1, 0)
     }
 
-    @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
+    @Deprecated(
+        "Use addingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAll(elements)")
+    )
     override fun addAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
         if (size + elements.size <= MAX_BUFFER_SIZE) {
@@ -50,7 +56,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return mutate { it.addAll(elements) }
     }
 
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(predicate)")
+    )
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
         var newSize = size
         var removeMask = 0
@@ -81,7 +90,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         }
     }
 
-    @Deprecated("Use addingAllAt(index, c) instead.", replaceWith = ReplaceWith("addingAllAt(index, c)"))
+    @Deprecated(
+        "Use addingAllAt(index, c) instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAllAt(index, c)")
+    )
     override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
@@ -98,7 +110,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return mutate { it.addAll(index, c) }
     }
 
-    @Deprecated("Use addingAt() instead.", replaceWith = ReplaceWith("addingAt(index, element)"))
+    @Deprecated(
+        "Use addingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAt(index, element)")
+    )
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
@@ -121,7 +136,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return PersistentVector(root, tail, size + 1, 0)
     }
 
-    @Deprecated("Use removingAt() instead.", replaceWith = ReplaceWith("removingAt(index)"))
+    @Deprecated(
+        "Use removingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAt(index)")
+    )
     override fun removeAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         if (size == 1) {
@@ -157,7 +175,10 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         return buffer[index] as E
     }
 
-    @Deprecated("Use replacingAt() instead.", replaceWith = ReplaceWith("replacingAt(index, element)"))
+    @Deprecated(
+        "Use replacingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("replacingAt(index, element)")
+    )
     override fun set(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         val newBuffer = buffer.copyOf()

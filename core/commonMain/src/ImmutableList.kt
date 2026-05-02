@@ -72,12 +72,17 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the specified [element] appended.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [adding] to make it clear that a new list is returned.
      *
-     * @see adding
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      */
-    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
+    @Deprecated(
+        "Use adding() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("adding(element)")
+    )
     override fun add(element: @UnsafeVariance E): PersistentList<E>
 
     /**
@@ -96,15 +101,20 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * The elements are appended in the order they appear in the specified collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [addingAll] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with elements of the specified [elements] collection appended;
      *         or this instance if the specified collection is empty.
-     *
-     * @see addingAll
      */
-    @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
+    @Deprecated(
+        "Use addingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAll(elements)")
+    )
     override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
@@ -118,15 +128,20 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns the result of removing the first appearance of the specified [element] from this list.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removing] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with the first appearance of the specified [element] removed;
      *         or this instance if there is no such element in this list.
-     *
-     * @see removing
      */
-    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(element)"))
+    @Deprecated(
+        "Use removing() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removing(element)")
+    )
     override fun remove(element: @UnsafeVariance E): PersistentList<E>
 
     /**
@@ -144,14 +159,21 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns the result of removing all elements in this list that are also
      * contained in the specified [elements] collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removingAll] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with elements in this list that are also
      *         contained in the specified [elements] collection removed;
      *         or this instance if no modifications were made in the result of this operation.
      */
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(elements)")
+    )
     override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
@@ -166,13 +188,20 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns the result of removing all elements in this list that match the specified [predicate].
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removingAll] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with elements matching the specified [predicate] removed;
      *         or this instance if no elements match the predicate.
      */
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(predicate)")
+    )
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E>
 
     /**
@@ -190,16 +219,21 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns all elements in this list that are also
      * contained in the specified [elements] collection.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [retainingAll] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with elements in this list that are also
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * @see retainingAll
      */
-    @Deprecated("Use retainingAll() instead.", replaceWith = ReplaceWith("retainingAll(elements)"))
+    @Deprecated(
+        "Use retainingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("retainingAll(elements)")
+    )
     override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
@@ -210,12 +244,17 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns an empty persistent list.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [cleared] to make it clear that a new list is returned.
      *
-     * @see cleared
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      */
-    @Deprecated("Use cleared() instead.", replaceWith = ReplaceWith("cleared()"))
+    @Deprecated(
+        "Use cleared() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("cleared()")
+    )
     override fun clear(): PersistentList<E>
 
     /**
@@ -232,17 +271,22 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns the result of inserting the specified [c] collection at the specified [index].
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [addingAllAt] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with the specified [c] collection inserted at the specified [index];
      *         or this instance if the specified collection is empty.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
-     *
-     * @see addingAllAt
      */
-    @Deprecated("Use addingAllAt(index, c) instead.", replaceWith = ReplaceWith("addingAllAt(index, c)"))
+    @Deprecated(
+        "Use addingAllAt(index, c) instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAllAt(index, c)")
+    )
     public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
@@ -258,16 +302,21 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns the result with the element at the specified [index] replaced with the specified [element].
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [replacingAt] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with the element at the specified [index] replaced with the specified [element].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
-     *
-     * @see replacingAt
      */
-    @Deprecated("Use replacingAt() instead.", replaceWith = ReplaceWith("replacingAt(index, element)"))
+    @Deprecated(
+        "Use replacingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("replacingAt(index, element)")
+    )
     public fun set(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
@@ -283,16 +332,21 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the specified [element] inserted at the specified [index].
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [addingAt] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with the specified [element] inserted at the specified [index].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
-     *
-     * @see addingAt
      */
-    @Deprecated("Use addingAt() instead.", replaceWith = ReplaceWith("addingAt(index, element)"))
+    @Deprecated(
+        "Use addingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAt(index, element)")
+    )
     public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
@@ -307,16 +361,21 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the element at the specified [index] removed.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removingAt] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent list with the element at the specified [index] removed.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
-     *
-     * @see removingAt
      */
-    @Deprecated("Use removingAt() instead.", replaceWith = ReplaceWith("removingAt(index)"))
+    @Deprecated(
+        "Use removingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAt(index)")
+    )
     public fun removeAt(index: Int): PersistentList<E>
 
     /**

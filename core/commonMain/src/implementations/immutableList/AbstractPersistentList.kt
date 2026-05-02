@@ -15,20 +15,29 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return super<PersistentList>.subList(fromIndex, toIndex)
     }
 
-    @Deprecated("Use addingAll() instead.", replaceWith = ReplaceWith("addingAll(elements)"))
+    @Deprecated(
+        "Use addingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAll(elements)")
+    )
     override fun addAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
         return mutate { it.addAll(elements) }
     }
 
-    @Deprecated("Use addingAllAt(index, c) instead.", replaceWith = ReplaceWith("addingAllAt(index, c)"))
+    @Deprecated(
+        "Use addingAllAt(index, c) instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAllAt(index, c)")
+    )
     override fun addAll(index: Int, c: Collection<E>): PersistentList<E> {
         checkPositionIndex(index, size)
         if (c.isEmpty()) return this
         return mutate { it.addAll(index, c) }
     }
 
-    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(element)"))
+    @Deprecated(
+        "Use removing() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removing(element)")
+    )
     override fun remove(element: E): PersistentList<E> {
         val index = this.indexOf(element)
         if (index != -1) {
@@ -37,19 +46,28 @@ public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractLis
         return this
     }
 
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(elements)"))
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(elements)")
+    )
     override fun removeAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return this
         return removingAll { elements.contains(it) }
     }
 
-    @Deprecated("Use retainingAll() instead.", replaceWith = ReplaceWith("retainingAll(elements)"))
+    @Deprecated(
+        "Use retainingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("retainingAll(elements)")
+    )
     override fun retainAll(elements: Collection<E>): PersistentList<E> {
         if (elements.isEmpty()) return persistentVectorOf()
         return removingAll { !elements.contains(it) }
     }
 
-    @Deprecated("Use cleared() instead.", replaceWith = ReplaceWith("cleared()"))
+    @Deprecated(
+        "Use cleared() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("cleared()")
+    )
     override fun clear(): PersistentList<E> {
         return persistentVectorOf()
     }

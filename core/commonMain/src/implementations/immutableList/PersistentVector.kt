@@ -32,7 +32,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
 
     private fun rootSize(): Int = rootSize(size)
 
-    @Deprecated("Use adding() instead.", replaceWith = ReplaceWith("adding(element)"))
+    @Deprecated(
+        "Use adding() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("adding(element)")
+    )
     override fun add(element: E): PersistentList<E> {
         val tailSize = size - rootSize()
         if (tailSize < MAX_BUFFER_SIZE) {
@@ -79,7 +82,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRootNode
     }
 
-    @Deprecated("Use addingAt() instead.", replaceWith = ReplaceWith("addingAt(index, element)"))
+    @Deprecated(
+        "Use addingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAt(index, element)")
+    )
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
@@ -145,7 +151,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    @Deprecated("Use removingAt() instead.", replaceWith = ReplaceWith("removingAt(index)"))
+    @Deprecated(
+        "Use removingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAt(index)")
+    )
     override fun removeAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         val rootSize = rootSize()
@@ -262,7 +271,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
-    @Deprecated("Use removingAll() instead.", replaceWith = ReplaceWith("removingAll(predicate)"))
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(predicate)")
+    )
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
         return builder().also { it.removeAllWithPredicate(predicate) }.build()
     }
@@ -300,7 +312,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
-    @Deprecated("Use replacingAt() instead.", replaceWith = ReplaceWith("replacingAt(index, element)"))
+    @Deprecated(
+        "Use replacingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("replacingAt(index, element)")
+    )
     override fun set(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         if (rootSize() <= index) {

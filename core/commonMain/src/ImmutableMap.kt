@@ -54,15 +54,20 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      *
      * If this map already contains a mapping for the key, the old value is replaced by the specified value.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [putting] to make it clear that a new map is returned.
+     *
+     * Old functions mimicking [MutableMap] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent map with the specified [value] associated with the specified [key];
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * @see putting
      */
-    @Deprecated("Use putting() instead.", replaceWith = ReplaceWith("putting(key, value)"))
+    @Deprecated(
+        "Use putting() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("putting(key, value)")
+    )
     public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
@@ -76,13 +81,20 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     /**
      * Returns the result of removing the specified [key] and its corresponding value from this map.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removing] to make it clear that a new map is returned.
+     *
+     * Old functions mimicking [MutableMap] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent map with the specified [key] and its corresponding value removed;
      *         or this instance if it contains no mapping for the key.
      */
-    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(key)"))
+    @Deprecated(
+        "Use removing() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removing(key)")
+    )
     public fun remove(key: K): PersistentMap<K, V>
 
     /**
@@ -97,13 +109,20 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     /**
      * Returns the result of removing the entry that maps the specified [key] to the specified [value].
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [removing] to make it clear that a new map is returned.
+     *
+     * Old functions mimicking [MutableMap] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent map with the entry for the specified [key] and [value] removed;
      *         or this instance if it contains no entry with the specified key and value.
      */
-    @Deprecated("Use removing() instead.", replaceWith = ReplaceWith("removing(key, value)"))
+    @Deprecated(
+        "Use removing() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removing(key, value)")
+    )
     public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
@@ -123,15 +142,20 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * The effect of this call is equivalent to that of calling `put(k, v)` once for each
      * mapping from key `k` to value `v` in the specified map.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [puttingAll] to make it clear that a new map is returned.
+     *
+     * Old functions mimicking [MutableMap] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      *
      * @return a new persistent map with keys and values from the specified map [m] associated;
      *         or this instance if no modifications were made in the result of this operation.
-     *
-     * @see puttingAll
      */
-    @Deprecated("Use puttingAll() instead.", replaceWith = ReplaceWith("puttingAll(m)"))
+    @Deprecated(
+        "Use puttingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("puttingAll(m)")
+    )
     public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>
 
     /**
@@ -142,12 +166,17 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     /**
      * Returns an empty persistent map.
      *
-     * Imperative names mirror MutableCollection's mutating API.
-     * Participial form clarifies that a new instance is returned.
+     * Use the function [cleared] to make it clear that a new map is returned.
      *
-     * @see cleared
+     * Old functions mimicking [MutableMap] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
      */
-    @Deprecated("Use cleared() method instead.", replaceWith = ReplaceWith("cleared()"))
+    @Deprecated(
+        "Use cleared() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("cleared()")
+    )
     public fun clear(): PersistentMap<K, V>
 
     /**
