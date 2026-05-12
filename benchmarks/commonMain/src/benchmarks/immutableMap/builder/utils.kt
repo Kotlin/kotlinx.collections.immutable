@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -19,7 +19,7 @@ fun persistentMapBuilderPut(
 
     var map = emptyPersistentMap<IntWrapper, String>(implementation)
     for (index in 0 until immutableSize) {
-        map = map.put(keys[index], "some value")
+        map = map.putting(keys[index], "some value")
     }
 
     val builder = map.builder()
