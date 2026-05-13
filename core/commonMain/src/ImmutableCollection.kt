@@ -173,7 +173,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns all elements in this collection that are also
      * contained in the specified [elements] collection.
      *
-     * @return a new persistent set with elements in this set that are also
+     * @return a new persistent collection with elements in this collection that are also
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
      */
@@ -191,7 +191,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
      *
-     * @return a new persistent set with elements in this set that are also
+     * @return a new persistent collection with elements in this collection that are also
      *         contained in the specified [elements] collection;
      *         or this instance if no modifications were made in the result of this operation.
      */
@@ -202,14 +202,14 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     public fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
-     * Returns an empty persistent collection.
+     * Returns the result of removing all elements from this collection.
      *
      * @return an empty persistent collection.
      */
     public fun cleared(): PersistentCollection<E> = @Suppress("DEPRECATION") clear()
 
     /**
-     * Returns an empty persistent collection.
+     * Returns the result of removing all elements from this collection.
      *
      * Use the function [cleared] to make it clear that a new collection is returned.
      *
@@ -244,21 +244,25 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      */
     public interface Builder<E> : MutableCollection<E> {
         /**
-         * Returns a persistent collection with the same contents as this builder.
+         * Builds a persistent collection with the same contents as this builder.
          *
          * This method can be called multiple times.
          *
          * If operations applied on this builder have caused no modifications:
          * - on the first call it returns the same persistent collection instance this builder was obtained from.
          * - on subsequent calls it returns the same previously returned persistent collection instance.
+         *
+         * @return a persistent collection with the same contents as this builder.
          */
         public fun build(): PersistentCollection<E>
     }
 
     /**
-     * Returns a new builder with the same contents as this collection.
+     * Creates a new builder with the same contents as this collection.
      *
      * The builder can be used to efficiently perform multiple modification operations.
+     *
+     * @return a new builder with the same contents as this collection.
      */
     public fun builder(): Builder<@UnsafeVariance E>
 }
