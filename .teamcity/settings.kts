@@ -56,10 +56,10 @@ project {
 
         val deployVersion = deployVersion()
         val deployAll = deployAll(deployVersion)
-        val deploys = platforms.map { buildArtifacts(deployVersion, it) }
+        val deploys = platforms.associateWith { buildArtifacts(deployVersion, it) }
         val deployUpload = deployUpload(deployVersion).apply {
             dependencies {
-                deploys.forEach { dep ->
+                deploys.forEach { (_, dep) ->
                     dependency(dep) {
                         snapshot {
                             onDependencyFailure = FailureAction.FAIL_TO_START
@@ -74,7 +74,10 @@ project {
         }
         val deployPublish = deployPublish(deployVersion, deployUpload)
 
-        deploys.forEach { deployAll.dependsOnSnapshot(it) }
+        deploys
+            .filter { (platform, _) -> !singleAgentMacDeployment || platform == Platform.MacOS }
+            .forEach { deployAll.dependsOnSnapshot(it.value) }
+
         deployAll.dependsOnSnapshot(deployUpload) {
             reuseBuilds = ReuseBuilds.NO
         }
@@ -82,7 +85,7 @@ project {
             reuseBuilds = ReuseBuilds.NO
         }
 
-        buildTypesOrder = listOf(deployAll, deployVersion, *deploys.toTypedArray(), deployUpload, deployPublish)
+        buildTypesOrder = listOf(deployAll, deployVersion, *deploys.values.toTypedArray(), deployUpload, deployPublish)
     }
 
     additionalConfiguration()
