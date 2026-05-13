@@ -686,11 +686,11 @@ public fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K,
 
 
 /**
- * Converts this collection to an immutable list.
+ * Converts this iterable to an immutable list.
  *
  * If the receiver is already an immutable list, returns it as is.
  *
- * @return an immutable list containing all elements of this collection.
+ * @return an immutable list containing all elements of this iterable.
  */
 public fun <T> Iterable<T>.toImmutableList(): ImmutableList<T> =
         this as? ImmutableList
@@ -719,12 +719,12 @@ public fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentLis
 
 
 /**
- * Converts this collection to a persistent list.
+ * Converts this iterable to a persistent list.
  *
  * If the receiver is already a persistent list, returns it as is.
  * If the receiver is a persistent list builder, calls `build` on it and returns the result.
  *
- * @return a persistent list containing all elements of this collection.
+ * @return a persistent list containing all elements of this iterable.
  */
 public fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
         this as? PersistentList
@@ -755,13 +755,13 @@ public fun CharSequence.toPersistentList(): PersistentList<Char> =
 
 
 /**
- * Converts this collection to an immutable set.
+ * Converts this iterable to an immutable set.
  *
  * If the receiver is already an immutable set, returns it as is.
  *
- * Elements of the returned set are iterated in the same order as in this collection.
+ * Elements of the returned set are iterated in the same order as in this iterable.
  *
- * @return an immutable set of all elements of this collection.
+ * @return an immutable set of all elements of this iterable.
  */
 public fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
         this as? ImmutableSet<T>
@@ -797,14 +797,14 @@ public fun CharSequence.toImmutableSet(): PersistentSet<Char> = toPersistentSet(
 
 
 /**
- * Converts this collection to a persistent set.
+ * Converts this iterable to a persistent set.
  *
  * If the receiver is already a persistent set, returns it as is.
  * If the receiver is a persistent set builder, calls `build` on it and returns the result.
  *
- * Elements of the returned set are iterated in the same order as in this collection.
+ * Elements of the returned set are iterated in the same order as in this iterable.
  *
- * @return a persistent set of all elements of this collection.
+ * @return a persistent set of all elements of this iterable.
  */
 public fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
         this as? PersistentOrderedSet<T>
@@ -841,14 +841,14 @@ public fun CharSequence.toPersistentSet(): PersistentSet<Char> =
 
 
 /**
- * Converts this collection to a persistent hash set.
+ * Converts this iterable to a persistent hash set.
  *
  * If the receiver is already a persistent hash set, returns it as is.
  * If the receiver is a persistent hash set builder, calls `build` on it and returns the result.
  *
  * Order of the elements in the returned set is unspecified.
  *
- * @return a persistent set containing all elements from this collection.
+ * @return a persistent set containing all elements from this iterable.
  */
 public fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T>
     = this as? PersistentHashSet
