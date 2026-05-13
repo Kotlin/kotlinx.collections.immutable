@@ -165,6 +165,7 @@ dokka {
         val platform = name.dropLast(4)
         samples.from("$platform/test")
         skipDeprecated.set(true)
+        includes.from("README.md")
         sourceLink {
             localDirectory.set(rootDir)
             val branch = if (version.toString().endsWith(properties["versionSuffix"].toString()))
