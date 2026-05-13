@@ -20,9 +20,11 @@ import kotlinx.collections.immutable.internal.ListImplementation
 public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
 
     /**
-     * Returns a view of the portion of this list between the specified [fromIndex] (inclusive) and [toIndex] (exclusive).
+     * Creates a view of the portion of this list between the specified [fromIndex] (inclusive) and [toIndex] (exclusive).
      *
      * The returned list is backed by this list.
+     *
+     * @return a view of the portion of this list between the specified [fromIndex] (inclusive) and [toIndex] (exclusive).
      *
      * @throws IndexOutOfBoundsException if [fromIndex] is less than zero or [toIndex] is greater than the size of this list.
      * @throws IllegalArgumentException if [fromIndex] is greater than [toIndex].
@@ -65,12 +67,14 @@ public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
  */
 public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<E> {
     /**
-     * Returns a new persistent list with the specified [element] appended.
+     * Returns the result of appending the specified [element] to this list.
+     *
+     * @return a new persistent list with the specified [element] appended.
      */
     override fun adding(element: @UnsafeVariance E): PersistentList<E> = @Suppress("DEPRECATION") add(element)
 
     /**
-     * Returns a new persistent list with the specified [element] appended.
+     * Returns the result of appending the specified [element] to this list.
      *
      * Use the function [adding] to make it clear that a new list is returned.
      *
@@ -78,6 +82,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with the specified [element] appended.
      */
     @Deprecated(
         "Use adding() instead. For more details, read the documentation for this function.",
@@ -237,12 +243,14 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
-     * Returns an empty persistent list.
+     * Returns the result of removing all elements from this list.
+     *
+     * @return an empty persistent list.
      */
     override fun cleared(): PersistentList<E> = @Suppress("DEPRECATION") clear()
 
     /**
-     * Returns an empty persistent list.
+     * Returns the result of removing all elements from this list.
      *
      * Use the function [cleared] to make it clear that a new list is returned.
      *
@@ -250,6 +258,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
+     *
+     * @return an empty persistent list.
      */
     @Deprecated(
         "Use cleared() instead. For more details, read the documentation for this function.",
@@ -290,7 +300,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
-     * Returns the result with the element at the specified [index] replaced with the specified [element].
+     * Returns the result of replacing the element at the specified [index] with the specified [element].
      *
      * @return a new persistent list with the element at the specified [index] replaced with the specified [element].
      *
@@ -300,7 +310,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
         @Suppress("DEPRECATION") set(index, element)
 
     /**
-     * Returns the result with the element at the specified [index] replaced with the specified [element].
+     * Returns the result of replacing the element at the specified [index] with the specified [element].
      *
      * Use the function [replacingAt] to make it clear that a new list is returned.
      *
@@ -320,7 +330,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     public fun set(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
-     * Returns a new persistent list with the specified [element] inserted at the specified [index].
+     * Returns the result of inserting the specified [element] at the specified [index].
      *
      * @return a new persistent list with the specified [element] inserted at the specified [index].
      *
@@ -330,7 +340,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
         @Suppress("DEPRECATION") add(index, element)
 
     /**
-     * Returns a new persistent list with the specified [element] inserted at the specified [index].
+     * Returns the result of inserting the specified [element] at the specified [index].
      *
      * Use the function [addingAt] to make it clear that a new list is returned.
      *
@@ -350,7 +360,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
-     * Returns a new persistent list with the element at the specified [index] removed.
+     * Returns the result of removing the element at the specified [index] from this list.
      *
      * @return a new persistent list with the element at the specified [index] removed.
      *
@@ -359,7 +369,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     public fun removingAt(index: Int): PersistentList<E> = @Suppress("DEPRECATION") removeAt(index)
 
     /**
-     * Returns a new persistent list with the element at the specified [index] removed.
+     * Returns the result of removing the element at the specified [index] from this list.
      *
      * Use the function [removingAt] to make it clear that a new list is returned.
      *
