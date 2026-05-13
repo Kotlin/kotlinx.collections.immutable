@@ -1,0 +1,7 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+module:kotlinx-collections-immutable
+kotlinx.collections.immutable
+kotlinx.collections.immutable.adapters
+kotlinx.collections.immutable.implementations.immutableList

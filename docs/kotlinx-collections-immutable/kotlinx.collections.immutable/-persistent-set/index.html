@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="no-js" lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>PersistentSet</title>
-    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
-        <script>var pathToRoot = "../../../";</script>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>
     <script>document.documentElement.classList.replace("no-js", "js");</script>
     <script>const storage = localStorage.getItem("dokka-dark-mode")
       if (storage == null) {
@@ -19,46 +18,36 @@
         }
       }
     </script>
-<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
-<script type="text/javascript" src="../../../scripts/kotlin-playground-samples.js" async="async"></script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../../../scripts/kotlin-playground-samples.js" async></script>
 <link href="../../../styles/kotlin-playground-samples.css" rel="Stylesheet">
-<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
 <link href="../../../styles/style.css" rel="Stylesheet">
 <link href="../../../styles/main.css" rel="Stylesheet">
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
 <link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
 <script type="text/javascript" src="../../../scripts/safe-local-storage_blocking.js"></script>
-<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
-<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
-<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
-<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
-<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
-</head>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer></script></head>
 <body>
 <div class="root">
     <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
-            <a class="library-name--link" href="../../../index.html" tabindex="1">
+<a class="library-name--link" href="../../../index.html" tabindex="1">
                     kotlinx-collections-immutable
-            </a>
-        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
-                type="button">Toggle table of contents
+            </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
         </button>
         <div class="navigation-controls--break ui-kit_mobile-only"></div>
-        <div class="library-version" id="library-version">
-0.4.0        </div>
+        <div class="library-version" id="library-version">0.5.0-beta01
+        </div>
         <div class="navigation-controls">
         <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
-                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true"
-                        data-filter=":kotlinx-collections-immutable/commonMain">common</button>
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":kotlinx-collections-immutable/commonMain">common</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
-                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
-                        data-role="dropdown-toggle"
-                        aria-controls="platform-tags-listbox"
-                        aria-haspopup="listbox"
-                        aria-expanded="false"
-                        aria-label="Toggle source sets"
-                ></button>
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
                 <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
                     <div class="dropdown--header"><span>Target filter</span>
                         <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
@@ -67,8 +56,7 @@
                     </div>
                         <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
                             <label class="checkbox">
-                                <input type="checkbox" class="checkbox--input" id=":kotlinx-collections-immutable/commonMain"
-                                       data-filter=":kotlinx-collections-immutable/commonMain"/>
+                                <input type="checkbox" class="checkbox--input" id=":kotlinx-collections-immutable/commonMain" data-filter=":kotlinx-collections-immutable/commonMain">
                                 <span class="checkbox--icon"></span>
                                 common
                             </label>
@@ -77,8 +65,7 @@
                 <div class="dropdown--overlay"></div>
             </div>
         </ul>
-            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
-                    type="button">Switch theme
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
             </button>
             <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
                 API
@@ -86,11 +73,10 @@
         </div>
     </header>
     <div id="container">
-        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
             <a class="toc--skip-link" href="#main">Skip to content</a>
             <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
-                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
-                    data-role="dropdown-listbox" aria-label="Table of contents">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
                     <div class="dropdown--header">
                             <span>
                                     kotlinx-collections-immutable
@@ -106,11 +92,11 @@
         </nav>
         <div id="resizer" class="resizer" data-item-type="BAR"></div>
         <div id="main" data-item-type="SECTION" role="main">
-<div class="main-content" data-page-type="classlike" id="content" pageIds="kotlinx-collections-immutable::kotlinx.collections.immutable/PersistentSet///PointingToDeclaration//-1832065459">
-  <div class="breadcrumbs"><a href="../../../index.html">kotlinx-collections-immutable</a><span class="delimiter">/</span><a href="../index.html">kotlinx.collections.immutable</a><span class="delimiter">/</span><span class="current">PersistentSet</span></div>
+<div class="main-content" data-page-type="classlike" id="content" pageids="kotlinx-collections-immutable::kotlinx.collections.immutable/PersistentSet///PointingToDeclaration//-1832065459">
+  <div class="breadcrumbs"><a href="../../index.html">kotlinx-collections-immutable</a><span class="delimiter">/</span><a href="../index.html">kotlinx.collections.immutable</a><span class="delimiter">/</span><span class="current">PersistentSet</span></div>
   <div class="cover ">
-    <h1 class="cover"><span>Persistent</span><wbr></wbr><span><span>Set</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="index.html">E</a><span class="token operator">&gt;</span> : <a href="../-immutable-set/index.html">ImmutableSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt; </span>, <a href="../-persistent-collection/index.html">PersistentCollection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt; </span><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/Kotlin/kotlinx.collections.immutable/tree/v0.4.0/core/commonMain/src/ImmutableSet.kt#L29">source</a>)</span></span></div><p class="paragraph">A generic persistent unordered collection of elements that does not support duplicate elements, and supports adding and removing elements.</p><p class="paragraph">Modification operations return new instances of the persistent set with the modification applied.</p><h4 class="tableheader">Type Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>E</span></span></u></div></span></div><div><div class="title"><p class="paragraph">the type of elements contained in the set. The persistent set is covariant on its element type.</p></div></div></div></div></div></div></div>
+    <h1 class="cover"><span>Persistent</span><wbr><span><span>Set</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><span class="token keyword">out </span><a href="index.html">E</a><span class="token operator">&gt;</span> : <a href="../-immutable-set/index.html">ImmutableSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt; </span>, <a href="../-persistent-collection/index.html">PersistentCollection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt; </span><span class="source-link-wrapper"><span class="source-link" data-element-type="source-link">(<a href="https://github.com/Kotlin/kotlinx.collections.immutable/tree/master/core/commonMain/src/ImmutableSet.kt#L29">source</a>)</span></span></div><p class="paragraph">A generic persistent unordered collection of elements that does not support duplicate elements, and supports adding and removing elements.</p><p class="paragraph">Modification operations return new instances of the persistent set with the modification applied.</p><h4 class="tableheader">Type Parameters</h4><div class="table"><div class="table-row table-row_content" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>E</span></span></u></div></span></div><div><div class="title"><p class="paragraph">the type of elements contained in the set. The persistent set is covariant on its element type.</p></div></div></div></div></div></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
@@ -136,32 +122,32 @@
       </div>
       <div data-togglable="FUNCTION">
         <h2 class="tableheader">Functions</h2>
-        <div class="table"><a data-name="2097002977%2FFunctions%2F-1832065459" anchor-label="add" id="2097002977%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+        <div class="table"><a data-name="-1545532093%2FFunctions%2F-1832065459" anchor-label="adding" id="-1545532093%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
           <div class="table-row table-row_content" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="add.html"><span><span>add</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2097002977%2FFunctions%2F-1832065459"></span>
+                  <div><a href="adding.html"><span><span>adding</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1545532093%2FFunctions%2F-1832065459"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="add.html"><span class="token function">add</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">element<span class="token operator">: </span><a href="index.html">E</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of adding the specified <a href="add.html">element</a> to this set.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="adding.html"><span class="token function">adding</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">element<span class="token operator">: </span><a href="index.html">E</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of adding the specified <a href="adding.html">element</a> to this set.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="271096748%2FFunctions%2F-1832065459" anchor-label="addAll" id="271096748%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+<a data-name="1668322958%2FFunctions%2F-1832065459" anchor-label="addingAll" id="1668322958%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
           <div class="table-row table-row_content" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="add-all.html"><span>add</span><wbr></wbr><span><span>All</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="271096748%2FFunctions%2F-1832065459"></span>
+                  <div><a href="adding-all.html"><span>adding</span><wbr><span><span>All</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1668322958%2FFunctions%2F-1832065459"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="add-all.html"><span class="token function">addAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">elements<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of adding all elements of the specified <a href="add-all.html">elements</a> collection to this set.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="adding-all.html"><span class="token function">addingAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">elements<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of adding all elements of the specified <a href="adding-all.html">elements</a> collection to this set.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -181,17 +167,17 @@
               </div>
             </div>
           </div>
-<a data-name="32424977%2FFunctions%2F-1832065459" anchor-label="clear" id="32424977%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+<a data-name="-1366813870%2FFunctions%2F-1832065459" anchor-label="cleared" id="-1366813870%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
           <div class="table-row table-row_content" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="clear.html"><span><span>clear</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="32424977%2FFunctions%2F-1832065459"></span>
+                  <div><a href="cleared.html"><span><span>cleared</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1366813870%2FFunctions%2F-1832065459"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="clear.html"><span class="token function">clear</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns an empty persistent set.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="cleared.html"><span class="token function">cleared</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns an empty persistent set.</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -256,47 +242,47 @@
               </div>
             </div>
           </div>
-<a data-name="-316559066%2FFunctions%2F-1832065459" anchor-label="remove" id="-316559066%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+<a data-name="1388766627%2FFunctions%2F-1832065459" anchor-label="removing" id="1388766627%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
           <div class="table-row table-row_content" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="remove.html"><span><span>remove</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-316559066%2FFunctions%2F-1832065459"></span>
+                  <div><a href="removing.html"><span><span>removing</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1388766627%2FFunctions%2F-1832065459"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="remove.html"><span class="token function">remove</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">element<span class="token operator">: </span><a href="index.html">E</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of removing the specified <a href="remove.html">element</a> from this set.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="removing.html"><span class="token function">removing</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">element<span class="token operator">: </span><a href="index.html">E</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of removing the specified <a href="removing.html">element</a> from this set.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="688546075%2FFunctions%2F-1832065459" anchor-label="removeAll" id="688546075%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+<a data-name="1163727829%2FFunctions%2F-1832065459" anchor-label="removingAll" id="1163727829%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
           <div class="table-row table-row_content" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="remove-all.html"><span>remove</span><wbr></wbr><span><span>All</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="688546075%2FFunctions%2F-1832065459"></span>
+                  <div><a href="removing-all.html"><span>removing</span><wbr><span><span>All</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1163727829%2FFunctions%2F-1832065459"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="remove-all.html"><span class="token function">removeAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">predicate<span class="token operator">: </span><span class="token punctuation">(</span><a href="index.html">E</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of removing all elements in this set that match the specified <a href="remove-all.html">predicate</a>.</p></div><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="remove-all.html"><span class="token function">removeAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">elements<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of removing all elements in this set that are also contained in the specified <a href="remove-all.html">elements</a> collection.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="removing-all.html"><span class="token function">removingAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">predicate<span class="token operator">: </span><span class="token punctuation">(</span><a href="index.html">E</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of removing all elements in this set that match the specified <a href="removing-all.html">predicate</a>.</p></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="removing-all.html"><span class="token function">removingAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">elements<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns the result of removing all elements in this set that are also contained in the specified <a href="removing-all.html">elements</a> collection.</p></div></div></div>
                 </div>
               </div>
             </div>
           </div>
-<a data-name="-1301912846%2FFunctions%2F-1832065459" anchor-label="retainAll" id="-1301912846%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+<a data-name="-1767292536%2FFunctions%2F-1832065459" anchor-label="retainingAll" id="-1767292536%2FFunctions%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
           <div class="table-row table-row_content" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
             <div class="main-subrow keyValue ">
               <div class=""><span class="inline-flex">
-                  <div><a href="retain-all.html"><span>retain</span><wbr></wbr><span><span>All</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1301912846%2FFunctions%2F-1832065459"></span>
+                  <div><a href="retaining-all.html"><span>retaining</span><wbr><span><span>All</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1767292536%2FFunctions%2F-1832065459"></span>
                     <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="retain-all.html"><span class="token function">retainAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">elements<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns all elements in this set that are also contained in the specified <a href="retain-all.html">elements</a> collection.</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="retaining-all.html"><span class="token function">retainingAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">elements<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PersistentSet</a><span class="token operator">&lt;</span><a href="index.html">E</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Returns all elements in this set that are also contained in the specified <a href="retaining-all.html">elements</a> collection.</p></div></div></div>
                 </div>
               </div>
             </div>
