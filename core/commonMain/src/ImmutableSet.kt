@@ -202,12 +202,14 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E>
 
     /**
-     * Returns an empty persistent set.
+     * Returns the result of removing all elements from this set.
+     *
+     * @return an empty persistent set.
      */
     override fun cleared(): PersistentSet<E> = @Suppress("DEPRECATION") clear()
 
     /**
-     * Returns an empty persistent set.
+     * Returns the result of removing all elements from this set.
      *
      * Use the function [cleared] to make it clear that a new set is returned.
      *
@@ -215,6 +217,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
+     *
+     * @return an empty persistent set.
      */
     @Deprecated(
         "Use cleared() instead. For more details, read the documentation for this function.",

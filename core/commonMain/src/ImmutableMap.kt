@@ -159,12 +159,14 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>
 
     /**
-     * Returns an empty persistent map.
+     * Returns the result of removing all entries from this map.
+     *
+     * @return an empty persistent map.
      */
     public fun cleared(): PersistentMap<K, V> = @Suppress("DEPRECATION") clear()
 
     /**
-     * Returns an empty persistent map.
+     * Returns the result of removing all entries from this map.
      *
      * Use the function [cleared] to make it clear that a new map is returned.
      *
@@ -172,6 +174,8 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
+     *
+     * @return an empty persistent map.
      */
     @Deprecated(
         "Use cleared() instead. For more details, read the documentation for this function.",
@@ -197,21 +201,25 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      */
     public interface Builder<K, V> : MutableMap<K, V> {
         /**
-         * Returns a persistent map with the same contents as this builder.
+         * Builds a persistent map with the same contents as this builder.
          *
          * This method can be called multiple times.
          *
          * If operations applied on this builder have caused no modifications:
          * - on the first call it returns the same persistent map instance this builder was obtained from.
          * - on subsequent calls it returns the same previously returned persistent map instance.
+         *
+         * @return a persistent map with the same contents as this builder.
          */
         public fun build(): PersistentMap<K, V>
     }
 
     /**
-     * Returns a new builder with the same contents as this map.
+     * Creates a new builder with the same contents as this map.
      *
      * The builder can be used to efficiently perform multiple modification operations.
+     *
+     * @return a new builder with the same contents as this map.
      */
     public fun builder(): Builder<K, @UnsafeVariance V>
 }
