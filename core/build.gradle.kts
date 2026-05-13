@@ -148,6 +148,7 @@ kotlin {
 
 dependencies {
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-playground-samples-plugin")
+    dokka(project)
 }
 
 dokka {
