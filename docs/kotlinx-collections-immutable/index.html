@@ -1,0 +1,182 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>kotlinx-collections-immutable</title>
+<link href="../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async></script>
+<script type="text/javascript" src="../scripts/kotlin-playground-samples.js" async></script>
+<link href="../styles/kotlin-playground-samples.css" rel="Stylesheet">
+<script type="text/javascript" src="../scripts/sourceset_dependencies.js" async></script>
+<link href="../styles/style.css" rel="Stylesheet">
+<link href="../styles/main.css" rel="Stylesheet">
+<link href="../styles/prism.css" rel="Stylesheet">
+<link href="../styles/logo-styles.css" rel="Stylesheet">
+<link href="../ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="../scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../scripts/main.js" defer></script>
+<script type="text/javascript" src="../scripts/prism.js" async></script>
+<script type="text/javascript" src="../ui-kit/ui-kit.min.js" defer></script></head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+<a class="library-name--link" href="../index.html" tabindex="1">
+                    kotlinx-collections-immutable
+            </a>        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle" type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">0.5.0-beta01
+        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector common-like" data-active="" aria-pressed="true" data-filter=":kotlinx-collections-immutable/commonMain">common</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox" data-role="dropdown-toggle" aria-controls="platform-tags-listbox" aria-haspopup="listbox" aria-expanded="false" aria-label="Toggle source sets"></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":kotlinx-collections-immutable/commonMain" data-filter=":kotlinx-collections-immutable/commonMain">
+                                <span class="checkbox--icon"></span>
+                                common
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button" type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config="{&quot;defaultSize&quot;: 280, &quot;minSize&quot;: 200, &quot;maxSize&quot;: 400}">
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list" data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    kotlinx-collections-immutable
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" id="content" pageids="kotlinx-collections-immutable::////PointingToDeclaration//-1832065459">
+  <div class="breadcrumbs"></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>kotlinx-collections-immutable</span></span></h1>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":kotlinx-collections-immutable/commonMain"><p class="paragraph">Immutable and persistent collection types for Kotlin Multiplatform.</p><p class="paragraph">This library provides interfaces and efficient implementations of read-only and persistent variants of lists, sets, and maps. It complements the Kotlin standard library, where collection interfaces describe the absence of mutating methods on the caller but do not guarantee that the underlying instance cannot be mutated elsewhere.</p><h2 class="">Why immutable collections</h2><p class="paragraph">Most Kotlin code relies on <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html"><code class="lang-kotlin">List</code></a>, <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-set/index.html"><code class="lang-kotlin">Set</code></a>, and <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html"><code class="lang-kotlin">Map</code></a> — read-only interfaces that prevent the receiver from modifying the collection but do not constrain the underlying implementation. If the caller still holds a <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-list/index.html"><code class="lang-kotlin">MutableList</code></a> reference to the same instance, it can mutate the list from outside at any time — even while the function it was passed to is still using it. The receiving function therefore cannot assume the contents stay stable for its lifetime, and so cannot, for example, cache the value or share it across threads. A value obtained from <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/list-of.html"><code class="lang-kotlin">listOf</code></a> can be relied on in practice, but that reliance rests on convention rather than on any guarantee carried by the type.</p><p class="paragraph">Immutable collections close this gap:</p><ul><li><p class="paragraph"><strong>Safe sharing.</strong> Once constructed, the value cannot change, so it can be freely shared   across threads or kept as part of a state snapshot without defensive copies.</p></li><li><p class="paragraph"><strong>Stable equality and hashing.</strong> Because the collection contents never change, <code class="lang-kotlin">equals</code>   and <code class="lang-kotlin">hashCode</code> stay consistent as long as element equality and hashing stay stable — so   immutable collections are safe to use as map keys, set elements, or cache values under   that condition.</p></li><li><p class="paragraph"><strong>Friendly to memoization.</strong> Frameworks that skip work when inputs are unchanged rely on   this stability. <a href="https://www.jetbrains.com/compose-multiplatform/">Compose Multiplatform</a>,   for example, recognises <a href="kotlinx.collections.immutable/-immutable-list/index.html"><code class="lang-kotlin">ImmutableList</code></a>,   <a href="kotlinx.collections.immutable/-immutable-set/index.html"><code class="lang-kotlin">ImmutableSet</code></a>, and   <a href="kotlinx.collections.immutable/-immutable-map/index.html"><code class="lang-kotlin">ImmutableMap</code></a> as stable types, letting it   skip recomposition when contents don't change.</p></li></ul><h2 class="">Immutable vs persistent</h2><p class="paragraph">The library defines two interface families:</p><ul><li><p class="paragraph"><strong>Immutable</strong> — <a href="kotlinx.collections.immutable/-immutable-list/index.html"><code class="lang-kotlin">ImmutableList</code></a>,   <a href="kotlinx.collections.immutable/-immutable-set/index.html"><code class="lang-kotlin">ImmutableSet</code></a>,   <a href="kotlinx.collections.immutable/-immutable-map/index.html"><code class="lang-kotlin">ImmutableMap</code></a>. These extend the standard   read-only collection interfaces and add a contract that the underlying value cannot   change after construction. They expose no operations to derive a modified copy.</p></li><li><p class="paragraph"><strong>Persistent</strong> — <a href="kotlinx.collections.immutable/-persistent-list/index.html"><code class="lang-kotlin">PersistentList</code></a>,   <a href="kotlinx.collections.immutable/-persistent-set/index.html"><code class="lang-kotlin">PersistentSet</code></a>,   <a href="kotlinx.collections.immutable/-persistent-map/index.html"><code class="lang-kotlin">PersistentMap</code></a>. These extend the   immutable interfaces and add copy-returning operations such as   <a href="kotlinx.collections.immutable/-persistent-collection/adding.html"><code class="lang-kotlin">adding</code></a>,   <a href="kotlinx.collections.immutable/-persistent-collection/removing.html"><code class="lang-kotlin">removing</code></a>,   <a href="kotlinx.collections.immutable/-persistent-map/putting.html"><code class="lang-kotlin">putting</code></a>. The returned   collection shares structure with the original, so most modifications run in   near-constant or logarithmic time and avoid copying the entire collection.</p></li></ul><p class="paragraph">Use persistent variants whenever a collection needs to evolve — to keep an event log, accumulate intermediate results, or hold collection-shaped state in containers that update through successive immutable snapshots (Redux- or MVI-style). Use plain immutable variants for fully baked values that will not change.</p><h2 class="">Quick start</h2><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">import kotlinx.collections.immutable.*<br><br>val numbers = persistentListOf(1, 2, 3)<br>val extended = numbers.adding(4)                    // PersistentList: [1, 2, 3, 4]<br><br>val tags = persistentSetOf("kotlin", "immutable")<br>val withMore = tags.adding("multiplatform")         // PersistentSet: [kotlin, immutable, multiplatform]<br><br>val config = persistentMapOf("retries" to 3, "timeout" to 30)<br>val updated = config.putting("timeout", 60)         // PersistentMap: {retries=3, timeout=60}<br><br>val snapshot = listOf(1, 2, 3).toPersistentList()   // PersistentList: [1, 2, 3]</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">The default <a href="kotlinx.collections.immutable/persistent-set-of.html"><code class="lang-kotlin">persistentSetOf</code></a> and <a href="kotlinx.collections.immutable/persistent-map-of.html"><code class="lang-kotlin">persistentMapOf</code></a> preserve element insertion order during iteration. If iteration order does not matter, the unordered implementations returned by <a href="kotlinx.collections.immutable/persistent-hash-set-of.html"><code class="lang-kotlin">persistentHashSetOf</code></a> and <a href="kotlinx.collections.immutable/persistent-hash-map-of.html"><code class="lang-kotlin">persistentHashMapOf</code></a> are more memory- and time-efficient.</p><h2 class="">Modifying persistent collections</h2><p class="paragraph">The <code class="lang-kotlin">+</code> and <code class="lang-kotlin">-</code> operators are defined on <a href="kotlinx.collections.immutable/-persistent-collection/index.html"><code class="lang-kotlin">PersistentCollection</code></a> and <a href="kotlinx.collections.immutable/-persistent-map/index.html"><code class="lang-kotlin">PersistentMap</code></a>. They delegate to the collection itself and return a new persistent value. To make them take precedence over the standard-library operators (which return plain <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html"><code class="lang-kotlin">List</code></a>, <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-set/index.html"><code class="lang-kotlin">Set</code></a>, or <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html"><code class="lang-kotlin">Map</code></a>), import the package explicitly:</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">import kotlinx.collections.immutable.*<br><br>val list = persistentListOf("a", "b") + "c"         // PersistentList&lt;String&gt;<br>val map = persistentMapOf("x" to 1, "y" to 2) - "x" // PersistentMap&lt;String, Int&gt;</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">When several modifications are applied in sequence, <a href="kotlinx.collections.immutable/mutate.html"><code class="lang-kotlin">mutate { }</code></a> is more efficient than chaining operators. It exposes a temporary builder, runs the block against it, and returns a fresh persistent collection at the end:</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">val result = persistentListOf(1, 2, 3).mutate {<br>    it.add(4)<br>    it.removeAt(0)<br>    it[0] = 20<br>}<br>// result: PersistentList&lt;Int&gt; = [20, 3, 4]</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">The builder seen inside <a href="kotlinx.collections.immutable/mutate.html"><code class="lang-kotlin">mutate</code></a> implements the standard <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-list/index.html"><code class="lang-kotlin">MutableList</code></a>, <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-set/index.html"><code class="lang-kotlin">MutableSet</code></a>, or <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-mutable-map/index.html"><code class="lang-kotlin">MutableMap</code></a> interface, so any code that already works with mutable collections can be reused inside the block.</p><h2 class="">Multiplatform support</h2><p class="paragraph"><code class="lang-kotlin">kotlinx-collections-immutable</code> is a Kotlin Multiplatform library and supports all targets — JVM, JS, Wasm (JS and WASI), and all Kotlin/Native <a href="https://kotlinlang.org/docs/native-target-support.html">targets</a>.</p></div></div>
+  </div>
+  <h2 class="">Packages</h2>
+  <div class="table"><a data-name="-1175664716%2FPackages%2F-1832065459" anchor-label="kotlinx.collections.immutable" id="-1175664716%2FPackages%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="kotlinx.collections.immutable/index.html">kotlinx.collections.immutable</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1175664716%2FPackages%2F-1832065459"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag common-like">common</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1175664716%2FPackages%2F-1832065459" anchor-label="kotlinx.collections.immutable" id="-1175664716%2FPackages%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+            <p class="paragraph">The main API: immutable and persistent collection interfaces (<a href="kotlinx.collections.immutable/-immutable-list/index.html"><code class="lang-kotlin">ImmutableList</code></a>, <a href="kotlinx.collections.immutable/-persistent-map/index.html"><code class="lang-kotlin">PersistentMap</code></a>, etc.), entry-point factory functions (<a href="kotlinx.collections.immutable/persistent-list-of.html"><code class="lang-kotlin">persistentListOf</code></a>, <a href="kotlinx.collections.immutable/persistent-set-of.html"><code class="lang-kotlin">persistentSetOf</code></a>, <a href="kotlinx.collections.immutable/persistent-map-of.html"><code class="lang-kotlin">persistentMapOf</code></a> and their hash-based counterparts), and extension functions for conversion (<a href="kotlinx.collections.immutable/to-immutable-list.html"><code class="lang-kotlin">toImmutableList</code></a>, <a href="kotlinx.collections.immutable/to-persistent-set.html"><code class="lang-kotlin">toPersistentSet</code></a>, …), operators (<code class="lang-kotlin">+</code>, <code class="lang-kotlin">-</code>), and batch updates (<a href="kotlinx.collections.immutable/mutate.html"><code class="lang-kotlin">mutate</code></a>).</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1855277822%2FPackages%2F-1832065459" anchor-label="kotlinx.collections.immutable.adapters" id="-1855277822%2FPackages%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="kotlinx.collections.immutable.adapters/index.html">kotlinx.collections.immutable.adapters</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1855277822%2FPackages%2F-1832065459"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag common-like">common</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1855277822%2FPackages%2F-1832065459" anchor-label="kotlinx.collections.immutable.adapters" id="-1855277822%2FPackages%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+            <p class="paragraph">Adapter classes that wrap a standard read-only <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-collection/index.html"><code class="lang-kotlin">Collection</code></a>, <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html"><code class="lang-kotlin">List</code></a>, <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-set/index.html"><code class="lang-kotlin">Set</code></a>, or <a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-map/index.html"><code class="lang-kotlin">Map</code></a> and expose it through the corresponding <code class="lang-kotlin">Immutable*</code> interface by delegation. Useful when an existing collection needs to fit into an API that expects an immutable type. Note that adapters do not freeze the underlying collection; the immutability contract holds only if the caller guarantees the wrapped instance is not mutated elsewhere.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="-1246278759%2FPackages%2F-1832065459" anchor-label="kotlinx.collections.immutable.implementations.immutableList" id="-1246278759%2FPackages%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":kotlinx-collections-immutable/commonMain" data-filterable-set=":kotlinx-collections-immutable/commonMain">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="kotlinx.collections.immutable.implementations.immutableList/index.html">kotlinx.collections.immutable.implementations.immutableList</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1246278759%2FPackages%2F-1832065459"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag common-like">common</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="-1246278759%2FPackages%2F-1832065459" anchor-label="kotlinx.collections.immutable.implementations.immutableList" id="-1246278759%2FPackages%2F-1832065459" data-filterable-set=":kotlinx-collections-immutable/commonMain"></a>
+            <p class="paragraph">Internal trie-based vector implementation behind <a href="kotlinx.collections.immutable/-persistent-list/index.html"><code class="lang-kotlin">PersistentList</code></a>. Obtain instances through <a href="kotlinx.collections.immutable/persistent-list-of.html"><code class="lang-kotlin">persistentListOf</code></a> or <a href="kotlinx.collections.immutable/to-persistent-list.html"><code class="lang-kotlin">toPersistentList</code></a>; concrete types in this package are an implementation detail and may change between releases.</p>
+          </span></div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2026 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
