@@ -237,7 +237,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
             val operationCount = NForAlgorithmComplexity.O_NlogN
 
             val numberOfDistinctHashCodes = operationCount / 3  // less than `operationCount` to increase collision cases
-            val hashCodes = List(numberOfDistinctHashCodes) { Random.nextInt() }
+            val eGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
 
             repeat(times = operationCount) {
                 val index = Random.nextInt(mutableSets.size)
@@ -250,7 +250,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
                 val element = when {
                     shouldOperateOnExistingElement -> mutableSet.first()
                     Random.nextDouble() < 0.001 -> null
-                    else -> IntWrapper(Random.nextInt(), hashCodes.random())
+                    else -> eGen.wrapper(Random.nextInt())
                 }
 
                 val newImmutableSet = when {
