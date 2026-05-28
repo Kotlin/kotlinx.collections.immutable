@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -29,7 +29,11 @@ public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
      */
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = SubList(this, fromIndex, toIndex)
 
-    private class SubList<E>(private val source: ImmutableList<E>, private val fromIndex: Int, private val toIndex: Int) : ImmutableList<E>, AbstractList<E>() {
+    private class SubList<E>(
+        private val source: ImmutableList<E>,
+        private val fromIndex: Int,
+        private val toIndex: Int
+    ) : ImmutableList<E>, AbstractList<E>() {
         private var _size: Int = 0
 
         init {
@@ -63,6 +67,22 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the specified [element] appended.
      */
+    override fun adding(element: @UnsafeVariance E): PersistentList<E> = @Suppress("DEPRECATION") add(element)
+
+    /**
+     * Returns a new persistent list with the specified [element] appended.
+     *
+     * Use the function [adding] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     */
+    @Deprecated(
+        "Use adding() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("adding(element)")
+    )
     override fun add(element: @UnsafeVariance E): PersistentList<E>
 
     /**
@@ -71,16 +91,57 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * The elements are appended in the order they appear in the specified collection.
      *
      * @return a new persistent list with elements of the specified [elements] collection appended;
-     * or this instance if the specified collection is empty.
+     *         or this instance if the specified collection is empty.
      */
-    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
+    override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
+        @Suppress("DEPRECATION") addAll(elements)
+
+    /**
+     * Returns the result of appending all elements of the specified [elements] collection to this list.
+     *
+     * The elements are appended in the order they appear in the specified collection.
+     *
+     * Use the function [addingAll] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with elements of the specified [elements] collection appended;
+     *         or this instance if the specified collection is empty.
+     */
+    @Deprecated(
+        "Use addingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAll(elements)")
+    )
+    override fun addAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
      * Returns the result of removing the first appearance of the specified [element] from this list.
      *
      * @return a new persistent list with the first appearance of the specified [element] removed;
-     * or this instance if there is no such element in this list.
+     *         or this instance if there is no such element in this list.
      */
+    override fun removing(element: @UnsafeVariance E): PersistentList<E> = @Suppress("DEPRECATION") remove(element)
+
+    /**
+     * Returns the result of removing the first appearance of the specified [element] from this list.
+     *
+     * Use the function [removing] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with the first appearance of the specified [element] removed;
+     *         or this instance if there is no such element in this list.
+     */
+    @Deprecated(
+        "Use removing() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removing(element)")
+    )
     override fun remove(element: @UnsafeVariance E): PersistentList<E>
 
     /**
@@ -88,17 +149,59 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * contained in the specified [elements] collection.
      *
      * @return a new persistent list with elements in this list that are also
-     * contained in the specified [elements] collection removed;
-     * or this instance if no modifications were made in the result of this operation.
+     *         contained in the specified [elements] collection removed;
+     *         or this instance if no modifications were made in the result of this operation.
      */
+    override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
+        @Suppress("DEPRECATION") removeAll(elements)
+
+    /**
+     * Returns the result of removing all elements in this list that are also
+     * contained in the specified [elements] collection.
+     *
+     * Use the function [removingAll] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with elements in this list that are also
+     *         contained in the specified [elements] collection removed;
+     *         or this instance if no modifications were made in the result of this operation.
+     */
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(elements)")
+    )
     override fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
      * Returns the result of removing all elements in this list that match the specified [predicate].
      *
      * @return a new persistent list with elements matching the specified [predicate] removed;
-     * or this instance if no elements match the predicate.
+     *         or this instance if no elements match the predicate.
      */
+    override fun removingAll(predicate: (E) -> Boolean): PersistentList<E> =
+        @Suppress("DEPRECATION") removeAll(predicate)
+
+    /**
+     * Returns the result of removing all elements in this list that match the specified [predicate].
+     *
+     * Use the function [removingAll] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with elements matching the specified [predicate] removed;
+     *         or this instance if no elements match the predicate.
+     */
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(predicate)")
+    )
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E>
 
     /**
@@ -106,46 +209,173 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * contained in the specified [elements] collection.
      *
      * @return a new persistent list with elements in this list that are also
-     * contained in the specified [elements] collection;
-     * or this instance if no modifications were made in the result of this operation.
+     *         contained in the specified [elements] collection;
+     *         or this instance if no modifications were made in the result of this operation.
      */
+    override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
+        @Suppress("DEPRECATION") retainAll(elements)
+
+    /**
+     * Returns all elements in this list that are also
+     * contained in the specified [elements] collection.
+     *
+     * Use the function [retainingAll] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with elements in this list that are also
+     *         contained in the specified [elements] collection;
+     *         or this instance if no modifications were made in the result of this operation.
+     */
+    @Deprecated(
+        "Use retainingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("retainingAll(elements)")
+    )
     override fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
      * Returns an empty persistent list.
      */
-    override fun clear(): PersistentList<E>
+    override fun cleared(): PersistentList<E> = @Suppress("DEPRECATION") clear()
 
+    /**
+     * Returns an empty persistent list.
+     *
+     * Use the function [cleared] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     */
+    @Deprecated(
+        "Use cleared() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("cleared()")
+    )
+    override fun clear(): PersistentList<E>
 
     /**
      * Returns the result of inserting the specified [c] collection at the specified [index].
      *
      * @return a new persistent list with the specified [c] collection inserted at the specified [index];
-     * or this instance if the specified collection is empty.
+     *         or this instance if the specified collection is empty.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
-    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> // = builder().apply { addAll(index, c.toList()) }.build()
+    public fun addingAllAt(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> =
+        @Suppress("DEPRECATION") addAll(index, c)
 
     /**
-     * Returns a new persistent list with the element at the specified [index] replaced with the specified [element].
+     * Returns the result of inserting the specified [c] collection at the specified [index].
+     *
+     * Use the function [addingAllAt] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with the specified [c] collection inserted at the specified [index];
+     *         or this instance if the specified collection is empty.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
+    @Deprecated(
+        "Use addingAllAt(index, c) instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAllAt(index, c)")
+    )
+    public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E>
+
+    /**
+     * Returns the result with the element at the specified [index] replaced with the specified [element].
+     *
+     * @return a new persistent list with the element at the specified [index] replaced with the specified [element].
+     *
+     * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
+     */
+    public fun replacingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> =
+        @Suppress("DEPRECATION") set(index, element)
+
+    /**
+     * Returns the result with the element at the specified [index] replaced with the specified [element].
+     *
+     * Use the function [replacingAt] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with the element at the specified [index] replaced with the specified [element].
+     *
+     * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
+     */
+    @Deprecated(
+        "Use replacingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("replacingAt(index, element)")
+    )
     public fun set(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
      * Returns a new persistent list with the specified [element] inserted at the specified [index].
      *
+     * @return a new persistent list with the specified [element] inserted at the specified [index].
+     *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
+    public fun addingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> =
+        @Suppress("DEPRECATION") add(index, element)
+
+    /**
+     * Returns a new persistent list with the specified [element] inserted at the specified [index].
+     *
+     * Use the function [addingAt] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with the specified [element] inserted at the specified [index].
+     *
+     * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
+     */
+    @Deprecated(
+        "Use addingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAt(index, element)")
+    )
     public fun add(index: Int, element: @UnsafeVariance E): PersistentList<E>
 
     /**
      * Returns a new persistent list with the element at the specified [index] removed.
      *
+     * @return a new persistent list with the element at the specified [index] removed.
+     *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
+    public fun removingAt(index: Int): PersistentList<E> = @Suppress("DEPRECATION") removeAt(index)
+
+    /**
+     * Returns a new persistent list with the element at the specified [index] removed.
+     *
+     * Use the function [removingAt] to make it clear that a new list is returned.
+     *
+     * Old functions mimicking [MutableCollection] names, like this one,
+     * were deprecated and will be removed in future releases. Refer to the
+     * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
+     * for more details and guidance with the migration.
+     *
+     * @return a new persistent list with the element at the specified [index] removed.
+     *
+     * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
+     */
+    @Deprecated(
+        "Use removingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAt(index)")
+    )
     public fun removeAt(index: Int): PersistentList<E>
 
     /**
@@ -164,7 +394,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      *
      * When [build] is called the builder forgets about all owned nodes it had created.
      */
-    public interface Builder<E>: MutableList<E>, PersistentCollection.Builder<E> {
+    public interface Builder<E> : MutableList<E>, PersistentCollection.Builder<E> {
         override fun build(): PersistentList<E>
     }
 

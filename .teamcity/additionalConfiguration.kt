@@ -3,8 +3,7 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
-import jetbrains.buildServer.configs.kotlin.Project
-import jetbrains.buildServer.configs.kotlin.DslContext
+import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 
 fun Project.additionalConfiguration() {
@@ -21,4 +20,8 @@ fun Project.additionalConfiguration() {
             }
         }
     }
+
+    val deploymentProject = knownBuilds.deploymentSubproject
+    val startTask = deploymentProject.knownBuilds.deployStart
+    startTask.params.param("reverse.dep.*.DeploymentName", "kotlinx.collections.immutable %releaseVersion%")
 }

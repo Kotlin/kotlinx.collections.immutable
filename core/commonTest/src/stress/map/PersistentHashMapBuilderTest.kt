@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -119,7 +119,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             val key = IntWrapper(keyValue, keyHash)
 
             expected[key] = keyValue
-            map = map.put(key, keyValue)
+            map = map.putting(key, keyValue)
 
             val shouldTest = Random.nextDouble() < 0.1
             if (shouldTest) {
@@ -270,7 +270,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         val elementsToRemoveFromMap = expectedKeys.size / 2
         expectedKeys.take(elementsToRemoveFromMap).forEach { key ->
             expectedKeys.remove(key)
-            map = map.remove(key)
+            map = map.removing(key)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
 
@@ -279,13 +279,13 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             val keyValue = Random.nextInt()
             val key = keyGen.wrapper(keyValue)
             expectedKeys.add(key)
-            map = map.put(key, keyValue)
+            map = map.putting(key, keyValue)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
 
         expectedKeys.toHashSet().forEach { key ->
             expectedKeys.remove(key)
-            map = map.remove(key)
+            map = map.removing(key)
         }
         assertEquals<Set<IntWrapper>>(expectedKeys, map.keys)
     }
@@ -433,15 +433,14 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         val mapGen = mutableListOf(List(20) { persistentHashMapOf<IntWrapper, Int>() })
         val expected = mutableListOf(List(20) { mapOf<IntWrapper, Int>() })
 
+        val operationCount = NForAlgorithmComplexity.O_NlogN
+        val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
+        val keyGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
+
         repeat(times = 5) {
 
             val builders = mapGen.last().map { it.builder() }
             val maps = builders.map { it.toMutableMap() }
-
-            val operationCount = NForAlgorithmComplexity.O_NlogN
-
-            val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
-            val hashCodes = List(numberOfDistinctHashCodes) { Random.nextInt() }
 
             repeat(times = operationCount) {
                 val index = Random.nextInt(maps.size)
@@ -451,7 +450,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                 val shouldRemove = Random.nextDouble() < 0.3
                 val shouldOperateOnExistingKey = map.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.2 }
 
-                val key = if (shouldOperateOnExistingKey) map.keys.first() else IntWrapper(Random.nextInt(), hashCodes.random())
+                val key = if (shouldOperateOnExistingKey) map.keys.first() else keyGen.wrapper(Random.nextInt())
 
                 val shouldRemoveByKey = shouldRemove && Random.nextBoolean()
                 val shouldRemoveByKeyAndValue = shouldRemove && !shouldRemoveByKey

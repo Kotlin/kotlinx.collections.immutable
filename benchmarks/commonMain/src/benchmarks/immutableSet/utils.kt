@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -22,7 +22,7 @@ fun <E> emptyPersistentSet(implementation: String): PersistentSet<E> = when (imp
 fun <E> persistentSetAdd(implementation: String, elements: List<E>): PersistentSet<E> {
     var set = emptyPersistentSet<E>(implementation)
     for (element in elements) {
-        set = set.add(element)
+        set = set.adding(element)
     }
     return set
 }
@@ -30,7 +30,7 @@ fun <E> persistentSetAdd(implementation: String, elements: List<E>): PersistentS
 fun <E> persistentSetRemove(persistentSet: PersistentSet<E>, elements: List<E>): PersistentSet<E> {
     var set = persistentSet
     for (element in elements) {
-        set = set.remove(element)
+        set = set.removing(element)
     }
     return set
 }

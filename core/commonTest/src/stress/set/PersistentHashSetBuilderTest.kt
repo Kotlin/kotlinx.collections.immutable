@@ -260,28 +260,38 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun randomOperationsTests() {
+        randomOperations(Random.Default)
+    }
+
+    // Deterministic reproducer for the wasmJs failure seen in the K2 user-projects build.
+    // See https://github.com/Kotlin/kotlinx.collections.immutable/issues/261
+    @Test
+    fun randomOperationsWithFixedSeedTests() {
+        randomOperations(Random(21303))
+    }
+
+    private fun randomOperations(random: Random) {
         val setGen = mutableListOf(List(20) { persistentHashSetOf<IntWrapper>() })
         val expected = mutableListOf(List(20) { setOf<IntWrapper>() })
+
+        val operationCount = NForAlgorithmComplexity.O_NlogN
+        val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
+        val eGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
 
         repeat(times = 5) {
 
             val builders = setGen.last().map { it.builder() }
             val sets = builders.map { it.toMutableSet() }
 
-            val operationCount = NForAlgorithmComplexity.O_NlogN
-
-            val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
-            val hashCodes = List(numberOfDistinctHashCodes) { Random.nextInt() }
-
             repeat(times = operationCount) {
-                val index = Random.nextInt(sets.size)
+                val index = random.nextInt(sets.size)
                 val set = sets[index]
                 val builder = builders[index]
 
-                val shouldRemove = Random.nextDouble() < 0.3
-                val shouldOperateOnExistingElement = set.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.001 }
+                val shouldRemove = random.nextDouble() < 0.3
+                val shouldOperateOnExistingElement = set.isNotEmpty() && random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.001 }
 
-                val element = if (shouldOperateOnExistingElement) set.first() else IntWrapper(Random.nextInt(), hashCodes.random())
+                val element = if (shouldOperateOnExistingElement) set.first() else eGen.wrapper(random.nextInt())
 
                 when {
                     shouldRemove -> {
