@@ -289,7 +289,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             val operationCount = NForAlgorithmComplexity.O_NlogN
 
             val numberOfDistinctHashCodes = operationCount / 3  // less than `operationCount` to increase collision cases
-            val hashCodes = List(numberOfDistinctHashCodes) { Random.nextInt() }
+            val keyGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
 
             repeat(times = operationCount) {
                 val index = Random.nextInt(mutableMaps.size)
@@ -302,7 +302,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
                 val key = when {
                     shouldOperateOnExistingKey -> mutableMap.keys.first()
                     Random.nextDouble() < 0.001 -> null
-                    else -> IntWrapper(Random.nextInt(), hashCodes.random())
+                    else -> keyGen.wrapper(Random.nextInt())
                 }
 
                 val shouldRemoveByKey = shouldRemove && Random.nextBoolean()

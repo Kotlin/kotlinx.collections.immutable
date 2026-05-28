@@ -433,15 +433,14 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
         val mapGen = mutableListOf(List(20) { persistentHashMapOf<IntWrapper, Int>() })
         val expected = mutableListOf(List(20) { mapOf<IntWrapper, Int>() })
 
+        val operationCount = NForAlgorithmComplexity.O_NlogN
+        val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
+        val keyGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
+
         repeat(times = 5) {
 
             val builders = mapGen.last().map { it.builder() }
             val maps = builders.map { it.toMutableMap() }
-
-            val operationCount = NForAlgorithmComplexity.O_NlogN
-
-            val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
-            val hashCodes = List(numberOfDistinctHashCodes) { Random.nextInt() }
 
             repeat(times = operationCount) {
                 val index = Random.nextInt(maps.size)
@@ -451,7 +450,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
                 val shouldRemove = Random.nextDouble() < 0.3
                 val shouldOperateOnExistingKey = map.isNotEmpty() && Random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.2 }
 
-                val key = if (shouldOperateOnExistingKey) map.keys.first() else IntWrapper(Random.nextInt(), hashCodes.random())
+                val key = if (shouldOperateOnExistingKey) map.keys.first() else keyGen.wrapper(Random.nextInt())
 
                 val shouldRemoveByKey = shouldRemove && Random.nextBoolean()
                 val shouldRemoveByKeyAndValue = shouldRemove && !shouldRemoveByKey
