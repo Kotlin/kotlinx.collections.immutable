@@ -274,15 +274,14 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
         val setGen = mutableListOf(List(20) { persistentHashSetOf<IntWrapper>() })
         val expected = mutableListOf(List(20) { setOf<IntWrapper>() })
 
+        val operationCount = NForAlgorithmComplexity.O_NlogN
+        val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
+        val eGen = WrapperGenerator<Int>(numberOfDistinctHashCodes)
+
         repeat(times = 5) {
 
             val builders = setGen.last().map { it.builder() }
             val sets = builders.map { it.toMutableSet() }
-
-            val operationCount = NForAlgorithmComplexity.O_NlogN
-
-            val numberOfDistinctHashCodes = operationCount / 2  // less than `operationCount` to increase collision cases
-            val hashCodes = List(numberOfDistinctHashCodes) { random.nextInt() }
 
             repeat(times = operationCount) {
                 val index = random.nextInt(sets.size)
@@ -292,7 +291,7 @@ class PersistentHashSetBuilderTest : ExecutionTimeMeasuringTest() {
                 val shouldRemove = random.nextDouble() < 0.3
                 val shouldOperateOnExistingElement = set.isNotEmpty() && random.nextDouble().let { if (shouldRemove) it < 0.8 else it < 0.001 }
 
-                val element = if (shouldOperateOnExistingElement) set.first() else IntWrapper(random.nextInt(), hashCodes.random(random))
+                val element = if (shouldOperateOnExistingElement) set.first() else eGen.wrapper(random.nextInt())
 
                 when {
                     shouldRemove -> {
