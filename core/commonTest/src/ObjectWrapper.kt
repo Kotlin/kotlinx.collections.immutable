@@ -20,6 +20,11 @@ class ObjectWrapper<K: Comparable<K>>(
         if (other !is ObjectWrapper<*>) {
             return false
         }
+        val objEq = obj == other.obj
+        val hashEq = hashCode == other.hashCode
+        if (objEq && !hashEq) {
+            println("VIOLATION: this.obj=$obj other.obj=${other.obj} (objEq=$objEq) | this.hashCode=$hashCode other.hashCode=${other.hashCode} (hashEq=$hashEq)")
+        }
         assert(obj != other.obj || hashCode == other.hashCode)  // if elements are equal hashCodes must be equal
         return obj == other.obj
     }
