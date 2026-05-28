@@ -7,13 +7,14 @@
 [![Maven Central](https://img.shields.io/maven-central/v/org.jetbrains.kotlinx/kotlinx-collections-immutable.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-collections-immutable)
 [![Kotlin](https://img.shields.io/badge/kotlin-2.3.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![KDoc link](https://img.shields.io/badge/API_reference-KDoc-blue)](https://kotlin.github.io/kotlinx.collections.immutable/)
+[![Slack channel](https://img.shields.io/badge/chat-slack-blue.svg?logo=slack)](https://kotlinlang.slack.com/messages/kotlinx-collections-immutable/)
 
 Immutable collection interfaces and implementation prototypes for Kotlin.
 
 This is a multiplatform library providing implementations for `jvm`, `js`, `wasmJs`, `wasmWasi`
 and all [targets supported by the Kotlin/Native compiler](https://kotlinlang.org/docs/native-target-support.html).
 
-For further details see the [proposal](proposal.md).
+For further details see the [proposal](docs/proposal.md).
 
 ## What's in this library
 ### Interfaces and implementations
@@ -139,7 +140,7 @@ kotlin {
     sourceSets {
         commonMain {
              dependencies {
-                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
+                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.5.0-beta01")
              }
         }
     }
@@ -155,7 +156,7 @@ Add dependencies (you can also add other modules that you need):
 <dependency>
     <groupId>org.jetbrains.kotlinx</groupId>
     <artifactId>kotlinx-collections-immutable-jvm</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0-beta01</version>
 </dependency>
 ```
 

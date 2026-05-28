@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -20,13 +20,13 @@ class PersistentSetGenerator {
 
         object AddAll : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentHashSetOf<String>().addAll(elements.toList())
+                return persistentHashSetOf<String>().addingAll(elements.toList())
             }
         }
 
         object AddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return elements.fold(persistentHashSetOf()) { set, element -> set.add(element) }
+                return elements.fold(persistentHashSetOf()) { set, element -> set.adding(element) }
             }
         }
 
@@ -74,13 +74,13 @@ class PersistentSetGenerator {
 
         object AddAll : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return persistentSetOf<String>().addAll(elements.toList())
+                return persistentSetOf<String>().addingAll(elements.toList())
             }
         }
 
         object AddEach : TestStringSetGenerator() {
             override fun create(elements: Array<out String>): Set<String> {
-                return elements.fold(persistentSetOf()) { set, element -> set.add(element) }
+                return elements.fold(persistentSetOf()) { set, element -> set.adding(element) }
             }
         }
 

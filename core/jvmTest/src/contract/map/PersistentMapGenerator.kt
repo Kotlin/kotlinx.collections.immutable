@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -21,13 +21,13 @@ class PersistentMapGenerator {
         object PutAll : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
                 val map = mutableMapOf<String, String>().apply { entries.forEach { this[it.key] = it.value } }
-                return persistentHashMapOf<String, String>().putAll(map)
+                return persistentHashMapOf<String, String>().puttingAll(map)
             }
         }
 
         object PutEach : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
-                return entries.fold(persistentHashMapOf()) { map, entry -> map.put(entry.key, entry.value) }
+                return entries.fold(persistentHashMapOf()) { map, entry -> map.putting(entry.key, entry.value) }
             }
         }
 
@@ -76,13 +76,13 @@ class PersistentMapGenerator {
         object PutAll : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
                 val map = mutableMapOf<String, String>().apply { entries.forEach { this[it.key] = it.value } }
-                return persistentMapOf<String, String>().putAll(map)
+                return persistentMapOf<String, String>().puttingAll(map)
             }
         }
 
         object PutEach : TestStringMapGenerator() {
             override fun create(entries: Array<out Map.Entry<String, String>>): Map<String, String> {
-                return entries.fold(persistentMapOf()) { map, entry -> map.put(entry.key, entry.value) }
+                return entries.fold(persistentMapOf()) { map, entry -> map.putting(entry.key, entry.value) }
             }
         }
 
