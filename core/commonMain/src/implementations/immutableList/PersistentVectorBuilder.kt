@@ -316,11 +316,10 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
     }
 
     /**
-     * Insert the specified [element] into the [root] trie at the specified trie [index].
+     * Inserts the specified [element] into the [root] trie at the specified trie [index]
+     * and returns the new root trie, or this modified trie if it's already mutable.
      *
      * [elementCarry] contains the last element of this trie that was popped out by the insertion operation.
-     *
-     * @return new root trie or this modified trie, if it's already mutable
      */
     private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
@@ -589,12 +588,11 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
     }
 
     /**
-     * Removes element from trie at the specified trie [index].
+     * Removes the element from the trie at the specified trie [index]
+     * and returns the new root of the trie.
      *
      * [tailCarry] on input contains the first element of the adjacent trie to fill the last vacant element with.
      * [tailCarry] on output contains the first element of this trie.
-     *
-     * @return the new root of the trie.
      */
     private fun removeFromRootAt(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
