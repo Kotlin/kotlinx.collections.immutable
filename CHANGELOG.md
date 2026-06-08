@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.5.0
+
+- Introduced the [kotlinx.collections.immutable 0.5.x migration skill](https://github.com/Kotlin/kotlin-agent-skills/blob/main/skills/kotlin-tooling-immutable-collections-0-5-x-migration/SKILL.md) — an agent skill that drives the participial-naming migration from the compiler's deprecation warnings
+
 ## 0.5.0-beta01
 
 - Renamed `PersistentCollection` mutating-copy methods to participial forms (`add`/`remove`/`set`/`put`/`clear` → `adding`/`removing`/`setting`/`putting`/`clearing` and `*ed` variants) and deprecated the original names [#233](https://github.com/Kotlin/kotlinx.collections.immutable/pull/233)
