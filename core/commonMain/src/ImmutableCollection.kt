@@ -96,17 +96,17 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     public fun remove(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
-     * Returns a new persistent collection with elements in this collection that are also
-     * contained in the specified [elements] collection removed,
-     * or this instance if no modifications were made in the result of this operation.
+     * Returns a new persistent collection containing all elements of this collection
+     * except the elements contained in the specified [elements] collection,
+     * or this instance if there are no elements to remove.
      */
     public fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
         @Suppress("DEPRECATION") removeAll(elements)
 
     /**
-     * Returns a new persistent collection with elements in this collection that are also
-     * contained in the specified [elements] collection removed,
-     * or this instance if no modifications were made in the result of this operation.
+     * Returns a new persistent collection containing all elements of this collection
+     * except the elements contained in the specified [elements] collection,
+     * or this instance if there are no elements to remove.
      *
      * Use the function [removingAll] to make it clear that a new collection is returned.
      *

@@ -137,17 +137,17 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     override fun remove(element: @UnsafeVariance E): PersistentList<E>
 
     /**
-     * Returns a new persistent list with elements in this list that are also
-     * contained in the specified [elements] collection removed,
-     * or this instance if no modifications were made in the result of this operation.
+     * Returns a new persistent list containing all elements of this list
+     * except the elements contained in the specified [elements] collection,
+     * or this instance if there are no elements to remove.
      */
     override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
         @Suppress("DEPRECATION") removeAll(elements)
 
     /**
-     * Returns a new persistent list with elements in this list that are also
-     * contained in the specified [elements] collection removed,
-     * or this instance if no modifications were made in the result of this operation.
+     * Returns a new persistent list containing all elements of this list
+     * except the elements contained in the specified [elements] collection,
+     * or this instance if there are no elements to remove.
      *
      * Use the function [removingAll] to make it clear that a new list is returned.
      *

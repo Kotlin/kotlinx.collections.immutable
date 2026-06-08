@@ -83,25 +83,25 @@ public operator fun <E> PersistentCollection<E>.plus(elements: Sequence<E>): Per
 
 
 /**
- * Returns a new persistent collection with elements in this collection that are also
- * contained in the specified [elements] collection removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent collection containing all elements of this collection
+ * except the elements contained in the specified [elements] collection,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentCollection<E>.minus(elements: Iterable<E>): PersistentCollection<E>
         = if (elements is Collection) removingAll(elements) else builder().also { it.removeAll(elements) }.build()
 
 /**
- * Returns a new persistent collection with elements in this collection that are also
- * contained in the specified [elements] array removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent collection containing all elements of this collection
+ * except the elements contained in the specified [elements] array,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentCollection<E>.minus(elements: Array<out E>): PersistentCollection<E>
         = builder().also { it.removeAll(elements) }.build()
 
 /**
- * Returns a new persistent collection with elements in this collection that are also
- * contained in the specified [elements] sequence removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent collection containing all elements of this collection
+ * except the elements contained in the specified [elements] sequence,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentCollection<E>.minus(elements: Sequence<E>): PersistentCollection<E>
         =  builder().also { it.removeAll(elements) }.build()
@@ -148,25 +148,25 @@ public operator fun <E> PersistentList<E>.plus(elements: Sequence<E>): Persisten
 
 
 /**
- * Returns a new persistent list with elements in this list that are also
- * contained in the specified [elements] collection removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent list containing all elements of this list
+ * except the elements contained in the specified [elements] collection,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentList<E>.minus(elements: Iterable<E>): PersistentList<E>
         = if (elements is Collection) removingAll(elements) else mutate { it.removeAll(elements) }
 
 /**
- * Returns a new persistent list with elements in this list that are also
- * contained in the specified [elements] array removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent list containing all elements of this list
+ * except the elements contained in the specified [elements] array,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentList<E>.minus(elements: Array<out E>): PersistentList<E>
         = mutate { it.removeAll(elements) }
 
 /**
- * Returns a new persistent list with elements in this list that are also
- * contained in the specified [elements] sequence removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent list containing all elements of this list
+ * except the elements contained in the specified [elements] sequence,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentList<E>.minus(elements: Sequence<E>): PersistentList<E>
         = mutate { it.removeAll(elements) }
@@ -208,25 +208,25 @@ public operator fun <E> PersistentSet<E>.plus(elements: Sequence<E>): Persistent
 
 
 /**
- * Returns a new persistent set with elements in this set that are also
- * contained in the specified [elements] collection removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent set containing all elements of this set
+ * except the elements contained in the specified [elements] collection,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentSet<E>.minus(elements: Iterable<E>): PersistentSet<E>
         = if (elements is Collection) removingAll(elements) else mutate { it.removeAll(elements) }
 
 /**
- * Returns a new persistent set with elements in this set that are also
- * contained in the specified [elements] array removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent set containing all elements of this set
+ * except the elements contained in the specified [elements] array,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentSet<E>.minus(elements: Array<out E>): PersistentSet<E>
         = mutate { it.removeAll(elements) }
 
 /**
- * Returns a new persistent set with elements in this set that are also
- * contained in the specified [elements] sequence removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent set containing all elements of this set
+ * except the elements contained in the specified [elements] sequence,
+ * or this instance if there are no elements to remove.
  */
 public operator fun <E> PersistentSet<E>.minus(elements: Sequence<E>): PersistentSet<E>
         = mutate { it.removeAll(elements) }
@@ -397,22 +397,25 @@ public operator fun <K, V> PersistentMap<out K, V>.minus(key: K): PersistentMap<
         = (this as PersistentMap<K, V>).removing(key)
 
 /**
- * Returns a new persistent map with the specified [keys] and their corresponding values removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent map containing all entries of this map
+ * except those whose keys are contained in the specified [keys] collection,
+ * or this instance if there are no entries to remove.
  */
 public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Iterable<K>): PersistentMap<K, V>
         = mutate { it.minusAssign(keys) }
 
 /**
- * Returns a new persistent map with the specified [keys] and their corresponding values removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent map containing all entries of this map
+ * except those whose keys are contained in the specified [keys] array,
+ * or this instance if there are no entries to remove.
  */
 public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Array<out K>): PersistentMap<K, V>
         = mutate { it.minusAssign(keys) }
 
 /**
- * Returns a new persistent map with the specified [keys] and their corresponding values removed,
- * or this instance if no modifications were made in the result of this operation.
+ * Returns a new persistent map containing all entries of this map
+ * except those whose keys are contained in the specified [keys] sequence,
+ * or this instance if there are no entries to remove.
  */
 public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): PersistentMap<K, V>
         = mutate { it.minusAssign(keys) }

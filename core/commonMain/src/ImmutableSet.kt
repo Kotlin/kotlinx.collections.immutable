@@ -98,17 +98,17 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     override fun remove(element: @UnsafeVariance E): PersistentSet<E>
 
     /**
-     * Returns a new persistent set with elements in this set that are also
-     * contained in the specified [elements] collection removed,
-     * or this instance if no modifications were made in the result of this operation.
+     * Returns a new persistent set containing all elements of this set
+     * except the elements contained in the specified [elements] collection,
+     * or this instance if there are no elements to remove.
      */
     override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> =
         @Suppress("DEPRECATION") removeAll(elements)
 
     /**
-     * Returns a new persistent set with elements in this set that are also
-     * contained in the specified [elements] collection removed,
-     * or this instance if no modifications were made in the result of this operation.
+     * Returns a new persistent set containing all elements of this set
+     * except the elements contained in the specified [elements] collection,
+     * or this instance if there are no elements to remove.
      *
      * Use the function [removingAll] to make it clear that a new set is returned.
      *
