@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.5.0
+
+- Promoted `0.5.0-beta01` to stable; no API or behavior changes
+
 ## 0.5.0-beta01
 
 - Renamed `PersistentCollection` mutating-copy methods to participial forms (`add`/`remove`/`set`/`put`/`clear` → `adding`/`removing`/`setting`/`putting`/`clearing` and `*ed` variants) and deprecated the original names [#233](https://github.com/Kotlin/kotlinx.collections.immutable/pull/233)
