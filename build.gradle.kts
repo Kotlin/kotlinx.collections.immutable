@@ -10,7 +10,6 @@ buildscript {
 
 plugins {
     id("kotlinx.team.infra") version "0.4.0-dev-90"
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.17.0"
 }
 
 infra {
@@ -18,18 +17,6 @@ infra {
         include(":kotlinx-collections-immutable")
 
         libraryRepoUrl = "https://github.com/Kotlin/kotlinx.collections.immutable"
-    }
-}
-
-apiValidation {
-    ignoredProjects += listOf(
-        "benchmarks",
-        "runner",
-    )
-
-    @OptIn(kotlinx.validation.ExperimentalBCVApi::class)
-    klib {
-        enabled = true
     }
 }
 
