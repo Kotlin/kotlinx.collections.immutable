@@ -40,17 +40,16 @@ public interface ImmutableMap<K, out V> : Map<K, V> {
  */
 public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     /**
-     * Returns the result of associating the specified [value] with the specified [key] in this map.
+     * Returns a new persistent map with the specified [value] associated with the specified [key],
+     * or this instance if no modifications were made in the result of this operation.
      *
      * If this map already contains a mapping for the key, the old value is replaced by the specified value.
-     *
-     * @return a new persistent map with the specified [value] associated with the specified [key];
-     *         or this instance if no modifications were made in the result of this operation.
      */
     public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = @Suppress("DEPRECATION") put(key, value)
 
     /**
-     * Returns the result of associating the specified [value] with the specified [key] in this map.
+     * Returns a new persistent map with the specified [value] associated with the specified [key],
+     * or this instance if no modifications were made in the result of this operation.
      *
      * If this map already contains a mapping for the key, the old value is replaced by the specified value.
      *
@@ -60,9 +59,6 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
-     *
-     * @return a new persistent map with the specified [value] associated with the specified [key];
-     *         or this instance if no modifications were made in the result of this operation.
      */
     @Deprecated(
         "Use putting() instead. For more details, read the documentation for this function.",
@@ -71,15 +67,14 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
-     * Returns the result of removing the specified [key] and its corresponding value from this map.
-     *
-     * @return a new persistent map with the specified [key] and its corresponding value removed;
-     *         or this instance if it contains no mapping for the key.
+     * Returns a new persistent map with the specified [key] and its corresponding value removed,
+     * or this instance if it contains no mapping for the key.
      */
     public fun removing(key: K): PersistentMap<K, V> = @Suppress("DEPRECATION") remove(key)
 
     /**
-     * Returns the result of removing the specified [key] and its corresponding value from this map.
+     * Returns a new persistent map with the specified [key] and its corresponding value removed,
+     * or this instance if it contains no mapping for the key.
      *
      * Use the function [removing] to make it clear that a new map is returned.
      *
@@ -87,9 +82,6 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
-     *
-     * @return a new persistent map with the specified [key] and its corresponding value removed;
-     *         or this instance if it contains no mapping for the key.
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
@@ -98,16 +90,15 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     public fun remove(key: K): PersistentMap<K, V>
 
     /**
-     * Returns the result of removing the entry that maps the specified [key] to the specified [value].
-     *
-     * @return a new persistent map with the entry for the specified [key] and [value] removed;
-     *         or this instance if it contains no entry with the specified key and value.
+     * Returns a new persistent map with the entry for the specified [key] and [value] removed,
+     * or this instance if it contains no entry with the specified key and value.
      */
     public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V> =
         @Suppress("DEPRECATION") remove(key, value)
 
     /**
-     * Returns the result of removing the entry that maps the specified [key] to the specified [value].
+     * Returns a new persistent map with the entry for the specified [key] and [value] removed,
+     * or this instance if it contains no entry with the specified key and value.
      *
      * Use the function [removing] to make it clear that a new map is returned.
      *
@@ -115,9 +106,6 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
-     *
-     * @return a new persistent map with the entry for the specified [key] and [value] removed;
-     *         or this instance if it contains no entry with the specified key and value.
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
@@ -126,18 +114,17 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
-     * Returns the result of merging the specified [m] map with this map.
+     * Returns a new persistent map with keys and values from the specified [m] map associated,
+     * or this instance if no modifications were made in the result of this operation.
      *
      * The effect of this call is equivalent to that of calling `put(k, v)` once for each
      * mapping from key `k` to value `v` in the specified map.
-     *
-     * @return a new persistent map with keys and values from the specified map [m] associated;
-     *         or this instance if no modifications were made in the result of this operation.
      */
     public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = @Suppress("DEPRECATION") putAll(m)
 
     /**
-     * Returns the result of merging the specified [m] map with this map.
+     * Returns a new persistent map with keys and values from the specified [m] map associated,
+     * or this instance if no modifications were made in the result of this operation.
      *
      * The effect of this call is equivalent to that of calling `put(k, v)` once for each
      * mapping from key `k` to value `v` in the specified map.
@@ -148,9 +135,6 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
      * for more details and guidance with the migration.
-     *
-     * @return a new persistent map with keys and values from the specified map [m] associated;
-     *         or this instance if no modifications were made in the result of this operation.
      */
     @Deprecated(
         "Use puttingAll() instead. For more details, read the documentation for this function.",
