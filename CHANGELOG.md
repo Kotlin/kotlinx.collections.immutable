@@ -6,7 +6,7 @@
 
 ## 0.5.0-beta01
 
-- Renamed `PersistentCollection` mutating-copy methods to participial forms (`add`/`remove`/`set`/`put`/`clear` → `adding`/`removing`/`setting`/`putting`/`clearing` and `*ed` variants) and deprecated the original names [#233](https://github.com/Kotlin/kotlinx.collections.immutable/pull/233)
+- Renamed copy-returning methods on `PersistentCollection`, `PersistentList`, and `PersistentMap` from imperative to participial forms (`add`/`remove`/`put`/`clear`/`set`/`removeAt`/… → `adding`/`removing`/`putting`/`cleared`/`replacingAt`/`removingAt`/…) per [KEEP-0459](https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0459-naming-conventions-for-copy-returning-operations.md) and deprecated the original names [#233](https://github.com/Kotlin/kotlinx.collections.immutable/pull/233)
 - Enabled the Kotlin return-value checker (`-Xreturn-value-checker=full`) for the core module and annotated select internal helpers with `@IgnorableReturnValue` where discarding the result is intentional [#243](https://github.com/Kotlin/kotlinx.collections.immutable/pull/243)
 - Updated Kotlin to version 2.3.0 [#242](https://github.com/Kotlin/kotlinx.collections.immutable/pull/242)
 - Configured JDK release to 8 for the Kotlin compiler [#239](https://github.com/Kotlin/kotlinx.collections.immutable/pull/239)
