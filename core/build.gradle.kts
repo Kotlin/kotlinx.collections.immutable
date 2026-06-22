@@ -205,3 +205,30 @@ tasks {
         )
     }
 }
+
+val compileJvmModuleInfo by tasks.registering(JavaCompile::class) {
+    description = "Compiles the JPMS module descriptor for the JVM artifact"
+    val moduleName = "kotlinx.collections.immutable"
+    val jvmMainCompilation = kotlin.jvm().compilations.getByName("main")
+    val kotlinClasses = jvmMainCompilation.output.classesDirs
+    val modulePath = jvmMainCompilation.compileDependencyFiles
+
+    dependsOn(jvmMainCompilation.compileTaskProvider)
+    source(layout.projectDirectory.dir("jvmMain/java9"))
+    destinationDirectory.set(layout.buildDirectory.dir("classes/module-info/jvm"))
+    classpath = files()
+
+    javaCompiler.set(javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(21)) })
+    options.release.set(9)
+    options.compilerArgs.add("-Xlint:-requires-transitive-automatic")
+    options.compilerArgumentProviders.add(CommandLineArgumentProvider {
+        listOf(
+            "--module-path", modulePath.asPath,
+            "--patch-module", "$moduleName=${kotlinClasses.asPath}",
+        )
+    })
+}
+
+tasks.named<Jar>("jvmJar") {
+    from(compileJvmModuleInfo) { into("META-INF/versions/9") }
+}
