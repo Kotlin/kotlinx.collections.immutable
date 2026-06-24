@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     id("kotlin-multiplatform")
@@ -22,6 +23,10 @@ mavenPublicationsPom {
 kotlin {
     applyDefaultHierarchyTemplate()
     explicitApi()
+    abiValidation {
+        @OptIn(ExperimentalAbiValidation::class)
+        enabled = true
+    }
     compilerOptions {
         freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
@@ -191,5 +196,12 @@ tasks {
         findByName("compileTestKotlin$pubName")?.let {
             mustRunAfter(it)
         }
+    }
+
+    check {
+        dependsOn(
+            // TODO: https://youtrack.jetbrains.com/issue/KT-78525
+            checkLegacyAbi,
+        )
     }
 }
