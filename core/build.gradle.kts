@@ -219,12 +219,23 @@ tasks {
         source(sourceDir)
         destinationDirectory.set(targetDir)
 
-        javaCompiler.set(project.javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(jdkToolchainVersion)) })
+        javaCompiler.set(project.javaToolchains.compilerFor {
+            languageVersion.set(
+                JavaLanguageVersion.of(
+                    jdkToolchainVersion
+                )
+            )
+        })
         options.release.set(9)
         // Ignore warnings about using 'requires transitive' on automatic modules.
         options.compilerArgs.add("-Xlint:-requires-transitive-automatic")
         // Patch the compiled Kotlin classes in so the exported packages resolve.
-        options.compilerArgs.addAll(listOf("--patch-module", "$moduleName=${compileKotlinJvm.destinationDirectory.get()}"))
+        options.compilerArgs.addAll(
+            listOf(
+                "--patch-module",
+                "$moduleName=${compileKotlinJvm.destinationDirectory.get()}"
+            )
+        )
         classpath = compileKotlinJvm.libraries
         modularity.inferModulePath.set(true)
         options.javaModuleVersion.set(provider { version.toString() })
