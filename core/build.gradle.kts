@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("kotlin-multiplatform")
@@ -18,6 +19,8 @@ base {
 mavenPublicationsPom {
     description = "Kotlin Immutable Collections multiplatform library"
 }
+
+val jdkToolchainVersion = 21
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
@@ -58,7 +61,7 @@ kotlin {
     mingwX64()
     watchosDeviceArm64()
 
-    jvmToolchain(21)
+    jvmToolchain(jdkToolchainVersion)
     jvm {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_1_8)
@@ -204,31 +207,41 @@ tasks {
             checkLegacyAbi,
         )
     }
-}
 
-val compileJvmModuleInfo by tasks.registering(JavaCompile::class) {
-    description = "Compiles the JPMS module descriptor for the JVM artifact"
-    val moduleName = "kotlinx.collections.immutable"
-    val jvmMainCompilation = kotlin.jvm().compilations.getByName("main")
-    val kotlinClasses = jvmMainCompilation.output.classesDirs
-    val modulePath = jvmMainCompilation.compileDependencyFiles
+    val compileJvmModuleInfo by registering(JavaCompile::class) {
+        description = "Compiles the JPMS module descriptor for the JVM artifact"
+        val moduleName = "kotlinx.collections.immutable"
+        val compileKotlinJvm by getting(KotlinCompile::class)
+        val sourceDir = file("jvmMain/java9/")
+        val targetDir = compileKotlinJvm.destinationDirectory.map { it.dir("../java9/") }
 
-    dependsOn(jvmMainCompilation.compileTaskProvider)
-    source(layout.projectDirectory.dir("jvmMain/java9"))
-    destinationDirectory.set(layout.buildDirectory.dir("classes/module-info/jvm"))
-    classpath = files()
+        dependsOn(compileKotlinJvm)
+        source(sourceDir)
+        destinationDirectory.set(targetDir)
 
-    javaCompiler.set(javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(21)) })
-    options.release.set(9)
-    options.compilerArgs.add("-Xlint:-requires-transitive-automatic")
-    options.compilerArgumentProviders.add(CommandLineArgumentProvider {
-        listOf(
-            "--module-path", modulePath.asPath,
-            "--patch-module", "$moduleName=${kotlinClasses.asPath}",
-        )
-    })
-}
+        javaCompiler.set(project.javaToolchains.compilerFor { languageVersion.set(JavaLanguageVersion.of(jdkToolchainVersion)) })
+        options.release.set(9)
+        // Ignore warnings about using 'requires transitive' on automatic modules.
+        options.compilerArgs.add("-Xlint:-requires-transitive-automatic")
+        // Patch the compiled Kotlin classes in so the exported packages resolve.
+        options.compilerArgs.addAll(listOf("--patch-module", "$moduleName=${compileKotlinJvm.destinationDirectory.get()}"))
+        classpath = compileKotlinJvm.libraries
+        modularity.inferModulePath.set(true)
+        options.javaModuleVersion.set(provider { version.toString() })
+    }
 
-tasks.named<Jar>("jvmJar") {
-    from(compileJvmModuleInfo) { into("META-INF/versions/9") }
+    named<Jar>("jvmJar") {
+        manifest {
+            attributes(
+                "Multi-Release" to true,
+                "Implementation-Vendor" to "JetBrains",
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version,
+            )
+        }
+        from(compileJvmModuleInfo.map { it.destinationDirectory }) {
+            into("META-INF/versions/9/")
+            include("module-info.class")
+        }
+    }
 }
