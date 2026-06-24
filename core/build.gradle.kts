@@ -188,6 +188,12 @@ dokka {
 tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
+        // Inputs for ModuleInfoExportsTest
+        val moduleInfo = file("jvmMain/java9/module-info.java")
+        val apiDump = file("api/kotlinx-collections-immutable.api")
+        inputs.files(moduleInfo, apiDump)
+        systemProperty("moduleInfoPath", moduleInfo.absolutePath)
+        systemProperty("apiDumpPath", apiDump.absolutePath)
     }
 
     // See https://youtrack.jetbrains.com/issue/KT-61313
