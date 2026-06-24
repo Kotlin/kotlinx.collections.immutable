@@ -11,6 +11,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PersistentOrderedMapTest {
+    @Test
+    fun `builder entry setValue invalidates cached map`() {
+        val builder = persistentMapOf("a" to 1).builder()
+        assertEquals(persistentMapOf("a" to 1), builder.build())
+
+        val entry = builder.entries.iterator().next()
+        assertEquals(1, entry.setValue(2))
+
+        assertEquals(persistentMapOf("a" to 2), builder.build())
+    }
 
     /**
      * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/198
