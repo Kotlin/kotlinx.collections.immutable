@@ -233,8 +233,6 @@ tasks {
             )
         })
         options.release.set(9)
-        // Ignore warnings about using 'requires transitive' on automatic modules.
-        options.compilerArgs.add("-Xlint:-requires-transitive-automatic")
         // Patch the compiled Kotlin classes in so the exported packages resolve.
         options.compilerArgs.addAll(
             listOf(
