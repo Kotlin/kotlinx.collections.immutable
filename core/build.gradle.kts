@@ -188,12 +188,6 @@ dokka {
 tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
-        // Inputs for ModuleInfoExportsTest
-        val moduleInfo = file("jvmMain/java9/module-info.java")
-        val apiDump = file("api/kotlinx-collections-immutable.api")
-        inputs.files(moduleInfo, apiDump)
-        systemProperty("moduleInfoPath", moduleInfo.absolutePath)
-        systemProperty("apiDumpPath", apiDump.absolutePath)
     }
 
     // See https://youtrack.jetbrains.com/issue/KT-61313
@@ -207,10 +201,60 @@ tasks {
         }
     }
 
+    val checkModuleInfoExports by registering {
+        group = "verification"
+        description = "Checks that jvmMain/java9/module-info.java exports exactly the public-API packages."
+
+        @OptIn(ExperimentalAbiValidation::class)
+        val dumpDir = kotlin.abiValidation.legacyDump.legacyDumpTaskProvider.flatMap { it.dumpDir }
+        val moduleInfoFile = layout.projectDirectory.file("jvmMain/java9/module-info.java")
+
+        inputs.file(moduleInfoFile).withPropertyName("moduleInfo")
+        inputs.dir(dumpDir).withPropertyName("legacyDumpDir")
+
+        val exportsRegex = Regex("""exports\s+([\w.]+)\s*;""")
+        val classDeclRegex = Regex("""^(?:public|protected).*\bclass\s+(\S+)""")
+
+        doLast {
+            val dumpRoot = dumpDir.get().asFile
+            val jvmDump = dumpRoot.listFiles { f -> f.name.endsWith(".api") && !f.name.endsWith(".klib.api") }
+                ?.singleOrNull()
+                ?: error("Expected exactly one JVM ABI dump (*.api, not *.klib.api) in $dumpRoot")
+
+            val exported = moduleInfoFile.asFile.readLines()
+                .mapNotNull { exportsRegex.matchEntire(it.trim())?.groupValues?.get(1) }
+                .toSet()
+            val publicApi = jvmDump.readLines()
+                .mapNotNull { classDeclRegex.find(it)?.groupValues?.get(1) }
+                .map { fqn -> fqn.substringBeforeLast('/').replace('/', '.') }
+                .toSet()
+
+            val missing = publicApi - exported
+            val stale = exported - publicApi
+            if (missing.isNotEmpty() || stale.isNotEmpty()) {
+                val sb = StringBuilder("module-info.java exports do not match the public API.\n")
+                if (missing.isNotEmpty()) sb.appendLine(
+                    """
+                    Public-API packages (from the ABI dump) NOT exported by jvmMain/java9/module-info.java: $missing.
+                    Add `exports <package>;` for each.
+                    """.trimIndent()
+                )
+                if (stale.isNotEmpty()) sb.appendLine(
+                    """
+                    Packages exported by jvmMain/java9/module-info.java with NO public API in the ABI dump: $stale.
+                    Remove each stale `exports`.
+                    """.trimIndent()
+                )
+                throw GradleException(sb.toString().trim())
+            }
+        }
+    }
+
     check {
         dependsOn(
             // TODO: https://youtrack.jetbrains.com/issue/KT-78525
             checkLegacyAbi,
+            checkModuleInfoExports
         )
     }
 
