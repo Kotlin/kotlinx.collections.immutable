@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JsModuleKind
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("kotlin-multiplatform")
@@ -18,6 +19,8 @@ base {
 mavenPublicationsPom {
     description = "Kotlin Immutable Collections multiplatform library"
 }
+
+val jdkToolchainVersion = 21
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
@@ -58,7 +61,7 @@ kotlin {
     mingwX64()
     watchosDeviceArm64()
 
-    jvmToolchain(21)
+    jvmToolchain(jdkToolchainVersion)
     jvm {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_1_8)
@@ -198,10 +201,108 @@ tasks {
         }
     }
 
+    val checkModuleInfoExports by registering {
+        group = "verification"
+        description = "Checks that jvmMain/java9/module-info.java exports exactly the public-API packages."
+
+        @OptIn(ExperimentalAbiValidation::class)
+        val dumpDir = kotlin.abiValidation.legacyDump.legacyDumpTaskProvider.flatMap { it.dumpDir }
+        val moduleInfoFile = layout.projectDirectory.file("jvmMain/java9/module-info.java")
+
+        inputs.file(moduleInfoFile).withPropertyName("moduleInfo")
+        inputs.dir(dumpDir).withPropertyName("legacyDumpDir")
+
+        val exportsRegex = Regex("""exports\s+([\w.]+)\s*;""")
+        val classDeclRegex = Regex("""^(?:public|protected).*\bclass\s+(\S+)""")
+
+        doLast {
+            val dumpRoot = dumpDir.get().asFile
+            val jvmDump = dumpRoot.listFiles { f -> f.name.endsWith(".api") && !f.name.endsWith(".klib.api") }
+                ?.singleOrNull()
+                ?: error("Expected exactly one JVM ABI dump (*.api, not *.klib.api) in $dumpRoot")
+
+            val exported = moduleInfoFile.asFile.readLines()
+                .mapNotNull { exportsRegex.matchEntire(it.trim())?.groupValues?.get(1) }
+                .toSet()
+            val publicApi = jvmDump.readLines()
+                .mapNotNull { classDeclRegex.find(it)?.groupValues?.get(1) }
+                .map { fqn -> fqn.substringBeforeLast('/').replace('/', '.') }
+                .toSet()
+
+            val missing = publicApi - exported
+            val stale = exported - publicApi
+            if (missing.isNotEmpty() || stale.isNotEmpty()) {
+                val message = buildString {
+                    append("module-info.java exports do not match the public API.")
+                    if (missing.isNotEmpty()) appendLine().append(
+                        """
+                        Public-API packages (from the ABI dump) NOT exported by jvmMain/java9/module-info.java: $missing.
+                        Add `exports <package>;` for each.
+                        """.trimIndent()
+                    )
+                    if (stale.isNotEmpty()) appendLine().append(
+                        """
+                        Packages exported by jvmMain/java9/module-info.java with NO public API in the ABI dump: $stale.
+                        Remove each stale `exports`.
+                        """.trimIndent()
+                    )
+                }
+                throw GradleException(message)
+            }
+        }
+    }
+
     check {
         dependsOn(
             // TODO: https://youtrack.jetbrains.com/issue/KT-78525
             checkLegacyAbi,
+            checkModuleInfoExports
         )
+    }
+
+    val compileJvmModuleInfo by registering(JavaCompile::class) {
+        description = "Compiles the JPMS module descriptor for the JVM artifact"
+        val moduleName = "kotlinx.collections.immutable"
+        val compileKotlinJvm by getting(KotlinCompile::class)
+        val sourceDir = file("jvmMain/java9/")
+        val targetDir = compileKotlinJvm.destinationDirectory.map { it.dir("../java9/") }
+
+        dependsOn(compileKotlinJvm)
+        source(sourceDir)
+        destinationDirectory.set(targetDir)
+
+        javaCompiler.set(project.javaToolchains.compilerFor {
+            languageVersion.set(
+                JavaLanguageVersion.of(
+                    jdkToolchainVersion
+                )
+            )
+        })
+        options.release.set(9)
+        // Patch the compiled Kotlin classes in so the exported packages resolve.
+        options.compilerArgs.addAll(
+            listOf(
+                "--patch-module",
+                "$moduleName=${compileKotlinJvm.destinationDirectory.get()}"
+            )
+        )
+        classpath = compileKotlinJvm.libraries
+        modularity.inferModulePath.set(true)
+        options.javaModuleVersion.set(provider { version.toString() })
+    }
+
+    named<Jar>("jvmJar") {
+        manifest {
+            attributes(
+                "Multi-Release" to true,
+                "Implementation-Vendor" to "JetBrains",
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version,
+            )
+        }
+        from(compileJvmModuleInfo.map { it.destinationDirectory }) {
+            into("META-INF/versions/9/")
+            include("module-info.class")
+        }
     }
 }
