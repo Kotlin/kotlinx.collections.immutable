@@ -16,6 +16,10 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("org.jetbrains.kotlinx.artifacts-validator-plugin") version "0.0.2"
+}
+
 rootProject.name = "Kotlin-Immutable-Collections" // TODO: Make readable name when it's not used in js module names
 
 include(":core")
