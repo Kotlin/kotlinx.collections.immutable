@@ -232,20 +232,22 @@ tasks {
             val missing = publicApi - exported
             val stale = exported - publicApi
             if (missing.isNotEmpty() || stale.isNotEmpty()) {
-                val sb = StringBuilder("module-info.java exports do not match the public API.\n")
-                if (missing.isNotEmpty()) sb.appendLine(
-                    """
-                    Public-API packages (from the ABI dump) NOT exported by jvmMain/java9/module-info.java: $missing.
-                    Add `exports <package>;` for each.
-                    """.trimIndent()
-                )
-                if (stale.isNotEmpty()) sb.appendLine(
-                    """
-                    Packages exported by jvmMain/java9/module-info.java with NO public API in the ABI dump: $stale.
-                    Remove each stale `exports`.
-                    """.trimIndent()
-                )
-                throw GradleException(sb.toString().trim())
+                val message = buildString {
+                    append("module-info.java exports do not match the public API.")
+                    if (missing.isNotEmpty()) appendLine().append(
+                        """
+                        Public-API packages (from the ABI dump) NOT exported by jvmMain/java9/module-info.java: $missing.
+                        Add `exports <package>;` for each.
+                        """.trimIndent()
+                    )
+                    if (stale.isNotEmpty()) appendLine().append(
+                        """
+                        Packages exported by jvmMain/java9/module-info.java with NO public API in the ABI dump: $stale.
+                        Remove each stale `exports`.
+                        """.trimIndent()
+                    )
+                }
+                throw GradleException(message)
             }
         }
     }
