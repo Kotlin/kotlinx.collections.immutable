@@ -44,25 +44,25 @@ class PersistentOrderedSetBuilderTest {
 
         fun persistentAdd(value: Int) {
             val key = key(value)
-            persistent = persistent.add(key)
+            persistent = persistent.adding(key)
             expectedPersistent.add(key)
         }
 
         fun persistentAddAll(vararg values: Int) {
             val keys = keys(*values)
-            persistent = persistent.addAll(keys)
+            persistent = persistent.addingAll(keys)
             expectedPersistent.addAll(keys)
         }
 
         fun persistentRemove(value: Int) {
             val key = key(value)
-            persistent = persistent.remove(key)
+            persistent = persistent.removing(key)
             expectedPersistent.remove(key)
         }
 
         fun persistentRemoveAll(vararg values: Int) {
             val keys = keys(*values)
-            persistent = persistent.removeAll(keys)
+            persistent = persistent.removingAll(keys)
             expectedPersistent.removeAll(keys.toSet())
         }
 
@@ -130,10 +130,10 @@ class PersistentOrderedSetBuilderTest {
             else -> (value * 0x9E3779B9.toInt()).rotateLeft(7)
         }
 
-    private data class TraceKey(
-        val value: Int,
-        private val hashCode: Int,
-    ) {
-        override fun hashCode(): Int = hashCode
+    private class TraceKey(val value: Int, private val hash: Int) {
+        override fun equals(other: Any?): Boolean =
+            other is TraceKey && value == other.value && hash == other.hash
+
+        override fun hashCode(): Int = hash
     }
 }
