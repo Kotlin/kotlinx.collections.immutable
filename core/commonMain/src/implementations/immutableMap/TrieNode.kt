@@ -770,15 +770,19 @@ internal class TrieNode<K, V>(
         return this
     }
 
-    private fun mutableReplaceNode(targetNode: TrieNode<K, V>, newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int, owner: MutabilityOwnership) = when {
-        newNode == null ->
-            mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
-        // newNode === targetNode means the child returned itself (a no-op, or an owned in-place removal),
+    private fun mutableReplaceNode(
+        targetNode: TrieNode<K, V>,
+        newNode: TrieNode<K, V>?,
+        nodeIndex: Int,
+        positionMask: Int,
+        owner: MutabilityOwnership
+    ) = when {
+        newNode == null -> mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
+        // `newNode` === `targetNode` means the child returned itself (a no-op, or an owned in-place removal),
         // so this node's buffer already points to it. Keep this node unchanged to avoid spuriously
         // clearing `PersistentHashMapBuilder.builtMap` on no-ops. The single-entry exclusion still routes a
         // child that shrank to one entry to `updateNodeAtIndex`, which promotes it.
-        newNode === targetNode && !(newNode.buffer.size == 2 && newNode.nodeMap == 0) ->
-            this
+        newNode === targetNode && !(newNode.buffer.size == 2 && newNode.nodeMap == 0) -> this
         else -> updateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
     }
 
