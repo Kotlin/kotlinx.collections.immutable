@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 0.5.0
+
+- Promoted `0.5.0-beta01` to stable; no API or behavior changes
+
+## 0.5.0-beta01
+
+- Renamed copy-returning methods on `PersistentCollection`, `PersistentList`, and `PersistentMap` from imperative to participial forms (`add`/`remove`/`put`/`clear`/`set`/`removeAt`/… → `adding`/`removing`/`putting`/`cleared`/`replacingAt`/`removingAt`/…) per [KEEP-0459](https://github.com/Kotlin/KEEP/blob/main/proposals/KEEP-0459-naming-conventions-for-copy-returning-operations.md) and deprecated the original names [#233](https://github.com/Kotlin/kotlinx.collections.immutable/pull/233)
+- Enabled the Kotlin return-value checker (`-Xreturn-value-checker=full`) for the core module and annotated select internal helpers with `@IgnorableReturnValue` where discarding the result is intentional [#243](https://github.com/Kotlin/kotlinx.collections.immutable/pull/243)
+- Updated Kotlin to version 2.3.0 [#242](https://github.com/Kotlin/kotlinx.collections.immutable/pull/242)
+- Configured JDK release to 8 for the Kotlin compiler [#239](https://github.com/Kotlin/kotlinx.collections.immutable/pull/239)
+- Populated `Implementation-Title`/`Implementation-Version`/`Implementation-Vendor` in published JAR manifests [#237](https://github.com/Kotlin/kotlinx.collections.immutable/pull/237)
+- Enabled Dokka documentation generation and upgraded Dokka to 2.2.0 [#225](https://github.com/Kotlin/kotlinx.collections.immutable/pull/225), [#245](https://github.com/Kotlin/kotlinx.collections.immutable/pull/245), [#248](https://github.com/Kotlin/kotlinx.collections.immutable/pull/248)
+
 ## 0.4.0
 
 - Fixed the equality bug in PersistentMap — Added proper node promotion during mutable operations to ensure a consistent internal tree structure [#217](https://github.com/Kotlin/kotlinx.collections.immutable/pull/217)

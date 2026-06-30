@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -37,7 +37,7 @@ open class Remove {
     fun remove(): ImmutableSet<IntWrapper> {
         var set = persistentSet
         repeat(times = size) { index ->
-            set = set.remove(elements[index])
+            set = set.removing(elements[index])
         }
         return set
     }

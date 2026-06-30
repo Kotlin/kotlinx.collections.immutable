@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -42,7 +42,7 @@ class KT41278Test {
     @Test
     fun persistentOrderedMap() {
         val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentMapOf<String, Int>()) { map, pair ->
-            map.put(pair.first, pair.second)
+            map.putting(pair.first, pair.second)
         }
 
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
@@ -55,7 +55,7 @@ class KT41278Test {
     @Test
     fun persistentHashMap() {
         val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentHashMapOf<String, Int>()) { map, pair ->
-            map.put(pair.first, pair.second)
+            map.putting(pair.first, pair.second)
         }
 
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -68,7 +68,7 @@ open class Canonicalization {
         var map = persistentMapRemove(persistentMap, keysToRemove)
 
         for (key in keysToRemove) {
-            map = map.put(key, "new value")
+            map = map.putting(key, "new value")
         }
 
         return map
@@ -111,7 +111,7 @@ open class Canonicalization {
         var map = halfHeightPersistentMap
 
         repeat(size - halfHeightPersistentMap.size) { index ->
-            map = map.put(keys[index], "new value")
+            map = map.putting(keys[index], "new value")
         }
 
         return map

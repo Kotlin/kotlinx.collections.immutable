@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -32,6 +32,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
 
     private fun rootSize(): Int = rootSize(size)
 
+    @Deprecated(
+        "Use adding() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("adding(element)")
+    )
     override fun add(element: E): PersistentList<E> {
         val tailSize = size - rootSize()
         if (tailSize < MAX_BUFFER_SIZE) {
@@ -78,10 +82,14 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRootNode
     }
 
+    @Deprecated(
+        "Use addingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("addingAt(index, element)")
+    )
     override fun add(index: Int, element: E): PersistentList<E> {
         checkPositionIndex(index, size)
         if (index == size) {
-            return add(element)
+            return adding(element)
         }
 
         val rootSize = rootSize()
@@ -110,11 +118,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
     }
 
     /**
-     * Insert the specified [element] into the [root] trie at the specified trie [index].
+     * Inserts the specified [element] into the [root] trie at the specified trie [index]
+     * and returns the new root trie.
      *
      * [elementCarry] contains the last element of this trie that was popped out by the insertion operation.
-     *
-     * @return new root trie
      */
     private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
@@ -143,6 +150,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
+    @Deprecated(
+        "Use removingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAt(index)")
+    )
     override fun removeAt(index: Int): PersistentList<E> {
         checkElementIndex(index, size)
         val rootSize = rootSize()
@@ -223,12 +234,11 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
     }
 
     /**
-     * Removes element from trie at the specified trie [index].
+     * Removes the element from the trie at the specified trie [index]
+     * and returns the new root of the trie.
      *
      * [tailCarry] on input contains the first element of the adjacent trie to fill the last vacant element with.
      * [tailCarry] on output contains the first element of this trie.
-     *
-     * @return the new root of the trie.
      */
     private fun removeFromRootAt(root: Array<Any?>, shift: Int, index: Int, tailCarry: ObjectRef): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
@@ -259,6 +269,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return newRoot
     }
 
+    @Deprecated(
+        "Use removingAll() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("removingAll(predicate)")
+    )
     override fun removeAll(predicate: (E) -> Boolean): PersistentList<E> {
         return builder().also { it.removeAllWithPredicate(predicate) }.build()
     }
@@ -296,6 +310,10 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         return buffer[index and MAX_BUFFER_SIZE_MINUS_ONE] as E
     }
 
+    @Deprecated(
+        "Use replacingAt() instead. For more details, read the documentation for this function.",
+        replaceWith = ReplaceWith("replacingAt(index, element)")
+    )
     override fun set(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         if (rootSize() <= index) {

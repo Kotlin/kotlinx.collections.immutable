@@ -10,7 +10,7 @@ const val teamcitySuffixParameter = "teamcitySuffix"
 const val releaseVersionParameter = "releaseVersion"
 const val publicationCommandParameter = "publicationCommand"
 
-const val libraryStagingRepoDescription = "<<LIBRARY_STAGING_REPO_DESCRIPTION>>"
+const val singleAgentMacDeployment: Boolean = true
 
 val platforms = Platform.values()
 const val jdk = "JDK_18"
@@ -36,7 +36,7 @@ const val BUILD_CONFIGURE_VERSION_ID = "Build_Version"
 const val BUILD_ALL_ID = "Build_All"
 const val DEPLOY_ALL_ID = "Deploy_All"
 const val DEPLOY_CONFIGURE_VERSION_ID = "Deploy_Configure"
-const val DEPLOY_UPLOAD_ID = "Deplpy_Upload"
+const val DEPLOY_UPLOAD_ID = "Deploy_Upload"
 const val DEPLOY_PUBLISH_ID = "Deploy_Publish"
 
 val UPLOAD_DEPLOYMENT_TEMPLATE_ID = AbsoluteId("KotlinTools_KotlinLibrariesDeployLocalBundleToCentral")
@@ -55,7 +55,7 @@ class KnownBuilds(private val project: Project) {
     val deployStart: BuildType get() = buildWithId(DEPLOY_ALL_ID)
     val deployVersion: BuildType get() = buildWithId(DEPLOY_CONFIGURE_VERSION_ID)
     val deployPublish: BuildType get() = buildWithId(DEPLOY_PUBLISH_ID)
-    val deployUpload: BuildType get() = buildWithId(DEPLOY_PUBLISH_ID)
+    val deployUpload: BuildType get() = buildWithId(DEPLOY_UPLOAD_ID)
     fun deployOn(platform: Platform): BuildType = buildWithId("Deploy_${platform.buildTypeId()}")
 }
 

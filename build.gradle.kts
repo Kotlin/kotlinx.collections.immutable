@@ -9,8 +9,7 @@ buildscript {
 }
 
 plugins {
-    id("kotlinx.team.infra") version "0.4.0-dev-87"
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.17.0"
+    id("kotlinx.team.infra") version "0.4.0-dev-90"
 }
 
 infra {
@@ -18,18 +17,6 @@ infra {
         include(":kotlinx-collections-immutable")
 
         libraryRepoUrl = "https://github.com/Kotlin/kotlinx.collections.immutable"
-    }
-}
-
-apiValidation {
-    ignoredProjects += listOf(
-        "benchmarks",
-        "runner",
-    )
-
-    @OptIn(kotlinx.validation.ExperimentalBCVApi::class)
-    klib {
-        enabled = true
     }
 }
 
@@ -82,17 +69,6 @@ allprojects {
         doFirst {
             logger.info("Added Kotlin compiler flags: ${compilerOptions.freeCompilerArgs.get().joinToString(", ")}")
             logger.info("allWarningsAsErrors=${compilerOptions.allWarningsAsErrors.get()}")
-        }
-    }
-
-    tasks.withType(Jar::class).configureEach {
-        manifest {
-            attributes(
-                "Multi-Release" to true,
-                "Implementation-Vendor" to "JetBrains",
-                "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version,
-            )
         }
     }
 }
