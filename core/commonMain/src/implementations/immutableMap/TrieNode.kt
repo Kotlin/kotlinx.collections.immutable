@@ -92,6 +92,13 @@ internal class TrieNode<K, V>(
     /** Returns number of entries stored in this trie node (not counting subnodes) */
     internal fun entryCount(): Int = dataMap.countOneBits()
 
+    /**
+     * Returns `true` if this node contains exactly one entry and no subtrie nodes,
+     * meaning the parent should replace the node with the entry it contains.
+     */
+    private val hasSingleEntry: Boolean
+        get() = buffer.size == ENTRY_SIZE && nodeMap == 0
+
     // here and later:
     // positionMask — an int in form 2^n, i.e. having the single bit set, whose ordinal is a logical position in buffer
 
@@ -181,8 +188,7 @@ internal class TrieNode<K, V>(
 
     /** The given [newNode] must not be a part of any persistent map instance. */
     private fun updateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership? = null): TrieNode<K, V> {
-        val newNodeBuffer = newNode.buffer
-        if (newNodeBuffer.size == 2 && newNode.nodeMap == 0) {
+        if (newNode.hasSingleEntry) {
             if (buffer.size == 1) {
 //                assert(dataMap == 0 && nodeMap xor positionMask == 0)
                 newNode.dataMap = nodeMap
@@ -190,7 +196,7 @@ internal class TrieNode<K, V>(
             }
 
             val keyIndex = entryKeyIndex(positionMask)
-            val newBuffer = buffer.replaceNodeWithEntry(nodeIndex, keyIndex, newNodeBuffer[0], newNodeBuffer[1])
+            val newBuffer = buffer.replaceNodeWithEntry(nodeIndex, keyIndex, newNode.buffer[0], newNode.buffer[1])
             return TrieNode(dataMap xor positionMask, nodeMap xor positionMask, newBuffer, owner)
         }
 
@@ -780,9 +786,9 @@ internal class TrieNode<K, V>(
         newNode == null -> mutableRemoveNodeAtIndex(nodeIndex, positionMask, owner)
         // `newNode` === `targetNode` means the child returned itself (a no-op, or an owned in-place removal),
         // so this node's buffer already points to it. Keep this node unchanged to avoid spuriously
-        // clearing `PersistentHashMapBuilder.builtMap` on no-ops. The single-entry exclusion still routes a
-        // child that shrank to one entry to `updateNodeAtIndex`, which promotes it.
-        newNode === targetNode && !(newNode.buffer.size == 2 && newNode.nodeMap == 0) -> this
+        // clearing `PersistentHashMapBuilder.builtMap` on no-ops. The `hasSingleEntry` exclusion still routes
+        // a child that shrank to one entry to `updateNodeAtIndex`, which promotes it.
+        newNode === targetNode && !newNode.hasSingleEntry -> this
         else -> updateNodeAtIndex(nodeIndex, positionMask, newNode, owner)
     }
 
