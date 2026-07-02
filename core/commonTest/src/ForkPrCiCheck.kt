@@ -5,4 +5,4 @@
 
 // Temporary marker for verifying the fork-PR CI flow (#265). Not for merge.
 @Suppress("unused")
-private const val forkPrCiCheckMarker = "issue-265-fork-pr-check"
+private const val forkPrCiCheckMarker = "issue-265-fork-pr-check-round2"
