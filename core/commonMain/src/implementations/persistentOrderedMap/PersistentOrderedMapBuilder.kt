@@ -86,7 +86,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         }
     }
 
-    internal fun updateLinks(key: K, links: LinkedValue<V>) {
+    internal fun setLinkedValue(key: K, links: LinkedValue<V>) {
         builtMap = null
         hashMapBuilder[key] = links
     }

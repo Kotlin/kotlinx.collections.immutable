@@ -92,7 +92,7 @@ private class MutableMapEntry<K, V>(private val builder: PersistentOrderedMapBui
         val result = links.value
         links = links.withValue(newValue)
         if (builder.hashMapBuilder.modCount == expectedModCount) {
-            builder.updateLinks(key, links)
+            builder.setLinkedValue(key, links)
         } else {
             builder[key] = newValue
         }
