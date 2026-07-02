@@ -22,6 +22,33 @@ class PersistentOrderedMapTest {
         assertEquals(persistentMapOf("a" to 2), builder.build())
     }
 
+    @Test
+    fun `builder entry setValue preserves entry order`() {
+        val builder = persistentMapOf("a" to 1, "b" to 2, "c" to 3).builder()
+        val iterator = builder.entries.iterator()
+        assertEquals("a", iterator.next().key)
+        val entry = iterator.next()
+        assertEquals(2, entry.setValue(20))
+
+        assertEquals(20, entry.value)
+        assertEquals(listOf("a", "b", "c"), builder.build().keys.toList())
+        assertEquals(20, builder["b"])
+    }
+
+    @Test
+    fun `builder entry setValue after a structural change updates the current links`() {
+        val builder = persistentMapOf("a" to 1, "b" to 2, "c" to 3).builder()
+        val entry = builder.entries.iterator().next()
+        assertEquals(2, builder.remove("b"))
+        assertEquals(persistentMapOf("a" to 1, "c" to 3), builder.build())
+
+        assertEquals(1, entry.setValue(10))
+
+        val built = builder.build()
+        assertEquals(persistentMapOf("a" to 10, "c" to 3), built)
+        assertEquals(listOf("a", "c"), built.keys.toList())
+    }
+
     /**
      * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/198
      */

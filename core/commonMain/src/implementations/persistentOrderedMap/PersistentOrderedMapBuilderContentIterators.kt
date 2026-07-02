@@ -83,13 +83,19 @@ internal class PersistentOrderedMapBuilderEntriesIterator<K, V>(map: PersistentO
 private class MutableMapEntry<K, V>(private val builder: PersistentOrderedMapBuilder<K, V>,
                                     key: K,
                                     private var links: LinkedValue<V>) : MapEntry<K, V>(key, links.value), MutableMap.MutableEntry<K, V> {
+    private val expectedModCount = builder.hashMapBuilder.modCount
+
     override val value: V
         get() = links.value
 
     override fun setValue(newValue: V): V {
         val result = links.value
         links = links.withValue(newValue)
-        builder[key] = newValue
+        if (builder.hashMapBuilder.modCount == expectedModCount) {
+            builder.updateLinks(key, links)
+        } else {
+            builder[key] = newValue
+        }
         return result
     }
 }
