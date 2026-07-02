@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 0.5.1
+
+- Fixed `PersistentOrderedMapBuilder` returning a previously built map from `build()` after updating an entry value through `MutableMap.MutableEntry.setValue` [#253](https://github.com/Kotlin/kotlinx.collections.immutable/pull/253), [#274](https://github.com/Kotlin/kotlinx.collections.immutable/pull/274)
+- Fixed an assertion failure in `PersistentOrderedSetBuilder.build()` after interleaved `build` and `remove`/`removeAll` calls [#251](https://github.com/Kotlin/kotlinx.collections.immutable/pull/251)
+- Provided a JPMS module descriptor for the JVM artifact — module `kotlinx.collections.immutable` compiled into `META-INF/versions/9`, the artifact stays Java 8-compatible [#268](https://github.com/Kotlin/kotlinx.collections.immutable/pull/268)
+
 ## 0.5.0
 
 - Promoted `0.5.0-beta01` to stable; no API or behavior changes
