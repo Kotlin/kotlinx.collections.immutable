@@ -97,6 +97,8 @@ kotlin {
     }
 
     sourceSets.all {
+        // Only Kotlin sources are re-rooted; Java jvm-test sources (Java-interop tests)
+        // stay at the default location, src/jvmTest/java.
         kotlin.setSrcDirs(listOf("$name/src"))
         resources.setSrcDirs(listOf("$name/resources"))
         languageSettings.apply {
@@ -186,9 +188,36 @@ dokka {
     }
 }
 
+kover {
+    reports {
+        total {
+            verify {
+                // Manual gate (`koverVerify`) only; keeps `check` behavior unchanged.
+                onCheck = false
+                // 100% line coverage of all reachable code. The 8-line allowance is exactly the
+                // provably dead defensive code documented in design/test-coverage/05-verification.md:
+                // immutableSet/TrieNode.kt 236-237, 256-257, 281-282 (identity short-circuits in
+                // private collision variants, dominated by their only callers' identity checks) and
+                // immutableSet/PersistentHashSetIterator.kt 47-48 (guard contradicts trie invariants).
+                // Any newly uncovered line fails this gate.
+                rule("100% line coverage of reachable code") {
+                    bound {
+                        coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.LINE
+                        aggregationForGroup = kotlinx.kover.gradle.plugin.dsl.AggregationType.MISSED_COUNT
+                        maxValue = 8
+                    }
+                }
+            }
+        }
+    }
+}
+
 tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
+        // Coverage is measured on the deterministic subset: the stress tests draw from an
+        // unseeded Random, so the trie branches they reach differ from run to run.
+        // Usage: -PjvmTestExcludes=tests.stress.*
         providers.gradleProperty("jvmTestExcludes").orNull
             ?.split(',')
             ?.forEach { filter.excludeTestsMatching(it.trim()) }
