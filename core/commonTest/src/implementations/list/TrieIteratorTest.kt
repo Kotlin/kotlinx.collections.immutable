@@ -47,6 +47,29 @@ class TrieIteratorTest {
     }
 
     @Test
+    fun previousAtLeftEdgeTest() {
+        // The public list iterators check hasPrevious() before delegating to the trie iterator,
+        // so its own left-edge check is reachable only with a directly constructed instance.
+        val root = arrayOfNulls<Any?>(MAX_BUFFER_SIZE)
+        for (i in 0 until MAX_BUFFER_SIZE) {
+            root[i] = i
+        }
+        val iterator = TrieIterator<Int>(root, index = 0, size = MAX_BUFFER_SIZE, height = 1)
+
+        assertFailsWith<NoSuchElementException> { iterator.previous() }
+
+        for (i in 0 until MAX_BUFFER_SIZE) {
+            assertEquals(i, iterator.next())
+        }
+        assertFalse(iterator.hasNext())
+        for (i in MAX_BUFFER_SIZE - 1 downTo 0) {
+            assertEquals(i, iterator.previous())
+        }
+        assertFalse(iterator.hasPrevious())
+        assertFailsWith<NoSuchElementException> { iterator.previous() }
+    }
+
+    @Test
     fun simpleTest() {
         for (height in 1..4) {
             val maxCount = MAX_BUFFER_SIZE.toDouble().pow(height - 1).toInt()
