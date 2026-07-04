@@ -18,6 +18,7 @@ package kotlinx.collections.immutable
  * @param K the type of map keys. The map is invariant on its key type, as it
  *          can accept key as a parameter (of [containsKey] for example) and return it in [keys] set.
  * @param V the type of map values. The map is covariant on its value type.
+ * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.immutableMap
  */
 public interface ImmutableMap<K, out V> : Map<K, V> {
 
@@ -37,6 +38,7 @@ public interface ImmutableMap<K, out V> : Map<K, V> {
  *
  * @param K the type of map keys. The map is invariant on its key type.
  * @param V the type of map values. The persistent map is covariant on its value type.
+ * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.persistentMap
  */
 public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     /**
@@ -44,6 +46,8 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * or this instance if no modifications were made in the result of this operation.
      *
      * If this map already contains a mapping for the key, the old value is replaced by the specified value.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.putting
      */
     public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = @Suppress("DEPRECATION") put(key, value)
 
@@ -69,6 +73,8 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     /**
      * Returns a new persistent map with the specified [key] and its corresponding value removed,
      * or this instance if it contains no mapping for the key.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.removingKey
      */
     public fun removing(key: K): PersistentMap<K, V> = @Suppress("DEPRECATION") remove(key)
 
@@ -92,6 +98,8 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
     /**
      * Returns a new persistent map with the entry for the specified [key] and [value] removed,
      * or this instance if it contains no entry with the specified key and value.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.removingKeyValue
      */
     public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V> =
         @Suppress("DEPRECATION") remove(key, value)
@@ -119,6 +127,8 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      *
      * The effect of this call is equivalent to that of calling `put(k, v)` once for each
      * mapping from key `k` to value `v` in the specified map.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.puttingAll
      */
     public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = @Suppress("DEPRECATION") putAll(m)
 
@@ -188,6 +198,8 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
          * If operations applied on this builder have caused no modifications:
          * - on the first call it returns the same persistent map instance this builder was obtained from.
          * - on subsequent calls it returns the same previously returned persistent map instance.
+         *
+         * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.builder
          */
         public fun build(): PersistentMap<K, V>
     }
@@ -196,6 +208,8 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * Returns a new builder with the same contents as this map.
      *
      * The builder can be used to efficiently perform multiple modification operations.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.builder
      */
     public fun builder(): Builder<K, @UnsafeVariance V>
 }

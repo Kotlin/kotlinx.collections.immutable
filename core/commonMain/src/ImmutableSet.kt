@@ -15,6 +15,7 @@ package kotlinx.collections.immutable
  * Once constructed they must contain the same elements in the same order.
  *
  * @param E the type of elements contained in the set. The set is covariant on its element type.
+ * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.immutableSet
  */
 public interface ImmutableSet<out E> : Set<E>, ImmutableCollection<E>
 
@@ -25,11 +26,14 @@ public interface ImmutableSet<out E> : Set<E>, ImmutableCollection<E>
  * Modification operations return new instances of the persistent set with the modification applied.
  *
  * @param E the type of elements contained in the set. The persistent set is covariant on its element type.
+ * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.persistentSet
  */
 public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E> {
     /**
      * Returns a new persistent set with the specified [element] added,
      * or this instance if it already contains the element.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.adding
      */
     override fun adding(element: @UnsafeVariance E): PersistentSet<E> = @Suppress("DEPRECATION") add(element)
 
@@ -53,6 +57,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * Returns a new persistent set with elements of the specified [elements] collection added,
      * or this instance if it already contains every element of the specified collection.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.addingAll
      */
     override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> =
         @Suppress("DEPRECATION") addAll(elements)
@@ -77,6 +83,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * Returns a new persistent set with the specified [element] removed,
      * or this instance if there is no such element in this set.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.removing
      */
     override fun removing(element: @UnsafeVariance E): PersistentSet<E> = @Suppress("DEPRECATION") remove(element)
 
@@ -101,6 +109,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Returns a new persistent set containing all elements of this set
      * except the elements contained in the specified [elements] collection,
      * or this instance if there are no elements to remove.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.removingAllElements
      */
     override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> =
         @Suppress("DEPRECATION") removeAll(elements)
@@ -126,6 +136,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
     /**
      * Returns a new persistent set with elements matching the specified [predicate] removed,
      * or this instance if no elements match the predicate.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.removingAllPredicate
      */
     override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> =
         @Suppress("DEPRECATION") removeAll(predicate)
@@ -151,6 +163,8 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Returns a new persistent set with elements in this set that are also
      * contained in the specified [elements] collection,
      * or this instance if no modifications were made in the result of this operation.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.retainingAll
      */
     override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentSet<E> =
         @Suppress("DEPRECATION") retainAll(elements)

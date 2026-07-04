@@ -171,9 +171,11 @@ dokka {
         suppressInheritedMembers.set(true)
     }
 
+    dokkaSourceSets.named("commonMain") {
+        samples.from("commonTest/src/samples")
+    }
+
     dokkaSourceSets.configureEach {
-        val platform = name.dropLast(4)
-        samples.from("$platform/test")
         skipDeprecated.set(true)
         includes.from("README.md")
         sourceLink {

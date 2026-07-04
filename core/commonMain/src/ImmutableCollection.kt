@@ -14,6 +14,7 @@ package kotlinx.collections.immutable
  * Once constructed they must contain the same elements in the same order.
  *
  * @param E the type of elements contained in the collection. The immutable collection is covariant on its element type.
+ * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.immutableCollection
  */
 public interface ImmutableCollection<out E> : Collection<E>
 
@@ -23,6 +24,7 @@ public interface ImmutableCollection<out E> : Collection<E>
  * Modification operations return new instances of the persistent collection with the modification applied.
  *
  * @param E the type of elements contained in the collection. The persistent collection is covariant on its element type.
+ * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.persistentCollection
  */
 public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
@@ -217,6 +219,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
          * If operations applied on this builder have caused no modifications:
          * - on the first call it returns the same persistent collection instance this builder was obtained from.
          * - on subsequent calls it returns the same previously returned persistent collection instance.
+         *
+         * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.builder
          */
         public fun build(): PersistentCollection<E>
     }
@@ -225,6 +229,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns a new builder with the same contents as this collection.
      *
      * The builder can be used to efficiently perform multiple modification operations.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.builder
      */
     public fun builder(): Builder<@UnsafeVariance E>
 }

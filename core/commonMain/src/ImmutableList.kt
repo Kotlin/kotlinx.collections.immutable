@@ -16,6 +16,7 @@ import kotlinx.collections.immutable.internal.ListImplementation
  * Once constructed they must contain the same elements in the same order.
  *
  * @param E the type of elements contained in the list. The immutable list is covariant on its element type.
+ * @sample kotlinx.collections.immutable.samples.PersistentListSamples.immutableList
  */
 public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
 
@@ -26,6 +27,7 @@ public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
      *
      * @throws IndexOutOfBoundsException if [fromIndex] is less than zero or [toIndex] is greater than the size of this list.
      * @throws IllegalArgumentException if [fromIndex] is greater than [toIndex].
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.subList
      */
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> = SubList(this, fromIndex, toIndex)
 
@@ -62,10 +64,13 @@ public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
  * Modification operations return new instances of the persistent list with the modification applied.
  *
  * @param E the type of elements contained in the list. The persistent list is covariant on its element type.
+ * @sample kotlinx.collections.immutable.samples.PersistentListSamples.persistentList
  */
 public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<E> {
     /**
      * Returns a new persistent list with the specified [element] appended.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.adding
      */
     override fun adding(element: @UnsafeVariance E): PersistentList<E> = @Suppress("DEPRECATION") add(element)
 
@@ -90,6 +95,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * or this instance if the specified collection is empty.
      *
      * The elements are appended in the order they appear in the specified collection.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.addingAll
      */
     override fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
         @Suppress("DEPRECATION") addAll(elements)
@@ -116,6 +123,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with the first appearance of the specified [element] removed,
      * or this instance if there is no such element in this list.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.removing
      */
     override fun removing(element: @UnsafeVariance E): PersistentList<E> = @Suppress("DEPRECATION") remove(element)
 
@@ -140,6 +149,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns a new persistent list containing all elements of this list
      * except the elements contained in the specified [elements] collection,
      * or this instance if there are no elements to remove.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.removingAllElements
      */
     override fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
         @Suppress("DEPRECATION") removeAll(elements)
@@ -165,6 +176,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     /**
      * Returns a new persistent list with elements matching the specified [predicate] removed,
      * or this instance if no elements match the predicate.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.removingAllPredicate
      */
     override fun removingAll(predicate: (E) -> Boolean): PersistentList<E> =
         @Suppress("DEPRECATION") removeAll(predicate)
@@ -190,6 +203,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns a new persistent list with elements in this list that are also
      * contained in the specified [elements] collection,
      * or this instance if no modifications were made in the result of this operation.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.retainingAll
      */
     override fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentList<E> =
         @Suppress("DEPRECATION") retainAll(elements)
@@ -238,6 +253,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * or this instance if the specified collection is empty.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.addingAllAt
      */
     public fun addingAllAt(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E> =
         @Suppress("DEPRECATION") addAll(index, c)
@@ -265,6 +281,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns a new persistent list with the element at the specified [index] replaced with the specified [element].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.replacingAt
      */
     public fun replacingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> =
         @Suppress("DEPRECATION") set(index, element)
@@ -291,6 +308,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns a new persistent list with the specified [element] inserted at the specified [index].
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.addingAt
      */
     public fun addingAt(index: Int, element: @UnsafeVariance E): PersistentList<E> =
         @Suppress("DEPRECATION") add(index, element)
@@ -317,6 +335,7 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
      * Returns a new persistent list with the element at the specified [index] removed.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
+     * @sample kotlinx.collections.immutable.samples.PersistentListSamples.removingAt
      */
     public fun removingAt(index: Int): PersistentList<E> = @Suppress("DEPRECATION") removeAt(index)
 
