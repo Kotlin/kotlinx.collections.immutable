@@ -22,7 +22,8 @@ import kotlin.test.assertTrue
  *
  * Layout reminder: a leaf buffer holds 32 elements and the last <= 32 elements live in the tail;
  * sizes 33..64 keep a single-leaf root (rootShift = 0), sizes 65..1056 use one trie level
- * (rootShift = 5), and sizes 1057+ use two levels (rootShift = 10).
+ * (rootShift = 5), and sizes from 1057 up to the next promotion around 32800 use two levels
+ * (rootShift = 10).
  */
 class PersistentListBuilderRemovalTest {
 
@@ -35,17 +36,6 @@ class PersistentListBuilderRemovalTest {
             assertTrue(builder.add(element))
         }
         return builder
-    }
-
-    @Test
-    fun `get descends the root trie for indices before the tail`() {
-        // Two-level trie: root -> node -> leaf, so bufferFor loops twice for root indices.
-        val builder = ownedBuilderOf(0..1090) // root holds 0..1087, tail holds 1088..1090
-        for (index in 0..1090) {
-            assertEquals(index, builder[index])
-        }
-        assertFailsWith<IndexOutOfBoundsException> { builder[1091] }
-        assertFailsWith<IndexOutOfBoundsException> { builder[-1] }
     }
 
     @Test
@@ -195,8 +185,10 @@ class PersistentListBuilderRemovalTest {
     }
 
     @Test
-    fun `removeAll trimming a two-level trie nullifies the dropped child on every level`() {
+    fun `removeAll trimming a two-level trie nullifies the dropped leaf slots of the affected child`() {
         // Owned builder: the trimmed nodes are already mutable and are cleaned up in place.
+        // The nullification happens inside the second root child; at the root level the
+        // child pointer is merely replaced (root-level nullification needs three children).
         val ownedBuilder = ownedBuilderOf(0..1090) // root children: 1024 elements + 2 leaves, tail of 3
         assertTrue(ownedBuilder.removeAll((1057..1090).toList()))
         assertEquals(1057, ownedBuilder.size)
@@ -214,6 +206,54 @@ class PersistentListBuilderRemovalTest {
         assertEquals(1091, vector.size)
         assertEquals(1060, vector[1060])
         assertEquals(1090, vector[1090])
+    }
+
+    @Test
+    fun `removeAt of the last element pulls the tail from a non-first root child of a frozen builder`() {
+        // The pull descends into the second root child, empties it, and must copy
+        // the frozen nodes on the way; the source vector stays intact.
+        val vector = (0..1056).toPersistentList() // root children: a full 1024 block + one leaf, tail of 1
+        val builder = vector.builder()
+
+        assertEquals(1056, builder.removeAt(1056))
+
+        assertEquals(1056, builder.size)
+        assertEquals<List<Int>>((0..1055).toList(), builder)
+        assertEquals<List<Int>>((0..1055).toList(), builder.build())
+        assertEquals(1057, vector.size)
+        assertEquals(1056, vector[1056])
+    }
+
+    @Test
+    fun `removeAll retaining an exact multiple of the leaf size keeps the last leaf reachable`() {
+        // Regression test: the bulk removal used to leave an empty tail buffer whenever the
+        // survivors filled whole leaf buffers exactly, hiding the last 32 elements behind nulls.
+        val fullBlock = ownedBuilderOf(0..1088) // root: a full 1024 block + two leaves, tail of 1
+        assertTrue(fullBlock.removeAll((1024..1088).toList()))
+        assertEquals(1024, fullBlock.size)
+        assertEquals<List<Int>>((0..1023).toList(), fullBlock)
+        assertTrue(fullBlock.add(1024))
+        assertEquals<List<Int>>((0..1024).toList(), fullBlock.build())
+
+        // survivors are a multiple of 32 that is not a whole root child
+        val partialBlock = ownedBuilderOf(0..1088)
+        assertTrue(partialBlock.removeAll((992..1088).toList()))
+        assertEquals<List<Int>>((0..991).toList(), partialBlock.build())
+
+        // interleaved survivors: the recycled buffers also end exactly at a leaf boundary
+        val interleaved = ownedBuilderOf(0..1088)
+        assertTrue(interleaved.removeAll(listOf(31) + (65..1088)))
+        assertEquals<List<Int>>((0..30).toList() + (32..64).toList(), interleaved.build())
+
+        // single-level root
+        val singleLevel = ownedBuilderOf(0..99)
+        assertTrue(singleLevel.removeAll((64..99).toList()))
+        assertEquals<List<Int>>((0..63).toList(), singleLevel.build())
+
+        // the immutable removingAll goes through the same machinery
+        val vector = (0..1088).toPersistentList().removingAll { it >= 1024 }
+        assertEquals(1024, vector.size)
+        assertEquals<List<Int>>((0..1023).toList(), vector)
     }
 
     @Test

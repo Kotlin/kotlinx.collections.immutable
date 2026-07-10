@@ -83,6 +83,23 @@ class PersistentListIteratorTest {
     }
 
     @Test
+    fun `list iterator starting at a middle index positions inside the trie`() {
+        // 70 elements: index 40 lands in the second leaf of the root trie, so the
+        // iterator's initial positioning happens away from both edges
+        val list = List(70) { it }.toPersistentList()
+        val iterator = list.listIterator(40)
+
+        assertEquals(40, iterator.next())
+        assertEquals(40, iterator.previous())
+        assertEquals(39, iterator.previous())
+
+        val builderIterator = list.builder().listIterator(40)
+        assertEquals(40, builderIterator.next())
+        assertEquals(40, builderIterator.previous())
+        assertEquals(39, builderIterator.previous())
+    }
+
+    @Test
     fun `builder list iterator add grows the trie and keeps iterating after resets`() {
         val builder = List(33) { it }.toPersistentList().builder()
         val iterator = builder.listIterator(builder.size)

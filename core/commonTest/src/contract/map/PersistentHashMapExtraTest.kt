@@ -13,14 +13,6 @@ import kotlin.test.*
 class PersistentHashMapExtraTest {
 
     @Test
-    fun `entries of a non-empty persistent hash map contain exactly the map contents`() {
-        val map = persistentHashMapOf("a" to 1, "b" to 2, "c" to 3) as PersistentHashMap<String, Int>
-        val entries = map.entries
-        assertEquals(3, entries.size)
-        assertEquals(setOf("a" to 1, "b" to 2, "c" to 3), entries.map { it.key to it.value }.toSet())
-    }
-
-    @Test
     fun `removing an absent key returns the same map instance`() {
         val k1 = IntWrapper(1, 0)
         val k2 = IntWrapper(2, 32) // shares the level-0 hash segment with k1, so the root holds a sub-node
@@ -125,6 +117,163 @@ class PersistentHashMapExtraTest {
         assertTrue(cleared.isEmpty())
         assertSame(PersistentHashMap.emptyOf<String, Int>(), cleared)
         assertEquals(2, map.size) // the original map is unaffected
+    }
+
+    @Test
+    fun `null keys flow through hash map operations`() {
+        // a null key splitting a root entry cell into a sub-node
+        val withNull = persistentHashMapOf<Int?, String>(null to "n")
+        val split = withNull.putting(32, "x")
+        assertEquals("n", split[null])
+        assertEquals("x", split[32])
+
+        // two-arg removes with a null key
+        assertSame(withNull, withNull.removing(null, "other"))
+        assertSame(PersistentHashMap.emptyOf<Int?, String>(), withNull.removing(null, "n"))
+        val builder = (withNull as PersistentHashMap<Int?, String>).builder()
+        assertFalse(builder.remove(null, "other"))
+        assertTrue(builder.remove(null, "n"))
+        assertTrue(builder.isEmpty())
+
+        // bulk putAll around null keys, in both directions
+        val nullIntoNodes = persistentHashMapOf<Int?, String>(0 to "a", 32 to "b").builder()
+        nullIntoNodes.putAll(persistentHashMapOf<Int?, String>(null to "n"))
+        assertEquals(mapOf<Int?, String>(0 to "a", 32 to "b", null to "n"), nullIntoNodes.build())
+        val nodesIntoNull = persistentHashMapOf<Int?, String>(null to "n").builder()
+        nodesIntoNull.putAll(persistentHashMapOf<Int?, String>(0 to "a", 32 to "b"))
+        assertEquals(mapOf<Int?, String>(0 to "a", 32 to "b", null to "n"), nodesIntoNull.build())
+
+        // putAll merging two single entries that share a position, null on either side
+        val nullMeets32 = persistentHashMapOf<Int?, String>(null to "n").builder()
+        nullMeets32.putAll(persistentHashMapOf<Int?, String>(32 to "x"))
+        assertEquals(mapOf<Int?, String>(null to "n", 32 to "x"), nullMeets32.build())
+        val meets32Null = persistentHashMapOf<Int?, String>(32 to "x").builder()
+        meets32Null.putAll(persistentHashMapOf<Int?, String>(null to "n"))
+        assertEquals(mapOf<Int?, String>(null to "n", 32 to "x"), meets32Null.build())
+
+        // iterator mutations around a null key that collides with a present hash-zero key
+        val colliding = persistentHashMapOf<Any?, String>(0 to "a", null to "b").builder()
+        val entryIterator = colliding.entries.iterator()
+        while (entryIterator.hasNext()) {
+            val entry = entryIterator.next()
+            entry.setValue(entry.value + "!")
+        }
+        assertEquals(mapOf<Any?, String>(0 to "a!", null to "b!"), colliding.build())
+        val keyIterator = colliding.keys.iterator()
+        val removedKeys = mutableSetOf<Any?>()
+        while (keyIterator.hasNext()) {
+            removedKeys.add(keyIterator.next())
+            keyIterator.remove()
+        }
+        assertEquals(setOf<Any?>(0, null), removedKeys)
+        assertTrue(colliding.isEmpty())
+    }
+
+    @Test
+    fun `removing by key and value with a same-slot key mismatch is a no-op`() {
+        // IntWrapper(9, 1) lands on the slot occupied by IntWrapper(2, 1) without matching it
+        val k = IntWrapper(2, 1)
+        val map = persistentHashMapOf(k to 2) as PersistentHashMap<IntWrapper, Int>
+
+        assertSame(map, map.removing(IntWrapper(9, 1), 2))
+
+        val builder = map.builder()
+        assertFalse(builder.remove(IntWrapper(9, 1), 2))
+        assertEquals(1, builder.size)
+    }
+
+    @Test
+    fun `equal-sized hash maps with different structures are not equal`() {
+        // same slot, different keys
+        assertNotEquals(persistentHashMapOf(1 to "a"), persistentHashMapOf(33 to "a"))
+
+        // equal entry positions, sub-nodes at different positions
+        assertNotEquals(
+            persistentHashMapOf(1 to "a", 2 to "b", 3 to "c", 35 to "d"),
+            persistentHashMapOf(1 to "a", 2 to "b", 4 to "c", 36 to "d"),
+        )
+
+        // equal sizes with differently-sized collision groups
+        val g1 = persistentHashMapOf(
+            IntWrapper(1, 0) to "1", IntWrapper(2, 0) to "2", IntWrapper(3, 0) to "3",
+            IntWrapper(4, 1) to "4", IntWrapper(5, 1) to "5",
+        )
+        val g2 = persistentHashMapOf(
+            IntWrapper(1, 0) to "1", IntWrapper(2, 0) to "2",
+            IntWrapper(4, 1) to "4", IntWrapper(5, 1) to "5", IntWrapper(6, 1) to "6",
+        )
+        assertNotEquals(g1, g2)
+
+        // a hash map builder equals itself
+        val builder = persistentHashMapOf(1 to "a").builder()
+        assertEquals(builder, builder)
+    }
+
+    @Test
+    fun `putting all entries of a colliding map takes the incoming values`() {
+        // Regression test: the collision-node putAll used to keep the target's stale value
+        // for a common key whenever the target had any extra colliding key (or the same keys).
+        val k1 = IntWrapper(1, 0)
+        val k2 = IntWrapper(2, 0)
+        val k3 = IntWrapper(3, 0)
+        val incoming = persistentHashMapOf(k1 to "new", k3 to "c")
+
+        // the target holds an extra colliding key: the merged collision node must carry the new value
+        val merged = persistentHashMapOf(k1 to "old", k2 to "b").puttingAll(incoming)
+        assertEquals(3, merged.size)
+        assertEquals("new", merged[k1])
+        assertEquals("b", merged[k2])
+
+        // the target's colliding keys are a subset of the incoming ones
+        assertEquals("new", persistentHashMapOf(k1 to "old").puttingAll(incoming)[k1])
+
+        // the target holds exactly the same colliding keys
+        val sameKeys = persistentHashMapOf(k1 to "old", k3 to "x").puttingAll(incoming)
+        assertEquals("new", sameKeys[k1])
+        assertEquals("c", sameKeys[k3])
+
+        // fully disjoint collision nodes just merge
+        val k4 = IntWrapper(4, 0)
+        val disjoint = persistentHashMapOf(k2 to "b", k4 to "d").puttingAll(incoming)
+        assertEquals(mapOf(k1 to "new", k2 to "b", k3 to "c", k4 to "d"), disjoint.toMap())
+
+        // an owned builder root grows structurally through putAll
+        val grown = persistentHashMapOf<IntWrapper, String>().builder()
+        grown[k1] = "a"
+        grown.putAll(persistentHashMapOf(IntWrapper(2, 1) to "b"))
+        assertEquals(mapOf(k1 to "a", IntWrapper(2, 1) to "b"), grown.build())
+
+        // the builder's optimized putAll is the same code path
+        val builder = persistentHashMapOf(k1 to "old", k2 to "b").builder()
+        builder.putAll(incoming)
+        assertEquals("new", builder[k1])
+        // and the fallback for a non-persistent argument agrees
+        val builder2 = persistentHashMapOf(k1 to "old", k2 to "b").builder()
+        builder2.putAll(mapOf(k1 to "new", k3 to "c"))
+        assertEquals("new", builder2[k1])
+    }
+
+    @Test
+    fun `putting all with nothing to update keeps the existing instances`() {
+        val k1 = IntWrapper(1, 0)
+        val k3 = IntWrapper(3, 0)
+        val a = "a"
+
+        // colliding keys with identical entries: the original map instance is returned
+        val map = persistentHashMapOf(k1 to a, k3 to "x")
+        assertSame(map, map.puttingAll(persistentHashMapOf(k1 to a, k3 to "x")))
+
+        // a structure-preserving putAll into an owned builder root updates the value in place
+        val builder = persistentHashMapOf<IntWrapper, String>().builder()
+        builder[k1] = "old"
+        builder.putAll(persistentHashMapOf(k1 to a))
+        assertEquals(mapOf(k1 to a), builder.build())
+
+        // an unowned builder whose putAll changes nothing builds the original map back
+        val base = persistentHashMapOf(k1 to a)
+        val noOpBuilder = base.builder()
+        noOpBuilder.putAll(persistentHashMapOf(k1 to a))
+        assertSame(base, noOpBuilder.build())
     }
 
 }

@@ -124,6 +124,31 @@ class ConversionsTest {
     }
 
     @Test
+    fun `minus and intersect on a persistent list and set accept plain iterables`() {
+        assertEquals(listOf(1, 3), persistentListOf(1, 2, 3, 2) - plainIterableOf(2), "all occurrences are removed")
+        assertEquals(listOf(1, 3), (persistentSetOf(1, 2, 3) - plainIterableOf(2, 5)).toList())
+        assertEquals(setOf(2), persistentSetOf(1, 2, 3) intersect plainIterableOf(2, 5))
+    }
+
+    @Test
+    fun `set converters return sets as is build builders and copy plain iterables`() {
+        assertEquals(listOf(3, 1, 2), listOf(3, 1, 3, 2, 1).toImmutableSet().toList(), "plain iterable is copied")
+
+        val ordered = persistentSetOf(1, 2)
+        assertSame(ordered, ordered.toPersistentSet())
+
+        val hashSet = persistentHashSetOf(1, 2)
+        assertSame(hashSet, hashSet.toPersistentHashSet())
+
+        val builder = hashSet.builder()
+        builder.add(3)
+        val built = builder.toPersistentHashSet()
+        assertEquals(setOf(1, 2, 3), built)
+        builder.add(4)
+        assertEquals(setOf(1, 2, 3), built, "built set is not affected by further builder mutations")
+    }
+
+    @Test
     fun `toPersistentHashMap returns hash maps as is builds builders and copies ordinary maps`() {
         val hashMap = persistentHashMapOf("a" to 1, "b" to 2)
         assertSame(hashMap, hashMap.toPersistentHashMap())

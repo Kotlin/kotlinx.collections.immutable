@@ -117,6 +117,17 @@ class PersistentVectorTest {
     }
 
     @Test
+    fun `addingAt and removingAt cross the full-block boundary of a two-level trie`() {
+        // the first root child is a full 1024-element block: inserting at the head carries
+        // an element through every full leaf, removing at the head shifts every leaf back
+        val vector = vectorOfSize(1057)
+
+        assertElementsEqual(insertedReference(1057, 0), vector.addingAt(0, -1))
+        assertElementsEqual((1 until 1057).toList(), vector.removingAt(0))
+        assertElementsEqual(List(1057) { it }, vector)
+    }
+
+    @Test
     fun `replacingAt updates elements in the root and in the tail creating a new vector`() {
         val base = vectorOfSize(100)
 

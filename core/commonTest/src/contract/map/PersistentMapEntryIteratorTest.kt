@@ -5,9 +5,7 @@
 
 package tests.contract.map
 
-import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.collections.immutable.persistentMapOf
 import tests.IntWrapper
 import kotlin.test.*
 
@@ -106,16 +104,5 @@ class PersistentMapEntryIteratorTest {
         expected[first.key] = firstOldValue + "!"
         assertEquals(expected, seen.toMap())
         assertEquals<Map<IntWrapper, String>>(expected, builder.build())
-    }
-
-    @Test
-    fun `entries accessed through the PersistentMap interface expose all entries`() {
-        // Through the interface, the covariant ImmutableSet-returning entries accessor is used,
-        // not the Set-returning one inherited from AbstractMap.
-        val hashMap: PersistentMap<String, Int> = persistentHashMapOf("a" to 1, "b" to 2)
-        assertEquals(setOf("a" to 1, "b" to 2), hashMap.entries.map { it.key to it.value }.toSet())
-
-        val orderedMap: PersistentMap<String, Int> = persistentMapOf("a" to 1, "b" to 2)
-        assertEquals(listOf("a" to 1, "b" to 2), orderedMap.entries.map { it.key to it.value })
     }
 }

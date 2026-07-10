@@ -73,6 +73,17 @@ class PersistentListBuilderInsertionTest {
     }
 
     @Test
+    fun `add at index zero of a two-level trie carries elements through the full first block`() {
+        val builder = ownedBuilderOf(1057) // root children: a full 1024-element block + one leaf, tail of 1
+        val reference = (0 until 1057).toMutableList()
+
+        builder.add(0, -1)
+        reference.add(0, -1)
+
+        assertBuilderContents(reference, builder)
+    }
+
+    @Test
     fun `add at an index in a full tail pushes the filled tail into the root as a leaf`() {
         // A single full root leaf and an entirely filled tail: the insertion overflows the tail,
         // and pushing it also promotes the single-leaf root to a real trie.

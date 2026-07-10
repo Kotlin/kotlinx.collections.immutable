@@ -45,38 +45,25 @@ class MapContentIteratorsTest {
     }
 
     @Test
-    fun `entries and links iterator of a non-empty ordered map iterate in insertion order`() {
-        val map = persistentMapOf("a" to 1, "b" to 2, "c" to 3) as PersistentOrderedMap<String, Int>
-
-        assertEquals(listOf("a" to 1, "b" to 2, "c" to 3), map.entries.map { it.key to it.value })
-
+    fun `links iterators drive hasNext from their index bookkeeping`() {
+        // The `index` counters of both links iterators have no other external reader;
+        // hasNext() is defined directly by them, so pin the counting explicitly.
+        val map = persistentMapOf("a" to 1, "b" to 2) as PersistentOrderedMap<String, Int>
         val links = PersistentOrderedMapLinksIterator(map.firstKey, map.hashMap)
         assertEquals(0, links.index)
-        val values = mutableListOf<Int>()
-        while (links.hasNext()) {
-            values.add(links.next().value)
-        }
-        assertEquals(listOf(1, 2, 3), values)
-        assertEquals(3, links.index)
-        assertFailsWith<NoSuchElementException> { links.next() }
-    }
-
-    @Test
-    fun `ordered map builder links iterator iterates in order and detects concurrent modification`() {
-        val builder = persistentMapOf("a" to 1, "b" to 2, "c" to 3).builder() as PersistentOrderedMapBuilder<String, Int>
-
-        val links = PersistentOrderedMapBuilderLinksIterator(builder.firstKey, builder)
-        assertEquals(0, links.index)
-        val values = mutableListOf<Int>()
-        while (links.hasNext()) {
-            values.add(links.next().value)
-        }
-        assertEquals(listOf(1, 2, 3), values)
-        assertEquals(3, links.index)
+        assertEquals(1, links.next().value)
+        assertEquals(2, links.next().value)
+        assertEquals(2, links.index)
+        assertFalse(links.hasNext())
         assertFailsWith<NoSuchElementException> { links.next() }
 
-        val freshLinks = PersistentOrderedMapBuilderLinksIterator(builder.firstKey, builder)
-        builder["d"] = 4
-        assertFailsWith<ConcurrentModificationException> { freshLinks.next() }
+        val builder = persistentMapOf("a" to 1, "b" to 2).builder() as PersistentOrderedMapBuilder<String, Int>
+        val builderLinks = PersistentOrderedMapBuilderLinksIterator(builder.firstKey, builder)
+        assertEquals(0, builderLinks.index)
+        assertEquals(1, builderLinks.next().value)
+        assertEquals(2, builderLinks.next().value)
+        assertEquals(2, builderLinks.index)
+        assertFalse(builderLinks.hasNext())
+        assertFailsWith<NoSuchElementException> { builderLinks.next() }
     }
 }

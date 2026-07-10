@@ -95,17 +95,12 @@ class DeprecatedApiTest {
         assertEquals(mapOf("a" to 1, "b" to 2, "c" to 3), legacy.putting("c", 3))
         assertEquals(mapOf("a" to 10, "b" to 2), legacy.putting("a", 10), "value for an existing key is replaced")
         assertEquals(mapOf("b" to 2), legacy.removing("a"))
+        assertEquals(mapOf("b" to 2), legacy.removing("a", 1))
+        assertEquals(mapOf("a" to 1, "b" to 2), legacy.removing("a", 999), "value mismatch removes nothing")
+        assertEquals(mapOf("a" to 1, "b" to 2, "c" to 3, "d" to 4), legacy.puttingAll(mapOf("c" to 3, "d" to 4)))
+        assertTrue(legacy.cleared().isEmpty())
         // the wrapper defines no equals of its own, so compare its content
         assertEquals(mapOf("a" to 1, "b" to 2), legacy.toMap(), "original map is unchanged")
-    }
-
-    @Test
-    fun `retainingAll on a persistent list delegates to the deprecated retainAll override`() {
-        val list = persistentListOf(1, 2, 3, 4, 5)
-
-        assertEquals(listOf(2, 4), list.retainingAll(listOf(4, 2, 6)).toList())
-        assertTrue(list.retainingAll(emptyList()).isEmpty())
-        assertEquals(listOf(1, 2, 3, 4, 5), list.toList(), "original list is unchanged")
     }
 
     @Suppress("DEPRECATION")

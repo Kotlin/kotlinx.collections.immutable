@@ -194,17 +194,18 @@ kover {
             verify {
                 // Manual gate (`koverVerify`) only; keeps `check` behavior unchanged.
                 onCheck = false
-                // 100% line coverage of all reachable code. The 8-line allowance is exactly the
-                // provably dead defensive code documented in design/test-coverage/05-verification.md:
-                // immutableSet/TrieNode.kt 236-237, 256-257, 281-282 (identity short-circuits in
-                // private collision variants, dominated by their only callers' identity checks) and
-                // immutableSet/PersistentHashSetIterator.kt 47-48 (guard contradicts trie invariants).
-                // Any newly uncovered line fails this gate.
+                // 100% line coverage of all reachable code. The 6-line allowance is exactly the
+                // provably dead defensive code documented in design/test-coverage/05-verification.md
+                // and re-verified in 06-validation.md: immutableSet/TrieNode.kt 236-237, 256-257,
+                // 281-282 — identity short-circuits in private collision variants, dominated by
+                // their only callers' identity checks and callable from nowhere else without
+                // reflection. The bound counts missed lines, it cannot pin these six; still, any
+                // net-new missed line pushes the count past the bound and fails this gate.
                 rule("100% line coverage of reachable code") {
                     bound {
                         coverageUnits = kotlinx.kover.gradle.plugin.dsl.CoverageUnit.LINE
                         aggregationForGroup = kotlinx.kover.gradle.plugin.dsl.AggregationType.MISSED_COUNT
-                        maxValue = 8
+                        maxValue = 6
                     }
                 }
             }
