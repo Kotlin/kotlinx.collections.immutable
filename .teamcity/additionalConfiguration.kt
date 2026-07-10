@@ -7,6 +7,7 @@ import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.PullRequests
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
 import jetbrains.buildServer.configs.kotlin.buildFeatures.pullRequests
+import jetbrains.buildServer.configs.kotlin.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.triggers.*
 
 const val githubTokenId = "tc_token_id:CID_7db3007c46f7e30124f81ef54591b223:-1:f604c3ec-6391-4e29-a6e4-e59397b4622d"
@@ -48,4 +49,16 @@ fun Project.additionalConfiguration() {
     val deploymentProject = knownBuilds.deploymentSubproject
     val startTask = deploymentProject.knownBuilds.deployStart
     startTask.params.param("reverse.dep.*.DeploymentName", "kotlinx.collections.immutable %releaseVersion%")
+
+    val deployUpload = deploymentProject.knownBuilds.deployUpload
+    deployUpload.steps {
+        gradle {
+            name = "Verification"
+            id = "Verification"
+            tasks = ":validateLocalMavenRepo --artifacts-dir=buildRepo --artifacts-list=artifacts:%DeployVersion% --require-signatures --require-checksums=MD5,SHA1"
+            enableStacktrace = true
+            jdkHome = "%env.JDK_17_0%"
+        }
+        //stepsOrder = arrayListOf("Verification", "Verify_Bundle", "Create_Deployment_Bundle", "Upload_deployment_to_the_central_portal", "Check_Deployment_State")
+    }
 }
