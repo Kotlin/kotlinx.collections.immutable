@@ -747,8 +747,15 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
         val newRootSize = unaffectedElementsCount + (buffers.size shl LOG_MAX_BUFFER_SIZE)
 
         root = retainFirst(newRoot, newRootSize)
-        tail = newTail
-        size = newRootSize + newTailSize
+        if (newTailSize == 0 && newRootSize > 0) {
+            // The survivors fill whole leaf buffers exactly, leaving the new tail empty,
+            // but a trie-backed vector must keep its last leaf in the tail:
+            // pull it back out of the root.
+            pullLastBufferFromRoot(root, newRootSize, rootShift)
+        } else {
+            tail = newTail
+            size = newRootSize + newTailSize
+        }
 
         return true
     }
