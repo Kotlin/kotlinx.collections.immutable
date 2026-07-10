@@ -17,9 +17,9 @@ Layout after review (white-box tests were moved from the contract packages to `t
 | `contract/list/PersistentVectorTest.kt` | 8 | PersistentVector + SmallPersistentVector + AbstractPersistentList + Utils (~138) |
 | `contract/list/PersistentListIteratorTest.kt` | 3 | public list-iterator walks: PersistentVector(Mutable)Iterator, TrieIterator via builders (~32) |
 | `contract/map/PersistentHashMapExtraTest.kt` | 7 | map TrieNode collision/two-arg-remove paths + PersistentHashMap (~58) |
-| `contract/map/PersistentMapEntryIteratorTest.kt` | 5 | builder entry setValue machinery + interface-typed entries access (~20) |
-| `implementations/map/MapContentIteratorsTest.kt` | 4 | content iterators: TrieNodeBaseIterator contract, empty-child skip, ordered links iterators (~9) |
-| `implementations/map/HashMapTrieNodeExtraTest.kt` | 2 | defensive canonicalization on hand-built single-entry sub-nodes (~5) |
+| `contract/map/PersistentMapEntryIteratorTest.kt` | 5 | builder entry setValue machinery (~20) |
+| `implementations/map/MapContentIteratorsTest.kt` | 4 | content iterators: TrieNodeBaseIterator contract, empty-child skip, links-iterator index bookkeeping (~9) |
+| `implementations/map/HashMapTrieNodeExtraTest.kt` | 2 | defensive canonicalization on hand-built single-entry sub-nodes (15: the remove-node machinery) |
 | `src/jvmTest/java/.../PersistentMapJavaAccessorsTest.java` | 1 | covariant getEntries accessors of both map classes (2, Java-only call sites) |
 | `contract/ConversionsTest.kt` + `contract/DeprecatedApiTest.kt` | 17 | extensions.kt overloads/aliases + interface default bodies (~58) |
 | `contract/set/PersistentHashSetExtraTest.kt` + `contract/set/PersistentOrderedSetExtraTest.kt` | 6 | set TrieNode collision paths, set iterators, ordered set retainAll (~26) |
@@ -38,9 +38,9 @@ Re-measured coverage with one new test class excluded at a time (`-PjvmTestExclu
 |---|---|---|
 | `PersistentVectorTest` | 125 | PersistentVector 107, SmallPersistentVector 10, AbstractPersistentList 5, Utils 3 |
 | `AdaptersTest` | 17 | ReadOnlyCollectionAdapters 17 (the entire package) |
-| `PersistentHashMapExtraTest` | 63 | map TrieNode 58, PersistentHashMap 5 |
+| `PersistentHashMapExtraTest` | 63 | measured before the review moved the white-box tests out; in the final layout it uniquely covers 48 (map TrieNode 43, PersistentHashMap 5) and `HashMapTrieNodeExtraTest` the other 15, with the union regressing exactly 63 (re-measured during validation) |
 
-Each sampled file's claimed territory collapses without it and nothing else covers it.
+Each sampled file's claimed territory collapses without it and nothing else covers it. The validation pass later removed five redundant methods, added twenty-one keyed to branch-coverage gaps, and re-verified the missed set; [06-validation.md](06-validation.md) records the deltas.
 
 ## Measurement note
 
