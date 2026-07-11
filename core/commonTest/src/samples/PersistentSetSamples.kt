@@ -46,7 +46,7 @@ class PersistentSetSamples {
         val letters = persistentSetOf("a", "b", "c")
         val shortened = letters.removing("b")
         check(shortened == setOf("a", "c"))
-        check(letters.removing("x") == letters)
+        check(letters.removing("x") === letters)
     }
 
     @Test
@@ -85,6 +85,8 @@ class PersistentSetSamples {
         check(numbers == setOf(1, 2, 3))
         check(numbers.size == 3)
         check(2 in numbers)
+        val empty = persistentHashSetOf<Int>()
+        check(empty.isEmpty())
     }
 
     @Test
@@ -92,7 +94,7 @@ class PersistentSetSamples {
         val letters = persistentSetOf("a", "b")
         val extended = letters + "c"
         check(extended == setOf("a", "b", "c"))
-        check(letters + "a" == letters)
+        check(letters + "a" === letters)
     }
 
     @Test

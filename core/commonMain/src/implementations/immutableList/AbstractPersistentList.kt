@@ -10,6 +10,10 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 
+/**
+ * An abstract base class for [PersistentList] implementations that provides default
+ * implementations of element lookup, iteration and bulk modification operations.
+ */
 public abstract class AbstractPersistentList<E> : PersistentList<E>, AbstractList<E>() {
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> {
         return super<PersistentList>.subList(fromIndex, toIndex)

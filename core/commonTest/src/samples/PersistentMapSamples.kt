@@ -41,7 +41,7 @@ class PersistentMapSamples {
         val withoutVolume = settings.removing("volume")
         check(withoutVolume == mapOf("brightness" to 50))
         val unchanged = settings.removing("contrast")
-        check(unchanged == settings)
+        check(unchanged === settings)
     }
 
     @Test
@@ -50,7 +50,7 @@ class PersistentMapSamples {
         val exactMatch = votes.removing("alice", 3)
         check(exactMatch == mapOf("bob" to 5))
         val mismatch = votes.removing("bob", 1)
-        check(mismatch == votes)
+        check(mismatch === votes)
     }
 
     @Test
@@ -89,6 +89,8 @@ class PersistentMapSamples {
         check(ages == mapOf("alice" to 30, "bob" to 25))
         check(ages["alice"] == 30)
         check(ages.size == 2)
+        val empty = persistentHashMapOf<String, Int>()
+        check(empty.isEmpty())
     }
 
     @Test
@@ -130,7 +132,7 @@ class PersistentMapSamples {
         val withoutWrench = stock - "wrench"
         check(withoutWrench == mapOf("hammer" to 10))
         val unchanged = stock - "saw"
-        check(unchanged == stock)
+        check(unchanged === stock)
     }
 
     @Test

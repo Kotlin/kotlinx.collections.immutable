@@ -45,7 +45,8 @@ public class ImmutableListAdapter<E>(private val impl: List<E>) : ImmutableList<
 /**
  * Exposes the underlying set as an [ImmutableSet] without copying it.
  *
- * All operations are delegated to the underlying set, as in [ImmutableCollectionAdapter].
+ * All operations, including `equals`, `hashCode` and `toString`, are delegated to the underlying set,
+ * as in [ImmutableCollectionAdapter].
  *
  * The caller is responsible for ensuring the underlying set never changes:
  * wrapping a set that changes violates the [ImmutableSet] contract.

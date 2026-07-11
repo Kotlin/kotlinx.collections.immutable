@@ -293,7 +293,7 @@ public infix fun <E> PersistentSet<E>.intersect(elements: Iterable<E>): Persiste
         = if (elements is Collection) retainingAll(elements) else mutate { it.retainAll(elements) }
 
 /**
- * Returns a new persistent set with elements in this collection that are also
+ * Returns a persistent set with elements in this collection that are also
  * contained in the specified [elements] collection.
  *
  * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.intersect
@@ -529,6 +529,8 @@ public fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = Persisten
 /**
  * Returns an empty persistent set.
  *
+ * Elements of the returned set and sets derived from it are iterated in the order they were added.
+ *
  * @sample kotlinx.collections.immutable.samples.PersistentSetSamples.persistentSetOf
  */
 public fun <E> persistentSetOf(): PersistentSet<E> = PersistentOrderedSet.emptyOf<E>()
@@ -567,6 +569,8 @@ public fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V>
 
 /**
  * Returns an empty persistent map.
+ *
+ * Entries of the returned map and maps derived from it are iterated in the order they were added.
  *
  * @sample kotlinx.collections.immutable.samples.PersistentMapSamples.persistentMapOf
  */

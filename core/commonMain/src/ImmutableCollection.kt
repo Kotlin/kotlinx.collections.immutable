@@ -30,6 +30,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns a new persistent collection with the specified [element] added,
      * or this instance if this collection does not support duplicates and it already contains the element.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.adding
      */
     public fun adding(element: @UnsafeVariance E): PersistentCollection<E> = @Suppress("DEPRECATION") add(element)
 
@@ -53,6 +55,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns a new persistent collection with elements of the specified [elements] collection added,
      * or this instance if no modifications were made in the result of this operation.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.addingAll
      */
     public fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
         @Suppress("DEPRECATION") addAll(elements)
@@ -77,6 +81,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns a new persistent collection with a single appearance of the specified [element] removed,
      * or this instance if there is no such element in this collection.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.removing
      */
     public fun removing(element: @UnsafeVariance E): PersistentCollection<E> = @Suppress("DEPRECATION") remove(element)
 
@@ -101,6 +107,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns a new persistent collection containing all elements of this collection
      * except the elements contained in the specified [elements] collection,
      * or this instance if there are no elements to remove.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.removingAllElements
      */
     public fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
         @Suppress("DEPRECATION") removeAll(elements)
@@ -126,6 +134,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
     /**
      * Returns a new persistent collection with elements matching the specified [predicate] removed,
      * or this instance if no elements match the predicate.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.removingAllPredicate
      */
     public fun removingAll(predicate: (E) -> Boolean): PersistentCollection<E> =
         @Suppress("DEPRECATION") removeAll(predicate)
@@ -151,6 +161,8 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns a new persistent collection with elements in this collection that are also
      * contained in the specified [elements] collection,
      * or this instance if no modifications were made in the result of this operation.
+     *
+     * @sample kotlinx.collections.immutable.samples.PersistentCollectionSamples.retainingAll
      */
     public fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
         @Suppress("DEPRECATION") retainAll(elements)
