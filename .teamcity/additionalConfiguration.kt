@@ -59,6 +59,5 @@ fun Project.additionalConfiguration() {
             enableStacktrace = true
             jdkHome = "%env.JDK_17_0%"
         }
-        //stepsOrder = arrayListOf("Verification", "Verify_Bundle", "Create_Deployment_Bundle", "Upload_deployment_to_the_central_portal", "Check_Deployment_State")
     }
 }
