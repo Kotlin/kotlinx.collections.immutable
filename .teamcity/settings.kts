@@ -127,11 +127,6 @@ fun Project.buildAll(versionBuild: BuildType) = BuildType {
                     -:*.md
                     -:.gitignore
                 """.trimIndent()
-            branchFilter = """
-                    +:*
-                    -:pull/*
-                    -:refs/pull/*
-                """.trimIndent()
         }
     }
 
