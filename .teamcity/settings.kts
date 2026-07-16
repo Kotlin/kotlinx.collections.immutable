@@ -275,7 +275,10 @@ fun Project.buildArtifacts(deployVersion: BuildType, platform: Platform) = build
     }
 
     artifactRules = """
-        build/maven/** => buildRepo.zip
+        +:build/maven/** => buildRepo.zip
+        -:**/*.asc.*
+        -:**/*.sha256
+        -:**/*.sha512
     """.trimIndent()
 
     params {
