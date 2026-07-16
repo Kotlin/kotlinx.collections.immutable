@@ -13,8 +13,8 @@ The Guava testlib compliance suites in `jvmTest` are deterministic and stay in t
 ## Reproducing
 
 ```
-./gradlew :kotlinx-collections-immutable:koverVerify -PjvmTestExcludes=tests.stress.*   # gate: at most 6 missed lines (the dead ones)
-./gradlew :kotlinx-collections-immutable:koverHtmlReport -PjvmTestExcludes=tests.stress.*
+./gradlew :kotlinx-collections-immutable:koverVerify '-PjvmTestExcludes=tests.stress.*'   # gate: at most 6 missed lines (the dead ones)
+./gradlew :kotlinx-collections-immutable:koverHtmlReport '-PjvmTestExcludes=tests.stress.*'
 ```
 
 The gate is a missed-lines bound of 6 rather than a percentage: the allowance is exactly the dead code, and any net-new missed line pushes the count past the bound (the bound counts lines; it cannot pin these six). No Kover exclusion is used: a class-level filter would hide the ~800 covered lines of `TrieNode`, and an annotation-based one would require annotating production code; dead code stays visible in the report instead.
