@@ -37,6 +37,8 @@ class KT41278Test {
         // returning false for values that aren't [MutableEntry].
         assertTrue(map.entries.toMutableSet().remove(createEntry(key, value)))
         assertTrue(map.entries.remove(createEntry(key, value)))
+        assertFalse(map.entries.remove(null as Any?))
+        assertFalse(map.entries.remove("not an entry" as Any?))
     }
 
     @Test
