@@ -7,13 +7,13 @@ package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.ImmutableSet
-import kotlinx.collections.immutable.internal.MapImplementation
+import kotlinx.collections.immutable.internal.containsEntry
 
 internal class PersistentHashMapEntries<K, V>(private val map: PersistentHashMap<K, V>) : ImmutableSet<Map.Entry<K, V>>, AbstractSet<Map.Entry<K, V>>() {
     override val size: Int get() = map.size
 
     override fun contains(element: Map.Entry<K, V>): Boolean {
-        return MapImplementation.containsEntry(map, element)
+        return map.containsEntry(element)
     }
 
     override fun iterator(): Iterator<Map.Entry<K, V>> {

@@ -5,22 +5,16 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
-import kotlinx.collections.immutable.internal.MapImplementation
+import kotlinx.collections.immutable.internal.containsEntry
 
 // intermediate abstract class to workaround KT-43321
 internal abstract class AbstractMapBuilderEntries<E : Map.Entry<K, V>, K, V> : AbstractMutableSet<E>() {
     final override fun contains(element: E): Boolean {
-        // TODO: Eliminate this check after KT-30016 gets fixed.
-        @Suppress("USELESS_CAST")
-        if ((element as? Any?) !is Map.Entry<*, *>) return false
         return containsEntry(element)
     }
     abstract fun containsEntry(element: Map.Entry<K, V>): Boolean
 
     final override fun remove(element: E): Boolean {
-        // TODO: Eliminate this check after KT-30016 gets fixed.
-        @Suppress("USELESS_CAST")
-        if ((element as? Any?) !is Map.Entry<*, *>) return false
         return removeEntry(element)
     }
     abstract fun removeEntry(element: Map.Entry<K, V>): Boolean
@@ -48,7 +42,7 @@ internal class PersistentHashMapBuilderEntries<K, V>(private val builder: Persis
         get() = builder.size
 
     override fun containsEntry(element: Map.Entry<K, V>): Boolean {
-        return MapImplementation.containsEntry(builder, element)
+        return builder.containsEntry(element)
     }
 }
 
