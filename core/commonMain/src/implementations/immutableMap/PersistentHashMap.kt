@@ -34,7 +34,7 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return PersistentHashMapEntries(this)
     }
 
-    // TODO: compiler bug: this bridge should be generated automatically
+    // TODO: compiler bug: this bridge should be generated automatically, KT-20070
     @PublishedApi
     internal fun getEntries(): Set<Map.Entry<K, V>> {
         return createEntries()
