@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -44,6 +44,30 @@ class TrieIteratorTest {
 
         @Suppress("UNCHECKED_CAST")
         return leaves.single() as Array<Any?>
+    }
+
+    @Test
+    fun previousAtLeftEdgeTest() {
+        for (height in 1..4) {
+            val maxCount = MAX_BUFFER_SIZE.toDouble().pow(height - 1).toInt()
+            val leafCount = maxCount / 32 + 1
+            val root = makeRoot(height, leafCount)
+            val size = leafCount * MAX_BUFFER_SIZE
+
+            val iterator = TrieIterator<Int>(root, index = 0, size = size, height = height)
+
+            assertFailsWith<NoSuchElementException> { iterator.previous() }
+
+            for (i in 0..<size) {
+                assertEquals(i, iterator.next())
+            }
+            assertFalse(iterator.hasNext())
+            for (i in size - 1 downTo 0) {
+                assertEquals(i, iterator.previous())
+            }
+            assertFalse(iterator.hasPrevious())
+            assertFailsWith<NoSuchElementException> { iterator.previous() }
+        }
     }
 
     @Test
