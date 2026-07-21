@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("kotlin-multiplatform")
     id("org.jetbrains.dokka")
+    id("org.jetbrains.kotlinx.kover")
     `maven-publish`
 }
 
@@ -188,6 +189,9 @@ dokka {
 tasks {
     named("jvmTest", Test::class) {
         maxHeapSize = "1024m"
+        providers.gradleProperty("jvmTestExcludes").orNull
+            ?.split(',')
+            ?.forEach { filter.excludeTestsMatching(it.trim()) }
     }
 
     // See https://youtrack.jetbrains.com/issue/KT-61313
