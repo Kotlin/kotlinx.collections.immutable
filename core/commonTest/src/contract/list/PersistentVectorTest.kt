@@ -6,7 +6,6 @@
 package tests.contract.list
 
 import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.implementations.immutableList.MAX_BUFFER_SIZE
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,13 +16,7 @@ import kotlin.test.assertTrue
 class PersistentVectorTest {
 
     init {
-        check(MAX_BUFFER_SIZE == 32) {
-            """
-            The sizes in this class are hand-picked trie shape boundaries for the buffer size of 32.
-            If MAX_BUFFER_SIZE changes, revisit each size manually
-            and verify that all branches of the code under test are still covered.
-            """.trimIndent()
-        }
+        checkTrieShapeAssumptions()
     }
 
     private fun vectorOfSize(size: Int): PersistentList<Int> {
