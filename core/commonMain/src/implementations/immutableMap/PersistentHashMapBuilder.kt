@@ -9,7 +9,6 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
 import kotlinx.collections.immutable.internal.DeltaCounter
-import kotlinx.collections.immutable.internal.MapImplementation
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
@@ -127,15 +126,13 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) : Pe
                     a == b.value
                 }
             }
-            // should be super.equals(other), but https://youtrack.jetbrains.com/issue/KT-45673
-            else -> MapImplementation.equals(this, other)
+            else -> super.equals(other)
         }
     }
 
     /**
      * We provide [equals], so as a matter of style, we should also provide [hashCode].
-     *
-     * Should be super.hashCode(), but https://youtrack.jetbrains.com/issue/KT-45673
+     * However, the implementation from [AbstractMutableMap] is enough.
      */
-    override fun hashCode(): Int = MapImplementation.hashCode(this)
+    override fun hashCode(): Int = super.hashCode()
 }
