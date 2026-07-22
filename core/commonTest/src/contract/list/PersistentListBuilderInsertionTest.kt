@@ -16,7 +16,13 @@ import kotlin.test.assertTrue
 class PersistentListBuilderInsertionTest {
 
     init {
-        check(MAX_BUFFER_SIZE == 32) { "Test sizes assume a trie buffer size of 32" }
+        check(MAX_BUFFER_SIZE == 32) {
+            """
+            The sizes in this class are hand-picked trie shape boundaries for the buffer size of 32.
+            If MAX_BUFFER_SIZE changes, revisit each size manually
+            and verify that all branches of the code under test are still covered.
+            """.trimIndent()
+        }
     }
 
     private fun ownedBuilderOf(size: Int): PersistentList.Builder<Int> {
