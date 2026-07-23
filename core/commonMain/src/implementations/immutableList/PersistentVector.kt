@@ -150,7 +150,7 @@ internal class PersistentVector<E>(
         newRoot[bufferIndex] =
             insertIntoRoot(root[bufferIndex] as Array<Any?>, lowerLevelShift, index, element, elementCarry)
 
-        for (i in bufferIndex + 1 until MAX_BUFFER_SIZE) {
+        for (i in bufferIndex + 1..<MAX_BUFFER_SIZE) {
             if (newRoot[i] == null) break
 
             @Suppress("UNCHECKED_CAST")
