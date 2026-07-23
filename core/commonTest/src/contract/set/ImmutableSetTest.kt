@@ -404,4 +404,13 @@ abstract class ImmutableSetTestBase {
 
         testEquality(data, changed)
     }
+
+    @Test
+    fun immutableSetOrEmpty() {
+        val emptySet = (null as ImmutableSet<String>?).orEmpty()
+        val notEmptySet = persistentSetOf("a")
+
+        assertEquals(emptySet, persistentSetOf())
+        assertEquals(notEmptySet, notEmptySet.orEmpty())
+    }
 }

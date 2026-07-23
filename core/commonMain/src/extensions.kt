@@ -37,6 +37,11 @@ public inline fun <T> PersistentSet<T>.mutate(mutator: (MutableSet<T>) -> Unit):
 public inline fun <T> PersistentList<T>.mutate(mutator: (MutableList<T>) -> Unit): PersistentList<T> = builder().apply(mutator).build()
 
 /**
+ * Returns this [ImmutableSet] if it's not `null` and the empty [ImmutableSet] otherwise.
+ */
+public inline fun <T> ImmutableSet<T>?.orEmpty(): ImmutableSet<T> = this ?: persistentSetOf()
+
+/**
  * Returns a new persistent map with the provided modifications applied,
  * or this instance if no modifications were made in the result of this operation.
  *
@@ -46,6 +51,10 @@ public inline fun <T> PersistentList<T>.mutate(mutator: (MutableList<T>) -> Unit
 public inline fun <K, V> PersistentMap<out K, V>.mutate(mutator: (MutableMap<K, V>) -> Unit): PersistentMap<K, V> =
         (this as PersistentMap<K, V>).builder().apply(mutator).build()
 
+/**
+ * Returns this [ImmutableList] if it's not `null` and the empty [ImmutableList] otherwise.
+ */
+public inline fun <T> ImmutableList<T>?.orEmpty(): ImmutableList<T> = this ?: persistentListOf()
 
 /**
  * Returns a new persistent collection with the specified [element] added,
@@ -420,6 +429,10 @@ public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Array<out K>): Pe
 public operator fun <K, V> PersistentMap<out K, V>.minus(keys: Sequence<K>): PersistentMap<K, V>
         = mutate { it.minusAssign(keys) }
 
+/**
+ * Returns the [ImmutableMap] if it's not `null`, or the empty [ImmutableMap] otherwise.
+ */
+public fun <K, V> ImmutableMap<K, V>?.orEmpty(): ImmutableMap<K, V> = this ?: persistentMapOf()
 
 /**
  * Returns a new persistent list of the specified elements.
