@@ -383,7 +383,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun collisionKeyIndex(key: Any?): Int {
-        for (i in 0 until buffer.size step ENTRY_SIZE) {
+        for (i in 0..<buffer.size step ENTRY_SIZE) {
             if (key == keyAtIndex(i)) return i
         }
         return -1
@@ -480,7 +480,7 @@ internal class TrieNode<K, V>(
         assert(otherNode.dataMap == 0)
         val tempBuffer = this.buffer.copyOf(newSize = this.buffer.size + otherNode.buffer.size)
         var i = this.buffer.size
-        for (j in 0 until otherNode.buffer.size step ENTRY_SIZE) {
+        for (j in 0..<otherNode.buffer.size step ENTRY_SIZE) {
             @Suppress("UNCHECKED_CAST")
             if (!this.collisionContainsKey(otherNode.buffer[j] as K)) {
                 tempBuffer[i] = otherNode.buffer[j]
@@ -581,7 +581,7 @@ internal class TrieNode<K, V>(
         if (nodeMap == 0) return buffer.size / ENTRY_SIZE
         val numValues = dataMap.countOneBits()
         var result = numValues
-        for (i in (numValues * ENTRY_SIZE) until buffer.size) {
+        for (i in (numValues * ENTRY_SIZE)..<buffer.size) {
             result += nodeAtIndex(i).calculateSize()
         }
         return result
@@ -591,7 +591,7 @@ internal class TrieNode<K, V>(
         if (this === otherNode) return true
         if (nodeMap != otherNode.nodeMap) return false
         if (dataMap != otherNode.dataMap) return false
-        for (i in 0 until buffer.size) {
+        for (i in buffer.indices) {
             if (buffer[i] !== otherNode.buffer[i]) return false
         }
         return true
@@ -923,7 +923,7 @@ internal class TrieNode<K, V>(
         if (dataMap != that.dataMap || nodeMap != that.nodeMap) return false
         if (dataMap == 0 && nodeMap == 0) { // collision node
             if (buffer.size != that.buffer.size) return false
-            return (0 until buffer.size step ENTRY_SIZE).all { i ->
+            return (buffer.indices step ENTRY_SIZE).all { i ->
                 val thatKey = that.keyAtIndex(i)
                 val thatValue = that.valueAtKeyIndex(i)
                 val keyIndex = collisionKeyIndex(thatKey)
@@ -935,11 +935,11 @@ internal class TrieNode<K, V>(
         }
 
         val valueSize = dataMap.countOneBits() * ENTRY_SIZE
-        for (i in 0 until valueSize step ENTRY_SIZE) {
+        for (i in 0..<valueSize step ENTRY_SIZE) {
             if (keyAtIndex(i) != that.keyAtIndex(i)) return false
             if (!equalityComparator(valueAtKeyIndex(i), that.valueAtKeyIndex(i))) return false
         }
-        for (i in valueSize until buffer.size) {
+        for (i in valueSize..<buffer.size) {
             if (!nodeAtIndex(i).equalsWith(that.nodeAtIndex(i), equalityComparator)) return false
         }
         return true

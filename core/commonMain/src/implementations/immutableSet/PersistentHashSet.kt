@@ -67,7 +67,7 @@ internal class PersistentHashSet<E>(
         replaceWith = ReplaceWith("retainingAll(elements)")
     )
     override fun retainAll(elements: Collection<E>): PersistentSet<E> {
-        if (elements.isEmpty()) return PersistentHashSet.emptyOf<E>()
+        if (elements.isEmpty()) return emptyOf()
         return mutate { it.retainAll(elements) }
     }
 
@@ -86,7 +86,7 @@ internal class PersistentHashSet<E>(
         replaceWith = ReplaceWith("cleared()")
     )
     override fun clear(): PersistentSet<E> {
-        return PersistentHashSet.emptyOf()
+        return emptyOf()
     }
 
     override fun iterator(): Iterator<E> {
@@ -99,6 +99,6 @@ internal class PersistentHashSet<E>(
 
     internal companion object {
         private val EMPTY = PersistentHashSet(TrieNode.EMPTY, 0)
-        internal fun <E> emptyOf(): PersistentSet<E> = PersistentHashSet.EMPTY
+        internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
     }
 }

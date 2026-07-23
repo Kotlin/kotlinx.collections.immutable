@@ -64,7 +64,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
         var newSize = size
         var removeMask = 0
 
-        for (index in 0 until size) {
+        for (index in 0..<size) {
             @Suppress("UNCHECKED_CAST")
             val element = buffer[index] as E
 
@@ -80,7 +80,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
             else -> {
                 val newBuffer = buffer.copyOf(newSize)
                 var newIndex = removeMask.countTrailingZeroBits()
-                for (index in newIndex + 1 until size) {
+                for (index in newIndex + 1..<size) {
                     if ((removeMask ushr index) and 1 == 0) {
                         newBuffer[newIndex++] = buffer[index]
                     }

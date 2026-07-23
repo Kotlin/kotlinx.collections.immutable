@@ -166,9 +166,9 @@ internal class PersistentHashMapBuilderEntriesIterator<K, V>(
 }
 
 internal class PersistentHashMapBuilderKeysIterator<K, V>(builder: PersistentHashMapBuilder<K, V>) :
-    PersistentHashMapBuilderBaseIterator<K, V, K>(builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeKeysIterator<K, V>() })
+    PersistentHashMapBuilderBaseIterator<K, V, K>(builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeKeysIterator() })
 
 internal class PersistentHashMapBuilderValuesIterator<K, V>(builder: PersistentHashMapBuilder<K, V>) :
     PersistentHashMapBuilderBaseIterator<K, V, V>(
-        builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeValuesIterator<K, V>() }
+        builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeValuesIterator() }
     )
