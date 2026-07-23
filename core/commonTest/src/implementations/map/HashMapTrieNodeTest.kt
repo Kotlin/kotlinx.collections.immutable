@@ -363,6 +363,89 @@ class HashMapTrieNodeTest {
         }
     }
 
+    private val innerKey = IntWrapper(1, 0)
+    private val topKey = IntWrapper(2, 1)
+
+    private fun singleEntryChild() = TrieNode<IntWrapper, Int>(1 shl 0, 0, arrayOf(innerKey, 100))
+
+    @Test
+    fun `removing the only entry of a sub-node drops the whole node`() {
+        val root = TrieNode<IntWrapper, Int>(1 shl 1, 1 shl 0, arrayOf(topKey, 200, singleEntryChild()))
+        val map = PersistentHashMap(root, 2)
+        assertEquals(100, map[innerKey])
+        assertEquals(200, map[topKey])
+
+        val removed = map.removing(innerKey)
+        assertEquals(1, removed.size)
+        assertNull(removed[innerKey])
+        assertEquals(200, removed[topKey])
+        removed.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+            assertEquals(0, shift)
+            assertEquals(0, hash)
+            assertEquals(0b10, dataMap)
+            assertEquals(0b0, nodeMap)
+            assertTrue(arrayOf<Any?>(topKey, 200) contentEquals node.buffer)
+        }
+
+        val chainRoot = TrieNode<IntWrapper, Int>(0, 1 shl 0, arrayOf(singleEntryChild()))
+        val emptied = PersistentHashMap(chainRoot, 1).removing(innerKey)
+        assertSame(PersistentHashMap.emptyOf(), emptied)
+    }
+
+    @Test
+    fun `builder removing the only entry of a sub-node drops the whole node`() {
+        val builder1 = PersistentHashMap(
+            node = TrieNode<IntWrapper, Int>(
+                1 shl 1,
+                1 shl 0,
+                arrayOf(topKey, 200, singleEntryChild())
+            ),
+            size = 2
+        ).builder()
+        assertEquals(100, builder1.remove(innerKey))
+        assertEquals(1, builder1.size)
+        assertNull(builder1[innerKey])
+        assertEquals(200, builder1[topKey])
+        builder1.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+            assertEquals(0, shift)
+            assertEquals(0, hash)
+            assertEquals(0b10, dataMap)
+            assertEquals(0b0, nodeMap)
+            assertTrue(arrayOf<Any?>(topKey, 200) contentEquals node.buffer)
+        }
+
+        val builder2 = PersistentHashMap(
+            node = TrieNode<IntWrapper, Int>(
+                1 shl 1,
+                1 shl 0,
+                arrayOf(topKey, 200, singleEntryChild())
+            ),
+            size = 2
+        ).builder()
+        builder2[topKey] = 999
+        assertEquals(100, builder2.remove(innerKey))
+        assertEquals(1, builder2.size)
+        assertNull(builder2[innerKey])
+        assertEquals(999, builder2[topKey])
+        assertEquals(mapOf(topKey to 999), builder2.build())
+        builder2.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int ->
+            assertEquals(0, shift)
+            assertEquals(0, hash)
+            assertEquals(0b10, dataMap)
+            assertEquals(0b0, nodeMap)
+            assertTrue(arrayOf<Any?>(topKey, 999) contentEquals node.buffer)
+        }
+
+        val builder3 = PersistentHashMap(
+            node = TrieNode<IntWrapper, Int>(0, 1 shl 0, arrayOf(singleEntryChild())),
+            size = 1
+        ).builder()
+        assertEquals(100, builder3.remove(innerKey))
+        assertSame<TrieNode<*, *>>(TrieNode.EMPTY, builder3.node)
+        assertTrue(builder3.isEmpty())
+        assertEquals(0, builder3.build().size)
+    }
+
     // TODO: Investigate performance impact of converting single-entry collision root node to compact node. See the following commented test:
 /*
     // Nodes drawn using square braces are collision nodes.
