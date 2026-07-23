@@ -11,7 +11,8 @@ import kotlinx.collections.immutable.implementations.immutableMap.PersistentHash
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.assert
 
-internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>) : AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
+internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>) :
+    AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
     private var builtMap: PersistentOrderedMap<K, V>? = map
 
     internal var firstKey = map.firstKey
@@ -139,26 +140,12 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedMap<*, *> -> {
-                hashMapBuilder.node.equalsWith(other.hashMap.node) { a, b ->
-                    a.value == b.value
-                }
-            }
-            is PersistentOrderedMapBuilder<*, *> -> {
-                hashMapBuilder.node.equalsWith(other.hashMapBuilder.node) { a, b ->
-                    a.value == b.value
-                }
-            }
-            is PersistentHashMap<*, *> -> {
-                hashMapBuilder.node.equalsWith(other.node) { a, b ->
-                    a.value == b
-                }
-            }
-            is PersistentHashMapBuilder<*, *> -> {
-                hashMapBuilder.node.equalsWith(other.node) { a, b ->
-                    a.value == b
-                }
-            }
+            is PersistentOrderedMap<*, *> ->
+                hashMapBuilder.node.equalsWith(other.hashMap.node) { a, b -> a.value == b.value }
+            is PersistentOrderedMapBuilder<*, *> ->
+                hashMapBuilder.node.equalsWith(other.hashMapBuilder.node) { a, b -> a.value == b.value }
+            is PersistentHashMap<*, *> -> hashMapBuilder.node.equalsWith(other.node) { a, b -> a.value == b }
+            is PersistentHashMapBuilder<*, *> -> hashMapBuilder.node.equalsWith(other.node) { a, b -> a.value == b }
             else -> super.equals(other)
         }
     }

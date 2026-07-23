@@ -11,6 +11,7 @@ import kotlin.js.JsName
 internal open class PersistentHashSetIterator<E>(node: TrieNode<E>) : Iterator<E> {
     protected val path = mutableListOf(TrieNodeIterator<E>())
     protected var pathLastIndex = 0
+
     @JsName("_hasNext")
     private var hasNext = true
 
@@ -40,7 +41,7 @@ internal open class PersistentHashSetIterator<E>(node: TrieNode<E>) : Iterator<E
         if (path[pathLastIndex].hasNextElement()) {
             return
         }
-        for(i in pathLastIndex downTo 0) {
+        for (i in pathLastIndex downTo 0) {
             var result = moveToNextNodeWithData(i)
 
             if (result == -1 && path[i].hasNextCell()) {

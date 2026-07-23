@@ -5,10 +5,12 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-internal class TrieIterator<out E>(root: Array<Any?>,
-                                   index: Int,
-                                   size: Int,
-                                   private var height: Int) : AbstractListIterator<E>(index, size) {
+internal class TrieIterator<out E>(
+    root: Array<Any?>,
+    index: Int,
+    size: Int,
+    private var height: Int
+) : AbstractListIterator<E>(index, size) {
     private var path: Array<Any?> = arrayOfNulls<Any?>(height)
     private var isInRightEdge = index == size
 

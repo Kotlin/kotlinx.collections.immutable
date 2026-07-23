@@ -5,11 +5,13 @@
 
 package kotlinx.collections.immutable.implementations.immutableList
 
-internal class PersistentVectorIterator<out T>(root: Array<Any?>,
-                                               private val tail: Array<T>,
-                                               index: Int,
-                                               size: Int,
-                                               trieHeight: Int) : AbstractListIterator<T>(index, size) {
+internal class PersistentVectorIterator<out T>(
+    root: Array<Any?>,
+    private val tail: Array<T>,
+    index: Int,
+    size: Int,
+    trieHeight: Int
+) : AbstractListIterator<T>(index, size) {
     private val trieIterator: TrieIterator<T>
 
     init {

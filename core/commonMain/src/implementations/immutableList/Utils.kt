@@ -33,10 +33,10 @@ internal fun presizedBufferWith(element: Any?): Array<Any?> {
  * For each upper level `shift` increments by [LOG_MAX_BUFFER_SIZE].
  */
 internal fun indexSegment(index: Int, shift: Int): Int =
-        (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
+    (index shr shift) and MAX_BUFFER_SIZE_MINUS_ONE
 
 /**
  * Returns the size of trie part of a persistent vector of the specified [vectorSize].
  */
 internal fun rootSize(vectorSize: Int) =
-        (vectorSize - 1) and MAX_BUFFER_SIZE_MINUS_ONE.inv()
+    (vectorSize - 1) and MAX_BUFFER_SIZE_MINUS_ONE.inv()
