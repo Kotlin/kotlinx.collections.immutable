@@ -591,7 +591,7 @@ public fun CharSequence.toImmutableList(): ImmutableList<Char> = toPersistentLis
 public fun <T> Iterable<T>.toPersistentList(): PersistentList<T> =
     this as? PersistentList
         ?: (this as? PersistentList.Builder)?.build()
-        ?: persistentListOf<T>() + this
+        ?: (persistentListOf<T>() + this)
 
 /**
  * Returns a persistent list containing all elements of this array.
@@ -620,7 +620,7 @@ public fun CharSequence.toPersistentList(): PersistentList<Char> =
 public fun <T> Iterable<T>.toImmutableSet(): ImmutableSet<T> =
     this as? ImmutableSet<T>
         ?: (this as? PersistentSet.Builder)?.build()
-        ?: persistentSetOf<T>() + this
+        ?: (persistentSetOf<T>() + this)
 
 /**
  * Returns an immutable set of all elements of this array.
@@ -655,7 +655,7 @@ public fun CharSequence.toImmutableSet(): PersistentSet<Char> = toPersistentSet(
 public fun <T> Iterable<T>.toPersistentSet(): PersistentSet<T> =
     this as? PersistentOrderedSet<T>
         ?: (this as? PersistentOrderedSetBuilder)?.build()
-        ?: PersistentOrderedSet.emptyOf<T>() + this
+        ?: (PersistentOrderedSet.emptyOf<T>() + this)
 
 /**
  * Returns a persistent set of all elements of this array.
@@ -691,7 +691,7 @@ public fun CharSequence.toPersistentSet(): PersistentSet<Char> =
 public fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T> =
     this as? PersistentHashSet
         ?: (this as? PersistentHashSetBuilder<T>)?.build()
-        ?: PersistentHashSet.emptyOf<T>() + this
+        ?: (PersistentHashSet.emptyOf<T>() + this)
 
 /**
  * Returns a persistent set of all elements of this array.

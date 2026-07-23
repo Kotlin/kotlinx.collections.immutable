@@ -122,7 +122,7 @@ internal class PersistentOrderedSet<E>(
         replaceWith = ReplaceWith("cleared()")
     )
     override fun clear(): PersistentSet<E> {
-        return PersistentOrderedSet.emptyOf()
+        return emptyOf()
     }
 
     override fun iterator(): Iterator<E> {

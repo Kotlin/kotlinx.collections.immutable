@@ -94,7 +94,7 @@ internal open class MapEntry<out K, out V>(override val key: K, override val val
     override fun equals(other: Any?): Boolean =
         (other as? Map.Entry<*, *>)?.let { it.key == key && it.value == value } ?: false
 
-    override fun toString(): String = key.toString() + "=" + value.toString()
+    override fun toString(): String = "$key=$value"
 }
 
 
@@ -177,11 +177,11 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(
 
 internal class PersistentHashMapEntriesIterator<K, V>(node: TrieNode<K, V>) :
     PersistentHashMapBaseIterator<K, V, Map.Entry<K, V>>(
-        node, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeEntriesIterator<K, V>() }
+        node, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeEntriesIterator() }
     )
 
 internal class PersistentHashMapKeysIterator<K, V>(node: TrieNode<K, V>) :
-    PersistentHashMapBaseIterator<K, V, K>(node, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeKeysIterator<K, V>() })
+    PersistentHashMapBaseIterator<K, V, K>(node, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeKeysIterator() })
 
 internal class PersistentHashMapValuesIterator<K, V>(node: TrieNode<K, V>) :
-    PersistentHashMapBaseIterator<K, V, V>(node, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeValuesIterator<K, V>() })
+    PersistentHashMapBaseIterator<K, V, V>(node, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeValuesIterator() })
