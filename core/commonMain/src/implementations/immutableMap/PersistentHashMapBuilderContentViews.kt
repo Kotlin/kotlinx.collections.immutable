@@ -12,16 +12,18 @@ internal abstract class AbstractMapBuilderEntries<E : Map.Entry<K, V>, K, V> : A
     final override fun contains(element: E): Boolean {
         return containsEntry(element)
     }
+
     abstract fun containsEntry(element: Map.Entry<K, V>): Boolean
 
     final override fun remove(element: E): Boolean {
         return removeEntry(element)
     }
+
     abstract fun removeEntry(element: Map.Entry<K, V>): Boolean
 }
 
-internal class PersistentHashMapBuilderEntries<K, V>(private val builder: PersistentHashMapBuilder<K, V>)
-    : AbstractMapBuilderEntries<MutableMap.MutableEntry<K, V>, K, V>() {
+internal class PersistentHashMapBuilderEntries<K, V>(private val builder: PersistentHashMapBuilder<K, V>) :
+    AbstractMapBuilderEntries<MutableMap.MutableEntry<K, V>, K, V>() {
     override fun add(element: MutableMap.MutableEntry<K, V>): Boolean {
         throw UnsupportedOperationException()
     }
@@ -46,7 +48,8 @@ internal class PersistentHashMapBuilderEntries<K, V>(private val builder: Persis
     }
 }
 
-internal class PersistentHashMapBuilderKeys<K, V>(private val builder: PersistentHashMapBuilder<K, V>) : MutableSet<K>, AbstractMutableSet<K>() {
+internal class PersistentHashMapBuilderKeys<K, V>(private val builder: PersistentHashMapBuilder<K, V>) :
+    MutableSet<K>, AbstractMutableSet<K>() {
     override fun add(element: K): Boolean {
         throw UnsupportedOperationException()
     }
@@ -75,7 +78,8 @@ internal class PersistentHashMapBuilderKeys<K, V>(private val builder: Persisten
     }
 }
 
-internal class PersistentHashMapBuilderValues<K, V>(private val builder: PersistentHashMapBuilder<K, V>) : MutableCollection<V>, AbstractMutableCollection<V>() {
+internal class PersistentHashMapBuilderValues<K, V>(private val builder: PersistentHashMapBuilder<K, V>) :
+    MutableCollection<V>, AbstractMutableCollection<V>() {
     override val size: Int
         get() = builder.size
 

@@ -11,9 +11,10 @@ import kotlinx.collections.immutable.implementations.persistentOrderedMap.Persis
 import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
-internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) : PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) :
+    PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
     internal var builtMap: PersistentHashMap<K, V>? = map
-        private set 
+        private set
     internal var ownership = MutabilityOwnership()
         private set
     internal var node = map.node
@@ -79,7 +80,7 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) : Pe
             val oldSize = this.size
             node = node.mutablePutAll(map.node as TrieNode<K, V>, 0, intersectionCounter, this)
             val newSize = oldSize + map.size - intersectionCounter.count
-            if(oldSize != newSize) this.size = newSize
+            if (oldSize != newSize) this.size = newSize
         }
         else super.putAll(from)
     }
@@ -110,22 +111,10 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) : Pe
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentHashMap<*, *> -> {
-                node.equalsWith(other.node) { a, b -> a == b }
-            }
-            is PersistentHashMapBuilder<*, *> -> {
-                node.equalsWith(other.node) { a, b -> a == b }
-            }
-            is PersistentOrderedMap<*, *> -> {
-                node.equalsWith(other.hashMap.node) { a, b ->
-                    a == b.value
-                }
-            }
-            is PersistentOrderedMapBuilder<*, *> -> {
-                node.equalsWith(other.hashMapBuilder.node) { a, b ->
-                    a == b.value
-                }
-            }
+            is PersistentHashMap<*, *> -> node.equalsWith(other.node) { a, b -> a == b }
+            is PersistentHashMapBuilder<*, *> -> node.equalsWith(other.node) { a, b -> a == b }
+            is PersistentOrderedMap<*, *> -> node.equalsWith(other.hashMap.node) { a, b -> a == b.value }
+            is PersistentOrderedMapBuilder<*, *> -> node.equalsWith(other.hashMapBuilder.node) { a, b -> a == b.value }
             else -> super.equals(other)
         }
     }

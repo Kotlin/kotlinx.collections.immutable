@@ -9,7 +9,8 @@ import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.assert
 
-internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) : AbstractMutableSet<E>(), PersistentSet.Builder<E> {
+internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
+    AbstractMutableSet<E>(), PersistentSet.Builder<E> {
     private var builtSet: PersistentOrderedSet<E>? = set
     internal var firstElement = set.firstElement
     private var lastElement = set.lastElement
@@ -100,12 +101,9 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) : Ab
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedSet<*> -> {
-                hashMapBuilder.node.equalsWith(other.hashMap.node) { _, _ -> true }
-            }
-            is PersistentOrderedSetBuilder<*> -> {
+            is PersistentOrderedSet<*> -> hashMapBuilder.node.equalsWith(other.hashMap.node) { _, _ -> true }
+            is PersistentOrderedSetBuilder<*> ->
                 hashMapBuilder.node.equalsWith(other.hashMapBuilder.node) { _, _ -> true }
-            }
             else -> super.equals(other)
         }
     }

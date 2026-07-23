@@ -20,10 +20,12 @@ import kotlinx.collections.immutable.internal.assert
  * @param rootShift specifies the height of the trie structure, so that `rootShift = (height - 1) * LOG_MAX_BUFFER_SIZE`;
  *        elements in the [root] array are indexed with bits of the index starting from `rootShift` and until `rootShift + LOG_MAX_BUFFER_SIZE`.
  */
-internal class PersistentVector<E>(private val root: Array<Any?>,
-                                   private val tail: Array<Any?>,
-                                   override val size: Int,
-                                   private val rootShift: Int) : AbstractPersistentList<E>() {
+internal class PersistentVector<E>(
+    private val root: Array<Any?>,
+    private val tail: Array<Any?>,
+    override val size: Int,
+    private val rootShift: Int
+) : AbstractPersistentList<E>() {
 
     init {
         require(size > MAX_BUFFER_SIZE) { "Trie-based persistent vector should have at least ${MAX_BUFFER_SIZE + 1} elements, got $size" }
@@ -77,7 +79,8 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
             // don't delve into the leaf level
         } else {
             @Suppress("UNCHECKED_CAST")
-            newRootNode[bufferIndex] = pushTail(newRootNode[bufferIndex] as Array<Any?>?, shift - LOG_MAX_BUFFER_SIZE, tail)
+            newRootNode[bufferIndex] =
+                pushTail(newRootNode[bufferIndex] as Array<Any?>?, shift - LOG_MAX_BUFFER_SIZE, tail)
         }
         return newRootNode
     }
@@ -123,7 +126,13 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
      *
      * [elementCarry] contains the last element of this trie that was popped out by the insertion operation.
      */
-    private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectRef): Array<Any?> {
+    private fun insertIntoRoot(
+        root: Array<Any?>,
+        shift: Int,
+        index: Int,
+        element: Any?,
+        elementCarry: ObjectRef
+    ): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
@@ -138,7 +147,8 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         val lowerLevelShift = shift - LOG_MAX_BUFFER_SIZE
 
         @Suppress("UNCHECKED_CAST")
-        newRoot[bufferIndex] = insertIntoRoot(root[bufferIndex] as Array<Any?>, lowerLevelShift, index, element, elementCarry)
+        newRoot[bufferIndex] =
+            insertIntoRoot(root[bufferIndex] as Array<Any?>, lowerLevelShift, index, element, elementCarry)
 
         for (i in bufferIndex + 1 until MAX_BUFFER_SIZE) {
             if (newRoot[i] == null) break
@@ -195,6 +205,7 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
         }
         val tailCarry = ObjectRef(null)
         val newRoot = pullLastBuffer(root, shift, rootSize - 1, tailCarry)!!
+
         @Suppress("UNCHECKED_CAST")
         val newTail = tailCarry.value as Array<Any?>
 
@@ -333,8 +344,8 @@ internal class PersistentVector<E>(private val root: Array<Any?>,
             newRoot[bufferIndex] = e
         } else {
             @Suppress("UNCHECKED_CAST")
-            newRoot[bufferIndex] = setInRoot(newRoot[bufferIndex] as Array<Any?>,
-                    shift - LOG_MAX_BUFFER_SIZE, index, e)
+            newRoot[bufferIndex] =
+                setInRoot(newRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e)
         }
         return newRoot
     }

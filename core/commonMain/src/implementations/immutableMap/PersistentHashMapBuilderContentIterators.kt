@@ -9,7 +9,7 @@ import kotlinx.collections.immutable.internal.assert
 
 
 internal class TrieNodeMutableEntriesIterator<K, V>(
-        private val parentIterator: PersistentHashMapBuilderEntriesIterator<K, V>
+    private val parentIterator: PersistentHashMapBuilderEntriesIterator<K, V>
 ) : TrieNodeBaseIterator<K, V, MutableMap.MutableEntry<K, V>>() {
 
     override fun next(): MutableMap.MutableEntry<K, V> {
@@ -21,9 +21,9 @@ internal class TrieNodeMutableEntriesIterator<K, V>(
 }
 
 private class MutableMapEntry<K, V>(
-        private val parentIterator: PersistentHashMapBuilderEntriesIterator<K, V>,
-        key: K,
-        override var value: V
+    private val parentIterator: PersistentHashMapBuilderEntriesIterator<K, V>,
+    key: K,
+    override var value: V
 ) : MapEntry<K, V>(key, value), MutableMap.MutableEntry<K, V> {
 
     override fun setValue(newValue: V): V {
@@ -36,8 +36,8 @@ private class MutableMapEntry<K, V>(
 
 
 internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
-        private val builder: PersistentHashMapBuilder<K, V>,
-        path: Array<TrieNodeBaseIterator<K, V, T>>
+    private val builder: PersistentHashMapBuilder<K, V>,
+    path: Array<TrieNodeBaseIterator<K, V, T>>
 ) : MutableIterator<T>, PersistentHashMapBaseIterator<K, V, T>(builder.node, path) {
 
     private var lastIteratedKey: K? = null
@@ -57,7 +57,10 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
             val currentKey = currentKey()
 
             builder.remove(lastIteratedKey)
-            resetPath(currentKey.hashCode(), builder.node, currentKey, 0, lastIteratedKey.hashCode(), afterRemove = true)
+            resetPath(
+                currentKey.hashCode(), builder.node, currentKey,
+                0, lastIteratedKey.hashCode(), afterRemove = true
+            )
         } else {
             builder.remove(lastIteratedKey)
         }
@@ -72,7 +75,6 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
 
         if (hasNext()) {
             val currentKey = currentKey()
-
             builder[key] = newValue
             resetPath(currentKey.hashCode(), builder.node, currentKey, 0)
         } else {
@@ -82,10 +84,17 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         expectedModCount = builder.modCount
     }
 
-    private fun resetPath(keyHash: Int, node: TrieNode<*, *>, key: K, pathIndex: Int, removedKeyHash: Int = 0, afterRemove: Boolean = false) {
+    private fun resetPath(
+        keyHash: Int,
+        node: TrieNode<*, *>,
+        key: K,
+        pathIndex: Int,
+        removedKeyHash: Int = 0,
+        afterRemove: Boolean = false
+    ) {
         val shift = pathIndex * LOG_MAX_BRANCHING_FACTOR
 
-        if (shift > MAX_SHIFT) {    // collision
+        if (shift > MAX_SHIFT) { // collision
             path[pathIndex].reset(node.buffer, node.buffer.size, 0)
             while (path[pathIndex].currentKey() != key) {
                 path[pathIndex].moveToNextKey()
@@ -141,11 +150,12 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
 }
 
 internal class PersistentHashMapBuilderEntriesIterator<K, V>(
-        builder: PersistentHashMapBuilder<K, V>
+    builder: PersistentHashMapBuilder<K, V>
 ) : MutableIterator<MutableMap.MutableEntry<K, V>> {
     private val base = PersistentHashMapBuilderBaseIterator<K, V, MutableMap.MutableEntry<K, V>>(
-            builder,
-            Array(TRIE_MAX_HEIGHT + 1) { TrieNodeMutableEntriesIterator(this) }
+        builder, Array(TRIE_MAX_HEIGHT + 1) {
+            TrieNodeMutableEntriesIterator(this)
+        }
     )
 
     override fun hasNext(): Boolean = base.hasNext()
@@ -155,8 +165,10 @@ internal class PersistentHashMapBuilderEntriesIterator<K, V>(
     fun setValue(key: K, newValue: V): Unit = base.setValue(key, newValue)
 }
 
-internal class PersistentHashMapBuilderKeysIterator<K, V>(builder: PersistentHashMapBuilder<K, V>)
-    : PersistentHashMapBuilderBaseIterator<K, V, K>(builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeKeysIterator<K, V>() })
+internal class PersistentHashMapBuilderKeysIterator<K, V>(builder: PersistentHashMapBuilder<K, V>) :
+    PersistentHashMapBuilderBaseIterator<K, V, K>(builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeKeysIterator<K, V>() })
 
-internal class PersistentHashMapBuilderValuesIterator<K, V>(builder: PersistentHashMapBuilder<K, V>)
-    : PersistentHashMapBuilderBaseIterator<K, V, V>(builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeValuesIterator<K, V>() })
+internal class PersistentHashMapBuilderValuesIterator<K, V>(builder: PersistentHashMapBuilder<K, V>) :
+    PersistentHashMapBuilderBaseIterator<K, V, V>(
+        builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeValuesIterator<K, V>() }
+    )

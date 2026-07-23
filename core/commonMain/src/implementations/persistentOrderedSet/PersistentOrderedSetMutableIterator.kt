@@ -5,8 +5,8 @@
 
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
-internal class PersistentOrderedSetMutableIterator<E>(private val builder: PersistentOrderedSetBuilder<E>)
-    : PersistentOrderedSetIterator<E>(builder.firstElement, builder.hashMapBuilder), MutableIterator<E> {
+internal class PersistentOrderedSetMutableIterator<E>(private val builder: PersistentOrderedSetBuilder<E>) :
+    PersistentOrderedSetIterator<E>(builder.firstElement, builder.hashMapBuilder), MutableIterator<E> {
 
     private var lastIteratedElement: E? = null
     private var nextWasInvoked = false

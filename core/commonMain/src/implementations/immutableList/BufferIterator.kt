@@ -6,9 +6,9 @@
 package kotlinx.collections.immutable.implementations.immutableList
 
 internal class BufferIterator<out T>(
-        private val buffer: Array<T>,
-        index: Int,
-        size: Int
+    private val buffer: Array<T>,
+    index: Int,
+    size: Int
 ) : AbstractListIterator<T>(index, size) {
     override fun next(): T {
         if (!hasNext()) {

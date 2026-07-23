@@ -12,8 +12,10 @@ import kotlinx.collections.immutable.implementations.persistentOrderedMap.Persis
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
 import kotlinx.collections.immutable.mutate
 
-internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
-                                       override val size: Int): AbstractMap<K, V>(), PersistentMap<K, V> {
+internal class PersistentHashMap<K, V>(
+    internal val node: TrieNode<K, V>,
+    override val size: Int
+) : AbstractMap<K, V>(), PersistentMap<K, V> {
 
     override val keys: ImmutableSet<K>
         get() {
@@ -57,7 +59,8 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         return PersistentHashMap(newNodeResult.node, size + newNodeResult.sizeDelta)
     }
 
-    override fun putting(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> = @Suppress("DEPRECATION") put(key, value)
+    override fun putting(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> =
+        @Suppress("DEPRECATION") put(key, value)
 
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
@@ -65,8 +68,12 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     )
     override fun remove(key: K): PersistentHashMap<K, V> {
         val newNode = node.remove(key.hashCode(), key, 0)
-        if (node === newNode) { return this }
-        if (newNode == null) { return emptyOf() }
+        if (node === newNode) {
+            return this
+        }
+        if (newNode == null) {
+            return emptyOf()
+        }
         return PersistentHashMap(newNode, size - 1)
     }
 
@@ -78,8 +85,8 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
     )
     override fun remove(key: K, value: @UnsafeVariance V): PersistentHashMap<K, V> {
         val newNode = node.remove(key.hashCode(), key, value, 0)
-        if (node === newNode) { return this }
-        if (newNode == null) { return emptyOf() }
+        if (node === newNode) return this
+        if (newNode == null) return emptyOf()
         return PersistentHashMap(newNode, size - 1)
     }
 
@@ -110,22 +117,10 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedMap<*, *> -> {
-                node.equalsWith(other.hashMap.node) { a, b ->
-                    a == b.value
-                }
-            }
-            is PersistentOrderedMapBuilder<*, *> -> {
-                node.equalsWith(other.hashMapBuilder.node) { a, b ->
-                    a == b.value
-                }
-            }
-            is PersistentHashMap<*, *> -> {
-                node.equalsWith(other.node) { a, b -> a == b }
-            }
-            is PersistentHashMapBuilder<*, *> -> {
-                node.equalsWith(other.node) { a, b -> a == b }
-            }
+            is PersistentOrderedMap<*, *> -> node.equalsWith(other.hashMap.node) { a, b -> a == b.value }
+            is PersistentOrderedMapBuilder<*, *> -> node.equalsWith(other.hashMapBuilder.node) { a, b -> a == b.value }
+            is PersistentHashMap<*, *> -> node.equalsWith(other.node) { a, b -> a == b }
+            is PersistentHashMapBuilder<*, *> -> node.equalsWith(other.node) { a, b -> a == b }
             else -> super.equals(other)
         }
     }
@@ -138,6 +133,7 @@ internal class PersistentHashMap<K, V>(internal val node: TrieNode<K, V>,
 
     internal companion object {
         private val EMPTY = PersistentHashMap(TrieNode.EMPTY, 0)
+
         @Suppress("UNCHECKED_CAST")
         internal fun <K, V> emptyOf(): PersistentHashMap<K, V> = EMPTY as PersistentHashMap<K, V>
     }

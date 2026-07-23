@@ -6,5 +6,7 @@
 package kotlinx.collections.immutable.internal
 
 internal data class DeltaCounter(var count: Int = 0) {
-    operator fun plusAssign(that: Int) { count += that }
+    operator fun plusAssign(that: Int) {
+        count += that
+    }
 }

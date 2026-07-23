@@ -23,7 +23,7 @@ internal const val MAX_SHIFT = 30
  * For each lower level `shift` increments by [LOG_MAX_BRANCHING_FACTOR].
  */
 internal fun indexSegment(index: Int, shift: Int): Int =
-        (index shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE
+    (index shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE
 
 
 private fun <E> Array<Any?>.addElementAtIndex(index: Int, element: E): Array<Any?> {
@@ -49,9 +49,10 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
  **/
 @IgnorableReturnValue
 private inline fun Array<Any?>.filterTo(
-        newArray: Array<Any?>,
-        newArrayOffset: Int = 0,
-        predicate: (Any?) -> Boolean = { it !== TrieNode.EMPTY }): Int {
+    newArray: Array<Any?>,
+    newArrayOffset: Int = 0,
+    predicate: (Any?) -> Boolean = { it !== TrieNode.EMPTY }
+): Int {
     var i = 0
     var j = 0
     while (i < size) {
@@ -68,9 +69,9 @@ private inline fun Array<Any?>.filterTo(
 }
 
 internal class TrieNode<E>(
-        var bitmap: Int,
-        var buffer: Array<Any?>,
-        var ownedBy: MutabilityOwnership?
+    var bitmap: Int,
+    var buffer: Array<Any?>,
+    var ownedBy: MutabilityOwnership?
 ) {
 
     constructor(bitmap: Int, buffer: Array<Any?>) : this(bitmap, buffer, null)
@@ -115,7 +116,11 @@ internal class TrieNode<E>(
     }
 
     /** The given [newNode] must not be a part of any persistent set instance. */
-    private fun canonicalizeNodeAtIndex(nodeIndex: Int, newNode: TrieNode<E>, owner: MutabilityOwnership?): TrieNode<E> {
+    private fun canonicalizeNodeAtIndex(
+        nodeIndex: Int,
+        newNode: TrieNode<E>,
+        owner: MutabilityOwnership?
+    ): TrieNode<E> {
 //        assert(buffer[nodeIndex] !== newNode)
         val cell: Any?
 
@@ -143,21 +148,39 @@ internal class TrieNode<E>(
         return TrieNode(bitmap, newBuffer, owner)
     }
 
-    private fun makeNodeAtIndex(elementIndex: Int, newElementHash: Int, newElement: E,
-                                shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
+    private fun makeNodeAtIndex(
+        elementIndex: Int,
+        newElementHash: Int,
+        newElement: E,
+        shift: Int,
+        owner: MutabilityOwnership?
+    ): TrieNode<E> {
         val storedElement = elementAtIndex(elementIndex)
-        return makeNode(storedElement.hashCode(), storedElement,
-                newElementHash, newElement, shift + LOG_MAX_BRANCHING_FACTOR, owner)
+        return makeNode(
+            storedElement.hashCode(), storedElement,
+            newElementHash, newElement, shift + LOG_MAX_BRANCHING_FACTOR, owner
+        )
     }
 
-    private fun moveElementToNode(elementIndex: Int, newElementHash: Int, newElement: E,
-                                         shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
+    private fun moveElementToNode(
+        elementIndex: Int,
+        newElementHash: Int,
+        newElement: E,
+        shift: Int,
+        owner: MutabilityOwnership?
+    ): TrieNode<E> {
         val node = makeNodeAtIndex(elementIndex, newElementHash, newElement, shift, owner)
         return setCellAtIndex(elementIndex, node, owner)
     }
 
-    private fun makeNode(elementHash1: Int, element1: E, elementHash2: Int, element2: E,
-                         shift: Int, owner: MutabilityOwnership?): TrieNode<E> {
+    private fun makeNode(
+        elementHash1: Int,
+        element1: E,
+        elementHash2: Int,
+        element2: E,
+        shift: Int,
+        owner: MutabilityOwnership?
+    ): TrieNode<E> {
         if (shift > MAX_SHIFT) {
 //            assert(element1 != element2)
             // when two element hashes are entirely equal: the last level subtrie node stores them just as unordered list
@@ -229,9 +252,11 @@ internal class TrieNode<E>(
         return this
     }
 
-    private fun mutableCollisionAddAll(otherNode: TrieNode<E>,
-                                       intersectionSizeRef: DeltaCounter,
-                                       owner: MutabilityOwnership): TrieNode<E> {
+    private fun mutableCollisionAddAll(
+        otherNode: TrieNode<E>,
+        intersectionSizeRef: DeltaCounter,
+        owner: MutabilityOwnership
+    ): TrieNode<E> {
         if (this === otherNode) {
             intersectionSizeRef += buffer.size
             return this
@@ -250,15 +275,18 @@ internal class TrieNode<E>(
         return setProperties(newBitmap = 0, newBuffer, owner)
     }
 
-    private fun mutableCollisionRetainAll(otherNode: TrieNode<E>, intersectionSizeRef: DeltaCounter,
-                                          owner: MutabilityOwnership): Any? {
+    private fun mutableCollisionRetainAll(
+        otherNode: TrieNode<E>,
+        intersectionSizeRef: DeltaCounter,
+        owner: MutabilityOwnership
+    ): Any? {
         if (this === otherNode) {
             intersectionSizeRef += buffer.size
             return this
         }
         val tempBuffer =
-                if (owner === ownedBy) buffer
-                else arrayOfNulls<Any?>(minOf(buffer.size, otherNode.buffer.size))
+            if (owner === ownedBy) buffer
+            else arrayOfNulls<Any?>(minOf(buffer.size, otherNode.buffer.size))
         val totalWritten = buffer.filterTo(tempBuffer) {
             @Suppress("UNCHECKED_CAST")
             otherNode.collisionContainsElement(it as E)
@@ -274,9 +302,11 @@ internal class TrieNode<E>(
         }
     }
 
-    private fun mutableCollisionRemoveAll(otherNode: TrieNode<E>,
-                                          intersectionSizeRef: DeltaCounter,
-                                          owner: MutabilityOwnership): Any? {
+    private fun mutableCollisionRemoveAll(
+        otherNode: TrieNode<E>,
+        intersectionSizeRef: DeltaCounter,
+        owner: MutabilityOwnership
+    ): Any? {
         if (this === otherNode) {
             intersectionSizeRef += buffer.size
             return EMPTY
@@ -336,10 +366,12 @@ internal class TrieNode<E>(
         return element == buffer[cellIndex]
     }
 
-    fun mutableAddAll(otherNode: TrieNode<E>,
-                      shift: Int,
-                      intersectionSizeRef: DeltaCounter,
-                      mutator: PersistentHashSetBuilder<*>): TrieNode<E> {
+    fun mutableAddAll(
+        otherNode: TrieNode<E>,
+        shift: Int,
+        intersectionSizeRef: DeltaCounter,
+        mutator: PersistentHashSetBuilder<*>
+    ): TrieNode<E> {
         if (this === otherNode) {
             intersectionSizeRef.count += this.calculateSize()
             return this
@@ -378,10 +410,8 @@ internal class TrieNode<E>(
                             thisCell as TrieNode<E>
                             otherNodeCell as TrieNode<E>
                             thisCell.mutableAddAll(
-                                    otherNodeCell,
-                                    shift + LOG_MAX_BRANCHING_FACTOR,
-                                    intersectionSizeRef,
-                                    mutator
+                                otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR,
+                                intersectionSizeRef, mutator
                             )
                         }
                         // one of them is a node -> add the other one to it
@@ -390,10 +420,8 @@ internal class TrieNode<E>(
                             otherNodeCell as E
                             val oldSize = mutator.size
                             thisCell.mutableAdd(
-                                    otherNodeCell.hashCode(),
-                                    otherNodeCell,
-                                    shift + LOG_MAX_BRANCHING_FACTOR,
-                                    mutator
+                                otherNodeCell.hashCode(), otherNodeCell,
+                                shift + LOG_MAX_BRANCHING_FACTOR, mutator
                             ).also {
                                 if (mutator.size == oldSize) intersectionSizeRef.count++
                             }
@@ -404,10 +432,8 @@ internal class TrieNode<E>(
                             thisCell as E
                             val oldSize = mutator.size
                             otherNodeCell.mutableAdd(
-                                    thisCell.hashCode(),
-                                    thisCell,
-                                    shift + LOG_MAX_BRANCHING_FACTOR,
-                                    mutator
+                                thisCell.hashCode(), thisCell,
+                                shift + LOG_MAX_BRANCHING_FACTOR, mutator
                             ).also {
                                 if (mutator.size == oldSize) intersectionSizeRef.count++
                             }
@@ -419,12 +445,9 @@ internal class TrieNode<E>(
                             thisCell as E
                             otherNodeCell as E
                             makeNode(
-                                    thisCell.hashCode(),
-                                    thisCell,
-                                    otherNodeCell.hashCode(),
-                                    otherNodeCell,
-                                    shift + LOG_MAX_BRANCHING_FACTOR,
-                                    mutator.ownership
+                                thisCell.hashCode(), thisCell,
+                                otherNodeCell.hashCode(), otherNodeCell,
+                                shift + LOG_MAX_BRANCHING_FACTOR, mutator.ownership
                             )
                         }
                     }
@@ -438,10 +461,12 @@ internal class TrieNode<E>(
         }
     }
 
-    fun mutableRetainAll(otherNode: TrieNode<E>,
-                         shift: Int,
-                         intersectionSizeRef: DeltaCounter,
-                         mutator: PersistentHashSetBuilder<*>): Any? {
+    fun mutableRetainAll(
+        otherNode: TrieNode<E>,
+        shift: Int,
+        intersectionSizeRef: DeltaCounter,
+        mutator: PersistentHashSetBuilder<*>
+    ): Any? {
         if (this === otherNode) {
             intersectionSizeRef += calculateSize();
             return this
@@ -455,8 +480,8 @@ internal class TrieNode<E>(
         // zero means no nodes intersect
         if (newBitMap == 0) return EMPTY
         val mutableNode =
-                if (ownedBy == mutator.ownership && newBitMap == bitmap) this
-                else TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()), mutator.ownership)
+            if (ownedBy == mutator.ownership && newBitMap == bitmap) this
+            else TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()), mutator.ownership)
         // we need to keep track of the real mask 'cos some of the children may intersect to nothing
         var realBitMap = 0
         // for each bit in intersection mask, try to intersect children
@@ -474,17 +499,19 @@ internal class TrieNode<E>(
                         thisCell as TrieNode<E>
                         otherNodeCell as TrieNode<E>
                         thisCell.mutableRetainAll(
-                                otherNodeCell,
-                                shift + LOG_MAX_BRANCHING_FACTOR,
-                                intersectionSizeRef,
-                                mutator
+                            otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR,
+                            intersectionSizeRef, mutator
                         )
                     }
                     // one of them is a node -> check containment
                     thisIsNode -> @Suppress("UNCHECKED_CAST") {
                         thisCell as TrieNode<E>
                         otherNodeCell as E
-                        if (thisCell.contains(otherNodeCell.hashCode(), otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR)) {
+                        if (thisCell.contains(
+                                otherNodeCell.hashCode(), otherNodeCell,
+                                shift + LOG_MAX_BRANCHING_FACTOR
+                            )
+                        ) {
                             intersectionSizeRef += 1
                             otherNodeCell
                         } else EMPTY
@@ -522,10 +549,12 @@ internal class TrieNode<E>(
                 }
             }
             // single values are kept only on root level
-            realSize == 1 && shift != 0 -> when (val single = mutableNode.buffer[mutableNode.indexOfCellAt(realBitMap)]) {
-                is TrieNode<*> -> TrieNode<E>(realBitMap, arrayOf(single), mutator.ownership)
-                else -> single
-            }
+            realSize == 1 && shift != 0 ->
+                when (val single = mutableNode.buffer[mutableNode.indexOfCellAt(realBitMap)]) {
+                    is TrieNode<*> -> TrieNode<E>(realBitMap, arrayOf(single), mutator.ownership)
+                    else -> single
+                }
+
             else -> {
                 // clean up all the EMPTYs in the resulting buffer
                 val realBuffer = arrayOfNulls<Any>(realSize)
@@ -535,9 +564,12 @@ internal class TrieNode<E>(
         }
     }
 
-    fun mutableRemoveAll(otherNode: TrieNode<E>, shift: Int,
-                         intersectionSizeRef: DeltaCounter,
-                         mutator: PersistentHashSetBuilder<*>): Any? {
+    fun mutableRemoveAll(
+        otherNode: TrieNode<E>,
+        shift: Int,
+        intersectionSizeRef: DeltaCounter,
+        mutator: PersistentHashSetBuilder<*>
+    ): Any? {
         if (this === otherNode) {
             intersectionSizeRef += calculateSize();
             return EMPTY
@@ -552,8 +584,8 @@ internal class TrieNode<E>(
         if (removalBitmap == 0) return this
         // node here is either us (if we are mutable) or a mutable copy
         val mutableNode =
-                if (ownedBy == mutator.ownership) this
-                else TrieNode<E>(bitmap, buffer.copyOf(), mutator.ownership)
+            if (ownedBy == mutator.ownership) this
+            else TrieNode<E>(bitmap, buffer.copyOf(), mutator.ownership)
         // keep track of the real mask
         var realBitMap = bitmap
         removalBitmap.forEachOneBit { positionMask, _ ->
@@ -570,10 +602,8 @@ internal class TrieNode<E>(
                         thisCell as TrieNode<E>
                         otherNodeCell as TrieNode<E>
                         thisCell.mutableRemoveAll(
-                                otherNodeCell,
-                                shift + LOG_MAX_BRANCHING_FACTOR,
-                                intersectionSizeRef,
-                                mutator
+                            otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR,
+                            intersectionSizeRef, mutator
                         )
                     }
                     // one of them is a node -> remove single element
@@ -582,10 +612,9 @@ internal class TrieNode<E>(
                         otherNodeCell as E
                         val oldSize = mutator.size
                         val removed = thisCell.mutableRemove(
-                                otherNodeCell.hashCode(),
-                                otherNodeCell,
-                                shift + LOG_MAX_BRANCHING_FACTOR,
-                                mutator)
+                            otherNodeCell.hashCode(), otherNodeCell,
+                            shift + LOG_MAX_BRANCHING_FACTOR, mutator
+                        )
                         // additional check needed for removal
                         if (oldSize != mutator.size) {
                             intersectionSizeRef += 1
@@ -623,16 +652,19 @@ internal class TrieNode<E>(
         return when {
             realBitMap == 0 -> EMPTY
             // single values are kept only on root level
-            realSize == 1 && shift != 0 -> when (val single = mutableNode.buffer[mutableNode.indexOfCellAt(realBitMap)]) {
-                is TrieNode<*> -> TrieNode<E>(realBitMap, arrayOf(single), mutator.ownership)
-                else -> single
-            }
+            realSize == 1 && shift != 0 ->
+                when (val single = mutableNode.buffer[mutableNode.indexOfCellAt(realBitMap)]) {
+                    is TrieNode<*> -> TrieNode<E>(realBitMap, arrayOf(single), mutator.ownership)
+                    else -> single
+                }
+
             realBitMap == bitmap -> {
                 when {
                     mutableNode.elementsIdentityEquals(this) -> this
                     else -> mutableNode
                 }
             }
+
             else -> {
                 // clean up all the EMPTYs in the resulting buffer
                 val realBuffer = arrayOfNulls<Any>(realSize)
@@ -670,7 +702,10 @@ internal class TrieNode<E>(
                 thisIsNode -> @Suppress("UNCHECKED_CAST") {
                     thisCell as TrieNode<E>
                     otherNodeCell as E
-                    thisCell.contains(otherNodeCell.hashCode(), otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR) || return false
+                    thisCell.contains(
+                        otherNodeCell.hashCode(), otherNodeCell,
+                        shift + LOG_MAX_BRANCHING_FACTOR
+                    ) || return false
                 }
                 // left is just E, right is node => not possible
                 otherIsNode -> return false
@@ -780,7 +815,7 @@ internal class TrieNode<E>(
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
             mutator.size--
-            return removeCellAtIndex(cellIndex, cellPositionMask, mutator.ownership)   // check is empty
+            return removeCellAtIndex(cellIndex, cellPositionMask, mutator.ownership) // check is empty
         }
         return this
     }
