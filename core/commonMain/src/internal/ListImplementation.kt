@@ -11,14 +11,14 @@ internal object ListImplementation {
 
     @JvmStatic
     internal fun checkElementIndex(index: Int, size: Int) {
-        if (index < 0 || index >= size) {
+        if (index !in 0..<size) {
             throw IndexOutOfBoundsException("index: $index, size: $size")
         }
     }
 
     @JvmStatic
     internal fun checkPositionIndex(index: Int, size: Int) {
-        if (index < 0 || index > size) {
+        if (index !in 0..size) {
             throw IndexOutOfBoundsException("index: $index, size: $size")
         }
     }

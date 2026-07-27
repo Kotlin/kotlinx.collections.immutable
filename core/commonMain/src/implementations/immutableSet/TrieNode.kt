@@ -43,7 +43,7 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
 
 /**
  * Writes all elements from [this] to [newArray], starting with [newArrayOffset], filtering
- * on the fly using [predicate]. By default filters out [TrieNode.EMPTY] instances
+ * on the fly using [predicate]. By default, filters out [TrieNode.EMPTY] instances
  *
  * return number of elements written to [newArray]
  **/
@@ -341,7 +341,7 @@ internal class TrieNode<E>(
     private fun elementsIdentityEquals(otherNode: TrieNode<E>): Boolean {
         if (this === otherNode) return true
         if (bitmap != otherNode.bitmap) return false
-        for (i in 0 until buffer.size) {
+        for (i in buffer.indices) {
             if (buffer[i] !== otherNode.buffer[i]) return false
         }
         return true
@@ -468,7 +468,7 @@ internal class TrieNode<E>(
         mutator: PersistentHashSetBuilder<*>
     ): Any? {
         if (this === otherNode) {
-            intersectionSizeRef += calculateSize();
+            intersectionSizeRef += calculateSize()
             return this
         }
         if (shift > MAX_SHIFT) {
@@ -571,7 +571,7 @@ internal class TrieNode<E>(
         mutator: PersistentHashSetBuilder<*>
     ): Any? {
         if (this === otherNode) {
-            intersectionSizeRef += calculateSize();
+            intersectionSizeRef += calculateSize()
             return EMPTY
         }
         if (shift > MAX_SHIFT) {
@@ -585,7 +585,7 @@ internal class TrieNode<E>(
         // node here is either us (if we are mutable) or a mutable copy
         val mutableNode =
             if (ownedBy == mutator.ownership) this
-            else TrieNode<E>(bitmap, buffer.copyOf(), mutator.ownership)
+            else TrieNode(bitmap, buffer.copyOf(), mutator.ownership)
         // keep track of the real mask
         var realBitMap = bitmap
         removalBitmap.forEachOneBit { positionMask, _ ->
@@ -806,8 +806,9 @@ internal class TrieNode<E>(
                 targetNode.mutableRemove(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
             }
             // If newNode is a single-element node, it is newly created, or targetNode is owned by mutator and a cell was removed in-place.
-            //      Otherwise the single element would have been lifted up.
-            // If targetNode is owned by mutator, this node is also owned by mutator. Thus no new node will be created to replace this node.
+            // Otherwise, the single element would have been lifted up.
+            // If targetNode is owned by mutator, this node is also owned by mutator.
+            // Thus, no new node will be created to replace this node.
             // If newNode !== targetNode, it is newly created.
             if (targetNode.ownedBy !== mutator.ownership && targetNode === newNode) return this
             return canonicalizeNodeAtIndex(cellIndex, newNode, mutator.ownership)

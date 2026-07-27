@@ -195,7 +195,7 @@ internal class PersistentVectorBuilder<E>(
             // fill remained space of tail
             buffers[0] = copyToBuffer(makeMutable(tail), tailSize, elementsIterator)
             // fill other buffers
-            for (index in 1 until buffersSize) {
+            for (index in 1..<buffersSize) {
                 buffers[index] = copyToBuffer(mutableBuffer(), 0, elementsIterator)
             }
 
@@ -358,7 +358,7 @@ internal class PersistentVectorBuilder<E>(
         mutableRoot[bufferIndex] =
             insertIntoRoot(mutableRoot[bufferIndex] as Array<Any?>, lowerLevelShift, index, element, elementCarry)
 
-        for (i in bufferIndex + 1 until MAX_BUFFER_SIZE) {
+        for (i in bufferIndex + 1..<MAX_BUFFER_SIZE) {
             if (mutableRoot[i] == null) break
             @Suppress("UNCHECKED_CAST")
             mutableRoot[i] =
@@ -548,7 +548,7 @@ internal class PersistentVectorBuilder<E>(
         val elementsIterator = elements.iterator()
 
         copyToBuffer(firstBuffer, startBufferStartIndex, elementsIterator)
-        for (i in 1 until newNullBuffers) {
+        for (i in 1..<newNullBuffers) {
             buffers[i] = copyToBuffer(mutableBuffer(), 0, elementsIterator)
         }
         copyToBuffer(newNextBuffer, 0, elementsIterator)
@@ -847,7 +847,7 @@ internal class PersistentVectorBuilder<E>(
      * Copies elements of the [tail] buffer of size [tailSize] that do not match the given [predicate] to a new buffer.
      *
      * If the [tail] is mutable, it is reused to store non-matching elements.
-     * If non of the elements match the [predicate], no buffers are created and elements are not copied.
+     * If none of the elements match the [predicate], no buffers are created and elements are not copied.
      * [bufferRef] stores the newly created buffer, or the [tail] if a new buffer was not created.
      *
      * Returns the filled size of the buffer stored in the [bufferRef].
@@ -874,7 +874,7 @@ internal class PersistentVectorBuilder<E>(
      * Copies elements of the given [buffer] of size [bufferSize] that do not match the given [predicate] to a new buffer.
      *
      * If the [buffer] is mutable, it is reused to store non-matching elements.
-     * If non of the elements match the [predicate], no buffers are created and elements are not copied.
+     * If none of the elements match the [predicate], no buffers are created and elements are not copied.
      * [bufferRef] stores the newly created buffer, or the [buffer] if a new buffer was not created.
      *
      * Returns the filled size of the buffer stored in the [bufferRef].
@@ -890,7 +890,7 @@ internal class PersistentVectorBuilder<E>(
 
         var anyRemoved = false
 
-        for (index in 0 until bufferSize) {
+        for (index in 0..<bufferSize) {
             @Suppress("UNCHECKED_CAST")
             val element = buffer[index] as E
 
@@ -940,7 +940,7 @@ internal class PersistentVectorBuilder<E>(
         var newToBuffer = toBuffer
         var newToBufferSize = toBufferSize
 
-        for (index in 0 until bufferSize) {
+        for (index in 0..<bufferSize) {
             @Suppress("UNCHECKED_CAST")
             val element = buffer[index] as E
 

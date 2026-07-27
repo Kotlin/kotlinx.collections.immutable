@@ -15,7 +15,7 @@ import kotlinx.collections.immutable.*
 
 public open class ImmutableCollectionAdapter<E>(private val impl: Collection<E>) :
     ImmutableCollection<E>, Collection<E> by impl {
-    override fun equals(other: Any?): Boolean = impl.equals(other)
+    override fun equals(other: Any?): Boolean = impl == other
     override fun hashCode(): Int = impl.hashCode()
     override fun toString(): String = impl.toString()
 }
@@ -26,7 +26,7 @@ public class ImmutableListAdapter<E>(private val impl: List<E>) : ImmutableList<
     override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> =
         ImmutableListAdapter(impl.subList(fromIndex, toIndex))
 
-    override fun equals(other: Any?): Boolean = impl.equals(other)
+    override fun equals(other: Any?): Boolean = impl == other
     override fun hashCode(): Int = impl.hashCode()
     override fun toString(): String = impl.toString()
 }
@@ -41,7 +41,7 @@ public class ImmutableMapAdapter<K, out V>(private val impl: Map<K, V>) : Immuta
     override val values: ImmutableCollection<V> = ImmutableCollectionAdapter(impl.values)
     override val entries: ImmutableSet<Map.Entry<K, V>> = ImmutableSetAdapter(impl.entries)
 
-    override fun equals(other: Any?): Boolean = impl.equals(other)
+    override fun equals(other: Any?): Boolean = impl == other
     override fun hashCode(): Int = impl.hashCode()
     override fun toString(): String = impl.toString()
 }
