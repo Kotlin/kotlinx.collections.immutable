@@ -26,11 +26,11 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
 
     override fun build(): PersistentMap<K, V> {
         return builtMap?.also { map ->
-            assert(hashMapBuilder.builtMap != null)
-            assert(firstKey === map.firstKey)
-            assert(lastKey === map.lastKey)
+            assert { hashMapBuilder.builtMap != null }
+            assert { firstKey === map.firstKey }
+            assert { lastKey === map.lastKey }
         } ?: run {
-            assert(hashMapBuilder.builtMap == null)
+            assert { hashMapBuilder.builtMap == null }
             val newHashMap = hashMapBuilder.build()
             val newOrdered = PersistentOrderedMap(firstKey, lastKey, newHashMap)
             builtMap = newOrdered
@@ -77,7 +77,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
                 @Suppress("UNCHECKED_CAST")
                 val lastKey = lastKey as K
                 val lastLinks = hashMapBuilder[lastKey]!!
-                assert(!lastLinks.hasNext)
+                assert { !lastLinks.hasNext }
                 hashMapBuilder[lastKey] = lastLinks.withNext(key)
                 hashMapBuilder[key] = LinkedValue(value, previous = lastKey)
                 this.lastKey = key

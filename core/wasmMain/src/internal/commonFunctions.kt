@@ -5,8 +5,4 @@
 
 package kotlinx.collections.immutable.internal
 
-internal actual fun assert(condition: Boolean) {
-    if (!condition) {
-        throw AssertionError("Assertion failed")
-    }
-}
+internal actual inline fun assert(condition: () -> Boolean) {}

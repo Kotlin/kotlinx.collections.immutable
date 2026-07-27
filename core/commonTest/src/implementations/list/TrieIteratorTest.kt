@@ -6,7 +6,6 @@
 package tests.implementations.list
 
 import kotlinx.collections.immutable.implementations.immutableList.*
-import kotlinx.collections.immutable.internal.assert
 import kotlin.math.pow
 import kotlin.random.*
 import kotlin.test.*

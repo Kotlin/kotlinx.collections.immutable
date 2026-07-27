@@ -13,7 +13,7 @@ internal class TrieNodeMutableEntriesIterator<K, V>(
 ) : TrieNodeBaseIterator<K, V, MutableMap.MutableEntry<K, V>>() {
 
     override fun next(): MutableMap.MutableEntry<K, V> {
-        assert(hasNextKey())
+        assert { hasNextKey() }
         index += 2
         @Suppress("UNCHECKED_CAST")
         return MutableMapEntry(parentIterator, buffer[index - 2] as K, buffer[index - 1] as V)

@@ -5,4 +5,10 @@
 
 package kotlinx.collections.immutable.internal
 
-internal actual fun assert(condition: Boolean) = kotlin.assert(condition)
+private class Assertions
+
+internal val ASSERTIONS_ENABLED = Assertions::class.java.desiredAssertionStatus()
+
+internal actual inline fun assert(condition: () -> Boolean) {
+    if (ASSERTIONS_ENABLED && !condition()) throw AssertionError("Assertion failed")
+}

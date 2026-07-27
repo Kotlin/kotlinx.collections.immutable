@@ -21,11 +21,11 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
 
     override fun build(): PersistentSet<E> {
         return builtSet?.also { set ->
-            assert(hashMapBuilder.builtMap != null)
-            assert(firstElement === set.firstElement)
-            assert(lastElement === set.lastElement)
+            assert { hashMapBuilder.builtMap != null }
+            assert { firstElement === set.firstElement }
+            assert { lastElement === set.lastElement }
         } ?: run {
-            assert(hashMapBuilder.builtMap == null)
+            assert { hashMapBuilder.builtMap == null }
             val newMap = hashMapBuilder.build()
             val newSet = PersistentOrderedSet(firstElement, lastElement, newMap)
             builtSet = newSet

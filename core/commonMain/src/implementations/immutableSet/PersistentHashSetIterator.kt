@@ -74,7 +74,7 @@ internal open class PersistentHashSetIterator<E>(node: TrieNode<E>) : Iterator<E
     }
 
     protected fun currentElement(): E {
-        assert(hasNext())
+        assert { hasNext() }
         return path[pathLastIndex].currentElement()
     }
 }
@@ -93,7 +93,7 @@ internal class TrieNodeIterator<out E> {
     }
 
     fun moveToNextCell() {
-        assert(hasNextCell())
+        assert { hasNextCell() }
         index++
     }
 
@@ -102,13 +102,13 @@ internal class TrieNodeIterator<out E> {
     }
 
     fun currentElement(): E {
-        assert(hasNextElement())
+        assert { hasNextElement() }
         @Suppress("UNCHECKED_CAST")
         return buffer[index] as E
     }
 
     fun nextElement(): E {
-        assert(hasNextElement())
+        assert { hasNextElement() }
         @Suppress("UNCHECKED_CAST")
         return buffer[index++] as E
     }
@@ -118,7 +118,7 @@ internal class TrieNodeIterator<out E> {
     }
 
     fun currentNode(): TrieNode<out E> {
-        assert(hasNextNode())
+        assert { hasNextNode() }
         @Suppress("UNCHECKED_CAST")
         return buffer[index] as TrieNode<E>
     }

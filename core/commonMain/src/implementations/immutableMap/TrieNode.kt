@@ -474,10 +474,10 @@ internal class TrieNode<K, V>(
         intersectionCounter: DeltaCounter,
         owner: MutabilityOwnership
     ): TrieNode<K, V> {
-        assert(nodeMap == 0)
-        assert(dataMap == 0)
-        assert(otherNode.nodeMap == 0)
-        assert(otherNode.dataMap == 0)
+        assert { nodeMap == 0 }
+        assert { dataMap == 0 }
+        assert { otherNode.nodeMap == 0 }
+        assert { otherNode.dataMap == 0 }
         val tempBuffer = this.buffer.copyOf(newSize = this.buffer.size + otherNode.buffer.size)
         var i = this.buffer.size
         for (j in 0..<otherNode.buffer.size step ENTRY_SIZE) {

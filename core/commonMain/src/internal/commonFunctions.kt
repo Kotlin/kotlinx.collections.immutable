@@ -5,4 +5,4 @@
 
 package kotlinx.collections.immutable.internal
 
-internal expect fun assert(condition: Boolean)
+internal expect fun assert(condition: () -> Boolean)

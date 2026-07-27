@@ -40,7 +40,7 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
     private fun resetPath(hashCode: Int, node: TrieNode<*>, element: E, pathIndex: Int) {
         if (isCollision(node)) {
             val index = node.buffer.indexOf(element)
-            assert(index != -1)
+            assert { index != -1 }
             path[pathIndex].reset(node.buffer, index)
             pathLastIndex = pathIndex
             return

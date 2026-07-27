@@ -14,7 +14,7 @@ import kotlinx.collections.immutable.mutate
 internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : AbstractPersistentList<E>() {
 
     init {
-        assert(buffer.size <= MAX_BUFFER_SIZE)
+        assert { buffer.size <= MAX_BUFFER_SIZE }
     }
 
     override val size: Int

@@ -56,12 +56,12 @@ private inline fun Array<Any?>.filterTo(
     var i = 0
     var j = 0
     while (i < size) {
-        assert(j <= i) // this is extremely important if newArray === this
+        assert { j <= i } // this is extremely important if newArray === this
         val e = this[i]
         if (predicate(e)) {
             newArray[newArrayOffset + j] = this[i]
             ++j
-            assert(newArrayOffset + j <= newArray.size)
+            assert { newArrayOffset + j <= newArray.size }
         }
         ++i
     }
