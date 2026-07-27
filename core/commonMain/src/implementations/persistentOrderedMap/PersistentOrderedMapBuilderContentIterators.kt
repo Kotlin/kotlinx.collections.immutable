@@ -9,8 +9,8 @@ import kotlinx.collections.immutable.implementations.immutableMap.MapEntry
 import kotlinx.collections.immutable.internal.EndOfChain
 
 internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
-        private var nextKey: Any?,
-        internal val builder: PersistentOrderedMapBuilder<K, V>
+    private var nextKey: Any?,
+    internal val builder: PersistentOrderedMapBuilder<K, V>
 ) : MutableIterator<LinkedValue<V>> {
 
     internal var lastIteratedKey: Any? = EndOfChain
@@ -62,7 +62,8 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
     }
 }
 
-internal class PersistentOrderedMapBuilderEntriesIterator<K, V>(map: PersistentOrderedMapBuilder<K, V>): MutableIterator<MutableMap.MutableEntry<K, V>> {
+internal class PersistentOrderedMapBuilderEntriesIterator<K, V>(map: PersistentOrderedMapBuilder<K, V>) :
+    MutableIterator<MutableMap.MutableEntry<K, V>> {
     private val internal = PersistentOrderedMapBuilderLinksIterator(map.firstKey, map)
 
     override fun hasNext(): Boolean {
@@ -80,9 +81,11 @@ internal class PersistentOrderedMapBuilderEntriesIterator<K, V>(map: PersistentO
     }
 }
 
-private class MutableMapEntry<K, V>(private val builder: PersistentOrderedMapBuilder<K, V>,
-                                    key: K,
-                                    private var links: LinkedValue<V>) : MapEntry<K, V>(key, links.value), MutableMap.MutableEntry<K, V> {
+private class MutableMapEntry<K, V>(
+    private val builder: PersistentOrderedMapBuilder<K, V>,
+    key: K,
+    private var links: LinkedValue<V>
+) : MapEntry<K, V>(key, links.value), MutableMap.MutableEntry<K, V> {
     private val expectedModCount = builder.hashMapBuilder.modCount
 
     override val value: V
@@ -100,7 +103,8 @@ private class MutableMapEntry<K, V>(private val builder: PersistentOrderedMapBui
     }
 }
 
-internal class PersistentOrderedMapBuilderKeysIterator<out K, out V>(map: PersistentOrderedMapBuilder<K, V>): MutableIterator<K> {
+internal class PersistentOrderedMapBuilderKeysIterator<out K, out V>(map: PersistentOrderedMapBuilder<K, V>) :
+    MutableIterator<K> {
     private val internal = PersistentOrderedMapBuilderLinksIterator(map.firstKey, map)
 
     override fun hasNext(): Boolean {
@@ -118,7 +122,8 @@ internal class PersistentOrderedMapBuilderKeysIterator<out K, out V>(map: Persis
     }
 }
 
-internal class PersistentOrderedMapBuilderValuesIterator<out K, out V>(map: PersistentOrderedMapBuilder<K, V>): MutableIterator<V> {
+internal class PersistentOrderedMapBuilderValuesIterator<out K, out V>(map: PersistentOrderedMapBuilder<K, V>) :
+    MutableIterator<V> {
     private val internal = PersistentOrderedMapBuilderLinksIterator(map.firstKey, map)
 
     override fun hasNext(): Boolean {

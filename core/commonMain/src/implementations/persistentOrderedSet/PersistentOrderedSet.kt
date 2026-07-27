@@ -13,6 +13,7 @@ import kotlinx.collections.immutable.mutate
 internal class Links(val previous: Any?, val next: Any?) {
     /** Constructs Links for a new single element */
     constructor() : this(EndOfChain, EndOfChain)
+
     /** Constructs Links for a new last element */
     constructor(previous: Any?) : this(previous, EndOfChain)
 
@@ -24,9 +25,9 @@ internal class Links(val previous: Any?, val next: Any?) {
 }
 
 internal class PersistentOrderedSet<E>(
-        internal val firstElement: Any?,
-        internal val lastElement: Any?,
-        internal val hashMap: PersistentHashMap<E, Links>
+    internal val firstElement: Any?,
+    internal val lastElement: Any?,
+    internal val hashMap: PersistentHashMap<E, Links>
 ) : AbstractSet<E>(), PersistentSet<E> {
 
     override val size: Int get() = hashMap.size
@@ -51,8 +52,8 @@ internal class PersistentOrderedSet<E>(
 //        assert(!lastLinks.hasNext)
 
         val newMap = hashMap
-                .putting(lastElement, lastLinks.withNext(element))
-                .putting(element, Links(previous = lastElement))
+            .putting(lastElement, lastLinks.withNext(element))
+            .putting(element, Links(previous = lastElement))
         return PersistentOrderedSet(firstElement, element, newMap)
     }
 
@@ -138,12 +139,8 @@ internal class PersistentOrderedSet<E>(
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedSet<*> -> {
-                hashMap.node.equalsWith(other.hashMap.node) { _, _ -> true }
-            }
-            is PersistentOrderedSetBuilder<*> -> {
-                hashMap.node.equalsWith(other.hashMapBuilder.node) { _, _ -> true }
-            }
+            is PersistentOrderedSet<*> -> hashMap.node.equalsWith(other.hashMap.node) { _, _ -> true }
+            is PersistentOrderedSetBuilder<*> -> hashMap.node.equalsWith(other.hashMapBuilder.node) { _, _ -> true }
             else -> super.equals(other)
         }
     }

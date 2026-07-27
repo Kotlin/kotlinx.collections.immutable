@@ -16,6 +16,7 @@ import kotlinx.collections.immutable.mutate
 internal class LinkedValue<V>(val value: V, val previous: Any?, val next: Any?) {
     /** Constructs LinkedValue for a new single entry */
     constructor(value: V) : this(value, EndOfChain, EndOfChain)
+
     /** Constructs LinkedValue for a new last entry */
     constructor(value: V, previous: Any?) : this(value, previous, EndOfChain)
 
@@ -28,9 +29,9 @@ internal class LinkedValue<V>(val value: V, val previous: Any?, val next: Any?) 
 }
 
 internal class PersistentOrderedMap<K, V>(
-        internal val firstKey: Any?,
-        internal val lastKey: Any?,
-        internal val hashMap: PersistentHashMap<K, LinkedValue<V>>
+    internal val firstKey: Any?,
+    internal val lastKey: Any?,
+    internal val hashMap: PersistentHashMap<K, LinkedValue<V>>
 ) : AbstractMap<K, V>(), PersistentMap<K, V> {
 
     override val size: Int get() = hashMap.size
@@ -88,12 +89,13 @@ internal class PersistentOrderedMap<K, V>(
         val lastLinks = hashMap[lastKey]!!
 //        assert(!lastLink.hasNext)
         val newMap = hashMap
-                .putting(lastKey, lastLinks.withNext(key))
-                .putting(key, LinkedValue(value, previous = lastKey))
+            .putting(lastKey, lastLinks.withNext(key))
+            .putting(key, LinkedValue(value, previous = lastKey))
         return PersistentOrderedMap(firstKey, key, newMap)
     }
 
-    override fun putting(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> = @Suppress("DEPRECATION") put(key, value)
+    override fun putting(key: K, value: @UnsafeVariance V): PersistentOrderedMap<K, V> =
+        @Suppress("DEPRECATION") put(key, value)
 
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
@@ -159,26 +161,11 @@ internal class PersistentOrderedMap<K, V>(
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedMap<*, *> -> {
-                hashMap.node.equalsWith(other.hashMap.node) { a, b ->
-                    a.value == b.value
-                }
-            }
-            is PersistentOrderedMapBuilder<*, *> -> {
-                hashMap.node.equalsWith(other.hashMapBuilder.node) { a, b ->
-                    a.value == b.value
-                }
-            }
-            is PersistentHashMap<*, *> -> {
-                hashMap.node.equalsWith(other.node) { a, b ->
-                    a.value == b
-                }
-            }
-            is PersistentHashMapBuilder<*, *> -> {
-                hashMap.node.equalsWith(other.node) { a, b ->
-                    a.value == b
-                }
-            }
+            is PersistentOrderedMap<*, *> -> hashMap.node.equalsWith(other.hashMap.node) { a, b -> a.value == b.value }
+            is PersistentOrderedMapBuilder<*, *> ->
+                hashMap.node.equalsWith(other.hashMapBuilder.node) { a, b -> a.value == b.value }
+            is PersistentHashMap<*, *> -> hashMap.node.equalsWith(other.node) { a, b -> a.value == b }
+            is PersistentHashMapBuilder<*, *> -> hashMap.node.equalsWith(other.node) { a, b -> a.value == b }
             else -> super.equals(other)
         }
     }
@@ -191,6 +178,7 @@ internal class PersistentOrderedMap<K, V>(
 
     internal companion object {
         private val EMPTY = PersistentOrderedMap<Nothing, Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf())
+
         @Suppress("UNCHECKED_CAST")
         internal fun <K, V> emptyOf(): PersistentOrderedMap<K, V> = EMPTY as PersistentOrderedMap<K, V>
     }

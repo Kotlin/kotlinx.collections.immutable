@@ -24,7 +24,7 @@ internal const val MAX_SHIFT = 30
  * For each lower level `shift` increments by [LOG_MAX_BRANCHING_FACTOR].
  */
 internal fun indexSegment(index: Int, shift: Int): Int =
-        (index shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE
+    (index shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE
 
 private fun <K, V> Array<Any?>.insertEntryAtIndex(keyIndex: Int, key: K, value: V): Array<Any?> {
     val newBuffer = arrayOfNulls<Any?>(this.size + ENTRY_SIZE)
@@ -36,7 +36,7 @@ private fun <K, V> Array<Any?>.insertEntryAtIndex(keyIndex: Int, key: K, value: 
 }
 
 private fun Array<Any?>.replaceEntryWithNode(keyIndex: Int, nodeIndex: Int, newNode: TrieNode<*, *>): Array<Any?> {
-    val newNodeIndex = nodeIndex - ENTRY_SIZE  // place where to insert new node in the new buffer
+    val newNodeIndex = nodeIndex - ENTRY_SIZE // place where to insert new node in the new buffer
     val newBuffer = arrayOfNulls<Any?>(this.size - ENTRY_SIZE + 1)
     this.copyInto(newBuffer, endIndex = keyIndex)
     this.copyInto(newBuffer, keyIndex, startIndex = keyIndex + ENTRY_SIZE, endIndex = nodeIndex)
@@ -48,7 +48,7 @@ private fun Array<Any?>.replaceEntryWithNode(keyIndex: Int, nodeIndex: Int, newN
 private fun <K, V> Array<Any?>.replaceNodeWithEntry(nodeIndex: Int, keyIndex: Int, key: K, value: V): Array<Any?> {
     val newBuffer = this.copyOf(this.size + 1)
     newBuffer.copyInto(newBuffer, nodeIndex + 2, nodeIndex + 1, this.size)
-    newBuffer.copyInto(newBuffer, keyIndex + 2, keyIndex , nodeIndex)
+    newBuffer.copyInto(newBuffer, keyIndex + 2, keyIndex, nodeIndex)
     newBuffer[keyIndex] = key
     newBuffer[keyIndex + 1] = value
     return newBuffer
@@ -69,18 +69,17 @@ private fun Array<Any?>.removeNodeAtIndex(nodeIndex: Int): Array<Any?> {
 }
 
 
-
 internal class TrieNode<K, V>(
-        private var dataMap: Int,
-        private var nodeMap: Int,
-        buffer: Array<Any?>,
-        private val ownedBy: MutabilityOwnership?
+    private var dataMap: Int,
+    private var nodeMap: Int,
+    buffer: Array<Any?>,
+    private val ownedBy: MutabilityOwnership?
 ) {
     constructor(dataMap: Int, nodeMap: Int, buffer: Array<Any?>) : this(dataMap, nodeMap, buffer, null)
 
     internal class ModificationResult<K, V>(var node: TrieNode<K, V>, val sizeDelta: Int) {
         inline fun replaceNode(operation: (TrieNode<K, V>) -> TrieNode<K, V>): ModificationResult<K, V> =
-                apply { node = operation(node) }
+            apply { node = operation(node) }
     }
 
     private fun asInsertResult() = ModificationResult(this, 1)
@@ -170,7 +169,11 @@ internal class TrieNode<K, V>(
         return TrieNode(dataMap, nodeMap, newBuffer)
     }
 
-    private fun mutableUpdateValueAtIndex(keyIndex: Int, value: V, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
+    private fun mutableUpdateValueAtIndex(
+        keyIndex: Int,
+        value: V,
+        mutator: PersistentHashMapBuilder<K, V>
+    ): TrieNode<K, V> {
 //        assert(buffer[keyIndex + 1] !== value)
 
         // If the [mutator] is exclusive owner of this node, update value at specified index in-place.
@@ -187,7 +190,12 @@ internal class TrieNode<K, V>(
     }
 
     /** The given [newNode] must not be a part of any persistent map instance. */
-    private fun updateNodeAtIndex(nodeIndex: Int, positionMask: Int, newNode: TrieNode<K, V>, owner: MutabilityOwnership? = null): TrieNode<K, V> {
+    private fun updateNodeAtIndex(
+        nodeIndex: Int,
+        positionMask: Int,
+        newNode: TrieNode<K, V>,
+        owner: MutabilityOwnership? = null
+    ): TrieNode<K, V> {
         if (newNode.hasSingleEntry) {
             if (buffer.size == 1) {
 //                assert(dataMap == 0 && nodeMap xor positionMask == 0)
@@ -218,7 +226,11 @@ internal class TrieNode<K, V>(
         return TrieNode(dataMap, nodeMap xor positionMask, newBuffer)
     }
 
-    private fun mutableRemoveNodeAtIndex(nodeIndex: Int, positionMask: Int, owner: MutabilityOwnership): TrieNode<K, V>? {
+    private fun mutableRemoveNodeAtIndex(
+        nodeIndex: Int,
+        positionMask: Int,
+        owner: MutabilityOwnership
+    ): TrieNode<K, V>? {
 //        assert(hasNodeAt(positionMask))
         if (buffer.size == 1) return null
 
@@ -232,13 +244,22 @@ internal class TrieNode<K, V>(
     }
 
 
-    private fun bufferMoveEntryToNode(keyIndex: Int, positionMask: Int, newKeyHash: Int,
-                                      newKey: K, newValue: V, shift: Int, owner: MutabilityOwnership?): Array<Any?> {
+    private fun bufferMoveEntryToNode(
+        keyIndex: Int,
+        positionMask: Int,
+        newKeyHash: Int,
+        newKey: K,
+        newValue: V,
+        shift: Int,
+        owner: MutabilityOwnership?
+    ): Array<Any?> {
         val storedKey = keyAtIndex(keyIndex)
         val storedKeyHash = storedKey.hashCode()
         val storedValue = valueAtKeyIndex(keyIndex)
-        val newNode = makeNode(storedKeyHash, storedKey, storedValue,
-                newKeyHash, newKey, newValue, shift + LOG_MAX_BRANCHING_FACTOR, owner)
+        val newNode = makeNode(
+            storedKeyHash, storedKey, storedValue,
+            newKeyHash, newKey, newValue, shift + LOG_MAX_BRANCHING_FACTOR, owner
+        )
 
         val nodeIndex = nodeIndex(positionMask) + 1 // place where to insert new node in the current buffer
 
@@ -246,8 +267,14 @@ internal class TrieNode<K, V>(
     }
 
 
-    private fun moveEntryToNode(keyIndex: Int, positionMask: Int, newKeyHash: Int,
-                                newKey: K, newValue: V, shift: Int): TrieNode<K, V> {
+    private fun moveEntryToNode(
+        keyIndex: Int,
+        positionMask: Int,
+        newKeyHash: Int,
+        newKey: K,
+        newValue: V,
+        shift: Int
+    ): TrieNode<K, V> {
 //        assert(hasEntryAt(positionMask))
 //        assert(!hasNodeAt(positionMask))
 
@@ -255,8 +282,15 @@ internal class TrieNode<K, V>(
         return TrieNode(dataMap xor positionMask, nodeMap or positionMask, newBuffer)
     }
 
-    private fun mutableMoveEntryToNode(keyIndex: Int, positionMask: Int, newKeyHash: Int,
-                                       newKey: K, newValue: V, shift: Int, owner: MutabilityOwnership): TrieNode<K, V> {
+    private fun mutableMoveEntryToNode(
+        keyIndex: Int,
+        positionMask: Int,
+        newKeyHash: Int,
+        newKey: K,
+        newValue: V,
+        shift: Int,
+        owner: MutabilityOwnership
+    ): TrieNode<K, V> {
 //        assert(hasEntryAt(positionMask))
 //        assert(!hasNodeAt(positionMask))
 
@@ -271,8 +305,16 @@ internal class TrieNode<K, V>(
     }
 
     /** Creates a new TrieNode for holding two given key value entries */
-    private fun makeNode(keyHash1: Int, key1: K, value1: V,
-                         keyHash2: Int, key2: K, value2: V, shift: Int, owner: MutabilityOwnership?): TrieNode<K, V> {
+    private fun makeNode(
+        keyHash1: Int,
+        key1: K,
+        value1: V,
+        keyHash2: Int,
+        key2: K,
+        value2: V,
+        shift: Int,
+        owner: MutabilityOwnership?
+    ): TrieNode<K, V> {
         if (shift > MAX_SHIFT) {
 //            assert(key1 != key2)
             // when two key hashes are entirely equal: the last level subtrie node stores them just as unordered list
@@ -302,7 +344,11 @@ internal class TrieNode<K, V>(
         return TrieNode(dataMap xor positionMask, nodeMap, newBuffer)
     }
 
-    private fun mutableRemoveEntryAtIndex(keyIndex: Int, positionMask: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+    private fun mutableRemoveEntryAtIndex(
+        keyIndex: Int,
+        positionMask: Int,
+        mutator: PersistentHashMapBuilder<K, V>
+    ): TrieNode<K, V>? {
 //        assert(hasEntryAt(positionMask))
         mutator.size--
         mutator.operationResult = valueAtKeyIndex(keyIndex)
@@ -423,9 +469,11 @@ internal class TrieNode<K, V>(
         return this
     }
 
-    private fun mutableCollisionPutAll(otherNode: TrieNode<K, V>,
-                                       intersectionCounter: DeltaCounter,
-                                       owner: MutabilityOwnership): TrieNode<K, V> {
+    private fun mutableCollisionPutAll(
+        otherNode: TrieNode<K, V>,
+        intersectionCounter: DeltaCounter,
+        owner: MutabilityOwnership
+    ): TrieNode<K, V> {
         assert(nodeMap == 0)
         assert(dataMap == 0)
         assert(otherNode.nodeMap == 0)
@@ -464,8 +512,14 @@ internal class TrieNode<K, V>(
             when {
                 otherNode.hasNodeAt(positionMask) -> {
                     val otherTargetNode = otherNode.nodeAtIndex(otherNode.nodeIndex(positionMask))
-                    targetNode.mutablePutAll(otherTargetNode, shift + LOG_MAX_BRANCHING_FACTOR, intersectionCounter, mutator)
+                    targetNode.mutablePutAll(
+                        otherTargetNode,
+                        shift + LOG_MAX_BRANCHING_FACTOR,
+                        intersectionCounter,
+                        mutator
+                    )
                 }
+
                 otherNode.hasEntryAt(positionMask) -> {
                     val keyIndex = otherNode.entryKeyIndex(positionMask)
                     val key = otherNode.keyAtIndex(keyIndex)
@@ -475,6 +529,7 @@ internal class TrieNode<K, V>(
                         if (mutator.size == oldSize) intersectionCounter.count++
                     }
                 }
+
                 else -> targetNode
             }
         }
@@ -491,9 +546,13 @@ internal class TrieNode<K, V>(
                         otherTargetNode
                     } else {
                         val value = this.valueAtKeyIndex(keyIndex)
-                        otherTargetNode.mutablePut(key.hashCode(), key, value, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
+                        otherTargetNode.mutablePut(
+                            key.hashCode(), key, value,
+                            shift + LOG_MAX_BRANCHING_FACTOR, mutator
+                        )
                     }
                 }
+
                 else -> otherTargetNode
             }
         }
@@ -522,7 +581,7 @@ internal class TrieNode<K, V>(
         if (nodeMap == 0) return buffer.size / ENTRY_SIZE
         val numValues = dataMap.countOneBits()
         var result = numValues
-        for(i in (numValues * ENTRY_SIZE) until buffer.size) {
+        for (i in (numValues * ENTRY_SIZE) until buffer.size) {
             result += nodeAtIndex(i).calculateSize()
         }
         return result
@@ -533,7 +592,7 @@ internal class TrieNode<K, V>(
         if (nodeMap != otherNode.nodeMap) return false
         if (dataMap != otherNode.dataMap) return false
         for (i in 0 until buffer.size) {
-            if(buffer[i] !== otherNode.buffer[i]) return false
+            if (buffer[i] !== otherNode.buffer[i]) return false
         }
         return true
     }
@@ -579,10 +638,12 @@ internal class TrieNode<K, V>(
         return null
     }
 
-    fun mutablePutAll(otherNode: TrieNode<K, V>,
-                      shift: Int,
-                      intersectionCounter: DeltaCounter,
-                      mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
+    fun mutablePutAll(
+        otherNode: TrieNode<K, V>,
+        shift: Int,
+        intersectionCounter: DeltaCounter,
+        mutator: PersistentHashMapBuilder<K, V>
+    ): TrieNode<K, V> {
         if (this === otherNode) {
             intersectionCounter += calculateSize()
             return this
@@ -619,7 +680,8 @@ internal class TrieNode<K, V>(
         }
         newNodeMap.forEachOneBit { positionMask, index ->
             val newNodeIndex = mutableNode.buffer.size - 1 - index
-            mutableNode.buffer[newNodeIndex] = mutablePutAllFromOtherNodeCell(otherNode, positionMask, shift, intersectionCounter, mutator)
+            mutableNode.buffer[newNodeIndex] =
+                mutablePutAllFromOtherNodeCell(otherNode, positionMask, shift, intersectionCounter, mutator)
         }
         newDataMap.forEachOneBit { positionMask, index ->
             val newKeyIndex = index * ENTRY_SIZE
@@ -676,7 +738,13 @@ internal class TrieNode<K, V>(
         return insertEntryAt(keyPositionMask, key, value).asInsertResult()
     }
 
-    fun mutablePut(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V> {
+    fun mutablePut(
+        keyHash: Int,
+        key: K,
+        value: @UnsafeVariance V,
+        shift: Int,
+        mutator: PersistentHashMapBuilder<K, V>
+    ): TrieNode<K, V> {
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -740,14 +808,12 @@ internal class TrieNode<K, V>(
         return this
     }
 
-    private fun replaceNode(targetNode: TrieNode<K, V>, newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int) = when {
-        newNode == null ->
-            removeNodeAtIndex(nodeIndex, positionMask)
-        targetNode !== newNode ->
-            updateNodeAtIndex(nodeIndex, positionMask, newNode)
-        else ->
-            this
-    }
+    private fun replaceNode(targetNode: TrieNode<K, V>, newNode: TrieNode<K, V>?, nodeIndex: Int, positionMask: Int) =
+        when {
+            newNode == null -> removeNodeAtIndex(nodeIndex, positionMask)
+            targetNode !== newNode -> updateNodeAtIndex(nodeIndex, positionMask, newNode)
+            else -> this
+        }
 
     fun mutableRemove(keyHash: Int, key: K, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
@@ -819,7 +885,13 @@ internal class TrieNode<K, V>(
         return this
     }
 
-    fun mutableRemove(keyHash: Int, key: K, value: @UnsafeVariance V, shift: Int, mutator: PersistentHashMapBuilder<K, V>): TrieNode<K, V>? {
+    fun mutableRemove(
+        keyHash: Int,
+        key: K,
+        value: @UnsafeVariance V,
+        shift: Int,
+        mutator: PersistentHashMapBuilder<K, V>
+    ): TrieNode<K, V>? {
         val keyPositionMask = 1 shl indexSegment(keyHash, shift)
 
         if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
@@ -879,9 +951,9 @@ internal class TrieNode<K, V>(
     }
 
     private fun accept(
-            visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit,
-            hash: Int,
-            shift: Int
+        visitor: (node: TrieNode<K, V>, shift: Int, hash: Int, dataMap: Int, nodeMap: Int) -> Unit,
+        hash: Int,
+        shift: Int
     ) {
         visitor(this, shift, hash, dataMap, nodeMap)
 

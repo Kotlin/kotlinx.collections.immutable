@@ -11,16 +11,18 @@ import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIn
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 import kotlinx.collections.immutable.internal.assert
 
-internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
-                                          vectorRoot: Array<Any?>?,
-                                          vectorTail: Array<Any?>,
-                                          internal var rootShift: Int) : AbstractMutableList<E>(), PersistentList.Builder<E> {
+internal class PersistentVectorBuilder<E>(
+    vector: PersistentList<E>,
+    vectorRoot: Array<Any?>?,
+    vectorTail: Array<Any?>,
+    internal var rootShift: Int
+) : AbstractMutableList<E>(), PersistentList.Builder<E> {
 
     private var builtVector: PersistentList<E>? = vector
     private var ownership = MutabilityOwnership()
 
     internal var root = vectorRoot
-        private set (value) {
+        private set(value) {
             if (value !== field) {
                 builtVector = null
                 field = value
@@ -28,7 +30,7 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
         }
 
     internal var tail = vectorTail
-        private set (value) {
+        private set(value) {
             if (value !== field) {
                 builtVector = null
                 field = value
@@ -141,11 +143,13 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
             this.rootShift += LOG_MAX_BUFFER_SIZE
             this.size += 1
         }
+
         root == null -> {
             this.root = filledTail
             this.tail = newTail
             this.size += 1
         }
+
         else -> {
             this.root = pushTail(root, filledTail, rootShift)
             this.tail = newTail
@@ -221,13 +225,18 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      *
      * Returns root of the resulting trie.
      */
-    private fun pushBuffersIncreasingHeightIfNeeded(root: Array<Any?>?, rootSize: Int, buffers: Array<Array<Any?>>): Array<Any?> {
+    private fun pushBuffersIncreasingHeightIfNeeded(
+        root: Array<Any?>?,
+        rootSize: Int,
+        buffers: Array<Array<Any?>>
+    ): Array<Any?> {
         val buffersIterator = buffers.iterator()
 
         var mutableRoot = when {
             rootSize shr LOG_MAX_BUFFER_SIZE < 1 shl rootShift ->
                 // if the root trie is not filled entirely, fill it
                 pushBuffers(root, rootSize, rootShift, buffersIterator)
+
             else ->
                 // root is filled entirely, make it mutable
                 makeMutable(root)
@@ -253,7 +262,12 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      * Returns the resulting root.
      */
     @IgnorableReturnValue
-    private fun pushBuffers(root: Array<Any?>?, rootSize: Int, shift: Int, buffersIterator: Iterator<Array<Any?>>): Array<Any?> {
+    private fun pushBuffers(
+        root: Array<Any?>?,
+        rootSize: Int,
+        shift: Int,
+        buffersIterator: Iterator<Array<Any?>>
+    ): Array<Any?> {
         check(buffersIterator.hasNext())
         check(shift >= 0)
 
@@ -266,12 +280,12 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
 
         @Suppress("UNCHECKED_CAST")
         mutableRoot[index] =
-                pushBuffers(mutableRoot[index] as Array<Any?>?, rootSize, shift - LOG_MAX_BUFFER_SIZE, buffersIterator)
+            pushBuffers(mutableRoot[index] as Array<Any?>?, rootSize, shift - LOG_MAX_BUFFER_SIZE, buffersIterator)
 
         while (++index < MAX_BUFFER_SIZE && buffersIterator.hasNext()) {
             @Suppress("UNCHECKED_CAST")
             mutableRoot[index] =
-                    pushBuffers(mutableRoot[index] as Array<Any?>?, 0, shift - LOG_MAX_BUFFER_SIZE, buffersIterator)
+                pushBuffers(mutableRoot[index] as Array<Any?>?, 0, shift - LOG_MAX_BUFFER_SIZE, buffersIterator)
         }
         return mutableRoot
     }
@@ -321,7 +335,13 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      *
      * [elementCarry] contains the last element of this trie that was popped out by the insertion operation.
      */
-    private fun insertIntoRoot(root: Array<Any?>, shift: Int, index: Int, element: Any?, elementCarry: ObjectRef): Array<Any?> {
+    private fun insertIntoRoot(
+        root: Array<Any?>,
+        shift: Int,
+        index: Int,
+        element: Any?,
+        elementCarry: ObjectRef
+    ): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
 
         if (shift == 0) {
@@ -336,13 +356,13 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
 
         @Suppress("UNCHECKED_CAST")
         mutableRoot[bufferIndex] =
-                insertIntoRoot(mutableRoot[bufferIndex] as Array<Any?>, lowerLevelShift, index, element, elementCarry)
+            insertIntoRoot(mutableRoot[bufferIndex] as Array<Any?>, lowerLevelShift, index, element, elementCarry)
 
         for (i in bufferIndex + 1 until MAX_BUFFER_SIZE) {
             if (mutableRoot[i] == null) break
             @Suppress("UNCHECKED_CAST")
             mutableRoot[i] =
-                    insertIntoRoot(mutableRoot[i] as Array<Any?>, lowerLevelShift, 0, elementCarry.value, elementCarry)
+                insertIntoRoot(mutableRoot[i] as Array<Any?>, lowerLevelShift, 0, elementCarry.value, elementCarry)
         }
 
         return mutableRoot
@@ -390,12 +410,14 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
                 newTail = mutableBuffer()
                 splitToBuffers(elements, index, tail, tailSize, buffers, buffersSize, newTail)
             }
+
             newTailSize > tailSize -> {
                 val rightShift = newTailSize - tailSize
                 newTail = makeMutableShiftingRight(tail, rightShift)
 
                 insertIntoRoot(elements, index, rightShift, buffers, buffersSize, newTail)
             }
+
             else -> {
                 newTail = tail.copyInto(mutableBuffer(), 0, tailSize - newTailSize, tailSize)
 
@@ -423,12 +445,12 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      * Elements that do not fit [nullBuffers] buffers are copied to the [nextBuffer].
      */
     private fun insertIntoRoot(
-            elements: Collection<E>,
-            index: Int,
-            rightShift: Int,
-            buffers: Array<Array<Any?>?>,
-            nullBuffers: Int,
-            nextBuffer: Array<Any?>
+        elements: Collection<E>,
+        index: Int,
+        rightShift: Int,
+        buffers: Array<Array<Any?>?>,
+        nullBuffers: Int,
+        nextBuffer: Array<Any?>
     ) {
         checkNotNull(root)
 
@@ -452,11 +474,11 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      * Returns leaf at the [startLeafIndex].
      */
     private fun shiftLeafBuffers(
-            startLeafIndex: Int,
-            rightShift: Int,
-            buffers: Array<Array<Any?>?>,
-            nullBuffers: Int,
-            nextBuffer: Array<Any?>
+        startLeafIndex: Int,
+        rightShift: Int,
+        buffers: Array<Array<Any?>?>,
+        nullBuffers: Int,
+        nextBuffer: Array<Any?>
     ): Array<Any?> {
         checkNotNull(root)
 
@@ -483,13 +505,13 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      * Elements that do not fit [nullBuffers] buffers are copied to the [nextBuffer].
      */
     private fun splitToBuffers(
-            elements: Collection<E>,
-            index: Int,
-            startBuffer: Array<Any?>,
-            startBufferSize: Int,
-            buffers: Array<Array<Any?>?>,
-            nullBuffers: Int,
-            nextBuffer: Array<Any?>
+        elements: Collection<E>,
+        index: Int,
+        startBuffer: Array<Any?>,
+        startBufferSize: Int,
+        buffers: Array<Array<Any?>?>,
+        nullBuffers: Int,
+        nextBuffer: Array<Any?>
     ) {
         check(nullBuffers >= 1)
 
@@ -515,7 +537,12 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
                 buffers[--newNullBuffers] = newNextBuffer
             }
             firstBuffer.copyInto(nextBuffer, 0, startBufferSize - toCopyToLast, startBufferSize)
-            firstBuffer.copyInto(newNextBuffer, endBufferEndIndex + 1, startBufferStartIndex, startBufferSize - toCopyToLast)
+            firstBuffer.copyInto(
+                newNextBuffer,
+                endBufferEndIndex + 1,
+                startBufferStartIndex,
+                startBufferSize - toCopyToLast
+            )
         }
 
         val elementsIterator = elements.iterator()
@@ -619,7 +646,7 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
         }
         @Suppress("UNCHECKED_CAST")
         mutableRoot[bufferIndex] =
-                removeFromRootAt(mutableRoot[bufferIndex] as Array<Any?>, lowerLevelShift, index, tailCarry)
+            removeFromRootAt(mutableRoot[bufferIndex] as Array<Any?>, lowerLevelShift, index, tailCarry)
 
         return mutableRoot
     }
@@ -732,18 +759,24 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
 
         while (leafIterator.hasNext()) {
             val leaf = leafIterator.next()
-            bufferSize = recyclableRemoveAll(predicate, leaf, MAX_BUFFER_SIZE, bufferSize, bufferRef, recyclableBuffers, buffers)
+            bufferSize =
+                recyclableRemoveAll(predicate, leaf, MAX_BUFFER_SIZE, bufferSize, bufferRef, recyclableBuffers, buffers)
         }
 
         // handle the tail
-        val newTailSize = recyclableRemoveAll(predicate, tail, tailSize, bufferSize, bufferRef, recyclableBuffers, buffers)
+        val newTailSize =
+            recyclableRemoveAll(predicate, tail, tailSize, bufferSize, bufferRef, recyclableBuffers, buffers)
 
         @Suppress("UNCHECKED_CAST")
         val newTail = bufferRef.value as Array<Any?>
         newTail.fill(null, newTailSize, MAX_BUFFER_SIZE)
 
         // build the root
-        val newRoot = if (buffers.isEmpty()) root!! else pushBuffers(root, unaffectedElementsCount, rootShift, buffers.iterator())
+        val newRoot = if (buffers.isEmpty()) {
+            root!!
+        } else {
+            pushBuffers(root, unaffectedElementsCount, rootShift, buffers.iterator())
+        }
         val newRootSize = unaffectedElementsCount + (buffers.size shl LOG_MAX_BUFFER_SIZE)
 
         root = retainFirst(newRoot, newRootSize)
@@ -791,6 +824,7 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
         }
 
         val lastIndex = indexSegment(index, shift)
+
         @Suppress("UNCHECKED_CAST")
         val newChild = nullifyAfter(root[lastIndex] as Array<Any?>, index, shift - LOG_MAX_BUFFER_SIZE)
 
@@ -846,10 +880,10 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      * Returns the filled size of the buffer stored in the [bufferRef].
      */
     private fun removeAll(
-            predicate: (E) -> Boolean,
-            buffer: Array<Any?>,
-            bufferSize: Int,
-            bufferRef: ObjectRef
+        predicate: (E) -> Boolean,
+        buffer: Array<Any?>,
+        bufferSize: Int,
+        bufferRef: ObjectRef
     ): Int {
         var newBuffer = buffer
         var newBufferSize = bufferSize
@@ -888,13 +922,13 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
      * Returns the filled size of the buffer stored in the [bufferRef].
      */
     private fun recyclableRemoveAll(
-            predicate: (E) -> Boolean,
-            buffer: Array<Any?>,
-            bufferSize: Int,
-            toBufferSize: Int,
-            bufferRef: ObjectRef,
-            recyclableBuffers: MutableList<Array<Any?>>,
-            buffers: MutableList<Array<Any?>>
+        predicate: (E) -> Boolean,
+        buffer: Array<Any?>,
+        bufferSize: Int,
+        toBufferSize: Int,
+        bufferRef: ObjectRef,
+        recyclableBuffers: MutableList<Array<Any?>>,
+        buffers: MutableList<Array<Any?>>
     ): Int {
         if (isMutable(buffer)) {
             recyclableBuffers.add(buffer)
@@ -940,7 +974,9 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
             val mutableTail = makeMutable(tail)
 
             // Creating new tail implies structural change.
-            if (mutableTail !== tail) { modCount++ }
+            if (mutableTail !== tail) {
+                modCount++
+            }
 
             val tailIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
             val oldElement = mutableTail[tailIndex]
@@ -965,7 +1001,9 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
             // Actually, while descending to this leaf several nodes could be recreated.
             // However, this builder is exclusive owner of this leaf iff it is exclusive owner of all leaf's ancestors.
             // Hence, checking recreation of this leaf is enough to determine if a structural change occurred.
-            if (mutableRoot !== root) { modCount++ }
+            if (mutableRoot !== root) {
+                modCount++
+            }
 
             oldElementCarry.value = mutableRoot[bufferIndex]
             mutableRoot[bufferIndex] = e
@@ -973,7 +1011,7 @@ internal class PersistentVectorBuilder<E>(vector: PersistentList<E>,
         }
         @Suppress("UNCHECKED_CAST")
         mutableRoot[bufferIndex] =
-                setInRoot(mutableRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e, oldElementCarry)
+            setInRoot(mutableRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e, oldElementCarry)
         return mutableRoot
     }
 

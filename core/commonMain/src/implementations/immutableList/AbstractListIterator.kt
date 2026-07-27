@@ -34,7 +34,7 @@ internal abstract class AbstractListIterator<out E>(var index: Int, var size: In
 }
 
 
-internal class SingleElementListIterator<E>(private val element: E, index: Int): AbstractListIterator<E>(index, 1) {
+internal class SingleElementListIterator<E>(private val element: E, index: Int) : AbstractListIterator<E>(index, 1) {
     override fun next(): E {
         checkHasNext()
         index++

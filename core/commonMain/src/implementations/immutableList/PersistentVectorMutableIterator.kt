@@ -13,8 +13,8 @@ package kotlinx.collections.immutable.implementations.immutableList
  * whereas tail elements are iterated directly from this class.
  */
 internal class PersistentVectorMutableIterator<T>(
-        private val builder: PersistentVectorBuilder<T>,
-        index: Int
+    private val builder: PersistentVectorBuilder<T>,
+    index: Int
 ) : MutableListIterator<T>, AbstractListIterator<T>(index, builder.size) {
 
     /**
@@ -22,11 +22,13 @@ internal class PersistentVectorMutableIterator<T>(
      * Used to check if the [PersistentVectorBuilder] was modified outside this iterator.
      */
     private var expectedModCount = builder.getModCount()
+
     /**
      * Iterates over leaves of the builder.root trie.
      * This property is equal to null if builder.root is null.
      */
     private var trieIterator: TrieIterator<T>? = null
+
     /**
      * Index of the element this iterator returned from last invocation of next() or previous().
      * Used to remove or set new value at this index.
