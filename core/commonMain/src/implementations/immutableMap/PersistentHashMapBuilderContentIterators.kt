@@ -123,14 +123,14 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
                 return
             }
 
-//            assert(node.keyAtIndex(keyIndex) == key)
+            assert { node.keyAtIndex(keyIndex) == key }
 
             path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), keyIndex)
             pathLastIndex = pathIndex
             return
         }
 
-//        assert(node.hasNodeAt(keyPositionMask)) // key is in node
+        assert { node.hasNodeAt(keyPositionMask) } // key is in node
 
         val nodeIndex = node.nodeIndex(keyPositionMask)
         val targetNode = node.nodeAtIndex(nodeIndex)

@@ -11,6 +11,7 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
 import kotlinx.collections.immutable.internal.EndOfChain
+import kotlinx.collections.immutable.internal.assert
 import kotlinx.collections.immutable.mutate
 
 internal class LinkedValue<V>(val value: V, val previous: Any?, val next: Any?) {
@@ -87,7 +88,7 @@ internal class PersistentOrderedMap<K, V>(
         @Suppress("UNCHECKED_CAST")
         val lastKey = lastKey as K
         val lastLinks = hashMap[lastKey]!!
-//        assert(!lastLink.hasNext)
+        assert { !lastLinks.hasNext }
         val newMap = hashMap
             .putting(lastKey, lastLinks.withNext(key))
             .putting(key, LinkedValue(value, previous = lastKey))
@@ -107,13 +108,13 @@ internal class PersistentOrderedMap<K, V>(
         var newMap = hashMap.removing(key)
         if (links.hasPrevious) {
             val previousLinks = newMap[links.previous]!!
-//            assert(previousLinks.next == key)
+            assert { previousLinks.next == key }
             @Suppress("UNCHECKED_CAST")
             newMap = newMap.putting(links.previous as K, previousLinks.withNext(links.next))
         }
         if (links.hasNext) {
             val nextLinks = newMap[links.next]!!
-//            assert(nextLinks.previous == key)
+            assert { nextLinks.previous == key }
             @Suppress("UNCHECKED_CAST")
             newMap = newMap.putting(links.next as K, nextLinks.withPrevious(links.previous))
         }

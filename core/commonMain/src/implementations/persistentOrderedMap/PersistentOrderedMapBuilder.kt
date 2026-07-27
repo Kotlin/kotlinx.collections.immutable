@@ -96,7 +96,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         builtMap = null
         if (links.hasPrevious) {
             val previousLinks = hashMapBuilder[links.previous]!!
-//            assert(previousLinks.next == key)
+            assert { previousLinks.next == key }
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.previous as K] = previousLinks.withNext(links.next)
         } else {
@@ -104,7 +104,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         }
         if (links.hasNext) {
             val nextLinks = hashMapBuilder[links.next]!!
-//            assert(nextLinks.previous == key)
+            assert { nextLinks.previous == key }
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.next as K] = nextLinks.withPrevious(links.previous)
         } else {

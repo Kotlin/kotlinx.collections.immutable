@@ -55,7 +55,7 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
         if (cell is TrieNode<*>) {
             resetPath(hashCode, cell, element, pathIndex + 1)
         } else {
-//            assert(cell == element)
+            assert { cell == element }
             pathLastIndex = pathIndex
         }
     }
