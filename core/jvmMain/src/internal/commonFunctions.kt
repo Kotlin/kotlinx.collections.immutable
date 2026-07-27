@@ -10,5 +10,9 @@ private class Assertions
 internal val ASSERTIONS_ENABLED = Assertions::class.java.desiredAssertionStatus()
 
 internal actual inline fun assert(condition: () -> Boolean) {
-    if (ASSERTIONS_ENABLED && !condition()) throw AssertionError("Assertion failed")
+    if (ASSERTIONS_ENABLED && !condition()) assertionFailed()
+}
+
+internal fun assertionFailed() {
+    throw AssertionError("Assertion failed")
 }
