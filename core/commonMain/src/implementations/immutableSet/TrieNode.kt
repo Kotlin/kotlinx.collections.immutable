@@ -539,6 +539,13 @@ internal class TrieNode<E>(
         val realSize = realBitMap.countOneBits()
         return when {
             realBitMap == 0 -> EMPTY
+            // single values are kept only on root level
+            realSize == 1 && shift != 0 ->
+                when (val single = mutableNode.buffer[mutableNode.indexOfCellAt(realBitMap)]) {
+                    is TrieNode<*> -> TrieNode<E>(realBitMap, arrayOf(single), mutator.ownership)
+                    else -> single
+                }
+
             realBitMap == newBitMap -> {
                 when {
                     mutableNode.elementsIdentityEquals(this) -> this
@@ -546,12 +553,6 @@ internal class TrieNode<E>(
                     else -> mutableNode
                 }
             }
-            // single values are kept only on root level
-            realSize == 1 && shift != 0 ->
-                when (val single = mutableNode.buffer[mutableNode.indexOfCellAt(realBitMap)]) {
-                    is TrieNode<*> -> TrieNode<E>(realBitMap, arrayOf(single), mutator.ownership)
-                    else -> single
-                }
 
             else -> {
                 // clean up all the EMPTYs in the resulting buffer

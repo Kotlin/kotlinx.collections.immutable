@@ -116,4 +116,15 @@ class PersistentHashSetBuilderTest {
             iterator2.next()
         }
     }
+
+    @Test
+    fun `retainAll should promote the only remaining element to the root`() {
+        val builder = persistentHashSetOf(1, 33).builder()
+        builder.retainAll(persistentHashSetOf(1, 65))
+        val expected = persistentHashSetOf(1)
+
+        assertTrue(expected.equals(builder))
+        assertEquals(expected, builder.build())
+        assertEquals(builder.build(), expected)
+    }
 }
