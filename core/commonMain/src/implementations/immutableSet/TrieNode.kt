@@ -784,6 +784,7 @@ internal class TrieNode<E>(
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
+            assert { shift == 0 || buffer.size > 1 }
             return removeCellAtIndex(cellIndex, cellPositionMask, owner = null)
         }
         return this
@@ -814,6 +815,7 @@ internal class TrieNode<E>(
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
+            assert { shift == 0 || buffer.size > 1 }
             mutator.size--
             return removeCellAtIndex(cellIndex, cellPositionMask, mutator.ownership) // check is empty
         }
