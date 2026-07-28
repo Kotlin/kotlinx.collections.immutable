@@ -31,29 +31,29 @@ internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> 
     }
 
     fun currentKey(): K {
-        assert(hasNextKey())
+        assert { hasNextKey() }
         @Suppress("UNCHECKED_CAST")
         return buffer[index] as K
     }
 
     fun moveToNextKey() {
-        assert(hasNextKey())
+        assert { hasNextKey() }
         index += 2
     }
 
     fun hasNextNode(): Boolean {
-        assert(index >= dataSize)
+        assert { index >= dataSize }
         return index < buffer.size
     }
 
     fun currentNode(): TrieNode<out K, out V> {
-        assert(hasNextNode())
+        assert { hasNextNode() }
         @Suppress("UNCHECKED_CAST")
         return buffer[index] as TrieNode<K, V>
     }
 
     fun moveToNextNode() {
-        assert(hasNextNode())
+        assert { hasNextNode() }
         index++
     }
 
@@ -64,7 +64,7 @@ internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> 
 
 internal class TrieNodeKeysIterator<out K, out V> : TrieNodeBaseIterator<K, V, K>() {
     override fun next(): K {
-        assert(hasNextKey())
+        assert { hasNextKey() }
         index += 2
         @Suppress("UNCHECKED_CAST")
         return buffer[index - 2] as K
@@ -73,7 +73,7 @@ internal class TrieNodeKeysIterator<out K, out V> : TrieNodeBaseIterator<K, V, K
 
 internal class TrieNodeValuesIterator<out K, out V> : TrieNodeBaseIterator<K, V, V>() {
     override fun next(): V {
-        assert(hasNextKey())
+        assert { hasNextKey() }
         index += 2
         @Suppress("UNCHECKED_CAST")
         return buffer[index - 1] as V
@@ -82,7 +82,7 @@ internal class TrieNodeValuesIterator<out K, out V> : TrieNodeBaseIterator<K, V,
 
 internal class TrieNodeEntriesIterator<out K, out V> : TrieNodeBaseIterator<K, V, Map.Entry<K, V>>() {
     override fun next(): Map.Entry<K, V> {
-        assert(hasNextKey())
+        assert { hasNextKey() }
         index += 2
         @Suppress("UNCHECKED_CAST")
         return MapEntry(buffer[index - 2] as K, buffer[index - 1] as V)

@@ -8,6 +8,7 @@ package kotlinx.collections.immutable.implementations.persistentOrderedSet
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.internal.EndOfChain
+import kotlinx.collections.immutable.internal.assert
 import kotlinx.collections.immutable.mutate
 
 internal class Links(val previous: Any?, val next: Any?) {
@@ -49,7 +50,7 @@ internal class PersistentOrderedSet<E>(
         @Suppress("UNCHECKED_CAST")
         val lastElement = lastElement as E
         val lastLinks = hashMap[lastElement]!!
-//        assert(!lastLinks.hasNext)
+        assert { !lastLinks.hasNext }
 
         val newMap = hashMap
             .putting(lastElement, lastLinks.withNext(element))
@@ -76,13 +77,13 @@ internal class PersistentOrderedSet<E>(
         var newMap = hashMap.removing(element)
         if (links.hasPrevious) {
             val previousLinks = newMap[links.previous]!!
-//            assert(previousLinks.next == element)
+            assert { previousLinks.next == element }
             @Suppress("UNCHECKED_CAST")
             newMap = newMap.putting(links.previous as E, previousLinks.withNext(links.next))
         }
         if (links.hasNext) {
             val nextLinks = newMap[links.next]!!
-//            assert(nextLinks.previous == element)
+            assert { nextLinks.previous == element }
             @Suppress("UNCHECKED_CAST")
             newMap = newMap.putting(links.next as E, nextLinks.withPrevious(links.previous))
         }

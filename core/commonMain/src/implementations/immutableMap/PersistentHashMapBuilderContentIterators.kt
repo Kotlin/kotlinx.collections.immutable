@@ -13,7 +13,7 @@ internal class TrieNodeMutableEntriesIterator<K, V>(
 ) : TrieNodeBaseIterator<K, V, MutableMap.MutableEntry<K, V>>() {
 
     override fun next(): MutableMap.MutableEntry<K, V> {
-        assert(hasNextKey())
+        assert { hasNextKey() }
         index += 2
         @Suppress("UNCHECKED_CAST")
         return MutableMapEntry(parentIterator, buffer[index - 2] as K, buffer[index - 1] as V)
@@ -123,14 +123,14 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
                 return
             }
 
-//            assert(node.keyAtIndex(keyIndex) == key)
+            assert { node.keyAtIndex(keyIndex) == key }
 
             path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), keyIndex)
             pathLastIndex = pathIndex
             return
         }
 
-//        assert(node.hasNodeAt(keyPositionMask)) // key is in node
+        assert { node.hasNodeAt(keyPositionMask) } // key is in node
 
         val nodeIndex = node.nodeIndex(keyPositionMask)
         val targetNode = node.nodeAtIndex(nodeIndex)

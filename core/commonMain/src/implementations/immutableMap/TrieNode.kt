@@ -108,7 +108,7 @@ internal class TrieNode<K, V>(
     }
 
     /** Returns true if the node bit map has the bit specified by [positionMask] set, indicating there's a subtrie node in the buffer at that position. */
-    private fun hasNodeAt(positionMask: Int): Boolean {
+    internal fun hasNodeAt(positionMask: Int): Boolean {
         return nodeMap and positionMask != 0
     }
 
@@ -123,7 +123,7 @@ internal class TrieNode<K, V>(
     }
 
     /** Retrieves the buffer element at the given [keyIndex] as key of a data entry. */
-    private fun keyAtIndex(keyIndex: Int): K {
+    internal fun keyAtIndex(keyIndex: Int): K {
         @Suppress("UNCHECKED_CAST")
         return buffer[keyIndex] as K
     }
@@ -141,7 +141,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun insertEntryAt(positionMask: Int, key: K, value: V): TrieNode<K, V> {
-//        assert(!hasEntryAt(positionMask))
+        assert { !hasEntryAt(positionMask) }
 
         val keyIndex = entryKeyIndex(positionMask)
         val newBuffer = buffer.insertEntryAtIndex(keyIndex, key, value)
@@ -149,7 +149,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun mutableInsertEntryAt(positionMask: Int, key: K, value: V, owner: MutabilityOwnership): TrieNode<K, V> {
-//        assert(!hasEntryAt(positionMask))
+        assert { !hasEntryAt(positionMask) }
 
         val keyIndex = entryKeyIndex(positionMask)
         if (ownedBy === owner) {
@@ -162,7 +162,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun updateValueAtIndex(keyIndex: Int, value: V): TrieNode<K, V> {
-//        assert(buffer[keyIndex + 1] !== value)
+        assert { buffer[keyIndex + 1] !== value }
 
         val newBuffer = buffer.copyOf()
         newBuffer[keyIndex + 1] = value
@@ -174,7 +174,7 @@ internal class TrieNode<K, V>(
         value: V,
         mutator: PersistentHashMapBuilder<K, V>
     ): TrieNode<K, V> {
-//        assert(buffer[keyIndex + 1] !== value)
+        assert { buffer[keyIndex + 1] !== value }
 
         // If the [mutator] is exclusive owner of this node, update value at specified index in-place.
         if (ownedBy === mutator.ownership) {
@@ -198,7 +198,7 @@ internal class TrieNode<K, V>(
     ): TrieNode<K, V> {
         if (newNode.hasSingleEntry) {
             if (buffer.size == 1) {
-//                assert(dataMap == 0 && nodeMap xor positionMask == 0)
+                assert { dataMap == 0 && nodeMap xor positionMask == 0 }
                 newNode.dataMap = nodeMap
                 return newNode
             }
@@ -219,7 +219,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun removeNodeAtIndex(nodeIndex: Int, positionMask: Int): TrieNode<K, V>? {
-//        assert(hasNodeAt(positionMask))
+        assert { hasNodeAt(positionMask) }
         if (buffer.size == 1) return null
 
         val newBuffer = buffer.removeNodeAtIndex(nodeIndex)
@@ -231,7 +231,7 @@ internal class TrieNode<K, V>(
         positionMask: Int,
         owner: MutabilityOwnership
     ): TrieNode<K, V>? {
-//        assert(hasNodeAt(positionMask))
+        assert { hasNodeAt(positionMask) }
         if (buffer.size == 1) return null
 
         if (ownedBy === owner) {
@@ -275,8 +275,8 @@ internal class TrieNode<K, V>(
         newValue: V,
         shift: Int
     ): TrieNode<K, V> {
-//        assert(hasEntryAt(positionMask))
-//        assert(!hasNodeAt(positionMask))
+        assert { hasEntryAt(positionMask) }
+        assert { !hasNodeAt(positionMask) }
 
         val newBuffer = bufferMoveEntryToNode(keyIndex, positionMask, newKeyHash, newKey, newValue, shift, null)
         return TrieNode(dataMap xor positionMask, nodeMap or positionMask, newBuffer)
@@ -291,8 +291,8 @@ internal class TrieNode<K, V>(
         shift: Int,
         owner: MutabilityOwnership
     ): TrieNode<K, V> {
-//        assert(hasEntryAt(positionMask))
-//        assert(!hasNodeAt(positionMask))
+        assert { hasEntryAt(positionMask) }
+        assert { !hasNodeAt(positionMask) }
 
         if (ownedBy === owner) {
             buffer = bufferMoveEntryToNode(keyIndex, positionMask, newKeyHash, newKey, newValue, shift, owner)
@@ -316,7 +316,7 @@ internal class TrieNode<K, V>(
         owner: MutabilityOwnership?
     ): TrieNode<K, V> {
         if (shift > MAX_SHIFT) {
-//            assert(key1 != key2)
+            assert { key1 != key2 }
             // when two key hashes are entirely equal: the last level subtrie node stores them just as unordered list
             return TrieNode(0, 0, arrayOf(key1, value1, key2, value2), owner)
         }
@@ -338,7 +338,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun removeEntryAtIndex(keyIndex: Int, positionMask: Int): TrieNode<K, V>? {
-//        assert(hasEntryAt(positionMask))
+        assert { hasEntryAt(positionMask) }
         if (buffer.size == ENTRY_SIZE) return null
         val newBuffer = buffer.removeEntryAtIndex(keyIndex)
         return TrieNode(dataMap xor positionMask, nodeMap, newBuffer)
@@ -349,7 +349,7 @@ internal class TrieNode<K, V>(
         positionMask: Int,
         mutator: PersistentHashMapBuilder<K, V>
     ): TrieNode<K, V>? {
-//        assert(hasEntryAt(positionMask))
+        assert { hasEntryAt(positionMask) }
         mutator.size--
         mutator.operationResult = valueAtKeyIndex(keyIndex)
         if (buffer.size == ENTRY_SIZE) return null
@@ -474,10 +474,10 @@ internal class TrieNode<K, V>(
         intersectionCounter: DeltaCounter,
         owner: MutabilityOwnership
     ): TrieNode<K, V> {
-        assert(nodeMap == 0)
-        assert(dataMap == 0)
-        assert(otherNode.nodeMap == 0)
-        assert(otherNode.dataMap == 0)
+        assert { nodeMap == 0 }
+        assert { dataMap == 0 }
+        assert { otherNode.nodeMap == 0 }
+        assert { otherNode.dataMap == 0 }
         val tempBuffer = this.buffer.copyOf(newSize = this.buffer.size + otherNode.buffer.size)
         var i = this.buffer.size
         for (j in 0..<otherNode.buffer.size step ENTRY_SIZE) {
@@ -960,7 +960,6 @@ internal class TrieNode<K, V>(
         var nodePositions = nodeMap
         while (nodePositions != 0) {
             val mask = nodePositions.takeLowestOneBit()
-//            assert(hasNodeAt(mask))
 
             val hashSegment = mask.countTrailingZeroBits()
 

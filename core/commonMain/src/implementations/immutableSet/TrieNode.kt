@@ -56,12 +56,12 @@ private inline fun Array<Any?>.filterTo(
     var i = 0
     var j = 0
     while (i < size) {
-        assert(j <= i) // this is extremely important if newArray === this
+        assert { j <= i } // this is extremely important if newArray === this
         val e = this[i]
         if (predicate(e)) {
             newArray[newArrayOffset + j] = this[i]
             ++j
-            assert(newArrayOffset + j <= newArray.size)
+            assert { newArrayOffset + j <= newArray.size }
         }
         ++i
     }
@@ -98,7 +98,7 @@ internal class TrieNode<E>(
     }
 
     private fun addElementAt(positionMask: Int, element: E, owner: MutabilityOwnership?): TrieNode<E> {
-//        assert(hasNoCellAt(positionMask))
+        assert { hasNoCellAt(positionMask) }
 
         val index = indexOfCellAt(positionMask)
         val newBitmap = bitmap or positionMask
@@ -121,7 +121,6 @@ internal class TrieNode<E>(
         newNode: TrieNode<E>,
         owner: MutabilityOwnership?
     ): TrieNode<E> {
-//        assert(buffer[nodeIndex] !== newNode)
         val cell: Any?
 
         val newNodeBuffer = newNode.buffer
@@ -182,7 +181,7 @@ internal class TrieNode<E>(
         owner: MutabilityOwnership?
     ): TrieNode<E> {
         if (shift > MAX_SHIFT) {
-//            assert(element1 != element2)
+            assert { element1 != element2 }
             // when two element hashes are entirely equal: the last level subtrie node stores them just as unordered list
             return TrieNode<E>(0, arrayOf(element1, element2), owner)
         }
@@ -205,8 +204,7 @@ internal class TrieNode<E>(
 
 
     private fun removeCellAtIndex(cellIndex: Int, positionMask: Int, owner: MutabilityOwnership?): TrieNode<E> {
-//        assert(!hasNoCellAt(positionMask))
-//        assert(buffer.size > 1) can be false only for the root node
+        assert { !hasNoCellAt(positionMask) }
 
         val newBitmap = bitmap xor positionMask
         val newBuffer = buffer.removeCellAtIndex(cellIndex)

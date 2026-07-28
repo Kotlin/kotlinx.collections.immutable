@@ -21,11 +21,11 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
 
     override fun build(): PersistentSet<E> {
         return builtSet?.also { set ->
-            assert(hashMapBuilder.builtMap != null)
-            assert(firstElement === set.firstElement)
-            assert(lastElement === set.lastElement)
+            assert { hashMapBuilder.builtMap != null }
+            assert { firstElement === set.firstElement }
+            assert { lastElement === set.lastElement }
         } ?: run {
-            assert(hashMapBuilder.builtMap == null)
+            assert { hashMapBuilder.builtMap == null }
             val newMap = hashMapBuilder.build()
             val newSet = PersistentOrderedSet(firstElement, lastElement, newMap)
             builtSet = newSet
@@ -50,7 +50,7 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         }
 
         val lastLinks = hashMapBuilder[lastElement]!!
-//        assert(!lastLinks.hasNext)
+        assert { !lastLinks.hasNext }
         @Suppress("UNCHECKED_CAST")
         hashMapBuilder[lastElement as E] = lastLinks.withNext(element)
         hashMapBuilder[element] = Links(previous = lastElement)
@@ -64,7 +64,7 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         builtSet = null
         if (links.hasPrevious) {
             val previousLinks = hashMapBuilder[links.previous]!!
-//            assert(previousLinks.next == element)
+            assert { previousLinks.next == element }
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.previous as E] = previousLinks.withNext(links.next)
         } else {
@@ -72,7 +72,7 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         }
         if (links.hasNext) {
             val nextLinks = hashMapBuilder[links.next]!!
-//            assert(nextLinks.previous == element)
+            assert { nextLinks.previous == element }
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.next as E] = nextLinks.withPrevious(links.previous)
         } else {
