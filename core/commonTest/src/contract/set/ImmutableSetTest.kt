@@ -366,6 +366,7 @@ abstract class ImmutableSetTestBase {
     private fun <E> testSpecializedEquality(set: Set<E>, elements: Array<E>, isEqual: Boolean) {
         fun testEqualsAndHashCode(lhs: Any, rhs: Any) {
             assertEquals(isEqual, lhs == rhs)
+            assertEquals(isEqual, rhs == lhs)
             if (isEqual) assertEquals(lhs.hashCode(), rhs.hashCode())
         }
 

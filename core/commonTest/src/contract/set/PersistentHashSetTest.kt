@@ -6,9 +6,11 @@
 package tests.contract.set
 
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
+import kotlinx.collections.immutable.intersect
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.toPersistentHashSet
+import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -55,5 +57,60 @@ class PersistentHashSetTest {
         val actual = set1 - set2
 
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `intersect should promote the only remaining element to the root`() {
+        val intersection = persistentHashSetOf(1, 33) intersect persistentHashSetOf(1, 65)
+        val expected = persistentHashSetOf(1)
+
+        assertEquals(expected, intersection)
+        assertEquals(intersection, expected)
+        assertEquals(expected.hashCode(), intersection.hashCode())
+        assertEquals(1, intersection.size)
+        assertTrue(1 in intersection)
+        assertEquals(listOf(1), intersection.toList())
+    }
+
+    @Test
+    fun `intersect should promote the only remaining element through multiple levels`() {
+        val intersection = persistentHashSetOf(1, 1 + (1 shl 10)) intersect persistentHashSetOf(1, 1 + (1 shl 11))
+        val expected = persistentHashSetOf(1)
+
+        assertEquals(expected, intersection)
+        assertEquals(intersection, expected)
+        assertEquals(expected.hashCode(), intersection.hashCode())
+    }
+
+    @Test
+    fun `intersect should keep a single remaining sub-node on its level`() {
+        val intersection = persistentHashSetOf(1, 1 + (1 shl 10), 33) intersect
+                persistentHashSetOf(1, 1 + (1 shl 10), 65)
+        val expected = persistentHashSetOf(1, 1 + (1 shl 10))
+
+        assertEquals(expected, intersection)
+        assertEquals(intersection, expected)
+        assertEquals(expected.hashCode(), intersection.hashCode())
+    }
+
+    @Test
+    fun `intersect of colliding elements should promote the only remaining element to the root`() {
+        val intersection = persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 0)) intersect
+                persistentHashSetOf(IntWrapper(1, 0), IntWrapper(3, 0))
+        val expected = persistentHashSetOf(IntWrapper(1, 0))
+
+        assertEquals(expected, intersection)
+        assertEquals(intersection, expected)
+        assertEquals(expected.hashCode(), intersection.hashCode())
+    }
+
+    @Test
+    fun `removing the only remaining element after intersect should result in an empty set`() {
+        val intersection = persistentHashSetOf(1, 33) intersect persistentHashSetOf(1, 65)
+        val empty = intersection - 1
+
+        assertEquals(persistentHashSetOf<Int>(), empty)
+        assertEquals(empty, persistentHashSetOf())
+        assertTrue(empty.isEmpty())
     }
 }
