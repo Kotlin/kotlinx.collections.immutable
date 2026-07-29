@@ -5,4 +5,4 @@
 
 package kotlinx.collections.immutable.internal
 
-internal actual inline fun assert(condition: () -> Boolean) {}
+internal actual inline fun assert(condition: AssertScope.() -> Boolean) {}

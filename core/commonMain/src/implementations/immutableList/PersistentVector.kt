@@ -29,7 +29,7 @@ internal class PersistentVector<E>(
 
     init {
         require(size > MAX_BUFFER_SIZE) { "Trie-based persistent vector should have at least ${MAX_BUFFER_SIZE + 1} elements, got $size" }
-        assert { size - rootSize(size) <= tail.size.coerceAtMost(MAX_BUFFER_SIZE) }
+        assert { (size - rootSize(size) <= tail.size.coerceAtMost(MAX_BUFFER_SIZE)) otherwise { "Inconsistent tail" } }
     }
 
     private fun rootSize(): Int = rootSize(size)
@@ -176,7 +176,7 @@ internal class PersistentVector<E>(
 
     private fun removeFromTailAt(root: Array<Any?>, rootSize: Int, shift: Int, index: Int): PersistentList<E> {
         val tailSize = size - rootSize
-        assert { index < tailSize }
+        assert { (index < tailSize) otherwise { "Index outside the tail" } }
 
         if (tailSize == 1) {
             return pullLastBufferFromRoot(root, rootSize, shift)

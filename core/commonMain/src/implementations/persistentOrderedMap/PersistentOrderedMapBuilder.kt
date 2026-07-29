@@ -26,11 +26,11 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
 
     override fun build(): PersistentMap<K, V> {
         return builtMap?.also { map ->
-            assert { hashMapBuilder.builtMap != null }
-            assert { firstKey === map.firstKey }
-            assert { lastKey === map.lastKey }
+            assert { (hashMapBuilder.builtMap != null) otherwise { "Missing built hash map" } }
+            assert { (firstKey === map.firstKey) otherwise { "First key mismatch" } }
+            assert { (lastKey === map.lastKey) otherwise { "Last key mismatch" } }
         } ?: run {
-            assert { hashMapBuilder.builtMap == null }
+            assert { (hashMapBuilder.builtMap == null) otherwise { "Stale built hash map" } }
             val newHashMap = hashMapBuilder.build()
             val newOrdered = PersistentOrderedMap(firstKey, lastKey, newHashMap)
             builtMap = newOrdered
@@ -96,7 +96,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         builtMap = null
         if (links.hasPrevious) {
             val previousLinks = hashMapBuilder[links.previous]!!
-            assert { previousLinks.next == key }
+            assert { (previousLinks.next == key) otherwise { "Broken next link" } }
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.previous as K] = previousLinks.withNext(links.next)
         } else {
@@ -104,7 +104,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         }
         if (links.hasNext) {
             val nextLinks = hashMapBuilder[links.next]!!
-            assert { nextLinks.previous == key }
+            assert { (nextLinks.previous == key) otherwise { "Broken previous link" } }
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.next as K] = nextLinks.withPrevious(links.previous)
         } else {

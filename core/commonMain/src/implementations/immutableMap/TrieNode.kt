@@ -162,7 +162,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun updateValueAtIndex(keyIndex: Int, value: V): TrieNode<K, V> {
-        assert { buffer[keyIndex + 1] !== value }
+        assert { (buffer[keyIndex + 1] !== value) otherwise { "Updating with the same value" } }
 
         val newBuffer = buffer.copyOf()
         newBuffer[keyIndex + 1] = value
@@ -174,7 +174,7 @@ internal class TrieNode<K, V>(
         value: V,
         mutator: PersistentHashMapBuilder<K, V>
     ): TrieNode<K, V> {
-        assert { buffer[keyIndex + 1] !== value }
+        assert { (buffer[keyIndex + 1] !== value) otherwise { "Updating with the same value" } }
 
         // If the [mutator] is exclusive owner of this node, update value at specified index in-place.
         if (ownedBy === mutator.ownership) {
@@ -198,7 +198,7 @@ internal class TrieNode<K, V>(
     ): TrieNode<K, V> {
         if (newNode.hasSingleEntry) {
             if (buffer.size == 1) {
-                assert { dataMap == 0 && nodeMap xor positionMask == 0 }
+                assert { (dataMap == 0 && nodeMap xor positionMask == 0) otherwise { "Unexpected node maps" } }
                 newNode.dataMap = nodeMap
                 return newNode
             }
@@ -316,7 +316,7 @@ internal class TrieNode<K, V>(
         owner: MutabilityOwnership?
     ): TrieNode<K, V> {
         if (shift > MAX_SHIFT) {
-            assert { key1 != key2 }
+            assert { (key1 != key2) otherwise { "Duplicate key" } }
             // when two key hashes are entirely equal: the last level subtrie node stores them just as unordered list
             return TrieNode(0, 0, arrayOf(key1, value1, key2, value2), owner)
         }
@@ -474,10 +474,10 @@ internal class TrieNode<K, V>(
         intersectionCounter: DeltaCounter,
         owner: MutabilityOwnership
     ): TrieNode<K, V> {
-        assert { nodeMap == 0 }
-        assert { dataMap == 0 }
-        assert { otherNode.nodeMap == 0 }
-        assert { otherNode.dataMap == 0 }
+        assert { (nodeMap == 0) otherwise { "Not a collision node" } }
+        assert { (dataMap == 0) otherwise { "Not a collision node" } }
+        assert { (otherNode.nodeMap == 0) otherwise { "Not a collision node" } }
+        assert { (otherNode.dataMap == 0) otherwise { "Not a collision node" } }
         val tempBuffer = this.buffer.copyOf(newSize = this.buffer.size + otherNode.buffer.size)
         var i = this.buffer.size
         for (j in 0..<otherNode.buffer.size step ENTRY_SIZE) {

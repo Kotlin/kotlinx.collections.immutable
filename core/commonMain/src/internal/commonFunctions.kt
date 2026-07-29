@@ -5,4 +5,15 @@
 
 package kotlinx.collections.immutable.internal
 
-internal expect fun assert(condition: () -> Boolean)
+internal expect fun assert(condition: AssertScope.() -> Boolean)
+
+internal object AssertScope {
+    inline infix fun Boolean.otherwise(lazyMessage: () -> Any): Boolean {
+        if (!this) assertionFailed(lazyMessage())
+        return true
+    }
+
+    fun assertionFailed(message: Any?): Nothing {
+        throw AssertionError(message)
+    }
+}

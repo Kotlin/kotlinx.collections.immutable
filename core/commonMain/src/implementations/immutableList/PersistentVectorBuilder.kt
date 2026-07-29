@@ -384,7 +384,7 @@ internal class PersistentVectorBuilder<E>(
         val buffersSize = (size - unaffectedElementsCount + elements.size - 1) / MAX_BUFFER_SIZE
 
         if (buffersSize == 0) {
-            assert { index >= rootSize() }
+            assert { (index >= rootSize()) otherwise { "Index inside the root" } }
 
             val startIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
             val endIndex = (index + elements.size - 1) and MAX_BUFFER_SIZE_MINUS_ONE // inclusive
@@ -596,7 +596,7 @@ internal class PersistentVectorBuilder<E>(
     @IgnorableReturnValue
     private fun removeFromTailAt(root: Array<Any?>?, rootSize: Int, shift: Int, index: Int): Any? {
         val tailSize = size - rootSize
-        assert { index < tailSize }
+        assert { (index < tailSize) otherwise { "Index outside the tail" } }
 
         val removedElement: Any?
         if (tailSize == 1) {
@@ -856,7 +856,7 @@ internal class PersistentVectorBuilder<E>(
         val newTailSize = removeAll(predicate, tail, tailSize, bufferRef)
 
         if (newTailSize == tailSize) {
-            assert { bufferRef.value === tail }
+            assert { (bufferRef.value === tail) otherwise { "Tail buffer was replaced" } }
             return tailSize
         }
 

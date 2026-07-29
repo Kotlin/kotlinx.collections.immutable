@@ -56,12 +56,13 @@ private inline fun Array<Any?>.filterTo(
     var i = 0
     var j = 0
     while (i < size) {
-        assert { j <= i } // this is extremely important if newArray === this
+        // this is extremely important if newArray === this
+        assert { (j <= i) otherwise { "Backward copy" } }
         val e = this[i]
         if (predicate(e)) {
             newArray[newArrayOffset + j] = this[i]
             ++j
-            assert { newArrayOffset + j <= newArray.size }
+            assert { (newArrayOffset + j <= newArray.size) otherwise { "Array overflow" } }
         }
         ++i
     }
@@ -181,7 +182,7 @@ internal class TrieNode<E>(
         owner: MutabilityOwnership?
     ): TrieNode<E> {
         if (shift > MAX_SHIFT) {
-            assert { element1 != element2 }
+            assert { (element1 != element2) otherwise { "Duplicate element" } }
             // when two element hashes are entirely equal: the last level subtrie node stores them just as unordered list
             return TrieNode<E>(0, arrayOf(element1, element2), owner)
         }
@@ -784,7 +785,7 @@ internal class TrieNode<E>(
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
-            assert { shift == 0 || buffer.size > 1 }
+            assert { (shift == 0 || buffer.size > 1) otherwise { "Last cell of a non-root node" } }
             return removeCellAtIndex(cellIndex, cellPositionMask, owner = null)
         }
         return this
@@ -815,7 +816,7 @@ internal class TrieNode<E>(
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) {
-            assert { shift == 0 || buffer.size > 1 }
+            assert { (shift == 0 || buffer.size > 1) otherwise { "Last cell of a non-root node" } }
             mutator.size--
             return removeCellAtIndex(cellIndex, cellPositionMask, mutator.ownership) // check is empty
         }

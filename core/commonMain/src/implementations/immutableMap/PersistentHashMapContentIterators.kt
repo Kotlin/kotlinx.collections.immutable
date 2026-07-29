@@ -42,7 +42,7 @@ internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> 
     }
 
     fun hasNextNode(): Boolean {
-        assert { index >= dataSize }
+        assert { (index >= dataSize) otherwise { "Index inside the data area" } }
         return index < buffer.size
     }
 

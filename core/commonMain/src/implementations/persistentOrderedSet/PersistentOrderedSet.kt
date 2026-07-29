@@ -77,13 +77,13 @@ internal class PersistentOrderedSet<E>(
         var newMap = hashMap.removing(element)
         if (links.hasPrevious) {
             val previousLinks = newMap[links.previous]!!
-            assert { previousLinks.next == element }
+            assert { (previousLinks.next == element) otherwise { "Broken next link" } }
             @Suppress("UNCHECKED_CAST")
             newMap = newMap.putting(links.previous as E, previousLinks.withNext(links.next))
         }
         if (links.hasNext) {
             val nextLinks = newMap[links.next]!!
-            assert { nextLinks.previous == element }
+            assert { (nextLinks.previous == element) otherwise { "Broken previous link" } }
             @Suppress("UNCHECKED_CAST")
             newMap = newMap.putting(links.next as E, nextLinks.withPrevious(links.previous))
         }

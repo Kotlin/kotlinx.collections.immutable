@@ -20,7 +20,7 @@ class ObjectWrapper<K: Comparable<K>>(
         if (other !is ObjectWrapper<*>) {
             return false
         }
-        assert { obj != other.obj || hashCode == other.hashCode }  // if elements are equal hashCodes must be equal
+        assert { (obj != other.obj || hashCode == other.hashCode) otherwise { "Hash code mismatch" } }
         return obj == other.obj
     }
 
