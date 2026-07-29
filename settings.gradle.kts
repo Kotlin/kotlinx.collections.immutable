@@ -11,10 +11,12 @@ pluginManagement {
     val dokkaVersion: String by settings
     val kotlinxBenchmarkVersion: String by settings
     val koverVersion: String by settings
+    val kotlin_version: String by settings
     plugins {
         id("org.jetbrains.dokka") version dokkaVersion
         id("org.jetbrains.kotlinx.benchmark") version kotlinxBenchmarkVersion
         id("org.jetbrains.kotlinx.kover") version koverVersion
+        id("org.jetbrains.kotlin.plugin.power-assert") version kotlin_version
     }
 }
 

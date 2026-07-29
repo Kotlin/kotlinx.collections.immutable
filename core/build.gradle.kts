@@ -153,6 +153,19 @@ kotlin {
     }
 }
 
+providers.gradleProperty("powerAssert").orNull?.let { requestedSourceSets ->
+    apply(plugin = "org.jetbrains.kotlin.plugin.power-assert")
+    configure<org.jetbrains.kotlin.powerassert.gradle.PowerAssertGradleExtension> {
+        functions.set(listOf("kotlinx.collections.immutable.internal.AssertScope.otherwise"))
+        includedSourceSets.set(
+            if (requestedSourceSets.isBlank())
+                kotlin.targets.mapNotNull { it.compilations.findByName("main")?.defaultSourceSet?.name }
+            else
+                requestedSourceSets.split(',')
+        )
+    }
+}
+
 dependencies {
     dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-playground-samples-plugin")
     dokka(project)
