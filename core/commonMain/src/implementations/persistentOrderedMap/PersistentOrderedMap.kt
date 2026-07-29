@@ -108,13 +108,13 @@ internal class PersistentOrderedMap<K, V>(
         var newMap = hashMap.removing(key)
         if (links.hasPrevious) {
             val previousLinks = newMap[links.previous]!!
-            assert { previousLinks.next == key }
+            assert { (previousLinks.next == key) otherwise { "Broken next link" } }
             @Suppress("UNCHECKED_CAST")
             newMap = newMap.putting(links.previous as K, previousLinks.withNext(links.next))
         }
         if (links.hasNext) {
             val nextLinks = newMap[links.next]!!
-            assert { nextLinks.previous == key }
+            assert { (nextLinks.previous == key) otherwise { "Broken previous link" } }
             @Suppress("UNCHECKED_CAST")
             newMap = newMap.putting(links.next as K, nextLinks.withPrevious(links.previous))
         }

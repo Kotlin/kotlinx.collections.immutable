@@ -21,11 +21,11 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
 
     override fun build(): PersistentSet<E> {
         return builtSet?.also { set ->
-            assert { hashMapBuilder.builtMap != null }
-            assert { firstElement === set.firstElement }
-            assert { lastElement === set.lastElement }
+            assert { (hashMapBuilder.builtMap != null) otherwise { "Missing built hash map" } }
+            assert { (firstElement === set.firstElement) otherwise { "First element mismatch" } }
+            assert { (lastElement === set.lastElement) otherwise { "Last element mismatch" } }
         } ?: run {
-            assert { hashMapBuilder.builtMap == null }
+            assert { (hashMapBuilder.builtMap == null) otherwise { "Stale built hash map" } }
             val newMap = hashMapBuilder.build()
             val newSet = PersistentOrderedSet(firstElement, lastElement, newMap)
             builtSet = newSet
@@ -64,7 +64,7 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         builtSet = null
         if (links.hasPrevious) {
             val previousLinks = hashMapBuilder[links.previous]!!
-            assert { previousLinks.next == element }
+            assert { (previousLinks.next == element) otherwise { "Broken next link" } }
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.previous as E] = previousLinks.withNext(links.next)
         } else {
@@ -72,7 +72,7 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         }
         if (links.hasNext) {
             val nextLinks = hashMapBuilder[links.next]!!
-            assert { nextLinks.previous == element }
+            assert { (nextLinks.previous == element) otherwise { "Broken previous link" } }
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.next as E] = nextLinks.withPrevious(links.previous)
         } else {

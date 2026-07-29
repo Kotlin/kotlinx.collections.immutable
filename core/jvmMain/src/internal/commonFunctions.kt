@@ -9,8 +9,8 @@ private class Assertions
 
 internal val ASSERTIONS_ENABLED = Assertions::class.java.desiredAssertionStatus()
 
-internal actual inline fun assert(condition: () -> Boolean) {
-    if (ASSERTIONS_ENABLED && !condition()) assertionFailed()
+internal actual inline fun assert(condition: AssertScope.() -> Boolean) {
+    if (ASSERTIONS_ENABLED && !AssertScope.condition()) assertionFailed()
 }
 
 internal fun assertionFailed() {

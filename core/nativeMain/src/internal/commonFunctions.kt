@@ -6,6 +6,6 @@
 package kotlinx.collections.immutable.internal
 
 @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
-internal actual inline fun assert(condition: () -> Boolean) {
-    kotlin.assert(condition())
+internal actual inline fun assert(condition: AssertScope.() -> Boolean) {
+    kotlin.assert(AssertScope.condition())
 }
