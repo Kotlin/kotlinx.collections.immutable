@@ -27,10 +27,8 @@ val jdkToolchainVersion = 21
 kotlin {
     applyDefaultHierarchyTemplate()
     explicitApi()
-    abiValidation {
-        @OptIn(ExperimentalAbiValidation::class)
-        enabled = true
-    }
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation { }
     compilerOptions {
         freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
@@ -210,11 +208,11 @@ tasks {
         description = "Checks that jvmMain/java9/module-info.java exports exactly the public-API packages."
 
         @OptIn(ExperimentalAbiValidation::class)
-        val dumpDir = kotlin.abiValidation.legacyDump.legacyDumpTaskProvider.flatMap { it.dumpDir }
+        val dumpDir = kotlin.abiValidation.referenceDumpDir
         val moduleInfoFile = layout.projectDirectory.file("jvmMain/java9/module-info.java")
 
         inputs.file(moduleInfoFile).withPropertyName("moduleInfo")
-        inputs.dir(dumpDir).withPropertyName("legacyDumpDir")
+        inputs.dir(dumpDir).withPropertyName("referenceDumpDir")
 
         val exportsRegex = Regex("""exports\s+([\w.]+)\s*;""")
         val classDeclRegex = Regex("""^(?:public|protected).*\bclass\s+(\S+)""")
@@ -257,11 +255,7 @@ tasks {
     }
 
     check {
-        dependsOn(
-            // TODO: https://youtrack.jetbrains.com/issue/KT-78525
-            checkLegacyAbi,
-            checkModuleInfoExports
-        )
+        dependsOn(checkModuleInfoExports)
     }
 
     val compileJvmModuleInfo by registering(JavaCompile::class) {
