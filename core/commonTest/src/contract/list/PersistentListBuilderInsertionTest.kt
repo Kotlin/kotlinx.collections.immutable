@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -18,20 +19,8 @@ class PersistentListBuilderInsertionTest {
         checkTrieShapeAssumptions()
     }
 
-    private fun ownedBuilderOf(size: Int): PersistentList.Builder<Int> {
-        val builder = persistentListOf<Int>().builder()
-        for (element in 0..<size) {
-            assertTrue(builder.add(element))
-        }
-        return builder
-    }
-
     private fun assertBuilderContents(expected: List<Int>, builder: PersistentList.Builder<Int>) {
-        assertEquals(expected.size, builder.size)
-        assertEquals(expected, builder)
-        for (index in expected.indices) {
-            assertEquals(expected[index], builder[index], "element at index $index")
-        }
+        assertContentEquals(expected, builder)
         assertEquals(expected, builder.build())
     }
 

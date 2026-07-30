@@ -5,8 +5,6 @@
 
 package tests.contract.list
 
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,17 +18,9 @@ class PersistentListBuilderRemovalTest {
         checkTrieShapeAssumptions()
     }
 
-    private fun ownedBuilderOf(range: IntRange): PersistentList.Builder<Int> {
-        val builder = persistentListOf<Int>().builder()
-        for (element in range) {
-            assertTrue(builder.add(element))
-        }
-        return builder
-    }
-
     @Test
     fun `get descends the root trie for indices before the tail`() {
-        val builder = ownedBuilderOf(0..1090)
+        val builder = ownedBuilderOf(1091)
         for (index in 0..1090) {
             assertEquals(index, builder[index])
         }
@@ -40,7 +30,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `set at an index in the root of an owned builder replaces in place without invalidating iterators`() {
-        val builder = ownedBuilderOf(0..99)
+        val builder = ownedBuilderOf(100)
         val iterator = builder.listIterator()
 
         assertEquals(0, builder.set(0, -1))
@@ -90,7 +80,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `removeAt an index in the root shifts elements across leaves like a mutable list`() {
-        val builder = ownedBuilderOf(0..99)
+        val builder = ownedBuilderOf(100)
         val reference = (0..99).toMutableList()
 
         assertEquals(reference.removeAt(0), builder.removeAt(0))
@@ -103,7 +93,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `removeAt zero on a two-level trie rotates the tail element through all leaves and pulls the emptied tail`() {
-        val builder = ownedBuilderOf(0..1056)
+        val builder = ownedBuilderOf(1057)
 
         assertEquals(0, builder.removeAt(0))
 
@@ -116,7 +106,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `removing elements from the end pulls leaf buffers back from the trie until the root disappears`() {
-        val builder = ownedBuilderOf(0..1056)
+        val builder = ownedBuilderOf(1057)
 
         for (element in 1056 downTo 25) {
             assertEquals(element, builder.removeAt(builder.size - 1))
@@ -132,7 +122,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `removeAll matching only tail elements pulls the last leaf when the tail empties`() {
-        val builder = ownedBuilderOf(0..99)
+        val builder = ownedBuilderOf(100)
 
         assertFalse(builder.removeAll(listOf(200, 300)))
         assertEquals((0..99).toList(), builder)
@@ -151,7 +141,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `removeAll spanning several owned leaves recycles buffers and trims stale root entries`() {
-        val builder = ownedBuilderOf(0..135)
+        val builder = ownedBuilderOf(136)
 
         assertTrue(builder.removeAll((33..100).toList()))
 
@@ -166,7 +156,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `removeAll trimming a two-level trie nullifies the dropped child on every level`() {
-        val ownedBuilder = ownedBuilderOf(0..2145)
+        val ownedBuilder = ownedBuilderOf(2146)
         assertTrue(ownedBuilder.removeAll((1057..2145).toList()))
         assertEquals(1057, ownedBuilder.size)
         assertEquals((0..1056).toList(), ownedBuilder)
@@ -185,7 +175,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `removeAll keeping only tail survivors drops the root entirely`() {
-        val builder = ownedBuilderOf(0..99)
+        val builder = ownedBuilderOf(100)
 
         assertTrue(builder.removeAll((0..95).toList()))
         assertEquals(4, builder.size)
@@ -198,7 +188,7 @@ class PersistentListBuilderRemovalTest {
 
     @Test
     fun `removeAll on a builder with a single-leaf root scans the root as one leaf buffer`() {
-        val builder = ownedBuilderOf(0..<40)
+        val builder = ownedBuilderOf(40)
         val reference = (0..<40).toMutableList()
 
         assertTrue(builder.removeAll(listOf(5, 38, 100)))
