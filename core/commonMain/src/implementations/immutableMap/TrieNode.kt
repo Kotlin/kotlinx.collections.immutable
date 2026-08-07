@@ -20,11 +20,16 @@ internal const val MAX_SHIFT = 30
 /**
  * Gets trie index segment of the specified [index] at the level specified by [shift].
  *
- * `shift` equal to zero corresponds to the root level.
- * For each lower level `shift` increments by [LOG_MAX_BRANCHING_FACTOR].
+ * [shift] equal to zero corresponds to the root level.
+ * For each lower level [shift] increments by [LOG_MAX_BRANCHING_FACTOR].
+ *
+ * [shift] must not exceed [MAX_SHIFT]. Kotlin takes `Int` shift counts mod 32, so overrunning it
+ * yields a garbage segment instead of failing.
  */
-internal fun indexSegment(index: Int, shift: Int): Int =
-    (index shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE
+internal fun indexSegment(index: Int, shift: Int): Int {
+    assert { shift <= MAX_SHIFT }
+    return (index shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE
+}
 
 private fun <K, V> Array<Any?>.insertEntryAtIndex(keyIndex: Int, key: K, value: V): Array<Any?> {
     val newBuffer = arrayOfNulls<Any?>(this.size + ENTRY_SIZE)
@@ -525,7 +530,11 @@ internal class TrieNode<K, V>(
                     val key = otherNode.keyAtIndex(keyIndex)
                     val value = otherNode.valueAtKeyIndex(keyIndex)
                     val oldSize = mutator.size
-                    targetNode.mutablePut(key.hashCode(), key, value, shift + LOG_MAX_BRANCHING_FACTOR, mutator).also {
+                    if (shift == MAX_SHIFT) {
+                        targetNode.mutableCollisionPut(key, value, mutator)
+                    } else {
+                        targetNode.mutablePut(key.hashCode(), key, value, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
+                    }.also {
                         if (mutator.size == oldSize) intersectionCounter.count++
                     }
                 }
@@ -541,15 +550,24 @@ internal class TrieNode<K, V>(
                     // if otherTargetNode already has a value associated with the key, do not put this entry
                     val keyIndex = this.entryKeyIndex(positionMask)
                     val key = this.keyAtIndex(keyIndex)
-                    if (otherTargetNode.containsKey(key.hashCode(), key, shift + LOG_MAX_BRANCHING_FACTOR)) {
+                    val hasKey = if (shift == MAX_SHIFT) {
+                        otherTargetNode.collisionContainsKey(key)
+                    } else {
+                        otherTargetNode.containsKey(key.hashCode(), key, shift + LOG_MAX_BRANCHING_FACTOR)
+                    }
+                    if (hasKey) {
                         intersectionCounter.count++
                         otherTargetNode
                     } else {
                         val value = this.valueAtKeyIndex(keyIndex)
-                        otherTargetNode.mutablePut(
-                            key.hashCode(), key, value,
-                            shift + LOG_MAX_BRANCHING_FACTOR, mutator
-                        )
+                        if (shift == MAX_SHIFT) {
+                            otherTargetNode.mutableCollisionPut(key, value, mutator)
+                        } else {
+                            otherTargetNode.mutablePut(
+                                key.hashCode(), key, value,
+                                shift + LOG_MAX_BRANCHING_FACTOR, mutator
+                            )
+                        }
                     }
                 }
 

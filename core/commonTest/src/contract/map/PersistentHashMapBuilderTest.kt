@@ -17,6 +17,10 @@ import kotlin.test.assertTrue
 
 class PersistentHashMapBuilderTest {
 
+    private val a1 = IntWrapper(1, 0)
+    private val a2 = IntWrapper(2, 0)
+    private val sibling = IntWrapper(3, 1 shl 30)
+
     @Test
     fun `should correctly iterate after removing integer key and promotion colliding key during iteration`() {
         val removedKey = 0
@@ -117,5 +121,18 @@ class PersistentHashMapBuilderTest {
             iterator1.remove()
             iterator2.next()
         }
+    }
+
+    @Test
+    fun `putAll should not duplicate a key stored in a bottom-level collision node`() {
+        val builder = persistentHashMapOf(a1 to 1, a2 to 2).builder()
+        builder.putAll(persistentHashMapOf(a1 to 10, sibling to 3))
+        assertEquals(3, builder.size)
+        assertEquals(persistentHashMapOf(a1 to 10, a2 to 2, sibling to 3), builder.build())
+
+        val reversedBuilder = persistentHashMapOf(a1 to 10, sibling to 3).builder()
+        reversedBuilder.putAll(persistentHashMapOf(a1 to 1, a2 to 2))
+        assertEquals(3, reversedBuilder.size)
+        assertEquals(persistentHashMapOf(a1 to 1, a2 to 2, sibling to 3), reversedBuilder.build())
     }
 }
