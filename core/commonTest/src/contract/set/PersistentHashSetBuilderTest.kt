@@ -16,6 +16,11 @@ import kotlin.test.assertTrue
 
 class PersistentHashSetBuilderTest {
 
+    private val a1 = IntWrapper(1, 0)
+    private val a2 = IntWrapper(2, 0)
+    private val a3 = IntWrapper(4, 0)
+    private val sibling = IntWrapper(3, 1 shl 30)
+
     @Test
     fun `should correctly iterate after removing integer element`() {
         val removedElement = 0
@@ -126,5 +131,63 @@ class PersistentHashSetBuilderTest {
         assertTrue(expected.equals(builder))
         assertEquals(expected, builder.build())
         assertEquals(builder.build(), expected)
+    }
+
+    @Test
+    fun `addAll should not duplicate an element shared with a bottom-level collision node`() {
+        val expected = persistentHashSetOf(a1, a2, sibling)
+
+        val builder = persistentHashSetOf(a1, a2).builder()
+        assertTrue(builder.addAll(persistentHashSetOf(a1, sibling)))
+        assertEquals(3, builder.size)
+        assertEquals(expected, builder.build())
+
+        val reversedBuilder = persistentHashSetOf(a1, sibling).builder()
+        assertTrue(reversedBuilder.addAll(persistentHashSetOf(a1, a2)))
+        assertEquals(3, reversedBuilder.size)
+        assertEquals(expected, reversedBuilder.build())
+    }
+
+    @Test
+    fun `addAll should insert a new element into a bottom-level collision node`() {
+        val expected = persistentHashSetOf(a1, a2, a3, sibling)
+
+        val builder = persistentHashSetOf(a1, a2).builder()
+        assertTrue(builder.addAll(persistentHashSetOf(a3, sibling)))
+        assertEquals(4, builder.size)
+        assertEquals(expected, builder.build())
+
+        val reversedBuilder = persistentHashSetOf(a3, sibling).builder()
+        assertTrue(reversedBuilder.addAll(persistentHashSetOf(a1, a2)))
+        assertEquals(4, reversedBuilder.size)
+        assertEquals(expected, reversedBuilder.build())
+    }
+
+    @Test
+    fun `retainAll should find elements inside a bottom-level collision node`() {
+        val expected = persistentHashSetOf(a1)
+
+        val builder = persistentHashSetOf(a1, a2).builder()
+        assertTrue(builder.retainAll(persistentHashSetOf(a1, sibling)))
+        assertEquals(1, builder.size)
+        assertEquals(expected, builder.build())
+
+        val reversedBuilder = persistentHashSetOf(a1, sibling).builder()
+        assertTrue(reversedBuilder.retainAll(persistentHashSetOf(a1, a2)))
+        assertEquals(1, reversedBuilder.size)
+        assertEquals(expected, reversedBuilder.build())
+    }
+
+    @Test
+    fun `removeAll should remove elements stored in a bottom-level collision node`() {
+        val builder = persistentHashSetOf(a1, a2).builder()
+        assertTrue(builder.removeAll(persistentHashSetOf(a1, sibling)))
+        assertEquals(1, builder.size)
+        assertEquals(persistentHashSetOf(a2), builder.build())
+
+        val reversedBuilder = persistentHashSetOf(a1, sibling).builder()
+        assertTrue(reversedBuilder.removeAll(persistentHashSetOf(a1, a2)))
+        assertEquals(1, reversedBuilder.size)
+        assertEquals(persistentHashSetOf(sibling), reversedBuilder.build())
     }
 }

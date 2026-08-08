@@ -9,13 +9,20 @@ import kotlinx.collections.immutable.implementations.immutableSet.PersistentHash
 import kotlinx.collections.immutable.intersect
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.collections.immutable.minus
+import kotlinx.collections.immutable.plus
 import kotlinx.collections.immutable.toPersistentHashSet
 import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PersistentHashSetTest {
+
+    private val a1 = IntWrapper(1, 0)
+    private val a2 = IntWrapper(2, 0)
+    private val a3 = IntWrapper(4, 0)
+    private val sibling = IntWrapper(3, 1 shl 30)
 
     @Test
     fun `persistentHashSet and their builder should be equal before and after modification`() {
@@ -112,5 +119,80 @@ class PersistentHashSetTest {
         assertEquals(persistentHashSetOf<Int>(), empty)
         assertEquals(empty, persistentHashSetOf())
         assertTrue(empty.isEmpty())
+    }
+
+    @Test
+    fun `plus should not duplicate an element shared with a bottom-level collision node`() {
+        val expected = persistentHashSetOf(a1, a2, sibling)
+
+        val union = persistentHashSetOf(a1, a2) + persistentHashSetOf(a1, sibling)
+        assertEquals(3, union.size)
+        assertEquals(3, union.toList().size)
+        assertEquals(expected, union)
+        assertEquals(union, expected)
+        val withoutA1 = union - a1
+        assertEquals(persistentHashSetOf(a2, sibling), withoutA1)
+        assertFalse(a1 in withoutA1)
+
+        val reversedUnion = persistentHashSetOf(a1, sibling) + persistentHashSetOf(a1, a2)
+        assertEquals(3, reversedUnion.size)
+        assertEquals(3, reversedUnion.toList().size)
+        assertEquals(expected, reversedUnion)
+        assertEquals(persistentHashSetOf(a2, sibling), reversedUnion - a1)
+    }
+
+    @Test
+    fun `plus should insert a new element into a bottom-level collision node`() {
+        val expected = persistentHashSetOf(a1, a2, a3, sibling)
+
+        val union = persistentHashSetOf(a1, a2) + persistentHashSetOf(a3, sibling)
+        assertEquals(4, union.size)
+        assertEquals(expected, union)
+
+        val reversedUnion = persistentHashSetOf(a3, sibling) + persistentHashSetOf(a1, a2)
+        assertEquals(4, reversedUnion.size)
+        assertEquals(expected, reversedUnion)
+    }
+
+    @Test
+    fun `intersect and minus should handle an element absent from a bottom-level collision node`() {
+        assertTrue((persistentHashSetOf(a1, a2) intersect persistentHashSetOf(a3, sibling)).isEmpty())
+        assertTrue((persistentHashSetOf(a3, sibling) intersect persistentHashSetOf(a1, a2)).isEmpty())
+
+        assertEquals(persistentHashSetOf(a1, a2), persistentHashSetOf(a1, a2) - persistentHashSetOf(a3, sibling))
+        assertEquals(persistentHashSetOf(a3, sibling), persistentHashSetOf(a3, sibling) - persistentHashSetOf(a1, a2))
+    }
+
+    @Test
+    fun `minus should remove an element from a bottom-level collision node`() {
+        val difference = persistentHashSetOf(a1, a2) - persistentHashSetOf(a1, sibling)
+        assertEquals(1, difference.size)
+        assertEquals(persistentHashSetOf(a2), difference)
+
+        val reversedDifference = persistentHashSetOf(a1, sibling) - persistentHashSetOf(a1, a2)
+        assertEquals(1, reversedDifference.size)
+        assertEquals(persistentHashSetOf(sibling), reversedDifference)
+    }
+
+    @Test
+    fun `intersect should find the shared element inside a bottom-level collision node`() {
+        val expected = persistentHashSetOf(a1)
+
+        val intersection = persistentHashSetOf(a1, a2) intersect persistentHashSetOf(a1, sibling)
+        assertEquals(expected, intersection)
+        assertEquals(intersection, expected)
+        assertEquals(listOf(a1), intersection.toList())
+
+        val reversedIntersection = persistentHashSetOf(a1, sibling) intersect persistentHashSetOf(a1, a2)
+        assertEquals(expected, reversedIntersection)
+        assertEquals(listOf(a1), reversedIntersection.toList())
+    }
+
+    @Test
+    fun `containsAll should find elements inside a bottom-level collision node`() {
+        assertTrue(persistentHashSetOf(a1, a2, sibling).containsAll(persistentHashSetOf(a1, sibling)))
+        assertTrue(persistentHashSetOf(a1, a2, sibling).containsAll(persistentHashSetOf(a1, a2)))
+        assertFalse(persistentHashSetOf(a1, sibling).containsAll(persistentHashSetOf(a1, a2)))
+        assertFalse(persistentHashSetOf(a1, a2, sibling).containsAll(persistentHashSetOf(a3, sibling)))
     }
 }

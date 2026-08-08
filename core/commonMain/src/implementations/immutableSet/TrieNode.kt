@@ -19,11 +19,16 @@ internal const val MAX_SHIFT = 30
 /**
  * Gets trie index segment of the specified [index] at the level specified by [shift].
  *
- * `shift` equal to zero corresponds to the root level.
- * For each lower level `shift` increments by [LOG_MAX_BRANCHING_FACTOR].
+ * [shift] equal to zero corresponds to the root level.
+ * For each lower level [shift] increments by [LOG_MAX_BRANCHING_FACTOR].
+ *
+ * [shift] must not exceed [MAX_SHIFT]. Kotlin takes `Int` shift counts mod 32, so overrunning it
+ * yields a garbage segment instead of failing.
  */
-internal fun indexSegment(index: Int, shift: Int): Int =
-    (index shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE
+internal fun indexSegment(index: Int, shift: Int): Int {
+    assert { shift <= MAX_SHIFT }
+    return (index shr shift) and MAX_BRANCHING_FACTOR_MINUS_ONE
+}
 
 
 private fun <E> Array<Any?>.addElementAtIndex(index: Int, element: E): Array<Any?> {
@@ -387,7 +392,8 @@ internal class TrieNode<E>(
         }
         // for each bit set in the resulting mask,
         // either left, right or both masks contain the same bit
-        // Note: we shouldn't overrun MAX_SHIFT because both sides are correct TrieNodes, right?
+        // Note: shift can be MAX_SHIFT here, where a cell holding a node holds a collision node,
+        // so the node-vs-element branches dispatch to the collision helpers instead of descending
         newBitMap.forEachOneBit { positionMask, newNodeIndex ->
             val thisIndex = indexOfCellAt(positionMask)
             val otherNodeIndex = otherNode.indexOfCellAt(positionMask)
@@ -417,10 +423,14 @@ internal class TrieNode<E>(
                             thisCell as TrieNode<E>
                             otherNodeCell as E
                             val oldSize = mutator.size
-                            thisCell.mutableAdd(
-                                otherNodeCell.hashCode(), otherNodeCell,
-                                shift + LOG_MAX_BRANCHING_FACTOR, mutator
-                            ).also {
+                            if (shift == MAX_SHIFT) {
+                                thisCell.mutableCollisionAdd(otherNodeCell, mutator)
+                            } else {
+                                thisCell.mutableAdd(
+                                    otherNodeCell.hashCode(), otherNodeCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR, mutator
+                                )
+                            }.also {
                                 if (mutator.size == oldSize) intersectionSizeRef.count++
                             }
                         }
@@ -429,10 +439,14 @@ internal class TrieNode<E>(
                             otherNodeCell as TrieNode<E>
                             thisCell as E
                             val oldSize = mutator.size
-                            otherNodeCell.mutableAdd(
-                                thisCell.hashCode(), thisCell,
-                                shift + LOG_MAX_BRANCHING_FACTOR, mutator
-                            ).also {
+                            if (shift == MAX_SHIFT) {
+                                otherNodeCell.mutableCollisionAdd(thisCell, mutator)
+                            } else {
+                                otherNodeCell.mutableAdd(
+                                    thisCell.hashCode(), thisCell,
+                                    shift + LOG_MAX_BRANCHING_FACTOR, mutator
+                                )
+                            }.also {
                                 if (mutator.size == oldSize) intersectionSizeRef.count++
                             }
                         }
@@ -505,11 +519,15 @@ internal class TrieNode<E>(
                     thisIsNode -> @Suppress("UNCHECKED_CAST") {
                         thisCell as TrieNode<E>
                         otherNodeCell as E
-                        if (thisCell.contains(
+                        val hasElement = if (shift == MAX_SHIFT) {
+                            thisCell.collisionContainsElement(otherNodeCell)
+                        } else {
+                            thisCell.contains(
                                 otherNodeCell.hashCode(), otherNodeCell,
                                 shift + LOG_MAX_BRANCHING_FACTOR
                             )
-                        ) {
+                        }
+                        if (hasElement) {
                             intersectionSizeRef += 1
                             otherNodeCell
                         } else EMPTY
@@ -518,7 +536,12 @@ internal class TrieNode<E>(
                     otherIsNode -> @Suppress("UNCHECKED_CAST") {
                         otherNodeCell as TrieNode<E>
                         thisCell as E
-                        if (otherNodeCell.contains(thisCell.hashCode(), thisCell, shift + LOG_MAX_BRANCHING_FACTOR)) {
+                        val hasElement = if (shift == MAX_SHIFT) {
+                            otherNodeCell.collisionContainsElement(thisCell)
+                        } else {
+                            otherNodeCell.contains(thisCell.hashCode(), thisCell, shift + LOG_MAX_BRANCHING_FACTOR)
+                        }
+                        if (hasElement) {
                             intersectionSizeRef += 1
                             thisCell
                         } else EMPTY
@@ -610,10 +633,14 @@ internal class TrieNode<E>(
                         thisCell as TrieNode<E>
                         otherNodeCell as E
                         val oldSize = mutator.size
-                        val removed = thisCell.mutableRemove(
-                            otherNodeCell.hashCode(), otherNodeCell,
-                            shift + LOG_MAX_BRANCHING_FACTOR, mutator
-                        )
+                        val removed = if (shift == MAX_SHIFT) {
+                            thisCell.mutableCollisionRemove(otherNodeCell, mutator)
+                        } else {
+                            thisCell.mutableRemove(
+                                otherNodeCell.hashCode(), otherNodeCell,
+                                shift + LOG_MAX_BRANCHING_FACTOR, mutator
+                            )
+                        }
                         // additional check needed for removal
                         if (oldSize != mutator.size) {
                             intersectionSizeRef += 1
@@ -626,7 +653,12 @@ internal class TrieNode<E>(
                         otherNodeCell as TrieNode<E>
                         thisCell as E
                         // "removing" a node from a value is basically checking if the value is contained in the node
-                        if (otherNodeCell.contains(thisCell.hashCode(), thisCell, shift + LOG_MAX_BRANCHING_FACTOR)) {
+                        val hasElement = if (shift == MAX_SHIFT) {
+                            otherNodeCell.collisionContainsElement(thisCell)
+                        } else {
+                            otherNodeCell.contains(thisCell.hashCode(), thisCell, shift + LOG_MAX_BRANCHING_FACTOR)
+                        }
+                        if (hasElement) {
                             intersectionSizeRef += 1
                             EMPTY
                         } else thisCell
@@ -701,10 +733,15 @@ internal class TrieNode<E>(
                 thisIsNode -> @Suppress("UNCHECKED_CAST") {
                     thisCell as TrieNode<E>
                     otherNodeCell as E
-                    thisCell.contains(
-                        otherNodeCell.hashCode(), otherNodeCell,
-                        shift + LOG_MAX_BRANCHING_FACTOR
-                    ) || return false
+                    val hasElement = if (shift == MAX_SHIFT) {
+                        thisCell.collisionContainsElement(otherNodeCell)
+                    } else {
+                        thisCell.contains(
+                            otherNodeCell.hashCode(), otherNodeCell,
+                            shift + LOG_MAX_BRANCHING_FACTOR
+                        )
+                    }
+                    hasElement || return false
                 }
                 // left is just E, right is node => not possible
                 otherIsNode -> return false
