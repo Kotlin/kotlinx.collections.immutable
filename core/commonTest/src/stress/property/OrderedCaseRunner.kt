@@ -91,13 +91,21 @@ internal fun runOrderedCase(case: MapCase): List<PropertyFailure> {
         }
     }
 
-    val leftMap = buildOrdered(case.left.map { it to case.leftValue(it) })
-    val rightMap = buildOrdered(case.right.map { it to case.rightValue(it) })
+    val leftMap = buildOrderedMap(case.left.map { it to case.leftValue(it) })
+    val rightMap = buildOrderedMap(case.right.map { it to case.rightValue(it) })
     val leftModel = linkedModel(case.left.map { it to case.leftValue(it) })
     val rightModel = linkedModel(case.right.map { it to case.rightValue(it) })
 
     verify("build left", leftMap, leftModel)
     verify("build right", rightMap, rightModel)
+
+    failures += iteratorFailures(
+        "ordered builder",
+        { entries -> buildOrderedMap(entries.map { it.key to it.value }).builder() },
+        leftModel,
+        // https://github.com/Kotlin/kotlinx.collections.immutable/issues/307
+        checkSetValueKeepsIteratorValid = false
+    )
 
     verify("left.puttingAll(right)", leftMap.puttingAll(rightMap), leftModel + rightModel)
     verify("right.puttingAll(left)", rightMap.puttingAll(leftMap), rightModel + leftModel)
@@ -183,13 +191,13 @@ internal fun runOrderedCase(case: MapCase): List<PropertyFailure> {
     return failures
 }
 
-private fun buildOrdered(entries: List<Pair<IntWrapper, Value?>>): PersistentOrderedMap<IntWrapper, Value?> {
+internal fun buildOrderedMap(entries: List<Pair<IntWrapper, Value?>>): PersistentOrderedMap<IntWrapper, Value?> {
     var map = PersistentOrderedMap.emptyOf<IntWrapper, Value?>()
     for ((key, value) in entries) map = map.putting(key, value)
     return map
 }
 
-private fun linkedModel(entries: List<Pair<IntWrapper, Value?>>): Map<IntWrapper, Value?> {
+internal fun linkedModel(entries: List<Pair<IntWrapper, Value?>>): Map<IntWrapper, Value?> {
     val model = LinkedHashMap<IntWrapper, Value?>()
     for ((key, value) in entries) model[key] = value
     return model

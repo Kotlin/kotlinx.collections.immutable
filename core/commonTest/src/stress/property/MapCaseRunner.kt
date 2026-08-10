@@ -106,7 +106,7 @@ internal fun runMapCase(
             // level, so comparing against the rebuilt map is that check — and it is what makes
             // `assertEquals` between two persistent maps sound in the first place. The digest costs
             // two strings per node, so it is built only to explain a failure.
-            val canonical = buildMap(expected.entries.sortedBy { it.key }.associate { it.key to it.value })
+            val canonical = buildHashMap(expected.entries.sortedBy { it.key }.associate { it.key to it.value })
             if (canonical != hashMap || hashMap != canonical) {
                 fail(
                     "canonical.shape", operation,
@@ -116,13 +116,17 @@ internal fun runMapCase(
         }
     }
 
-    val leftMap = buildMap(case.left.associateWith { case.leftValue(it) })
-    val rightMap = buildMap(case.right.associateWith { case.rightValue(it) })
+    val leftMap = buildHashMap(case.left.associateWith { case.leftValue(it) })
+    val rightMap = buildHashMap(case.right.associateWith { case.rightValue(it) })
     val leftModel = case.left.associateWith { case.leftValue(it) }
     val rightModel = case.right.associateWith { case.rightValue(it) }
 
     verify("build left", leftMap, leftModel)
     verify("build right", rightMap, rightModel)
+
+    // Once per case rather than per operation: this builds six representations of the content.
+    differentContent(leftModel)?.let { failures += equalityFailures(leftModel, it) }
+    failures += iteratorFailures("hash builder", { buildHashMap(it).builder() }, leftModel, checkNoOpIdentity)
 
     // putAll is the map's only two-tree operation: the trie merge that #294 mis-dispatched and #300
     // resolved in the wrong direction. Its contract is that the argument's value wins.
@@ -190,7 +194,7 @@ internal fun runMapCase(
     return failures
 }
 
-private fun buildMap(entries: Map<IntWrapper, Value?>): PersistentHashMap<IntWrapper, Value?> {
+internal fun buildHashMap(entries: Map<IntWrapper, Value?>): PersistentHashMap<IntWrapper, Value?> {
     var map = PersistentHashMap.emptyOf<IntWrapper, Value?>()
     for ((key, value) in entries) map = map.putting(key, value)
     return map
