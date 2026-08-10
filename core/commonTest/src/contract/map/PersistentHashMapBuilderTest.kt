@@ -135,4 +135,18 @@ class PersistentHashMapBuilderTest {
         assertEquals(3, reversedBuilder.size)
         assertEquals(persistentHashMapOf(a1 to 1, a2 to 2, sibling to 3), reversedBuilder.build())
     }
+
+    @Test
+    fun `putAll should take the values of the argument builder without the two builders sharing storage`() {
+        val argument = persistentHashMapOf(a1 to 10, a2 to 20).builder()
+        val builder = persistentHashMapOf(a1 to 1, a2 to 2).builder()
+        builder.putAll(argument)
+        assertEquals(2, builder.size)
+
+        builder[a1] = 100
+        argument[a2] = 200
+
+        assertEquals(persistentHashMapOf(a1 to 100, a2 to 20), builder.build())
+        assertEquals(persistentHashMapOf(a1 to 10, a2 to 200), argument.build())
+    }
 }
