@@ -5,16 +5,17 @@
 
 package tests.stress.property
 
-import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.fail
 
 /**
  * The fast property tier for [kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap].
  *
- * Runs on every target on every build. The exhaustive part is the point: only four cells exist at
- * shift 30, so the bottom of the trie is enumerated rather than sampled, and a failure there is
- * deterministic rather than "eventually, given enough draws".
+ * Runs on every target on every build, and enumerates rather than samples: only four cells exist at
+ * shift 30, so a failure here is deterministic rather than "eventually, given enough draws".
+ *
+ * The randomized sweeps live in the jvmTest long tier instead. Keeping a small copy of them here
+ * would cost twenty Kotlin/Native links for a fraction of the seeds the long tier already runs.
  */
 class PersistentHashMapPropertyTest {
 
@@ -29,33 +30,5 @@ class PersistentHashMapPropertyTest {
     @Test
     fun exhaustiveAtTheDeepestLevel() {
         check(maxShiftCases())
-    }
-
-    @Test
-    fun everyOperandRelation() {
-        val cases = mutableListOf<MapCase>()
-        for (seed in 0..<40) {
-            val random = Random(seed)
-            val universe = generateUniverse(random)
-            for (relation in OperandRelation.entries) {
-                cases += generateMapCase(random, relation, universe) ?: continue
-            }
-        }
-        check(cases)
-    }
-
-    @Test
-    fun singleProfileUniverses() {
-        val cases = mutableListOf<MapCase>()
-        for (profile in HashProfile.entries) {
-            for (seed in 0..<10) {
-                val random = Random(seed)
-                val universe = generateUniverse(random, listOf(profile, profile), 2..4)
-                for (relation in OperandRelation.entries) {
-                    cases += generateMapCase(random, relation, universe) ?: continue
-                }
-            }
-        }
-        check(cases)
     }
 }

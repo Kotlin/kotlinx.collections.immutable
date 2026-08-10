@@ -102,17 +102,16 @@ internal fun runMapCase(
 
         if (checkCanonicalShape) {
             // Shape must be a function of content: rebuilt in a fixed order, the same entries must
-            // produce a byte-identical trie. Map equality is structural, so this is what makes
-            // `assertEquals` between two persistent maps sound in the first place.
+            // produce the same trie. Map equality already compares `dataMap` and `nodeMap` at every
+            // level, so comparing against the rebuilt map is that check — and it is what makes
+            // `assertEquals` between two persistent maps sound in the first place. The digest costs
+            // two strings per node, so it is built only to explain a failure.
             val canonical = buildMap(expected.entries.sortedBy { it.key }.associate { it.key to it.value })
-            if (canonical.shape().digest() != shape.digest()) {
+            if (canonical != hashMap || hashMap != canonical) {
                 fail(
                     "canonical.shape", operation,
-                    "rebuilt trie differs\n  rebuilt: ${canonical.shape()}\n  actual:  $shape"
+                    "rebuilt trie differs\n  rebuilt: ${canonical.shape().digest()}\n  actual:  ${shape.digest()}"
                 )
-            }
-            if (canonical != hashMap || hashMap != canonical) {
-                fail("canonical.equals", operation, "structural equality disagrees with content equality")
             }
         }
     }
