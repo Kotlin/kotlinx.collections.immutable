@@ -11,6 +11,9 @@ import kotlinx.collections.immutable.plus
 import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotSame
+import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashMapTest {
@@ -104,5 +107,79 @@ class PersistentHashMapTest {
         val reversedSum = persistentHashMapOf(a3 to 4, sibling to 3) + persistentHashMapOf(a1 to 1, a2 to 2)
         assertEquals(4, reversedSum.size)
         assertEquals(expected, reversedSum)
+    }
+
+    @Test
+    fun `putAll should take the value of the argument for a key held by both collision nodes`() {
+        val receiver = persistentHashMapOf(a1 to 1, a2 to 2)
+        val argument = persistentHashMapOf(a1 to 10, a2 to 20)
+
+        assertEquals(persistentHashMapOf(a1 to 10, a2 to 20), receiver.puttingAll(argument))
+        assertEquals(persistentHashMapOf(a1 to 1, a2 to 2), argument.puttingAll(receiver))
+    }
+
+    @Test
+    fun `putAll should merge partially overlapping collision nodes`() {
+        val receiver = persistentHashMapOf(a1 to 1, a2 to 2)
+        val argument = persistentHashMapOf(a2 to 20, a3 to 4)
+
+        val sum = receiver.puttingAll(argument)
+        assertEquals(3, sum.size)
+        assertEquals(persistentHashMapOf(a1 to 1, a2 to 20, a3 to 4), sum)
+
+        val reversedSum = argument.puttingAll(receiver)
+        assertEquals(3, reversedSum.size)
+        assertEquals(persistentHashMapOf(a1 to 1, a2 to 2, a3 to 4), reversedSum)
+    }
+
+    @Test
+    fun `putAll should return a new map when the argument only replaces values of a collision node`() {
+        val receiver = persistentHashMapOf(a1 to 1, a2 to 2, a3 to 4, sibling to 3)
+        val argument = persistentHashMapOf(a1 to 10, a2 to 20)
+
+        val sum = receiver.puttingAll(argument)
+        assertNotSame(receiver, sum)
+        assertEquals(4, sum.size)
+        assertEquals(persistentHashMapOf(a1 to 10, a2 to 20, a3 to 4, sibling to 3), sum)
+
+        val reversedSum = argument.puttingAll(receiver)
+        assertEquals(4, reversedSum.size)
+        assertEquals(persistentHashMapOf(a1 to 1, a2 to 2, a3 to 4, sibling to 3), reversedSum)
+    }
+
+    @Test
+    fun `putAll should keep a null value the argument adds to a collision node`() {
+        val receiver = persistentHashMapOf(a1 to 1, a2 to null)
+        val argument = persistentHashMapOf(a2 to 20, a3 to null)
+
+        val sum = receiver.puttingAll(argument)
+        assertEquals(3, sum.size)
+        assertEquals(persistentHashMapOf(a1 to 1, a2 to 20, a3 to null), sum)
+        assertNull(sum[a3])
+    }
+
+    @Test
+    fun `putAll should take a value of the argument that is equal but not the same instance`() {
+        data class Value<T>(val value: T)
+
+        val value = Value(1)
+        val equalValue = Value(1)
+        val receiver = persistentHashMapOf(a1 to value, a2 to value)
+        val argument = persistentHashMapOf(a1 to equalValue, a2 to value)
+
+        val sum = receiver.puttingAll(argument)
+        assertNotSame(receiver, sum)
+        assertEquals(receiver, sum)
+        assertSame(equalValue, sum[a1])
+    }
+
+    @Test
+    fun `putAll should return the same map when the argument brings no new values`() {
+        val one = "one"
+        val two = "two"
+        val receiver = persistentHashMapOf(a1 to one, a2 to two, sibling to "three")
+        val argument = persistentHashMapOf(a1 to one, a2 to two)
+
+        assertSame(receiver, receiver.puttingAll(argument))
     }
 }

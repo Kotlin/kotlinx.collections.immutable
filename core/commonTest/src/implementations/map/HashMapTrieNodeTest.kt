@@ -422,6 +422,78 @@ class HashMapTrieNodeTest {
         assertEquals(3, sum[wrapper3])
     }
 
+    // Nodes drawn using square braces are collision nodes.
+    //
+    //                            putAll
+    //
+    //      +---+            +---+                     +---+
+    //      | * |            | * |                     | * |
+    //      +-+-+            +-+-+                     +-+-+
+    //        |                |                         |
+    //        *                *            ->           *
+    //        *                *                         *
+    //        *                *                         *
+    //        |                |                         |
+    // +------+------+  +------+------+       +------+------+------+
+    // [ 1, 1 | 2, 2 ]  [ 2, 4 | 3, 6 ]       [ 1, 1 | 2, 4 | 3, 6 ]
+    // +------+------+  +------+------+       +------+------+------+
+    //
+    @Test
+    fun putAllCollisionNodeMeetsCollisionNode() {
+        val wrapper1 = IntWrapper(1, 0)
+        val wrapper2 = IntWrapper(2, 0)
+        val wrapper3 = IntWrapper(3, 0)
+
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2)
+        val other = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper2, 4).putting(wrapper3, 6)
+
+        val sum = map.puttingAll(other) as PersistentHashMap<IntWrapper, Int>
+
+        assertEquals(3, sum.size)
+        sum.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, _: Int, dataMap: Int, nodeMap: Int ->
+            if (shift > MAX_SHIFT) {
+                assertEquals(0b0, dataMap)
+                assertEquals(0b0, nodeMap)
+                assertTrue(arrayOf<Any?>(wrapper1, 1, wrapper2, 4, wrapper3, 6) contentEquals node.buffer)
+            } else {
+                assertEquals(0b0, dataMap)
+                assertEquals(0b1, nodeMap)
+            }
+        }
+    }
+
+    // Nodes drawn using square braces are collision nodes.
+    //
+    //                             putAll
+    //
+    //      +---+             +---+                       +---+
+    //      | * |             | * |                       | * |
+    //      +-+-+             +-+-+                       +-+-+
+    //        |                 |                           |
+    //        *                 *             ->            *
+    //        *                 *                           *
+    //        *                 *                           *
+    //        |                 |                           |
+    // +------+------+  +-------+-------+           +-------+-------+
+    // [ 1, 1 | 2, 2 ]  [ 1, 10 | 2, 20 ]           [ 1, 10 | 2, 20 ]
+    // +------+------+  +-------+-------+           +-------+-------+
+    //
+    // Every key of the receiver is shared, so the merged trie is the argument's trie.
+    //
+    @Test
+    fun putAllCollisionNodeMeetsCollisionNodeWithEqualKeys() {
+        val wrapper1 = IntWrapper(1, 0)
+        val wrapper2 = IntWrapper(2, 0)
+
+        val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2)
+        val other = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 10).putting(wrapper2, 20)
+
+        val sum = map.puttingAll(other) as PersistentHashMap<IntWrapper, Int>
+
+        assertEquals(2, sum.size)
+        assertSame(other.node, sum.node)
+    }
+
     // TODO: Investigate performance impact of converting single-entry collision root node to compact node. See the following commented test:
 /*
     // Nodes drawn using square braces are collision nodes.
