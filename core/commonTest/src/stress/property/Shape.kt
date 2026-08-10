@@ -36,7 +36,18 @@ internal enum class HashProfile {
 
     /** Sign boundaries, where an arithmetic shift and a logical one disagree. */
     Extremes,
+
+    /**
+     * A null key together with keys that hash to zero. `null.hashCode()` is 0, so a null key does not
+     * sit apart from the trie — it belongs in the hash-zero collision group, at the very bottom.
+     */
+    NullInZeroGroup,
 }
+
+/** What a null key stands in for wherever a value or a name is derived from the key's payload. */
+internal const val NULL_KEY_PAYLOAD = -100
+
+internal val IntWrapper?.payload: Int get() = this?.obj ?: NULL_KEY_PAYLOAD
 
 private val EXTREME_HASHES = intArrayOf(0, -1, 1, -2, Int.MIN_VALUE, Int.MAX_VALUE)
 
@@ -44,7 +55,7 @@ private val EXTREME_HASHES = intArrayOf(0, -1, 1, -2, Int.MIN_VALUE, Int.MAX_VAL
 internal val MAX_SHIFT_SEGMENTS = intArrayOf(0, 1, 30, 31)
 
 /** A batch of keys generated together, so that their hashes stand in a known relation. */
-internal class Cluster(val profile: HashProfile, val keys: List<IntWrapper>) {
+internal class Cluster(val profile: HashProfile, val keys: List<IntWrapper?>) {
     override fun toString(): String = "$profile${keys.map { it.hashCode() }}"
 }
 
@@ -55,10 +66,10 @@ internal class Cluster(val profile: HashProfile, val keys: List<IntWrapper>) {
  */
 internal class KeyUniverse(val clusters: List<Cluster>) {
 
-    val keys: List<IntWrapper> = clusters.flatMap { it.keys }
+    val keys: List<IntWrapper?> = clusters.flatMap { it.keys }
 
     /** Keys sharing a full 32-bit hash — exactly the groups that become collision nodes. */
-    val collisionGroups: List<List<IntWrapper>> =
+    val collisionGroups: List<List<IntWrapper?>> =
         keys.groupBy { it.hashCode() }.values.filter { it.size >= 2 }.map { it.toList() }
 
     /**
@@ -68,9 +79,9 @@ internal class KeyUniverse(val clusters: List<Cluster>) {
      * which is how a tree ends up with a lone element in the very cell where another tree holds a
      * collision node.
      */
-    fun pusherFor(group: List<IntWrapper>): IntWrapper? {
+    fun pushersFor(group: List<IntWrapper?>): List<IntWrapper?> {
         val groupHash = group.first().hashCode()
-        return keys.firstOrNull { it.hashCode() != groupHash && it.hashCode() and LOW_BITS == groupHash and LOW_BITS }
+        return keys.filter { it.hashCode() != groupHash && it.hashCode() and LOW_BITS == groupHash and LOW_BITS }
     }
 
     override fun toString(): String = clusters.joinToString("; ")
@@ -117,6 +128,8 @@ internal fun hashesFor(random: Random, profile: HashProfile, count: Int): List<I
     HashProfile.FullRange -> List(count) { random.nextInt() }
 
     HashProfile.Extremes -> List(count) { EXTREME_HASHES[random.nextInt(EXTREME_HASHES.size)] }
+
+    HashProfile.NullInZeroGroup -> List(count) { 0 }
 }
 
 /**
@@ -131,7 +144,9 @@ internal fun generateUniverse(
     var nextPayload = 0
     val clusters = profiles.map { profile ->
         val count = random.nextInt(keysPerCluster.first, keysPerCluster.last + 1)
-        val keys = hashesFor(random, profile, count).map { hash -> IntWrapper(nextPayload++, hash) }
+        val wrapped = hashesFor(random, profile, count).map { hash -> IntWrapper(nextPayload++, hash) }
+        val keys: List<IntWrapper?> =
+            if (profile == HashProfile.NullInZeroGroup) listOf(null) + wrapped else wrapped
         Cluster(profile, keys)
     }
     return KeyUniverse(clusters)
@@ -165,7 +180,7 @@ internal fun maxShiftUniverse(low: Int = 0b1): KeyUniverse {
 internal fun KeyUniverse.operandPair(
     random: Random,
     relation: OperandRelation
-): Pair<List<IntWrapper>, List<IntWrapper>>? {
+): Pair<List<IntWrapper?>, List<IntWrapper?>>? {
     if (keys.size < 2) return null
     return when (relation) {
         OperandRelation.Disjoint -> {
@@ -185,8 +200,9 @@ internal fun KeyUniverse.operandPair(
 
         OperandRelation.CollisionVsLone -> {
             val group = collisionGroups.firstOrNull() ?: return null
-            val pusher = pusherFor(group) ?: return null
-            group to listOf(group.first(), pusher)
+            val pushers = pushersFor(group)
+            if (pushers.isEmpty()) return null
+            group to listOf(group.first(), pushers[0])
         }
 
         OperandRelation.CollisionVsCollision -> {
@@ -194,4 +210,25 @@ internal fun KeyUniverse.operandPair(
             group.dropLast(1) to group.drop(1)
         }
     }
+}
+
+/**
+ * A universe built around the hash-zero group, with a null key in it.
+ *
+ * `null.hashCode()` is 0, so a null key shares a collision node with any key of hash zero, which is
+ * the one place in the trie where it is not just another key. The rest of the universe gives that
+ * group a partner at shift 30 and a separate subtree above it.
+ */
+internal fun nullKeyUniverse(): KeyUniverse {
+    var payload = 0
+    fun key(hash: Int) = IntWrapper(payload++, hash)
+    // One partner is enough to make the collision node; a second only makes the sweep four times
+    // bigger for the same code paths.
+    val keys = listOf(
+        null,                   // hash 0, so it joins the group below
+        key(0),
+        key(2 shl 30),          // agrees with the group on bits 0..29, different cell at shift 30
+        key(1),                 // separate subtree from the root
+    )
+    return KeyUniverse(listOf(Cluster(HashProfile.NullInZeroGroup, keys)))
 }

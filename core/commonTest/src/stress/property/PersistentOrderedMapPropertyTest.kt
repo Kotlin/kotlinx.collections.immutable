@@ -28,6 +28,11 @@ class PersistentOrderedMapPropertyTest {
     }
 
     @Test
+    fun exhaustiveOverANullKey() {
+        check(nullKeyCases())
+    }
+
+    @Test
     fun exhaustiveAtTheDeepestLevel() {
         // The ordered map wraps values in LinkedValue, so the trie underneath still has to survive
         // the collision shapes the hash map is swept over. The randomized sweeps are in the jvmTest

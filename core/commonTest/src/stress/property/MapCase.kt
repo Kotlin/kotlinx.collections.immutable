@@ -30,28 +30,28 @@ internal class Value(val id: Int) {
  * lets the shrinker be plain deletion.
  */
 internal class MapCase(
-    val left: List<IntWrapper>,
-    val right: List<IntWrapper>,
+    val left: List<IntWrapper?>,
+    val right: List<IntWrapper?>,
     val valueSalt: Int,
     val origin: String
 ) {
-    val keys: List<IntWrapper> get() = (left + right).distinct()
+    val keys: List<IntWrapper?> get() = (left + right).distinct()
 
     /**
      * Values are derived from the key rather than stored, so that dropping a key during shrinking
      * cannot leave the case inconsistent. [valueSalt] is what makes the two sides disagree on a
      * shared key, which is the only way to observe `putAll`'s argument-wins contract.
      */
-    fun valueFor(key: IntWrapper, salt: Int): Value? =
-        if (key.obj % 5 == 0) null else Value(key.obj + salt)
+    fun valueFor(key: IntWrapper?, salt: Int): Value? =
+        if (key.payload % 5 == 0) null else Value(key.payload + salt)
 
-    fun leftValue(key: IntWrapper): Value? = valueFor(key, 0)
+    fun leftValue(key: IntWrapper?): Value? = valueFor(key, 0)
 
-    fun rightValue(key: IntWrapper): Value? = valueFor(key, valueSalt)
+    fun rightValue(key: IntWrapper?): Value? = valueFor(key, valueSalt)
 
-    fun withLeft(keys: List<IntWrapper>): MapCase = MapCase(keys, right, valueSalt, origin)
+    fun withLeft(keys: List<IntWrapper?>): MapCase = MapCase(keys, right, valueSalt, origin)
 
-    fun withRight(keys: List<IntWrapper>): MapCase = MapCase(left, keys, valueSalt, origin)
+    fun withRight(keys: List<IntWrapper?>): MapCase = MapCase(left, keys, valueSalt, origin)
 
     fun withSalt(salt: Int): MapCase = MapCase(left, right, salt, origin)
 
@@ -67,6 +67,7 @@ internal class MapCase(
         appendLine("    @Test")
         appendLine("    fun `regression from $origin`() {")
         for (key in keys) {
+            if (key == null) continue
             appendLine("        val k${key.obj} = IntWrapper(${key.obj}, ${renderHash(key.hashCode())})")
         }
         appendLine()
@@ -79,8 +80,10 @@ internal class MapCase(
         appendLine("    }")
     }
 
-    private fun entry(key: IntWrapper, value: Value?): String =
-        "k${key.obj} to ${if (value == null) "null" else "Value(${value.id})"}"
+    private fun entry(key: IntWrapper?, value: Value?): String {
+        val name = if (key == null) "null" else "k${key.obj}"
+        return "$name to ${if (value == null) "null" else "Value(${value.id})"}"
+    }
 
     private fun renderHash(hash: Int): String = when {
         hash == Int.MIN_VALUE -> "Int.MIN_VALUE"
@@ -117,6 +120,25 @@ internal fun maxShiftCases(keyCount: Int = 6): List<MapCase> {
             val right = keys.filterIndexed { i, _ -> (rightMask shr i) and 1 == 1 }
             if (right.isEmpty()) continue
             cases += MapCase(left, right, 1000, "maxShift[$leftMask,$rightMask]")
+        }
+    }
+    return cases
+}
+
+/**
+ * Enumerates subsets of [nullKeyUniverse], so that a null key is swept through the same operand
+ * pairings as any other. It only differs where the trie cares: at hash zero, in a collision node.
+ */
+internal fun nullKeyCases(): List<MapCase> {
+    val keys = nullKeyUniverse().keys
+    val cases = mutableListOf<MapCase>()
+    for (leftMask in 0..<(1 shl keys.size)) {
+        val left = keys.filterIndexed { i, _ -> (leftMask shr i) and 1 == 1 }
+        if (left.isEmpty()) continue
+        for (rightMask in 0..<(1 shl keys.size)) {
+            val right = keys.filterIndexed { i, _ -> (rightMask shr i) and 1 == 1 }
+            if (right.isEmpty()) continue
+            cases += MapCase(left, right, 1000, "nullKey[$leftMask,$rightMask]")
         }
     }
     return cases

@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
  */
 class EqualityMatrixTest {
 
-    private val entries = mapOf<IntWrapper, Value?>(
+    private val entries = mapOf<IntWrapper?, Value?>(
         IntWrapper(1, 7) to Value(1),
         IntWrapper(2, 7) to Value(2),
         IntWrapper(3, 3) to null,

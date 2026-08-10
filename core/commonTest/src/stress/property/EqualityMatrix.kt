@@ -21,8 +21,8 @@ import tests.IntWrapper
  * true would sail through a test that only ever compares equal maps.
  */
 internal fun equalityFailures(
-    entries: Map<IntWrapper, Value?>,
-    different: Map<IntWrapper, Value?>
+    entries: Map<IntWrapper?, Value?>,
+    different: Map<IntWrapper?, Value?>
 ): List<PropertyFailure> {
     val failures = mutableListOf<PropertyFailure>()
 
@@ -59,7 +59,7 @@ internal fun equalityFailures(
  * is a `MutableMap`, so it is a legal operand of `equals` and the persistent classes dispatch on it
  * explicitly.
  */
-private fun representationsOf(entries: Map<IntWrapper, Value?>): List<Pair<String, Map<IntWrapper, Value?>>> {
+private fun representationsOf(entries: Map<IntWrapper?, Value?>): List<Pair<String, Map<IntWrapper?, Value?>>> {
     val ordered = entries.map { it.key to it.value }
     return listOf(
         "hash" to buildHashMap(entries),
@@ -75,7 +75,7 @@ private fun representationsOf(entries: Map<IntWrapper, Value?>): List<Pair<Strin
  * Content that differs from [entries] in a way no implementation may miss: one entry's value is
  * replaced. Returns `null` when [entries] is too small to change.
  */
-internal fun differentContent(entries: Map<IntWrapper, Value?>): Map<IntWrapper, Value?>? {
+internal fun differentContent(entries: Map<IntWrapper?, Value?>): Map<IntWrapper?, Value?>? {
     val key = entries.keys.firstOrNull() ?: return null
     val changed = LinkedHashMap(entries)
     changed[key] = Value(-7)

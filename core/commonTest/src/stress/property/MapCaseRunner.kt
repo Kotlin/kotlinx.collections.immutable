@@ -42,7 +42,7 @@ internal fun runMapCase(
     }
 
     /** Every check that must hold of any map the library hands out. */
-    fun verify(operation: String, actual: PersistentMap<IntWrapper, Value?>, expected: Map<IntWrapper, Value?>) {
+    fun verify(operation: String, actual: PersistentMap<IntWrapper?, Value?>, expected: Map<IntWrapper?, Value?>) {
         val hashMap = actual.asHash()
 
         // The stdlib side of these two comparisons iterates the persistent map from outside, so it
@@ -106,7 +106,7 @@ internal fun runMapCase(
             // level, so comparing against the rebuilt map is that check — and it is what makes
             // `assertEquals` between two persistent maps sound in the first place. The digest costs
             // two strings per node, so it is built only to explain a failure.
-            val canonical = buildHashMap(expected.entries.sortedBy { it.key }.associate { it.key to it.value })
+            val canonical = buildHashMap(expected.entries.sortedBy { it.key.payload }.associate { it.key to it.value })
             if (canonical != hashMap || hashMap != canonical) {
                 fail(
                     "canonical.shape", operation,
@@ -173,7 +173,7 @@ internal fun runMapCase(
         }
     }
 
-    var minus: PersistentMap<IntWrapper, Value?> = leftMap
+    var minus: PersistentMap<IntWrapper?, Value?> = leftMap
     for (key in case.right) minus = minus.removing(key)
     verify("left minus right keys", minus, leftModel - case.right.toSet())
 
@@ -194,12 +194,12 @@ internal fun runMapCase(
     return failures
 }
 
-internal fun buildHashMap(entries: Map<IntWrapper, Value?>): PersistentHashMap<IntWrapper, Value?> {
-    var map = PersistentHashMap.emptyOf<IntWrapper, Value?>()
+internal fun buildHashMap(entries: Map<IntWrapper?, Value?>): PersistentHashMap<IntWrapper?, Value?> {
+    var map = PersistentHashMap.emptyOf<IntWrapper?, Value?>()
     for ((key, value) in entries) map = map.putting(key, value)
     return map
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun PersistentMap<IntWrapper, Value?>.asHash(): PersistentHashMap<IntWrapper, Value?> =
-    this as PersistentHashMap<IntWrapper, Value?>
+private fun PersistentMap<IntWrapper?, Value?>.asHash(): PersistentHashMap<IntWrapper?, Value?> =
+    this as PersistentHashMap<IntWrapper?, Value?>

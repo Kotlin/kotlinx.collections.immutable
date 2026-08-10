@@ -20,8 +20,8 @@ private val ABSENT = IntWrapper(-1, 0)
  */
 internal fun iteratorFailures(
     label: String,
-    build: (Map<IntWrapper, Value?>) -> MutableMap<IntWrapper, Value?>,
-    model: Map<IntWrapper, Value?>,
+    build: (Map<IntWrapper?, Value?>) -> MutableMap<IntWrapper?, Value?>,
+    model: Map<IntWrapper?, Value?>,
     checkNoOpKeepsIteratorValid: Boolean = false,
     checkSetValueKeepsIteratorValid: Boolean = true
 ): List<PropertyFailure> {
@@ -65,7 +65,7 @@ internal fun iteratorFailures(
         val expected = LinkedHashMap(model)
         try {
             for (entry in builder.entries) {
-                val replacement = Value(entry.key.obj + 500)
+                val replacement = Value(entry.key.payload + 500)
                 expected[entry.key] = replacement
                 entry.setValue(replacement)
             }
@@ -112,10 +112,10 @@ internal fun iteratorFailures(
 }
 
 private fun noOps(
-    model: Map<IntWrapper, Value?>,
+    model: Map<IntWrapper?, Value?>,
     includeKnownBroken: Boolean
-): List<Pair<String, (MutableMap<IntWrapper, Value?>) -> Unit>> {
-    val ops = mutableListOf<Pair<String, (MutableMap<IntWrapper, Value?>) -> Unit>>(
+): List<Pair<String, (MutableMap<IntWrapper?, Value?>) -> Unit>> {
+    val ops = mutableListOf<Pair<String, (MutableMap<IntWrapper?, Value?>) -> Unit>>(
         "remove of an absent key" to { it.remove(ABSENT) },
         "putAll of an empty map" to { it.putAll(emptyMap()) },
     )

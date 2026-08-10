@@ -25,13 +25,13 @@ import kotlin.test.assertTrue
  */
 class ShapeSelfTest {
 
-    private fun mapOf(keys: List<IntWrapper>): PersistentHashMap<IntWrapper, Int> {
-        var map = PersistentHashMap.emptyOf<IntWrapper, Int>()
-        for (key in keys) map = map.putting(key, key.obj)
+    private fun mapOf(keys: List<IntWrapper?>): PersistentHashMap<IntWrapper?, Int> {
+        var map = PersistentHashMap.emptyOf<IntWrapper?, Int>()
+        for (key in keys) map = map.putting(key, key.payload)
         return map
     }
 
-    private fun clusterOf(profile: HashProfile, seed: Int, count: Int): List<IntWrapper> {
+    private fun clusterOf(profile: HashProfile, seed: Int, count: Int): List<IntWrapper?> {
         val universe = generateUniverse(Random(seed), listOf(profile), count..count)
         return universe.keys
     }
@@ -152,6 +152,23 @@ class ShapeSelfTest {
     }
 
     @Test
+    fun aNullKeySitsInsideTheHashZeroCollisionNode() {
+        // The one place a null key is not just another key: `null.hashCode()` is 0, so it shares a
+        // collision node with every key of hash zero instead of sitting in its own cell.
+        val group = nullKeyUniverse().keys.filter { it.hashCode() == 0 }
+        assertTrue(null in group, "null must belong to the hash-zero group")
+
+        val shape = mapOf(group).shape()
+        val collision = shape.collisionNodes.single()
+        assertEquals(group.size, collision.entryCount)
+        assertTrue(
+            List(collision.entryCount) { collision.keyAt(it) }.contains(null),
+            "the collision node should hold the null key, holds ${List(collision.entryCount) { collision.keyAt(it) }}"
+        )
+        assertEquals(emptyList(), shape.violations(expectedSize = group.size))
+    }
+
+    @Test
     fun everyRelationTheExhaustiveUniverseClaimsIsBuildable() {
         val universe = maxShiftUniverse()
         val unbuildable = OperandRelation.entries.filter { universe.operandPair(Random(6), it) == null }
@@ -165,7 +182,7 @@ class ShapeSelfTest {
 
         assertTrue(universe.collisionGroups.isNotEmpty(), "no collision group in $universe")
         assertTrue(
-            universe.collisionGroups.any { universe.pusherFor(it) != null },
+            universe.collisionGroups.any { universe.pushersFor(it).isNotEmpty() },
             "no collision group has a key that pushes it down to shift 30, in $universe"
         )
     }

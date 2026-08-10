@@ -28,6 +28,11 @@ class PersistentHashMapPropertyTest {
     }
 
     @Test
+    fun exhaustiveOverANullKey() {
+        check(nullKeyCases())
+    }
+
+    @Test
     fun exhaustiveAtTheDeepestLevel() {
         check(maxShiftCases())
     }

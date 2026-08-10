@@ -28,7 +28,7 @@ internal fun runOrderedCase(case: MapCase): List<PropertyFailure> {
         failures += PropertyFailure(property, operation, detail)
     }
 
-    fun verify(operation: String, actual: PersistentMap<IntWrapper, Value?>, expected: Map<IntWrapper, Value?>) {
+    fun verify(operation: String, actual: PersistentMap<IntWrapper?, Value?>, expected: Map<IntWrapper?, Value?>) {
         val ordered = actual.asOrdered()
 
         if (expected != actual) fail("model", operation, "expected $expected, got $actual")
@@ -64,7 +64,7 @@ internal fun runOrderedCase(case: MapCase): List<PropertyFailure> {
 
         // The same content as a hash map must compare equal both ways. `PersistentOrderedMap.equals`
         // dispatches over a `when` of concrete types, and a missing branch there is silent.
-        val asHash = expected.entries.fold(PersistentHashMap.emptyOf<IntWrapper, Value?>()) { m, e ->
+        val asHash = expected.entries.fold(PersistentHashMap.emptyOf<IntWrapper?, Value?>()) { m, e ->
             m.putting(e.key, e.value)
         }
         if (ordered != asHash || asHash != ordered) {
@@ -120,7 +120,7 @@ internal fun runOrderedCase(case: MapCase): List<PropertyFailure> {
     // and has to keep the chain right one insertion at a time. `puttingAll` is specified as one
     // `put` per mapping "in the specified map", so new keys land in the argument's iteration order,
     // and a hash map's order is unspecified — the expectation has to be read off the argument.
-    val rightAsHash = case.right.fold(PersistentHashMap.emptyOf<IntWrapper, Value?>()) { m, k ->
+    val rightAsHash = case.right.fold(PersistentHashMap.emptyOf<IntWrapper?, Value?>()) { m, k ->
         m.putting(k, case.rightValue(k))
     }
     verify(
@@ -150,7 +150,7 @@ internal fun runOrderedCase(case: MapCase): List<PropertyFailure> {
         verify("left.removing($key).putting($key)", leftMap.removing(key).putting(key, case.leftValue(key)), expected)
     }
 
-    var minus: PersistentMap<IntWrapper, Value?> = leftMap
+    var minus: PersistentMap<IntWrapper?, Value?> = leftMap
     for (key in case.right) minus = minus.removing(key)
     verify("left minus right keys", minus, leftModel - case.right.toSet())
 
@@ -191,18 +191,18 @@ internal fun runOrderedCase(case: MapCase): List<PropertyFailure> {
     return failures
 }
 
-internal fun buildOrderedMap(entries: List<Pair<IntWrapper, Value?>>): PersistentOrderedMap<IntWrapper, Value?> {
-    var map = PersistentOrderedMap.emptyOf<IntWrapper, Value?>()
+internal fun buildOrderedMap(entries: List<Pair<IntWrapper?, Value?>>): PersistentOrderedMap<IntWrapper?, Value?> {
+    var map = PersistentOrderedMap.emptyOf<IntWrapper?, Value?>()
     for ((key, value) in entries) map = map.putting(key, value)
     return map
 }
 
-internal fun linkedModel(entries: List<Pair<IntWrapper, Value?>>): Map<IntWrapper, Value?> {
-    val model = LinkedHashMap<IntWrapper, Value?>()
+internal fun linkedModel(entries: List<Pair<IntWrapper?, Value?>>): Map<IntWrapper?, Value?> {
+    val model = LinkedHashMap<IntWrapper?, Value?>()
     for ((key, value) in entries) model[key] = value
     return model
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun PersistentMap<IntWrapper, Value?>.asOrdered(): PersistentOrderedMap<IntWrapper, Value?> =
-    this as PersistentOrderedMap<IntWrapper, Value?>
+private fun PersistentMap<IntWrapper?, Value?>.asOrdered(): PersistentOrderedMap<IntWrapper?, Value?> =
+    this as PersistentOrderedMap<IntWrapper?, Value?>
