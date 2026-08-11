@@ -321,6 +321,11 @@ abstract class ImmutableMapTest {
         map.testNoOperation({ putting(equalKey, value) }, { put(equalKey, value) })
         map.testNotNoOperation({ putting(equalKey, equalValue) }, { put(equalKey, equalValue) })
 
+        val collisionMap = immutableMapOf(key to value, notEqualKey to notEqualValue)
+
+        collisionMap.testNoOperation({ putting(notEqualKey, notEqualValue) }, { put(notEqualKey, notEqualValue) })
+        collisionMap.testNotNoOperation({ putting(equalKey, equalValue) }, { put(equalKey, equalValue) })
+
         map.testNoOperation({ puttingAll(this) }, { putAll(this) })
         map.testNoOperation({ puttingAll(emptyMap()) }, { putAll(emptyMap()) })
     }
