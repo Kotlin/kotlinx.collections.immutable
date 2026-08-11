@@ -127,6 +127,16 @@ internal fun runMapCase(
     // Once per case rather than per operation: this builds six representations of the content.
     differentContent(leftModel)?.let { failures += equalityFailures(leftModel, it) }
     failures += iteratorFailures("hash builder", { buildHashMap(it).builder() }, leftModel, checkNoOpIdentity)
+    failures += snapshotFailures(
+        "hash", { buildHashMap(it).builder() },
+        { it.asHash().shape().violations(expectedSize = it.size) },
+        leftModel, case.right, case::rightValue
+    )
+    failures += viewFailures(
+        "hash", { buildHashMap(it).builder() },
+        { it.asHash().shape().violations(expectedSize = it.size) },
+        leftModel, case.right
+    )
 
     // putAll is the map's only two-tree operation: the trie merge that #294 mis-dispatched and #300
     // resolved in the wrong direction. Its contract is that the argument's value wins.
@@ -203,3 +213,6 @@ internal fun buildHashMap(entries: Map<IntWrapper?, Value?>): PersistentHashMap<
 @Suppress("UNCHECKED_CAST")
 private fun PersistentMap<IntWrapper?, Value?>.asHash(): PersistentHashMap<IntWrapper?, Value?> =
     this as PersistentHashMap<IntWrapper?, Value?>
+
+/** The same cast, reachable from a test that needs the structural walker. */
+internal fun PersistentMap<IntWrapper?, Value?>.asHashForTest(): PersistentHashMap<IntWrapper?, Value?> = asHash()

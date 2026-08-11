@@ -106,6 +106,16 @@ internal fun runOrderedCase(case: MapCase): List<PropertyFailure> {
         // https://github.com/Kotlin/kotlinx.collections.immutable/issues/307
         checkSetValueKeepsIteratorValid = false
     )
+    failures += snapshotFailures(
+        "ordered", { entries -> buildOrderedMap(entries.map { it.key to it.value }).builder() },
+        { it.asOrdered().orderedViolations() },
+        leftModel, case.right, case::rightValue
+    )
+    failures += viewFailures(
+        "ordered", { entries -> buildOrderedMap(entries.map { it.key to it.value }).builder() },
+        { it.asOrdered().orderedViolations() },
+        leftModel, case.right
+    )
 
     verify("left.puttingAll(right)", leftMap.puttingAll(rightMap), leftModel + rightModel)
     verify("right.puttingAll(left)", rightMap.puttingAll(leftMap), rightModel + leftModel)
