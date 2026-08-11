@@ -5,6 +5,8 @@
 
 package tests.stress.property
 
+import kotlinx.collections.immutable.implementations.immutableMap.LOG_MAX_BRANCHING_FACTOR
+import kotlinx.collections.immutable.implementations.immutableMap.MAX_BRANCHING_FACTOR
 import tests.IntWrapper
 import kotlin.random.Random
 
@@ -231,4 +233,26 @@ internal fun nullKeyUniverse(): KeyUniverse {
         key(1),                 // separate subtree from the root
     )
     return KeyUniverse(listOf(Cluster(HashProfile.NullInZeroGroup, keys)))
+}
+
+/**
+ * A universe that fills a single node to its full width.
+ *
+ * A node holds at most 32 cells, and its buffer packs entries at the front and sub-nodes at the
+ * back, so the widest shapes are the ones where both halves are large at once. Every generated
+ * universe so far is at most fifteen keys, which leaves a root node half empty and never exercises
+ * the index arithmetic that reads sub-nodes from the tail.
+ *
+ * A hash below 32 is its own segment at shift 0, and adding `1 shl 5` to it keeps the segment while
+ * splitting one level down, which turns that cell from an entry into a sub-node.
+ */
+internal fun wideUniverse(): KeyUniverse {
+    var payload = 0
+    fun key(hash: Int) = IntWrapper(payload++, hash)
+    val keys = mutableListOf<IntWrapper?>()
+    for (segment in 0..<MAX_BRANCHING_FACTOR) {
+        keys += key(segment)
+        if (segment % 4 == 0) keys += key(segment or (1 shl LOG_MAX_BRANCHING_FACTOR))
+    }
+    return KeyUniverse(listOf(Cluster(HashProfile.FullRange, keys)))
 }

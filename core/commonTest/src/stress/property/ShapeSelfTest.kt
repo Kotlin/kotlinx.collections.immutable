@@ -169,6 +169,19 @@ class ShapeSelfTest {
     }
 
     @Test
+    fun theWideUniverseFillsANodeCompletely() {
+        val universe = wideUniverse()
+        val shape = mapOf(universe.keys).shape()
+        val root = shape.nodes.first()
+
+        assertEquals(0, root.shift)
+        assertEquals(32, root.entryCount + root.childCount, "the root should use every cell, got $root")
+        assertEquals(8, root.childCount, "expected eight cells to hold a sub-node, got $root")
+        assertEquals(24 * 2 + 8, root.buffer.size)
+        assertEquals(emptyList(), shape.violations(expectedSize = universe.keys.size))
+    }
+
+    @Test
     fun everyRelationTheExhaustiveUniverseClaimsIsBuildable() {
         val universe = maxShiftUniverse()
         val unbuildable = OperandRelation.entries.filter { universe.operandPair(Random(6), it) == null }

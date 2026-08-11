@@ -9,12 +9,18 @@ import tests.stress.property.HashProfile
 import tests.stress.property.MapCase
 import tests.stress.property.OperandRelation
 import tests.stress.property.PropertyFailure
+import tests.stress.property.SequenceCase
 import tests.stress.property.generateMapCase
+import tests.stress.property.generateSequenceCase
 import tests.stress.property.generateUniverse
 import tests.stress.property.maxShiftCases
+import tests.stress.property.maxShiftUniverse
 import tests.stress.property.runMapCase
 import tests.stress.property.runOrderedCase
+import tests.stress.property.runSequenceCase
 import tests.stress.property.shrinkMapCase
+import tests.stress.property.shrinkSequence
+import tests.stress.property.wideUniverse
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.fail
@@ -64,5 +70,33 @@ class PropertyLongTierTest {
     @Test
     fun orderedMapOverManySeeds() {
         check(randomCases(seeds = 150, keysPerCluster = 2..7)) { runOrderedCase(it) }
+    }
+
+    @Test
+    fun longMixedRunsOverAFullNode() {
+        // The wide universe fills a root node to all 32 cells, which is the shape the other
+        // universes never reach: they are at most fifteen keys and leave the node half empty.
+        checkSequences(
+            List(60) { seed ->
+                generateSequenceCase(Random(seed), wideUniverse(), slots = 3, length = 80, origin = "wide/$seed")
+            }
+        )
+    }
+
+    @Test
+    fun longMixedRunsOverTheDeepestLevel() {
+        checkSequences(
+            List(120) { seed ->
+                generateSequenceCase(Random(seed), maxShiftUniverse(), slots = 4, length = 60, origin = "deep/$seed")
+            }
+        )
+    }
+
+    private fun checkSequences(cases: List<SequenceCase>) {
+        for (case in cases) {
+            if (runSequenceCase(case).isEmpty()) continue
+            val (shrunk, failures) = shrinkSequence(case) { runSequenceCase(it) }
+            fail("Property failed: ${failures.first()}\n\n${shrunk.render()}")
+        }
     }
 }
