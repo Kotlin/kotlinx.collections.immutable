@@ -27,11 +27,16 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) :
     internal var operationResult: V? = null
     internal var modCount = 0
 
+    // The ordered map builder's chain of links moves only together with the size.
+    internal var sizeModCount = 0
+        private set
+
     // Size change implies structural changes.
     override var size = map.size
         set(value) {
             field = value
             modCount++
+            sizeModCount++
         }
 
     override fun build(): PersistentHashMap<K, V> {

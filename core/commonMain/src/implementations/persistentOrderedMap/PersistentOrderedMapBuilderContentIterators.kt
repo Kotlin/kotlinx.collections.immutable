@@ -15,7 +15,7 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
 
     internal var lastIteratedKey: Any? = EndOfChain
     private var nextWasInvoked = false
-    private var expectedModCount = builder.hashMapBuilder.modCount
+    private var expectedModCount = builder.hashMapBuilder.sizeModCount
     internal var index = 0
 
     override fun hasNext(): Boolean {
@@ -42,7 +42,7 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
         builder.remove(lastIteratedKey)
         lastIteratedKey = null
         nextWasInvoked = false
-        expectedModCount = builder.hashMapBuilder.modCount
+        expectedModCount = builder.hashMapBuilder.sizeModCount
         index--
     }
 
@@ -57,7 +57,7 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
     }
 
     private fun checkForComodification() {
-        if (builder.hashMapBuilder.modCount != expectedModCount)
+        if (builder.hashMapBuilder.sizeModCount != expectedModCount)
             throw ConcurrentModificationException()
     }
 }
@@ -86,7 +86,7 @@ private class MutableMapEntry<K, V>(
     key: K,
     private var links: LinkedValue<V>
 ) : MapEntry<K, V>(key, links.value), MutableMap.MutableEntry<K, V> {
-    private val expectedModCount = builder.hashMapBuilder.modCount
+    private val expectedModCount = builder.hashMapBuilder.sizeModCount
 
     override val value: V
         get() = links.value
@@ -94,7 +94,7 @@ private class MutableMapEntry<K, V>(
     override fun setValue(newValue: V): V {
         val result = links.value
         links = links.withValue(newValue)
-        if (builder.hashMapBuilder.modCount == expectedModCount) {
+        if (builder.hashMapBuilder.sizeModCount == expectedModCount) {
             builder.setLinkedValue(key, links)
         } else {
             builder[key] = newValue
