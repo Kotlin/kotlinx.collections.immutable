@@ -96,7 +96,7 @@ private class MutableMapEntry<K, V>(
         links = links.withValue(newValue)
         if (builder.hashMapBuilder.sizeModCount == expectedModCount) {
             builder.setLinkedValue(key, links)
-        } else {
+        } else if (builder.containsKey(key)) {
             builder[key] = newValue
         }
         return result

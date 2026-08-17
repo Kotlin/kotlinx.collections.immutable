@@ -374,4 +374,21 @@ class PersistentHashMapBuilderTest {
         assertEquals("x", builder[storedKey])
         assertSame(storedKey, builder.keys.single { it == storedKey })
     }
+
+    @Test
+    fun `entry setValue after iterator remove does not re-add the key`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        val oldValue = entry.value
+        iterator.remove()
+
+        assertEquals(oldValue, entry.setValue("z"))
+
+        assertEquals(1, builder.size)
+        assertFalse(builder.containsKey(entry.key))
+        assertEquals(if (entry.key == 1) 2 else 1, iterator.next().key)
+        assertFalse(iterator.hasNext())
+        assertFalse(builder.build().containsKey(entry.key))
+    }
 }

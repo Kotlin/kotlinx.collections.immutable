@@ -10,6 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 
 class PersistentOrderedMapBuilderTest {
 
@@ -122,6 +123,78 @@ class PersistentOrderedMapBuilderTest {
         assertEquals("c", builder.remove(3))
 
         assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue after iterator remove does not re-add the key`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        iterator.remove()
+
+        assertEquals("a", entry.setValue("z"))
+
+        assertEquals(1, builder.size)
+        assertNull(builder[1])
+        assertEquals(2, iterator.next().key)
+        assertEquals(listOf(2), builder.build().keys.toList())
+    }
+
+    @Test
+    fun `entry setValue after remove of its key from the builder does not re-add the key`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        assertEquals("a", builder.remove(1))
+        val snapshot = builder.build()
+
+        assertEquals("a", entry.setValue("z"))
+        assertEquals("z", entry.setValue("y"))
+
+        assertEquals(1, builder.size)
+        assertNull(builder[1])
+        assertSame(snapshot, builder.build())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue after remove and re-put of its key updates the value at the new position`() {
+        val builder = persistentMapOf<Int, String?>(1 to "a", 2 to "b", 3 to "c").builder()
+        val entry = builder.entries.iterator().next()
+        assertEquals("a", builder.remove(1))
+        assertNull(builder.put(1, null))
+
+        assertEquals("a", entry.setValue("z"))
+
+        val built = builder.build()
+        assertEquals(listOf(2, 3, 1), built.keys.toList())
+        assertEquals(listOf("b", "c", "z"), built.values.toList())
+    }
+
+    @Test
+    fun `entry setValue of the stored value after remove and re-put keeps the builder cache valid`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b").builder()
+        val entry = builder.entries.iterator().next()
+        assertEquals("a", builder.remove(1))
+        assertNull(builder.put(1, "x"))
+        val stored = builder[1]!!
+        val snapshot = builder.build()
+
+        assertEquals("a", entry.setValue(stored))
+
+        assertSame(snapshot, builder.build())
+    }
+
+    @Test
+    fun `entry setValue after clear does not re-add the key`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b").builder()
+        val entry = builder.entries.iterator().next()
+        builder.clear()
+
+        assertEquals("a", entry.setValue("z"))
+
+        assertEquals(0, builder.size)
+        assertEquals(persistentMapOf(), builder.build())
     }
 
     private class TraceKey(val value: Int, private val hash: Int) {
