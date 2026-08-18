@@ -174,6 +174,18 @@ class PersistentHashMapTest {
     }
 
     @Test
+    fun `puttingAll should keep the stored key instance when the argument holds the key in a subtree`() {
+        val storedKey = IntWrapper(1, 0)
+        val map = persistentHashMapOf(storedKey to "a")
+
+        val updated = map.puttingAll(persistentHashMapOf(IntWrapper(1, 0) to "x", IntWrapper(2, 32) to "y"))
+
+        assertEquals(2, updated.size)
+        assertEquals("x", updated[storedKey])
+        assertSame(storedKey, updated.keys.single { it == storedKey })
+    }
+
+    @Test
     fun `putAll should return the same map when the argument brings no new values`() {
         val one = "one"
         val two = "two"
