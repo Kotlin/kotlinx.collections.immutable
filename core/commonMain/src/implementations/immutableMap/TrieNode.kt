@@ -561,28 +561,22 @@ internal class TrieNode<K, V>(
             val otherTargetNode = otherNode.nodeAtIndex(otherNode.nodeIndex(positionMask))
             when {
                 this.hasEntryAt(positionMask) -> {
-                    // if otherTargetNode already has a value associated with the key, do not put this entry
+                    // keep this node's key if the subtree also holds it, and take the argument's value
                     val keyIndex = this.entryKeyIndex(positionMask)
                     val key = this.keyAtIndex(keyIndex)
-                    val hasKey = if (shift == MAX_SHIFT) {
-                        otherTargetNode.collisionContainsKey(key)
+                    val value = this.valueAtKeyIndex(keyIndex)
+                    val entryNode = if (shift == MAX_SHIFT) {
+                        TrieNode<K, V>(0, 0, arrayOf(key, value), mutator.ownership)
                     } else {
-                        otherTargetNode.containsKey(key.hashCode(), key, shift + LOG_MAX_BRANCHING_FACTOR)
+                        val keyPositionMask = 1 shl indexSegment(key.hashCode(), shift + LOG_MAX_BRANCHING_FACTOR)
+                        TrieNode(keyPositionMask, 0, arrayOf(key, value), mutator.ownership)
                     }
-                    if (hasKey) {
-                        intersectionCounter.count++
-                        otherTargetNode
-                    } else {
-                        val value = this.valueAtKeyIndex(keyIndex)
-                        if (shift == MAX_SHIFT) {
-                            otherTargetNode.mutableCollisionPut(key, value, mutator)
-                        } else {
-                            otherTargetNode.mutablePut(
-                                key.hashCode(), key, value,
-                                shift + LOG_MAX_BRANCHING_FACTOR, mutator
-                            )
-                        }
-                    }
+                    entryNode.mutablePutAll(
+                        otherTargetNode,
+                        shift + LOG_MAX_BRANCHING_FACTOR,
+                        intersectionCounter,
+                        mutator
+                    )
                 }
 
                 else -> otherTargetNode
