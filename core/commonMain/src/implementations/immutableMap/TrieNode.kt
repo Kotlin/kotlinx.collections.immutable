@@ -398,6 +398,11 @@ internal class TrieNode<K, V>(
         return collisionKeyIndex(key) != -1
     }
 
+    private fun collisionKeyOrEmpty(key: K): Any? {
+        val keyIndex = collisionKeyIndex(key)
+        return if (keyIndex != -1) keyAtIndex(keyIndex) else EMPTY
+    }
+
     private fun collisionGet(key: K): V? {
         val keyIndex = collisionKeyIndex(key)
         return if (keyIndex != -1) valueAtKeyIndex(keyIndex) else null
@@ -561,25 +566,36 @@ internal class TrieNode<K, V>(
             val otherTargetNode = otherNode.nodeAtIndex(otherNode.nodeIndex(positionMask))
             when {
                 this.hasEntryAt(positionMask) -> {
-                    // if otherTargetNode already has a value associated with the key, do not put this entry
                     val keyIndex = this.entryKeyIndex(positionMask)
                     val key = this.keyAtIndex(keyIndex)
-                    val hasKey = if (shift == MAX_SHIFT) {
-                        otherTargetNode.collisionContainsKey(key)
-                    } else {
-                        otherTargetNode.containsKey(key.hashCode(), key, shift + LOG_MAX_BRANCHING_FACTOR)
-                    }
-                    if (hasKey) {
-                        intersectionCounter.count++
-                        otherTargetNode
-                    } else {
-                        val value = this.valueAtKeyIndex(keyIndex)
-                        if (shift == MAX_SHIFT) {
+                    val keyHash = key.hashCode()
+                    val value = this.valueAtKeyIndex(keyIndex)
+                    val storedKey = otherNode.keyOrEmpty(keyHash, key, shift)
+                    when {
+                        // putAll takes the argument's value, so a subtree holding the very key is the merge
+                        storedKey === key -> {
+                            intersectionCounter.count++
+                            otherTargetNode
+                        }
+                        // a put is cheaper than the lift below, which handles an absent key too
+                        storedKey === EMPTY -> if (shift == MAX_SHIFT) {
                             otherTargetNode.mutableCollisionPut(key, value, mutator)
                         } else {
-                            otherTargetNode.mutablePut(
-                                key.hashCode(), key, value,
-                                shift + LOG_MAX_BRANCHING_FACTOR, mutator
+                            otherTargetNode.mutablePut(keyHash, key, value, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
+                        }
+                        // a put would keep the subtree's equal copy; merging the subtree into this entry keeps this key
+                        else -> {
+                            val entryNode = if (shift == MAX_SHIFT) {
+                                TrieNode<K, V>(0, 0, arrayOf(key, value), null)
+                            } else {
+                                val keyPositionMask = 1 shl indexSegment(keyHash, shift + LOG_MAX_BRANCHING_FACTOR)
+                                TrieNode(keyPositionMask, 0, arrayOf(key, value), null)
+                            }
+                            entryNode.mutablePutAll(
+                                otherTargetNode,
+                                shift + LOG_MAX_BRANCHING_FACTOR,
+                                intersectionCounter,
+                                mutator
                             )
                         }
                     }
@@ -645,6 +661,26 @@ internal class TrieNode<K, V>(
 
         // key is absent
         return false
+    }
+
+    // containsKey keeps its own walk, since this one returning Any? costs it 10% on Native
+    private fun keyOrEmpty(keyHash: Int, key: K, shift: Int): Any? {
+        val keyPositionMask = 1 shl indexSegment(keyHash, shift)
+
+        if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
+            val storedKey = keyAtIndex(entryKeyIndex(keyPositionMask))
+            return if (key == storedKey) storedKey else EMPTY
+        }
+        if (hasNodeAt(keyPositionMask)) { // key is in node
+            val targetNode = nodeAtIndex(nodeIndex(keyPositionMask))
+            if (shift == MAX_SHIFT) {
+                return targetNode.collisionKeyOrEmpty(key)
+            }
+            return targetNode.keyOrEmpty(keyHash, key, shift + LOG_MAX_BRANCHING_FACTOR)
+        }
+
+        // key is absent
+        return EMPTY
     }
 
     fun get(keyHash: Int, key: K, shift: Int): V? {
