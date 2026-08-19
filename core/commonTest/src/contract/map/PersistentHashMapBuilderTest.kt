@@ -606,4 +606,188 @@ class PersistentHashMapBuilderTest {
         assertFalse(iterator.hasNext())
         assertFalse(builder.build().containsKey(entry.key))
     }
+
+    @Test
+    fun `entry setValue after a remove of a different key writes the value and the following next throws`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        val oldValue = entry.value
+        val otherKey = if (entry.key == 1) 2 else 1
+
+        builder.remove(otherKey)
+
+        assertEquals(oldValue, entry.setValue("z"))
+        assertEquals("z", builder[entry.key])
+        assertEquals(1, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue after a remove of a key other than the upcoming one writes the value and the following next throws`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val orderedKeys = builder.keys.toList()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        val oldValue = entry.value
+
+        assertEquals(orderedKeys[0], entry.key)
+        builder.remove(orderedKeys[2])
+
+        assertEquals(oldValue, entry.setValue("z"))
+        assertEquals("z", builder[entry.key])
+        assertEquals(2, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue after an external remove of its own key writes nothing and the following next throws`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        val oldValue = entry.value
+
+        builder.remove(entry.key)
+
+        assertEquals(oldValue, entry.setValue("z"))
+        assertFalse(builder.containsKey(entry.key))
+        assertEquals(1, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue after an external put of a new key writes the value and the following next throws`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        val oldValue = entry.value
+
+        builder[3] = "c"
+
+        assertEquals(oldValue, entry.setValue("z"))
+        assertEquals("z", builder[entry.key])
+        assertEquals(3, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue after an external value overwrite of a different key writes the value and the following next throws`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        val oldValue = entry.value
+        val otherKey = (setOf(1, 2, 3) - entry.key).first()
+
+        builder[otherKey] = "overwritten"
+
+        assertEquals(oldValue, entry.setValue("z"))
+        assertEquals("z", builder[entry.key])
+        assertEquals("overwritten", builder[otherKey])
+        assertEquals(3, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue on the exhausted iterator of a single entry map after an external put writes the value and the following next throws`() {
+        val builder = persistentHashMapOf(1 to "a").builder()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+
+        assertFalse(iterator.hasNext())
+        builder[2] = "b"
+
+        assertEquals("a", entry.setValue("z"))
+        assertEquals("z", builder[1])
+        assertEquals(2, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue after a remove of a colliding key writes the value and the following next throws`() {
+        val builder = persistentHashMapOf(
+            IntWrapper(1, 0) to "a",
+            IntWrapper(2, 0) to "b",
+            IntWrapper(3, 0) to "c"
+        ).builder()
+        val orderedKeys = builder.keys.toList()
+        val iterator = builder.entries.iterator()
+        val entry = iterator.next()
+        val oldValue = entry.value
+
+        builder.remove(orderedKeys[1])
+
+        assertEquals(oldValue, entry.setValue("z"))
+        assertEquals("z", builder[entry.key])
+        assertEquals(2, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `entry setValue after a remove that shrinks the collision node writes the value and the following next throws`() {
+        val builder = persistentHashMapOf(
+            IntWrapper(1, 0) to "a",
+            IntWrapper(2, 0) to "b",
+            IntWrapper(3, 1) to "c"
+        ).builder()
+        val orderedKeys = builder.keys.toList()
+        val iterator = builder.entries.iterator()
+        val _ = iterator.next()
+        val entry = iterator.next()
+        val oldValue = entry.value
+
+        assertEquals(IntWrapper(3, 1), orderedKeys[0])
+        builder.remove(orderedKeys[2])
+
+        assertEquals(oldValue, entry.setValue("z"))
+        assertEquals("z", builder[entry.key])
+        assertEquals(2, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `setting values through the iterator updates every entry and preserves the iteration order`() {
+        val builder = persistentHashMapOf(
+            IntWrapper(1, 0) to "a",
+            IntWrapper(2, 0) to "b",
+            IntWrapper(3, 1) to "c",
+            IntWrapper(4, 32) to "d"
+        ).builder()
+        val orderedKeys = builder.keys.toList()
+        val visited = mutableListOf<IntWrapper>()
+        val iterator = builder.entries.iterator()
+
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            visited.add(entry.key)
+            val _ = entry.setValue(entry.value + "!")
+        }
+
+        assertEquals(orderedKeys, visited)
+        assertEquals(4, builder.size)
+        assertEquals("a!", builder[IntWrapper(1, 0)])
+        assertEquals("b!", builder[IntWrapper(2, 0)])
+        assertEquals("c!", builder[IntWrapper(3, 1)])
+        assertEquals("d!", builder[IntWrapper(4, 32)])
+    }
+
+    @Test
+    fun `setting the value of an earlier entry after a later one keeps the iterator valid`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val orderedKeys = builder.keys.toList()
+        val iterator = builder.entries.iterator()
+        val first = iterator.next()
+        val second = iterator.next()
+        val firstValue = first.value
+        val secondValue = second.value
+
+        assertEquals(secondValue, second.setValue("y"))
+        assertEquals(firstValue, first.setValue("x"))
+        assertEquals("x", first.setValue("xx"))
+
+        assertEquals("xx", builder[orderedKeys[0]])
+        assertEquals("y", builder[orderedKeys[1]])
+        assertEquals(3, builder.size)
+        assertEquals(orderedKeys[2], iterator.next().key)
+        assertFalse(iterator.hasNext())
+    }
 }
