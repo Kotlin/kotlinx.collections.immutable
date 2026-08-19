@@ -42,7 +42,7 @@ class ImmutableHashMapTest : ImmutableMapTest() {
 
         run {
             val x = immutableMapOf<IntWrapper, Int>() + (11..200).map { IntWrapper(it, it % 30) to it }
-            val y = immutableMapOf<IntWrapper, Int>() + (120..400).map { IntWrapper(it, it % 30) to it }
+            val y = immutableMapOf<IntWrapper, Int>() + (120..400).map { IntWrapper(it, it % 30) to -it }
             compareMaps(x.toMap() + y.toMap(), x.puttingAll(y))
             compareMaps(y.toMap() + x.toMap(), y.puttingAll(x))
         }

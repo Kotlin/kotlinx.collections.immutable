@@ -13,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashMapBuilderTest {
@@ -134,5 +135,30 @@ class PersistentHashMapBuilderTest {
         reversedBuilder.putAll(persistentHashMapOf(a1 to 1, a2 to 2))
         assertEquals(3, reversedBuilder.size)
         assertEquals(persistentHashMapOf(a1 to 1, a2 to 2, sibling to 3), reversedBuilder.build())
+    }
+
+    @Test
+    fun `putAll should take the values of the argument builder without the two builders sharing storage`() {
+        val argument = persistentHashMapOf(a1 to 10, a2 to 20).builder()
+        val builder = persistentHashMapOf(a1 to 1, a2 to 2).builder()
+        builder.putAll(argument)
+        assertEquals(2, builder.size)
+
+        builder[a1] = 100
+        argument[a2] = 200
+
+        assertEquals(persistentHashMapOf(a1 to 100, a2 to 20), builder.build())
+        assertEquals(persistentHashMapOf(a1 to 10, a2 to 200), argument.build())
+    }
+
+    @Test
+    fun `putAll that replaces collision values should keep the stored key instances`() {
+        val storedKey = IntWrapper(1, 0)
+        val builder = persistentHashMapOf(storedKey to "a", a2 to "b").builder()
+
+        builder.putAll(persistentHashMapOf(IntWrapper(1, 0) to "x", IntWrapper(2, 0) to "y"))
+
+        assertEquals("x", builder[storedKey])
+        assertSame(storedKey, builder.keys.single { it == storedKey })
     }
 }
