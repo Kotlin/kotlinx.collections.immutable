@@ -363,6 +363,65 @@ class HashMapTrieNodeTest {
         }
     }
 
+    // Nodes drawn using square braces are collision nodes.
+    //
+    //                             putAll
+    //
+    //      +---+            +---+                     +---+
+    //      | * |            | * |                     | * |
+    //      +-+-+            +-+-+                     +-+-+
+    //        |                |                         |
+    //        *                *            ->           *
+    //        *                *                         *
+    //        *                *                         *
+    //        |                |                         |
+    //      +-+-+      +-------+------+              +---+------+
+    //      | * |      | 1, 10 | 3, 3 |              | * | 3, 3 |
+    //      +-+-+      +-------+------+              +-+-+------+
+    //        |                                        |
+    // +------+------+                         +-------+------+
+    // [ 1, 1 | 2, 2 ]                         [ 1, 10 | 2, 2 ]
+    // +------+------+                         +-------+------+
+    //
+    @Test
+    fun putAllCollisionNodeMeetsSingleEntry() {
+        val wrapper1 = IntWrapper(1, 0)
+        val wrapper2 = IntWrapper(2, 0)
+        val wrapper3 = IntWrapper(3, 1 shl MAX_SHIFT)
+
+        val collisionMap = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2)
+        val entryMap = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 10).putting(wrapper3, 3)
+
+        val sum = collisionMap.puttingAll(entryMap) as PersistentHashMap<IntWrapper, Int>
+        val reversedSum = entryMap.puttingAll(collisionMap) as PersistentHashMap<IntWrapper, Int>
+
+        for (map in listOf(sum, reversedSum)) {
+            assertEquals(3, map.size)
+            map.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, _: Int, dataMap: Int, nodeMap: Int ->
+                when {
+                    shift > MAX_SHIFT -> {
+                        assertEquals(0b0, dataMap)
+                        assertEquals(0b0, nodeMap)
+                        assertEquals(4, node.buffer.size)
+                        assertEquals(setOf<Any?>(wrapper1, wrapper2), setOf(node.buffer[0], node.buffer[2]))
+                    }
+                    shift == MAX_SHIFT -> {
+                        assertEquals(0b10, dataMap)
+                        assertEquals(0b1, nodeMap)
+                    }
+                    else -> {
+                        assertEquals(0b0, dataMap)
+                        assertEquals(0b1, nodeMap)
+                    }
+                }
+            }
+        }
+        assertEquals(10, sum[wrapper1])
+        assertEquals(1, reversedSum[wrapper1])
+        assertEquals(2, sum[wrapper2])
+        assertEquals(3, sum[wrapper3])
+    }
+
     // TODO: Investigate performance impact of converting single-entry collision root node to compact node. See the following commented test:
 /*
     // Nodes drawn using square braces are collision nodes.
