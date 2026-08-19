@@ -480,7 +480,7 @@ internal class TrieNode<K, V>(
     private fun mutableCollisionPutAll(
         otherNode: TrieNode<K, V>,
         intersectionCounter: DeltaCounter,
-        owner: MutabilityOwnership
+        mutator: PersistentHashMapBuilder<K, V>
     ): TrieNode<K, V> {
         assert { nodeMap == 0 }
         assert { dataMap == 0 }
@@ -506,11 +506,13 @@ internal class TrieNode<K, V>(
             }
         }
 
+        if (replaced) mutator.modCount++
+
         return when (val newSize = i) {
             this.buffer.size if !replaced -> this
             otherNode.buffer.size if sharedKeys -> otherNode
-            tempBuffer.size -> TrieNode(0, 0, tempBuffer, owner)
-            else -> TrieNode(0, 0, tempBuffer.copyOf(newSize), owner)
+            tempBuffer.size -> TrieNode(0, 0, tempBuffer, mutator.ownership)
+            else -> TrieNode(0, 0, tempBuffer.copyOf(newSize), mutator.ownership)
         }
     }
 
@@ -680,7 +682,7 @@ internal class TrieNode<K, V>(
         }
         // the collision case
         if (shift > MAX_SHIFT) {
-            return mutableCollisionPutAll(otherNode, intersectionCounter, mutator.ownership)
+            return mutableCollisionPutAll(otherNode, intersectionCounter, mutator)
         }
 
         // new nodes are where either of the old ones were
@@ -723,12 +725,22 @@ internal class TrieNode<K, V>(
                 }
                 // there is either only one entry in otherNode, or
                 // both entries are here => they are equal, see ** above
-                // so just overwrite that
+                // so keep this node's key if both are here, and take the argument's value
                 else -> {
-                    val oldKeyIndex = otherNode.entryKeyIndex(positionMask)
-                    mutableNode.buffer[newKeyIndex] = otherNode.keyAtIndex(oldKeyIndex)
-                    mutableNode.buffer[newKeyIndex + 1] = otherNode.valueAtKeyIndex(oldKeyIndex)
-                    if (this.hasEntryAt(positionMask)) intersectionCounter.count++
+                    val otherKeyIndex = otherNode.entryKeyIndex(positionMask)
+                    val otherValue = otherNode.valueAtKeyIndex(otherKeyIndex)
+                    if (this.hasEntryAt(positionMask)) {
+                        val thisKeyIndex = this.entryKeyIndex(positionMask)
+                        intersectionCounter.count++
+                        if (mutableNode !== this) {
+                            val thisValue = this.valueAtKeyIndex(thisKeyIndex)
+                            if (thisValue !== otherValue) mutator.modCount++
+                        }
+                        mutableNode.buffer[newKeyIndex] = this.keyAtIndex(thisKeyIndex)
+                    } else {
+                        mutableNode.buffer[newKeyIndex] = otherNode.keyAtIndex(otherKeyIndex)
+                    }
+                    mutableNode.buffer[newKeyIndex + 1] = otherValue
                 }
             }
         }
