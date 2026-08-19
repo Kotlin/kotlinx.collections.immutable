@@ -388,7 +388,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun collisionKeyIndex(key: Any?): Int {
-        for (i in 0..<buffer.size step ENTRY_SIZE) {
+        for (i in buffer.indices step ENTRY_SIZE) {
             if (key == keyAtIndex(i)) return i
         }
         return -1
@@ -422,6 +422,9 @@ internal class TrieNode<K, V>(
         val keyIndex = collisionKeyIndex(key)
         if (keyIndex != -1) { // found entry with the specified key
             mutator.operationResult = valueAtKeyIndex(keyIndex)
+            if (valueAtKeyIndex(keyIndex) === value) {
+                return this
+            }
 
             // If the [mutator] is exclusive owner of this node, update value of the entry in-place.
             if (ownedBy === mutator.ownership) {
