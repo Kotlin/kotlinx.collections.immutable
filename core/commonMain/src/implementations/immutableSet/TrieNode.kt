@@ -225,6 +225,12 @@ internal class TrieNode<E>(
         return buffer.contains(element)
     }
 
+    private fun collisionElementOrEmpty(element: E): Any? {
+        val index = buffer.indexOf(element)
+        if (index == -1) return EMPTY
+        return buffer[index]
+    }
+
     private fun collisionAdd(element: E): TrieNode<E> {
         if (collisionContainsElement(element)) return this
         val newBuffer = buffer.addElementAtIndex(0, element)
@@ -265,14 +271,16 @@ internal class TrieNode<E>(
             return this
         }
         val tempBuffer = this.buffer.copyOf(newSize = this.buffer.size + otherNode.buffer.size)
+        var sharedElements = true
         val totalWritten = otherNode.buffer.filterTo(tempBuffer, newArrayOffset = this.buffer.size) {
-            @Suppress("UNCHECKED_CAST")
-            !this.collisionContainsElement(it as E)
+            val index = this.buffer.indexOf(it)
+            if (index != -1 && this.buffer[index] !== it) sharedElements = false
+            index == -1
         }
         val totalSize = totalWritten + this.buffer.size
         intersectionSizeRef += (tempBuffer.size - totalSize)
         if (totalSize == this.buffer.size) return this
-        if (totalSize == otherNode.buffer.size) return otherNode
+        if (totalSize == otherNode.buffer.size && sharedElements) return otherNode
 
         val newBuffer = if (totalSize == tempBuffer.size) tempBuffer else tempBuffer.copyOf(newSize = totalSize)
         return setProperties(newBitmap = 0, newBuffer, owner)
@@ -369,6 +377,27 @@ internal class TrieNode<E>(
         return element == buffer[cellIndex]
     }
 
+    // contains keeps its own walk, since this one returning Any? costs it 10% on Native
+    private fun elementOrEmpty(elementHash: Int, element: E, shift: Int): Any? {
+        val cellPositionMask = 1 shl indexSegment(elementHash, shift)
+
+        if (hasNoCellAt(cellPositionMask)) { // element is absent
+            return EMPTY
+        }
+
+        val cellIndex = indexOfCellAt(cellPositionMask)
+        if (buffer[cellIndex] is TrieNode<*>) { // element may be in node
+            val targetNode = nodeAtIndex(cellIndex)
+            if (shift == MAX_SHIFT) {
+                return targetNode.collisionElementOrEmpty(element)
+            }
+            return targetNode.elementOrEmpty(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR)
+        }
+        // element is directly in buffer
+        val cell = buffer[cellIndex]
+        return if (element == cell) cell else EMPTY
+    }
+
     fun mutableAddAll(
         otherNode: TrieNode<E>,
         shift: Int,
@@ -434,20 +463,36 @@ internal class TrieNode<E>(
                                 if (mutator.size == oldSize) intersectionSizeRef.count++
                             }
                         }
-                        // same as last case, but reversed
                         otherIsNode -> @Suppress("UNCHECKED_CAST") {
                             otherNodeCell as TrieNode<E>
                             thisCell as E
-                            val oldSize = mutator.size
-                            if (shift == MAX_SHIFT) {
-                                otherNodeCell.mutableCollisionAdd(thisCell, mutator)
-                            } else {
-                                otherNodeCell.mutableAdd(
-                                    thisCell.hashCode(), thisCell,
-                                    shift + LOG_MAX_BRANCHING_FACTOR, mutator
-                                )
-                            }.also {
-                                if (mutator.size == oldSize) intersectionSizeRef.count++
+                            val elementHash = thisCell.hashCode()
+                            val storedElement = otherNode.elementOrEmpty(elementHash, thisCell, shift)
+                            when {
+                                storedElement === thisCell -> {
+                                    intersectionSizeRef.count++
+                                    otherNodeCell
+                                }
+                                // an add is cheaper than the lift below, which handles an absent element too
+                                storedElement === EMPTY -> if (shift == MAX_SHIFT) {
+                                    otherNodeCell.mutableCollisionAdd(thisCell, mutator)
+                                } else {
+                                    otherNodeCell.mutableAdd(elementHash, thisCell, shift + LOG_MAX_BRANCHING_FACTOR, mutator)
+                                }
+                                // an add would keep the equal copy; merging the node into this element keeps this instance
+                                else -> {
+                                    val liftedNode = if (shift == MAX_SHIFT) {
+                                        TrieNode<E>(0, arrayOf(thisCell), null)
+                                    } else {
+                                        val elementPositionMask =
+                                            1 shl indexSegment(elementHash, shift + LOG_MAX_BRANCHING_FACTOR)
+                                        TrieNode(elementPositionMask, arrayOf(thisCell), null)
+                                    }
+                                    liftedNode.mutableAddAll(
+                                        otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR,
+                                        intersectionSizeRef, mutator
+                                    )
+                                }
                             }
                         }
                         // both are just E => compare them
