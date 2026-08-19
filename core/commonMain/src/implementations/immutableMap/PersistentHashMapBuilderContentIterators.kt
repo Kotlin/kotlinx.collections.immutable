@@ -73,6 +73,11 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
     fun setValue(key: K, newValue: V) {
         if (!builder.containsKey(key)) return
 
+        if (builder.modCount != expectedModCount) {
+            builder[key] = newValue
+            return
+        }
+
         if (hasNext()) {
             val currentKey = currentKey()
             builder[key] = newValue
