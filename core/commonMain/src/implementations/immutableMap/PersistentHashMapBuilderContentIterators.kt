@@ -53,6 +53,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
 
     override fun remove() {
         checkNextWasInvoked()
+        checkForComodification()
         if (hasNext()) {
             val currentKey = currentKey()
 
