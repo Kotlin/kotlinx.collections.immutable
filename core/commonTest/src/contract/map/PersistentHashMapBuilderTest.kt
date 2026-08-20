@@ -790,4 +790,45 @@ class PersistentHashMapBuilderTest {
         assertEquals(orderedKeys[2], iterator.next().key)
         assertFalse(iterator.hasNext())
     }
+
+    @Test
+    fun `iterator remove after a remove of a different key throws ConcurrentModificationException`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val orderedKeys = builder.keys.toList()
+        val iterator = builder.entries.iterator()
+        assertEquals(orderedKeys[0], iterator.next().key)
+
+        builder.remove(orderedKeys[1])
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(1, builder.size)
+        assertTrue(builder.containsKey(orderedKeys[0]))
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `iterator remove on the exhausted iterator of a single entry map after an external put throws ConcurrentModificationException`() {
+        val builder = persistentHashMapOf(1 to "a").builder()
+        val iterator = builder.entries.iterator()
+        val _ = iterator.next()
+        assertFalse(iterator.hasNext())
+
+        builder[2] = "b"
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(2, builder.size)
+        assertEquals("a", builder[1])
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `iterator remove without a preceding next after an external remove throws IllegalStateException`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+
+        builder.remove(1)
+
+        assertFailsWith<IllegalStateException> { iterator.remove() }
+        assertEquals(1, builder.size)
+    }
 }
