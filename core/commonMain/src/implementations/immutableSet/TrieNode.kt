@@ -225,6 +225,12 @@ internal class TrieNode<E>(
         return buffer.contains(element)
     }
 
+    private fun collisionElementOrEmpty(element: E): Any? {
+        val index = buffer.indexOf(element)
+        if (index == -1) return EMPTY
+        return buffer[index]
+    }
+
     private fun collisionAdd(element: E): TrieNode<E> {
         if (collisionContainsElement(element)) return this
         val newBuffer = buffer.addElementAtIndex(0, element)
@@ -299,16 +305,24 @@ internal class TrieNode<E>(
         val tempBuffer =
             if (owner === ownedBy) buffer
             else arrayOfNulls<Any?>(minOf(buffer.size, otherNode.buffer.size))
-        val totalWritten = buffer.filterTo(tempBuffer) {
-            @Suppress("UNCHECKED_CAST")
-            otherNode.collisionContainsElement(it as E)
+        var totalWritten = 0
+        var sharedElements = true
+        for (i in buffer.indices) {
+            assert { totalWritten <= i }
+            val element = buffer[i]
+            val otherIndex = otherNode.buffer.indexOf(element)
+            if (otherIndex != -1) {
+                tempBuffer[totalWritten] = element
+                totalWritten++
+                if (otherNode.buffer[otherIndex] !== element) sharedElements = false
+            }
         }
         intersectionSizeRef += totalWritten
         return when (totalWritten) {
             0 -> EMPTY
             1 -> tempBuffer[0]
             this.buffer.size -> this
-            otherNode.buffer.size -> otherNode
+            otherNode.buffer.size if sharedElements -> otherNode
             tempBuffer.size -> setProperties(newBitmap = 0, newBuffer = tempBuffer, owner)
             else -> setProperties(newBitmap = 0, newBuffer = tempBuffer.copyOf(newSize = totalWritten), owner)
         }
@@ -360,22 +374,27 @@ internal class TrieNode<E>(
     }
 
     fun contains(elementHash: Int, element: E, shift: Int): Boolean {
+        return elementOrEmpty(elementHash, element, shift) !== EMPTY
+    }
+
+    private fun elementOrEmpty(elementHash: Int, element: E, shift: Int): Any? {
         val cellPositionMask = 1 shl indexSegment(elementHash, shift)
 
         if (hasNoCellAt(cellPositionMask)) { // element is absent
-            return false
+            return EMPTY
         }
 
         val cellIndex = indexOfCellAt(cellPositionMask)
         if (buffer[cellIndex] is TrieNode<*>) { // element may be in node
             val targetNode = nodeAtIndex(cellIndex)
             if (shift == MAX_SHIFT) {
-                return targetNode.collisionContainsElement(element)
+                return targetNode.collisionElementOrEmpty(element)
             }
-            return targetNode.contains(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR)
+            return targetNode.elementOrEmpty(elementHash, element, shift + LOG_MAX_BRANCHING_FACTOR)
         }
         // element is directly in buffer
-        return element == buffer[cellIndex]
+        val cell = buffer[cellIndex]
+        return if (element == cell) cell else EMPTY
     }
 
     fun mutableAddAll(
@@ -528,18 +547,16 @@ internal class TrieNode<E>(
                     thisIsNode -> @Suppress("UNCHECKED_CAST") {
                         thisCell as TrieNode<E>
                         otherNodeCell as E
-                        val hasElement = if (shift == MAX_SHIFT) {
-                            thisCell.collisionContainsElement(otherNodeCell)
+                        val storedElement = if (shift == MAX_SHIFT) {
+                            thisCell.collisionElementOrEmpty(otherNodeCell)
                         } else {
-                            thisCell.contains(
+                            thisCell.elementOrEmpty(
                                 otherNodeCell.hashCode(), otherNodeCell,
                                 shift + LOG_MAX_BRANCHING_FACTOR
                             )
                         }
-                        if (hasElement) {
-                            intersectionSizeRef += 1
-                            otherNodeCell
-                        } else EMPTY
+                        if (storedElement !== EMPTY) intersectionSizeRef += 1
+                        storedElement
                     }
                     // same as last case, but reversed
                     otherIsNode -> @Suppress("UNCHECKED_CAST") {
