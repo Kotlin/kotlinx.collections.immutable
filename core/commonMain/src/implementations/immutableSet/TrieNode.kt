@@ -298,16 +298,18 @@ internal class TrieNode<E>(
         val tempBuffer =
             if (owner === ownedBy) buffer
             else arrayOfNulls<Any?>(minOf(buffer.size, otherNode.buffer.size))
+        var sharedElements = true
         val totalWritten = buffer.filterTo(tempBuffer) {
-            @Suppress("UNCHECKED_CAST")
-            otherNode.collisionContainsElement(it as E)
+            val otherIndex = otherNode.buffer.indexOf(it)
+            if (otherIndex != -1 && otherNode.buffer[otherIndex] !== it) sharedElements = false
+            otherIndex != -1
         }
         intersectionSizeRef += totalWritten
         return when (totalWritten) {
             0 -> EMPTY
             1 -> tempBuffer[0]
             this.buffer.size -> this
-            otherNode.buffer.size -> otherNode
+            otherNode.buffer.size if sharedElements -> otherNode
             tempBuffer.size -> setProperties(newBitmap = 0, newBuffer = tempBuffer, owner)
             else -> setProperties(newBitmap = 0, newBuffer = tempBuffer.copyOf(newSize = totalWritten), owner)
         }
@@ -562,20 +564,10 @@ internal class TrieNode<E>(
                     }
                     // one of them is a node -> check containment
                     thisIsNode -> @Suppress("UNCHECKED_CAST") {
-                        thisCell as TrieNode<E>
                         otherNodeCell as E
-                        val hasElement = if (shift == MAX_SHIFT) {
-                            thisCell.collisionContainsElement(otherNodeCell)
-                        } else {
-                            thisCell.contains(
-                                otherNodeCell.hashCode(), otherNodeCell,
-                                shift + LOG_MAX_BRANCHING_FACTOR
-                            )
-                        }
-                        if (hasElement) {
-                            intersectionSizeRef += 1
-                            otherNodeCell
-                        } else EMPTY
+                        val storedElement = elementOrEmpty(otherNodeCell.hashCode(), otherNodeCell, shift)
+                        if (storedElement !== EMPTY) intersectionSizeRef += 1
+                        storedElement
                     }
                     // same as last case, but reversed
                     otherIsNode -> @Suppress("UNCHECKED_CAST") {
