@@ -265,17 +265,26 @@ internal class TrieNode<E>(
             return this
         }
         val tempBuffer = this.buffer.copyOf(newSize = this.buffer.size + otherNode.buffer.size)
-        val totalWritten = otherNode.buffer.filterTo(tempBuffer, newArrayOffset = this.buffer.size) {
+        var totalSize = this.buffer.size
+        var sharedElements = true
+        for (j in otherNode.buffer.indices) {
             @Suppress("UNCHECKED_CAST")
-            !this.collisionContainsElement(it as E)
+            val otherElement = otherNode.buffer[j] as E
+            val index = this.buffer.indexOf(otherElement)
+            if (index == -1) {
+                tempBuffer[totalSize] = otherElement
+                totalSize++
+            } else {
+                intersectionSizeRef.count++
+                if (tempBuffer[index] !== otherElement) sharedElements = false
+            }
         }
-        val totalSize = totalWritten + this.buffer.size
-        intersectionSizeRef += (tempBuffer.size - totalSize)
-        if (totalSize == this.buffer.size) return this
-        if (totalSize == otherNode.buffer.size) return otherNode
-
-        val newBuffer = if (totalSize == tempBuffer.size) tempBuffer else tempBuffer.copyOf(newSize = totalSize)
-        return setProperties(newBitmap = 0, newBuffer, owner)
+        return when (totalSize) {
+            this.buffer.size -> this
+            otherNode.buffer.size if sharedElements -> otherNode
+            tempBuffer.size -> setProperties(newBitmap = 0, newBuffer = tempBuffer, owner)
+            else -> setProperties(newBitmap = 0, newBuffer = tempBuffer.copyOf(newSize = totalSize), owner)
+        }
     }
 
     private fun mutableCollisionRetainAll(
@@ -438,17 +447,17 @@ internal class TrieNode<E>(
                         otherIsNode -> @Suppress("UNCHECKED_CAST") {
                             otherNodeCell as TrieNode<E>
                             thisCell as E
-                            val oldSize = mutator.size
-                            if (shift == MAX_SHIFT) {
-                                otherNodeCell.mutableCollisionAdd(thisCell, mutator)
+                            val liftedNode = if (shift == MAX_SHIFT) {
+                                TrieNode<E>(0, arrayOf(thisCell), null)
                             } else {
-                                otherNodeCell.mutableAdd(
-                                    thisCell.hashCode(), thisCell,
-                                    shift + LOG_MAX_BRANCHING_FACTOR, mutator
-                                )
-                            }.also {
-                                if (mutator.size == oldSize) intersectionSizeRef.count++
+                                val elementPositionMask =
+                                    1 shl indexSegment(thisCell.hashCode(), shift + LOG_MAX_BRANCHING_FACTOR)
+                                TrieNode(elementPositionMask, arrayOf(thisCell), null)
                             }
+                            liftedNode.mutableAddAll(
+                                otherNodeCell, shift + LOG_MAX_BRANCHING_FACTOR,
+                                intersectionSizeRef, mutator
+                            )
                         }
                         // both are just E => compare them
                         thisCell == otherNodeCell -> thisCell.also { intersectionSizeRef.count++ }
