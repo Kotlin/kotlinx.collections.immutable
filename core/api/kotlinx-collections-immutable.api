@@ -27,6 +27,9 @@ public final class kotlinx/collections/immutable/ExtensionsKt {
 	public static final fun mutate (Lkotlinx/collections/immutable/PersistentList;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentList;
 	public static final fun mutate (Lkotlinx/collections/immutable/PersistentMap;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun mutate (Lkotlinx/collections/immutable/PersistentSet;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentSet;
+	public static final fun orEmpty (Lkotlinx/collections/immutable/ImmutableList;)Lkotlinx/collections/immutable/ImmutableList;
+	public static final fun orEmpty (Lkotlinx/collections/immutable/ImmutableMap;)Lkotlinx/collections/immutable/ImmutableMap;
+	public static final fun orEmpty (Lkotlinx/collections/immutable/ImmutableSet;)Lkotlinx/collections/immutable/ImmutableSet;
 	public static final fun persistentHashMapOf ()Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun persistentHashMapOf ([Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentMap;
 	public static final fun persistentHashSetOf ()Lkotlinx/collections/immutable/PersistentSet;
