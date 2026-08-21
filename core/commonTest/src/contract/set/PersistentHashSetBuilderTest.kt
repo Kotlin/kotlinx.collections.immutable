@@ -7,6 +7,7 @@ package tests.contract.set
 
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSetBuilder
+import kotlinx.collections.immutable.implementations.immutableSet.TrieNode
 import kotlinx.collections.immutable.persistentHashSetOf
 import tests.IntWrapper
 import kotlin.random.Random
@@ -369,6 +370,121 @@ class PersistentHashSetBuilderTest {
             }
             for ((id, element) in argumentElements) {
                 if (id in receiverElements) continue
+                assertSame(element, builder.singleOrNull { it == element }, "$shape, id $id")
+            }
+        }
+    }
+
+    @Test
+    fun `retainAll should keep the stored element instance when the collision node is reached at the last level`() {
+        val storedElement = IntWrapper(1, 0)
+        val builder = persistentHashSetOf(storedElement, IntWrapper(2, 0), sibling).builder()
+
+        assertTrue(builder.retainAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(3, 1 shl 30))))
+
+        assertEquals(2, builder.size)
+        assertSame(storedElement, builder.single { it == storedElement })
+        assertSame(sibling, builder.single { it == sibling })
+    }
+
+    @Test
+    fun `retainAll should drop the argument's element when the receiver's subtree does not hold it`() {
+        val storedElement = IntWrapper(5, 1)
+
+        val leafMiss = persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 32), storedElement).builder()
+        assertTrue(leafMiss.retainAll(persistentHashSetOf(IntWrapper(6, 0), IntWrapper(5, 1))))
+        assertEquals(1, leafMiss.size)
+        assertSame(storedElement, leafMiss.single())
+
+        val absentCell = persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 32), storedElement).builder()
+        assertTrue(absentCell.retainAll(persistentHashSetOf(IntWrapper(7, 64), IntWrapper(5, 1))))
+        assertEquals(1, absentCell.size)
+        assertSame(storedElement, absentCell.single())
+
+        val collisionMiss = persistentHashSetOf(a1, a2, sibling).builder()
+        assertTrue(collisionMiss.retainAll(persistentHashSetOf(a3, sibling)))
+        assertEquals(1, collisionMiss.size)
+        assertSame(sibling, collisionMiss.single())
+    }
+
+    @Test
+    fun `retainAll should keep every stored instance when compacting a collision node the builder owns`() {
+        val builder = persistentHashSetOf<IntWrapper>().builder()
+        builder.add(a1)
+        builder.add(a2)
+        builder.add(a3)
+
+        assertTrue(builder.retainAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 0))))
+
+        assertEquals(2, builder.size)
+        assertSame(a1, builder.single { it == a1 })
+        assertSame(a2, builder.single { it == a2 })
+    }
+
+    @Test
+    fun `retainAll should reuse the argument's node when it already holds the receiver's element instance`() {
+        val argument = persistentHashSetOf(a1) as PersistentHashSet<IntWrapper>
+        val builder = (persistentHashSetOf(a1, IntWrapper(2, 32)) as PersistentHashSet<IntWrapper>)
+                .builder() as PersistentHashSetBuilder<IntWrapper>
+
+        builder.retainAll(argument)
+
+        assertEquals(1, builder.size)
+        assertSame(argument.node, builder.node)
+    }
+
+    @Test
+    fun `retainAll should reuse the argument's collision node when its elements are the receiver's instances`() {
+        val argument = persistentHashSetOf(a1, a2) as PersistentHashSet<IntWrapper>
+        val builder = (persistentHashSetOf(a1, a2, a3) as PersistentHashSet<IntWrapper>)
+                .builder() as PersistentHashSetBuilder<IntWrapper>
+
+        builder.retainAll(argument)
+
+        assertEquals(2, builder.size)
+        assertSame(collisionNodeOf(argument.node), collisionNodeOf(builder.node))
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun collisionNodeOf(node: TrieNode<IntWrapper>): TrieNode<IntWrapper> {
+        var current = node
+        while (current.bitmap != 0) {
+            current = current.buffer[0] as TrieNode<IntWrapper>
+        }
+        return current
+    }
+
+    @Test
+    fun `retainAll of random colliding sets should keep the stored element instances`() {
+        val hashes = intArrayOf(0, 1, 32, 33, 1 shl 10, 1 shl 30, (1 shl 30) or 32)
+        val random = Random(322)
+        repeat(200) { iteration ->
+            val receiverElements = mutableMapOf<Int, IntWrapper>()
+            val builder = persistentHashSetOf<IntWrapper>().builder()
+            for (id in 0..<21) {
+                if (random.nextBoolean()) {
+                    val element = IntWrapper(id, hashes[id % hashes.size])
+                    receiverElements[id] = element
+                    builder.add(element)
+                }
+            }
+            val argumentElements = mutableMapOf<Int, IntWrapper>()
+            val argumentBuilder = persistentHashSetOf<IntWrapper>().builder()
+            for (id in 0..<21) {
+                if (random.nextBoolean()) {
+                    val element = IntWrapper(id, hashes[id % hashes.size])
+                    argumentElements[id] = element
+                    argumentBuilder.add(element)
+                }
+            }
+
+            builder.retainAll(argumentBuilder.build())
+
+            val shape = "iteration $iteration, receiver ${receiverElements.keys}, argument ${argumentElements.keys}"
+            val retainedIds = receiverElements.keys intersect argumentElements.keys
+            assertEquals(retainedIds.size, builder.size, shape)
+            for (id in retainedIds) {
+                val element = receiverElements.getValue(id)
                 assertSame(element, builder.singleOrNull { it == element }, "$shape, id $id")
             }
         }
