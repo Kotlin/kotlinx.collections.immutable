@@ -489,4 +489,61 @@ class PersistentHashSetBuilderTest {
             }
         }
     }
+
+    @Test
+    fun `iterator remove after a remove of a different element throws ConcurrentModificationException`() {
+        val builder = persistentHashSetOf(1, 2).builder()
+        val orderedElements = builder.toList()
+        val iterator = builder.iterator()
+        assertEquals(orderedElements[0], iterator.next())
+
+        builder.remove(orderedElements[1])
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(1, builder.size)
+        assertTrue(builder.contains(orderedElements[0]))
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `iterator remove on the exhausted iterator of a single element set after an external add throws ConcurrentModificationException`() {
+        val builder = persistentHashSetOf(1).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+        assertFalse(iterator.hasNext())
+
+        builder.add(2)
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(2, builder.size)
+        assertTrue(builder.contains(1))
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `iterator remove without a preceding next after an external remove throws IllegalStateException`() {
+        val builder = persistentHashSetOf(1, 2).builder()
+        val iterator = builder.iterator()
+
+        builder.remove(1)
+
+        assertFailsWith<IllegalStateException> { iterator.remove() }
+        assertEquals(1, builder.size)
+    }
+
+    @Test
+    fun `iterator remove after external changes that cancel out in size throws ConcurrentModificationException`() {
+        val builder = persistentHashSetOf(1, 2, 3, 4).builder()
+        val iterator = builder.iterator()
+        val _ = iterator.next()
+        iterator.remove()
+        val orderedElements = builder.toList()
+        assertEquals(orderedElements[0], iterator.next())
+
+        builder.remove(orderedElements[2])
+        builder.add(9)
+
+        assertEquals(3, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+    }
 }
