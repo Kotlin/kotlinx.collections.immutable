@@ -6,15 +6,16 @@
 package kotlinx.collections.immutable.implementations.persistentOrderedMap
 
 import kotlinx.collections.immutable.implementations.immutableMap.MapEntry
+import kotlinx.collections.immutable.internal.EndOfChain
 
 internal open class PersistentOrderedMapLinksIterator<K, V>(
     internal var nextKey: Any?,
     private val hashMap: Map<K, LinkedValue<V>>
 ) : Iterator<LinkedValue<V>> {
-    internal var index = 0
+    private var remaining = hashMap.size
 
     override fun hasNext(): Boolean {
-        return index < hashMap.size
+        return nextKey !== EndOfChain
     }
 
     @IgnorableReturnValue
@@ -26,11 +27,20 @@ internal open class PersistentOrderedMapLinksIterator<K, V>(
         val result = hashMap.getOrElse(nextKey as K) {
             throw ConcurrentModificationException("Hash code of a key ($nextKey) has changed after it was added to the persistent map.")
         }
-        index++
         nextKey = result.next
+        remaining--
+        checkChainMatchesSize()
         return result
     }
 
+    private fun checkChainMatchesSize() {
+        // A key that became equal to another one makes the chain loop or end early.
+        if ((nextKey === EndOfChain) != (remaining == 0)) {
+            // A caller going on after the exception must not loop.
+            nextKey = EndOfChain
+            throw ConcurrentModificationException("A key has become equal to another key after it was added to the persistent map.")
+        }
+    }
 }
 
 internal class PersistentOrderedMapEntriesIterator<out K, out V>(map: PersistentOrderedMap<K, V>) :
