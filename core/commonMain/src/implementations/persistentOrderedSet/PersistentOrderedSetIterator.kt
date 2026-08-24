@@ -5,14 +5,14 @@
 
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
+import kotlinx.collections.immutable.internal.EndOfChain
+
 internal open class PersistentOrderedSetIterator<E>(
     private var nextElement: Any?,
     internal val map: Map<E, Links>
 ) : Iterator<E> {
-    internal var index = 0
-
     override fun hasNext(): Boolean {
-        return index < map.size
+        return nextElement !== EndOfChain
     }
 
     override fun next(): E {
@@ -20,7 +20,6 @@ internal open class PersistentOrderedSetIterator<E>(
 
         @Suppress("UNCHECKED_CAST")
         val result = nextElement as E
-        index++
         nextElement = map.getOrElse(result) {
             throw ConcurrentModificationException("Hash code of an element ($result) has changed after it was added to the persistent set.")
         }.next
