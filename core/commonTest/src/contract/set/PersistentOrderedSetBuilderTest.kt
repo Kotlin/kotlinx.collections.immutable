@@ -9,6 +9,9 @@ import kotlinx.collections.immutable.persistentSetOf
 import kotlin.collections.LinkedHashSet
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class PersistentOrderedSetBuilderTest {
 
@@ -116,6 +119,95 @@ class PersistentOrderedSetBuilderTest {
         assertEquals(expectedPersistent, LinkedHashSet(persistent.toList()))
         assertEquals(expectedBuilder, LinkedHashSet(builder.build().toList()))
         assertEquals(expectedBuilder.toList(), builder.build().toList())
+    }
+
+    @Test
+    fun `iterator remove after a remove of a different element throws ConcurrentModificationException`() {
+        val builder = persistentSetOf(1, 2).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+
+        assertTrue(builder.remove(2))
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(listOf(1), builder.build().toList())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `iterator remove after a remove of an already visited element throws ConcurrentModificationException`() {
+        val builder = persistentSetOf(1, 2, 3).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+        assertEquals(2, iterator.next())
+
+        assertTrue(builder.remove(1))
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(listOf(2, 3), builder.build().toList())
+    }
+
+    @Test
+    fun `iterator remove after external changes that cancel out in size throws ConcurrentModificationException`() {
+        val builder = persistentSetOf(1, 2, 3).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+
+        assertTrue(builder.remove(3))
+        assertTrue(builder.add(4))
+
+        assertTrue(iterator.hasNext())
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(listOf(1, 2, 4), builder.build().toList())
+    }
+
+    @Test
+    fun `iterator remove on an exhausted iterator after an external add throws ConcurrentModificationException`() {
+        val builder = persistentSetOf(1).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+        assertFalse(iterator.hasNext())
+
+        assertTrue(builder.add(2))
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(listOf(1, 2), builder.build().toList())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `iterator remove after an external clear throws ConcurrentModificationException`() {
+        val builder = persistentSetOf(1, 2).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+
+        builder.clear()
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+    }
+
+    @Test
+    fun `iterator remove without a preceding next after an external remove throws IllegalStateException`() {
+        val builder = persistentSetOf(1, 2).builder()
+        val iterator = builder.iterator()
+
+        assertTrue(builder.remove(2))
+
+        assertFailsWith<IllegalStateException> { iterator.remove() }
+        assertEquals(listOf(1), builder.build().toList())
+    }
+
+    @Test
+    fun `iterator remove after external calls that change nothing does not throw`() {
+        val builder = persistentSetOf(1, 2).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+
+        assertFalse(builder.add(2))
+        assertFalse(builder.remove(3))
+
+        iterator.remove()
+        assertEquals(listOf(2), builder.build().toList())
     }
 
     private fun key(value: Int): TraceKey = TraceKey(value, hashForValue(value))

@@ -22,6 +22,7 @@ internal class PersistentOrderedSetMutableIterator<E>(private val builder: Persi
 
     override fun remove() {
         checkNextWasInvoked()
+        checkForComodification()
         builder.remove(lastIteratedElement)
         lastIteratedElement = null
         nextWasInvoked = false
