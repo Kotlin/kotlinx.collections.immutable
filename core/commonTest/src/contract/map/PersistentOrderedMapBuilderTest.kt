@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -264,6 +265,63 @@ class PersistentOrderedMapBuilderTest {
         assertFailsWith<ConcurrentModificationException> { keys.remove() }
         assertFailsWith<ConcurrentModificationException> { values.remove() }
         assertEquals(listOf(1, 2), builder.build().keys.toList())
+    }
+
+    @Test
+    fun `hasNext after a remove of an already visited key and then of every remaining key stays true`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val iterator = builder.entries.iterator()
+        assertEquals(1, iterator.next().key)
+        assertEquals(2, iterator.next().key)
+
+        assertEquals("a", builder.remove(1))
+        assertTrue(iterator.hasNext())
+
+        assertEquals("b", builder.remove(2))
+        assertEquals("c", builder.remove(3))
+        assertTrue(iterator.hasNext())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `hasNext on an exhausted iterator after an external put of a new key stays false`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val iterator = builder.entries.iterator()
+        repeat(3) { val _ = iterator.next() }
+        assertFalse(iterator.hasNext())
+
+        assertNull(builder.put(9, "z"))
+
+        assertFalse(iterator.hasNext())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `hasNext on an iterator of an empty builder after an external put stays false`() {
+        val builder = persistentMapOf<Int, String>().builder()
+        val iterator = builder.entries.iterator()
+
+        assertNull(builder.put(1, "a"))
+
+        assertFalse(iterator.hasNext())
+    }
+
+    @Test
+    fun `keys and values iterator hasNext after a remove of an already visited key stays true`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val keys = builder.keys.iterator()
+        val values = builder.values.iterator()
+        assertEquals(1, keys.next())
+        assertEquals(2, keys.next())
+        assertEquals("a", values.next())
+        assertEquals("b", values.next())
+
+        assertEquals("a", builder.remove(1))
+
+        assertTrue(keys.hasNext())
+        assertTrue(values.hasNext())
+        assertFailsWith<ConcurrentModificationException> { keys.next() }
+        assertFailsWith<ConcurrentModificationException> { values.next() }
     }
 
     private class TraceKey(val value: Int, private val hash: Int) {

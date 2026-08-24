@@ -16,10 +16,9 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
     internal var lastIteratedKey: Any? = EndOfChain
     private var nextWasInvoked = false
     private var expectedModCount = builder.hashMapBuilder.sizeModCount
-    internal var index = 0
 
     override fun hasNext(): Boolean {
-        return index < builder.size
+        return nextKey !== EndOfChain
     }
 
     @IgnorableReturnValue
@@ -28,7 +27,6 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
         checkHasNext()
         lastIteratedKey = nextKey
         nextWasInvoked = true
-        index++
         @Suppress("UNCHECKED_CAST")
         val result = builder.hashMapBuilder.getOrElse(nextKey as K) {
             throw ConcurrentModificationException("Hash code of a key ($nextKey) has changed after it was added to the persistent map.")
@@ -44,7 +42,6 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
         lastIteratedKey = null
         nextWasInvoked = false
         expectedModCount = builder.hashMapBuilder.sizeModCount
-        index--
     }
 
     private fun checkHasNext() {
