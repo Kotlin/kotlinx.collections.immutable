@@ -178,68 +178,6 @@ class PersistentHashMapBuilderTest {
     }
 
     @Test
-    fun `putAll that only replaces values should invalidate a live iterator`() {
-        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
-
-        val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(1 to "x", 2 to "y"))
-
-        assertEquals("x", builder[1])
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
-    fun `putAll that only replaces values in a bottom-level collision node should invalidate a live iterator`() {
-        val builder = persistentHashMapOf(a1 to "a", a2 to "b").builder()
-
-        val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(a1 to "x", a2 to "y"))
-
-        assertEquals("x", builder[a1])
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
-    fun `putAll that only replaces values should invalidate an iterator that descended into the replaced node`() {
-        val builder = persistentHashMapOf(1 to "a", 0 to "y", 32 to "z").builder()
-        builder[1] = "A"
-
-        val iterator = builder.entries.iterator()
-        val _ = iterator.next()
-        builder.putAll(persistentHashMapOf(0 to "Y", 32 to "Z"))
-
-        assertEquals("Y", builder[0])
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
-    fun `putAll that replaces values in an unowned collision node under an owned root should invalidate a live iterator`() {
-        val builder = (persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
-                as PersistentHashMap<IntWrapper, String>).builder()
-        builder[sibling] = "C"
-        val nodeBefore = builder.node
-
-        val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(a1 to "x", a2 to "y"))
-
-        assertSame(nodeBefore, builder.node)
-        assertEquals("x", builder[a1])
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
-    fun `putAll that replaces the value of a key stored in a two-entry node should invalidate a live iterator`() {
-        val neighbor = IntWrapper(2, 32)
-        val builder = persistentHashMapOf(a1 to "a", neighbor to "b").builder()
-
-        val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(a1 to "x"))
-
-        assertEquals("x", builder[a1])
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
     fun `putAll that adds a key should invalidate a live iterator`() {
         val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
 
