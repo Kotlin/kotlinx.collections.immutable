@@ -490,6 +490,7 @@ internal class TrieNode<K, V>(
         var i = this.buffer.size
         var replaced = false
         var sharedKeys = true
+        var sameOrder = true
         for (j in otherNode.buffer.indices step ENTRY_SIZE) {
             val keyIndex = this.collisionKeyIndex(otherNode.buffer[j])
             if (keyIndex == -1) {
@@ -499,6 +500,7 @@ internal class TrieNode<K, V>(
             } else {
                 intersectionCounter.count++
                 if (tempBuffer[keyIndex] !== otherNode.buffer[j]) sharedKeys = false
+                if (keyIndex != j) sameOrder = false
                 if (tempBuffer[keyIndex + 1] !== otherNode.buffer[j + 1]) {
                     tempBuffer[keyIndex + 1] = otherNode.buffer[j + 1]
                     replaced = true
@@ -510,7 +512,7 @@ internal class TrieNode<K, V>(
 
         return when (val newSize = i) {
             this.buffer.size if !replaced -> this
-            otherNode.buffer.size if sharedKeys -> otherNode
+            otherNode.buffer.size if sharedKeys && (sameOrder || newSize != this.buffer.size) -> otherNode
             tempBuffer.size -> TrieNode(0, 0, tempBuffer, mutator.ownership)
             else -> TrieNode(0, 0, tempBuffer.copyOf(newSize), mutator.ownership)
         }
