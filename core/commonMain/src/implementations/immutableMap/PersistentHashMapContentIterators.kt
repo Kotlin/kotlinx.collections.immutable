@@ -14,12 +14,22 @@ internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> 
     protected var buffer = TrieNode.EMPTY.buffer
         private set
     private var dataSize = 0
+    private var end = 0
     protected var index = 0
 
-    fun reset(buffer: Array<Any?>, dataSize: Int, index: Int) {
+    private fun reset(buffer: Array<Any?>, dataSize: Int, index: Int, end: Int) {
         this.buffer = buffer
         this.dataSize = dataSize
         this.index = index
+        this.end = end
+    }
+
+    fun reset(buffer: Array<Any?>, dataSize: Int, index: Int) {
+        reset(buffer, dataSize, index, buffer.size)
+    }
+
+    fun resetToEntry(buffer: Array<Any?>, keyIndex: Int) {
+        reset(buffer, keyIndex + ENTRY_SIZE, keyIndex, keyIndex + ENTRY_SIZE)
     }
 
     fun reset(buffer: Array<Any?>, dataSize: Int) {
@@ -43,7 +53,7 @@ internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> 
 
     fun hasNextNode(): Boolean {
         assert { index >= dataSize }
-        return index < buffer.size
+        return index < end
     }
 
     fun currentNode(): TrieNode<out K, out V> {

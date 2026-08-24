@@ -42,10 +42,12 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
 
     private var lastIteratedKey: K? = null
     private var nextWasInvoked = false
-    private var expectedModCount = builder.modCount
+    private var expectedSizeModCount = builder.sizeModCount
+    private var pathModCount = builder.modCount
 
     override fun next(): T {
         checkForComodification()
+        ensurePathIsLive()
         lastIteratedKey = currentKey()
         nextWasInvoked = true
         return super.next()
@@ -58,46 +60,40 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
             val currentKey = currentKey()
 
             builder.remove(lastIteratedKey)
-            resetPath(
-                currentKey.hashCode(), builder.node, currentKey,
-                0, lastIteratedKey.hashCode(), afterRemove = true
-            )
+            resetPath(currentKey.hashCode(), builder.node, currentKey, 0)
         } else {
             builder.remove(lastIteratedKey)
         }
 
         lastIteratedKey = null
         nextWasInvoked = false
-        expectedModCount = builder.modCount
+        expectedSizeModCount = builder.sizeModCount
+        pathModCount = builder.modCount
     }
 
     fun setValue(key: K, newValue: V) {
         if (!builder.containsKey(key)) return
 
-        if (builder.modCount != expectedModCount) {
+        if (builder.sizeModCount != expectedSizeModCount) {
             builder[key] = newValue
             return
         }
 
-        if (hasNext()) {
-            val currentKey = currentKey()
-            builder[key] = newValue
-            resetPath(currentKey.hashCode(), builder.node, currentKey, 0)
-        } else {
-            builder[key] = newValue
-        }
-
-        expectedModCount = builder.modCount
+        builder[key] = newValue
+        ensurePathIsLive()
     }
 
-    private fun resetPath(
-        keyHash: Int,
-        node: TrieNode<*, *>,
-        key: K,
-        pathIndex: Int,
-        removedKeyHash: Int = 0,
-        afterRemove: Boolean = false
-    ) {
+    private fun ensurePathIsLive() {
+        if (builder.modCount == pathModCount) return
+
+        if (hasNext()) {
+            val currentKey = currentKey()
+            resetPath(currentKey.hashCode(), builder.node, currentKey, 0)
+        }
+        pathModCount = builder.modCount
+    }
+
+    private fun resetPath(keyHash: Int, node: TrieNode<*, *>, key: K, pathIndex: Int) {
         val shift = pathIndex * LOG_MAX_BRANCHING_FACTOR
 
         if (shift > MAX_SHIFT) { // collision
@@ -113,23 +109,17 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
 
         if (node.hasEntryAt(keyPositionMask)) { // key is directly in buffer
             val keyIndex = node.entryKeyIndex(keyPositionMask)
+            assert { node.keyAtIndex(keyIndex) == key }
 
-            // After removing an element, we need to handle node promotion properly to maintain a correct iteration order.
-            // `removedKeyPositionMask` represents the bit position of the removed key's hash at the current level.
-            // This is needed to detect if the current key was potentially promoted from a deeper level.
-            val removedKeyPositionMask = if (afterRemove) 1 shl indexSegment(removedKeyHash, shift) else 0
-
-            // Check if the removed key is at the same position as the current key and was previously at a deeper level.
-            // This indicates a node promotion occurred during removal,
-            // and we need to handle it in a special way to prevent re-traversing already visited elements.
-            if (keyPositionMask == removedKeyPositionMask && pathIndex < pathLastIndex) {
-                // Instead of traversing the normal way, we create a special path entry at the previous depth
-                // that points directly to the promoted entry, maintaining the original iteration sequence.
-                path[pathLastIndex].reset(arrayOf(node.buffer[keyIndex], node.buffer[keyIndex + 1]), ENTRY_SIZE)
+            if (pathIndex < pathLastIndex) {
+                // The key was promoted out of a removed subnode into entries this level has already walked:
+                // return it once through a window onto its slot, then go on with the subnodes after the removed one.
+                val slot = node.nodeIndex(keyPositionMask)
+                path[pathIndex].reset(node.buffer, slot, slot)
+                path[pathIndex + 1].resetToEntry(node.buffer, keyIndex)
+                pathLastIndex = pathIndex + 1
                 return
             }
-
-            assert { node.keyAtIndex(keyIndex) == key }
 
             path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), keyIndex)
             pathLastIndex = pathIndex
@@ -141,7 +131,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         val nodeIndex = node.nodeIndex(keyPositionMask)
         val targetNode = node.nodeAtIndex(nodeIndex)
         path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), nodeIndex)
-        resetPath(keyHash, targetNode, key, pathIndex + 1, removedKeyHash, afterRemove)
+        resetPath(keyHash, targetNode, key, pathIndex + 1)
     }
 
     private fun checkNextWasInvoked() {
@@ -150,7 +140,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
     }
 
     private fun checkForComodification() {
-        if (builder.modCount != expectedModCount)
+        if (builder.sizeModCount != expectedSizeModCount)
             throw ConcurrentModificationException()
     }
 }
