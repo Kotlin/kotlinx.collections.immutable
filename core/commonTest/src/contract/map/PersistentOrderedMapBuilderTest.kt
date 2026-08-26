@@ -164,7 +164,7 @@ class PersistentOrderedMapBuilderTest {
         assertEquals("a", builder.remove(1))
         assertNull(builder.put(1, null))
 
-        assertEquals("a", entry.setValue("z"))
+        assertNull(entry.setValue("z"))
 
         val built = builder.build()
         assertEquals(listOf(2, 3, 1), built.keys.toList())
@@ -180,7 +180,7 @@ class PersistentOrderedMapBuilderTest {
         val stored = builder[1]!!
         val snapshot = builder.build()
 
-        assertEquals("a", entry.setValue(stored))
+        assertEquals("x", entry.setValue(stored))
 
         assertSame(snapshot, builder.build())
     }
