@@ -16,21 +16,45 @@ internal class TrieNodeMutableEntriesIterator<K, V>(
         assert { hasNextKey() }
         index += 2
         @Suppress("UNCHECKED_CAST")
-        return MutableMapEntry(builder, buffer[index - 2] as K, buffer[index - 1] as V)
+        return MutableMapEntry(builder, buffer[index - 2] as K, buffer, index - 2)
     }
 }
 
 private class MutableMapEntry<K, V>(
     private val builder: PersistentHashMapBuilder<K, V>,
-    key: K,
-    override var value: V
-) : MapEntry<K, V>(key, value), MutableMap.MutableEntry<K, V> {
+    override val key: K,
+    override var buffer: Array<Any?>,
+    override var index: Int
+) : AbstractMapEntry<K, V>(), TrieNodeSlot, MutableMap.MutableEntry<K, V> {
+    private var slotModCount = builder.modCount
+    private var lastValue = slotValue()
+
+    override val value: V
+        get() {
+            ensureSlotIsLive()
+            return lastValue
+        }
 
     override fun setValue(newValue: V): V {
-        val result = value
-        value = newValue
-        if (builder.containsKey(key)) builder[key] = newValue
+        ensureSlotIsLive()
+        val result = lastValue
+        if (index != -1) builder[key] = newValue
+        lastValue = newValue
         return result
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun slotValue() = buffer[index + 1] as V
+
+    private fun ensureSlotIsLive() {
+        if (builder.modCount != slotModCount) {
+            slotModCount = builder.modCount
+            if (!builder.node.locate(key.hashCode(), key, 0, this)) {
+                buffer = TrieNode.EMPTY.buffer
+                index = -1
+            }
+        }
+        if (index != -1) lastValue = slotValue()
     }
 }
 
