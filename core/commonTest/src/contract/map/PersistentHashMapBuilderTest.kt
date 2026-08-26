@@ -14,6 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -1025,5 +1026,136 @@ class PersistentHashMapBuilderTest {
         assertEquals(listOf(orderedKeys[1] to "y", orderedKeys[2] to "z", orderedKeys[3] to "w"), List(3) { iterator.next().let { entry -> entry.key to entry.value } })
         assertFalse(iterator.hasNext())
         assertEquals(orderedKeys, builder.keys.toList())
+    }
+
+    @Test
+    fun `entry value and setValue follow an overwrite of its key whether the builder came from a map or from puts`() {
+        val fromMap = persistentHashMapOf(1 to "a").builder()
+        val fromPuts = persistentHashMapOf<Int, String>().builder()
+        fromPuts[1] = "a"
+
+        for ((flavour, builder) in listOf("from a map" to fromMap, "from puts" to fromPuts)) {
+            val entry = builder.entries.iterator().next()
+
+            builder[1] = "b"
+            assertEquals("b", entry.value, flavour)
+
+            builder[1] = "c"
+            assertEquals("c", entry.setValue("d"), flavour)
+            assertEquals("d", entry.value, flavour)
+            assertEquals("d", builder[1], flavour)
+        }
+    }
+
+    @Test
+    fun `entry value follows an overwrite of its key to null and of a null value to a string`() {
+        val builder = persistentHashMapOf<Int, String?>(1 to "a", 2 to null).builder()
+        val iterator = builder.entries.iterator()
+        val entryOfString = iterator.next()
+        val entryOfNull = iterator.next()
+        assertEquals(1, entryOfString.key)
+
+        builder[1] = null
+        builder[2] = "b"
+
+        assertNull(entryOfString.value)
+        assertEquals("b", entryOfNull.value)
+        assertNull(entryOfString.setValue("x"))
+        assertEquals("b", entryOfNull.setValue(null))
+        assertEquals("x", builder[1])
+        assertNull(builder[2])
+        assertTrue(builder.containsKey(2))
+    }
+
+    @Test
+    fun `entry value follows an overwrite of its key at every depth of the trie whether the builder came from a map or from puts`() {
+        // (1, 1) is a root entry, (3, 32) sits in a level-1 node, (5, 1024) in a level-2 node, (2, 0) and (4, 0) share a bottom-level collision node
+        val keys = listOf(IntWrapper(1, 1), IntWrapper(3, 32), IntWrapper(5, 1 shl 10), IntWrapper(2, 0), IntWrapper(4, 0))
+        val fromMap = persistentHashMapOf(*keys.map { it to "v${it.obj}" }.toTypedArray()).builder()
+        val fromPuts = persistentHashMapOf<IntWrapper, String>().builder()
+        for (key in keys) fromPuts[key] = "v${key.obj}"
+
+        for ((flavour, builder) in listOf("from a map" to fromMap, "from puts" to fromPuts)) {
+            val entries = builder.entries.toList()
+            assertEquals(keys.size, entries.size, flavour)
+
+            for (key in keys) builder[key] = "x${key.obj}"
+
+            for (entry in entries) {
+                assertEquals("x${entry.key.obj}", entry.value, "$flavour, key ${entry.key}")
+                assertEquals("x${entry.key.obj}", entry.setValue("y${entry.key.obj}"), "$flavour, key ${entry.key}")
+                assertEquals("y${entry.key.obj}", builder[entry.key], "$flavour, key ${entry.key}")
+            }
+        }
+    }
+
+    @Test
+    fun `entry after a remove of its key keeps the last value it observed and follows the value put back`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val entry = builder.entries.iterator().next()
+        assertEquals(1, entry.key)
+        builder[1] = "x"
+        assertEquals("x", entry.value)
+
+        assertEquals("x", builder.remove(1))
+
+        assertEquals("x", entry.value)
+        assertEquals("x", entry.setValue("z"))
+        assertFalse(builder.containsKey(1))
+        assertEquals("z", entry.value)
+
+        assertNull(builder.put(1, "y"))
+
+        assertEquals("y", entry.value)
+        assertEquals("y", entry.setValue("w"))
+        assertEquals("w", builder[1])
+    }
+
+    @Test
+    fun `the entry's toString hashCode and membership in entries use the value after an overwrite of its key`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val entry = builder.entries.iterator().next()
+        assertEquals(1, entry.key)
+
+        builder[1] = "x"
+
+        assertEquals("1=x", entry.toString())
+        assertEquals(1.hashCode() xor "x".hashCode(), entry.hashCode())
+        assertTrue(builder.entries.contains(entry))
+        assertTrue(builder.entries.remove(entry))
+        assertFalse(builder.containsKey(1))
+        assertEquals(1, builder.size)
+    }
+
+    @Test
+    fun `entry after a remove of its key stays detached when another key takes its slot`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val entry = builder.entries.iterator().next()
+        assertEquals(1, entry.key)
+        builder[1] = "x"
+        assertEquals("x", entry.value)
+
+        assertEquals("x", builder.remove(1))
+        builder[33] = "c"
+
+        assertEquals("x", entry.value)
+        assertEquals("x", entry.setValue("z"))
+        assertFalse(builder.containsKey(1))
+        assertEquals("c", builder[33])
+        assertEquals(2, builder.size)
+    }
+
+    @Test
+    fun `entry after a remove of its key keeps the value it set itself`() {
+        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
+        val entry = builder.entries.iterator().next()
+        assertEquals(1, entry.key)
+        assertEquals("a", entry.setValue("x"))
+
+        assertEquals("x", builder.remove(1))
+
+        assertEquals("x", entry.value)
+        assertEquals("x", entry.setValue("z"))
+        assertFalse(builder.containsKey(1))
     }
 }
