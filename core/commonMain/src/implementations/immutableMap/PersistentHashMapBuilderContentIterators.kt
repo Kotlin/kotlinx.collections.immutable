@@ -16,21 +16,46 @@ internal class TrieNodeMutableEntriesIterator<K, V>(
         assert { hasNextKey() }
         index += 2
         @Suppress("UNCHECKED_CAST")
-        return MutableMapEntry(parentIterator, buffer[index - 2] as K, buffer[index - 1] as V)
+        return MutableMapEntry(parentIterator, buffer[index - 2] as K, buffer, index - 2)
     }
 }
 
 private class MutableMapEntry<K, V>(
     private val parentIterator: PersistentHashMapBuilderEntriesIterator<K, V>,
-    key: K,
-    override var value: V
-) : MapEntry<K, V>(key, value), MutableMap.MutableEntry<K, V> {
+    override val key: K,
+    override var buffer: Array<Any?>,
+    override var index: Int
+) : AbstractMapEntry<K, V>(), TrieNodeSlot, MutableMap.MutableEntry<K, V> {
+    private var expectedModCount = parentIterator.builder.modCount
+    private var lastValue = slotValue()
+
+    override val value: V
+        get() {
+            ensureSlotIsLive()
+            return lastValue
+        }
 
     override fun setValue(newValue: V): V {
-        val result = value
-        value = newValue
-        parentIterator.setValue(key, newValue)
+        ensureSlotIsLive()
+        val result = lastValue
+        lastValue = newValue
+        if (index != -1) parentIterator.setValue(key, newValue)
         return result
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun slotValue() = buffer[index + 1] as V
+
+    private fun ensureSlotIsLive() {
+        val builder = parentIterator.builder
+        if (builder.modCount != expectedModCount) {
+            expectedModCount = builder.modCount
+            if (!builder.node.locate(key.hashCode(), key, 0, this)) {
+                buffer = TrieNode.EMPTY.buffer
+                index = -1
+            }
+        }
+        if (index != -1) lastValue = slotValue()
     }
 }
 
@@ -72,15 +97,9 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
     }
 
     fun setValue(key: K, newValue: V) {
-        if (!builder.containsKey(key)) return
-
-        if (builder.sizeModCount != expectedSizeModCount) {
-            builder[key] = newValue
-            return
-        }
-
+        assert { builder.containsKey(key) }
         builder[key] = newValue
-        ensurePathIsLive()
+        if (builder.sizeModCount == expectedSizeModCount) ensurePathIsLive()
     }
 
     private fun ensurePathIsLive() {
@@ -146,7 +165,7 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
 }
 
 internal class PersistentHashMapBuilderEntriesIterator<K, V>(
-    builder: PersistentHashMapBuilder<K, V>
+    internal val builder: PersistentHashMapBuilder<K, V>
 ) : MutableIterator<MutableMap.MutableEntry<K, V>> {
     private val base = PersistentHashMapBuilderBaseIterator<K, V, MutableMap.MutableEntry<K, V>>(
         builder, Array(TRIE_MAX_HEIGHT + 1) {
