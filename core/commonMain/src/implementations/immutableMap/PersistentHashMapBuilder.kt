@@ -25,6 +25,9 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) :
             }
         }
     internal var operationResult: V? = null
+
+    // Moves on every size change and every write that copies a node, so iterator paths and entry slots into the trie's
+    // arrays are current while it stands.
     internal var modCount = 0
 
     // The ordered map builder's chain of links moves only together with the size, and so does the shape of the trie.
