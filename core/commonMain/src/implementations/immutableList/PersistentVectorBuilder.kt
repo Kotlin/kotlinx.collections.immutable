@@ -42,6 +42,10 @@ internal class PersistentVectorBuilder<E>(
 
     internal fun getModCount() = modCount
 
+    // Counts the sets that replaced a trie buffer with its copy; the iterators re-anchor their cached path on it.
+    internal var trieModCount = 0
+        private set
+
     override fun build(): PersistentList<E> {
         return builtVector ?: run {
             val root = root
@@ -972,12 +976,6 @@ internal class PersistentVectorBuilder<E>(
         checkElementIndex(index, size)
         if (rootSize() <= index) {
             val mutableTail = makeMutable(tail)
-
-            // Creating new tail implies structural change.
-            if (mutableTail !== tail) {
-                modCount++
-            }
-
             val tailIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
             val oldElement = mutableTail[tailIndex]
             mutableTail[tailIndex] = element
@@ -997,12 +995,9 @@ internal class PersistentVectorBuilder<E>(
         val mutableRoot = makeMutable(root)
 
         if (shift == 0) {
-            // Creating new leaf implies structural change.
-            // Actually, while descending to this leaf several nodes could be recreated.
-            // However, this builder is exclusive owner of this leaf iff it is exclusive owner of all leaf's ancestors.
-            // Hence, checking recreation of this leaf is enough to determine if a structural change occurred.
+            // This builder owns the leaf iff it owns all the leaf's ancestors, so the leaf alone tells whether the path was copied.
             if (mutableRoot !== root) {
-                modCount++
+                trieModCount++
             }
 
             oldElementCarry.value = mutableRoot[bufferIndex]
