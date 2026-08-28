@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.5.2
+
+- Fixed `addingAll`, `removingAll`, `retainingAll`, `intersect`, and `containsAll` on `PersistentHashSet`, `puttingAll` on `PersistentHashMap`, and their builder counterparts returning wrong results when a collision node meets a single element at the bottom trie level [#294](https://github.com/Kotlin/kotlinx.collections.immutable/issues/294)
+- Fixed `puttingAll` on `PersistentHashMap`, and `putAll` on its builder, keeping the receiver's value for a key that sits in a collision node on both sides [#300](https://github.com/Kotlin/kotlinx.collections.immutable/issues/300)
+- Fixed `PersistentHashSet.equals` being asymmetric after `intersect`, `retainingAll`, or the builder's `retainAll` [#291](https://github.com/Kotlin/kotlinx.collections.immutable/issues/291)
+- Fixed `PersistentHashMapBuilder.put` of an already stored value invalidating live iterators and making `build()` return a new map when the key is in a collision node [#304](https://github.com/Kotlin/kotlinx.collections.immutable/issues/304)
+- Fixed a live iterator of `PersistentHashMapBuilder` returning the old values after a `putAll` that only replaces values [#308](https://github.com/Kotlin/kotlinx.collections.immutable/issues/308)
+- Fixed `PersistentOrderedMapBuilder` iterators throwing `ConcurrentModificationException` after `MutableMap.MutableEntry.setValue`, or a `put` that only replaces a value, during iteration [#307](https://github.com/Kotlin/kotlinx.collections.immutable/issues/307)
+- Fixed `MutableMap.MutableEntry.setValue` on a `PersistentOrderedMapBuilder` entry re-adding the key after it was removed from the builder [#310](https://github.com/Kotlin/kotlinx.collections.immutable/issues/310)
+
 ## 0.5.1
 
 - Fixed `PersistentOrderedMapBuilder` returning a previously built map from `build()` after updating an entry value through `MutableMap.MutableEntry.setValue` [#253](https://github.com/Kotlin/kotlinx.collections.immutable/pull/253), [#274](https://github.com/Kotlin/kotlinx.collections.immutable/pull/274)
