@@ -746,7 +746,7 @@ class PersistentHashMapBuilderTest {
         while (iterator.hasNext()) {
             val entry = iterator.next()
             visited.add(entry.key)
-            val _ = entry.setValue(entry.value + "!")
+            entry.setValue(entry.value + "!")
         }
 
         assertEquals(orderedKeys, visited)
