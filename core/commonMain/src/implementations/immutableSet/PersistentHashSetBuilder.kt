@@ -74,8 +74,8 @@ internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
             val size = this.size
             val result = node.mutableRetainAll(set.node, 0, deltaCounter, this)
             when (val newSize = deltaCounter.count) {
-                0 -> clear()
                 size -> {}
+                0 -> clear()
                 else -> {
                     @Suppress("UNCHECKED_CAST")
                     this.node = result as TrieNode<E>
@@ -96,8 +96,8 @@ internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
             val result = node.mutableRemoveAll(set.node, 0, counter, this)
 
             when (val newSize = size - counter.count) {
-                0 -> clear()
                 size -> {}
+                0 -> clear()
                 else -> {
                     @Suppress("UNCHECKED_CAST")
                     this.node = result as TrieNode<E>
