@@ -546,4 +546,83 @@ class PersistentHashSetBuilderTest {
         assertEquals(3, builder.size)
         assertFailsWith<ConcurrentModificationException> { iterator.remove() }
     }
+
+    @Test
+    fun `retainAll and removeAll on an empty builder should not invalidate an iterator`() {
+        val builders = listOf(
+            "from the empty set" to { persistentHashSetOf<Int>().builder() },
+            "emptied by remove" to { persistentHashSetOf(7).builder().apply { assertTrue(remove(7)) } },
+        )
+        val operations = listOf<Pair<String, MutableSet<Int>.() -> Boolean>>(
+            "retainAll of a set" to { retainAll(persistentHashSetOf(1, 2)) },
+            "retainAll of the empty set" to { retainAll(persistentHashSetOf<Int>()) },
+            "retainAll of a builder" to { retainAll(persistentHashSetOf(1, 2).builder()) },
+            "removeAll of a set" to { removeAll(persistentHashSetOf(1, 2)) },
+            "removeAll of a builder" to { removeAll(persistentHashSetOf(1, 2).builder()) },
+        )
+        for ((flavour, newBuilder) in builders) {
+            for ((operation, operate) in operations) {
+                val builder = newBuilder()
+                val iterator = builder.iterator()
+
+                assertFalse(builder.operate(), "$operation, $flavour")
+
+                assertFailsWith<NoSuchElementException>("$operation, $flavour") { iterator.next() }
+            }
+        }
+    }
+
+    @Test
+    fun `retainAll and removeAll that change nothing should keep the built set of a builder emptied by remove`() {
+        val operations = listOf<MutableSet<Int>.() -> Boolean>(
+            { retainAll(persistentHashSetOf(1, 2)) },
+            { removeAll(persistentHashSetOf(1, 2)) },
+        )
+        for (operate in operations) {
+            val builder = persistentHashSetOf(7).builder()
+            assertTrue(builder.remove(7))
+            val built = builder.build()
+
+            assertFalse(builder.operate())
+
+            assertSame(built, builder.build())
+        }
+    }
+
+    @Test
+    fun `clear on an empty builder should invalidate an iterator`() {
+        val builder = persistentHashSetOf<Int>().builder()
+        val iterator = builder.iterator()
+
+        builder.clear()
+
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `retainAll and removeAll on a non-empty builder should invalidate an iterator only when the size changes`() {
+        val builder = persistentHashSetOf(1, 2, 3).builder()
+        val iterator = builder.iterator()
+        val visited = mutableListOf(iterator.next())
+
+        assertFalse(builder.retainAll(persistentHashSetOf(1, 2, 3, 4)))
+        assertFalse(builder.removeAll(persistentHashSetOf(8, 9)))
+
+        while (iterator.hasNext()) {
+            visited.add(iterator.next())
+        }
+        assertEquals(listOf(1, 2, 3), visited.sorted())
+
+        assertTrue(builder.removeAll(persistentHashSetOf(1)))
+
+        assertEquals(2, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+
+        val second = builder.iterator()
+
+        assertTrue(builder.retainAll(persistentHashSetOf(8, 9)))
+
+        assertEquals(0, builder.size)
+        assertFailsWith<ConcurrentModificationException> { second.next() }
+    }
 }

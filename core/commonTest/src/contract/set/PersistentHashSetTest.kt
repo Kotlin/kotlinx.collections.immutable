@@ -231,4 +231,12 @@ class PersistentHashSetTest {
         assertSame(storedElement1, updated.single { it == storedElement1 })
         assertSame(storedElement2, updated.single { it == storedElement2 })
     }
+
+    @Test
+    fun `retainingAll and removingAll that change nothing should return the same set emptied by removing`() {
+        val empty = persistentHashSetOf(7).removing(7)
+
+        assertSame(empty, empty.retainingAll(persistentHashSetOf(1, 2)))
+        assertSame(empty, empty.removingAll(persistentHashSetOf(1, 2)))
+    }
 }
