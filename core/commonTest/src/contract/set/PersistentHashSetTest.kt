@@ -15,6 +15,7 @@ import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashSetTest {
@@ -194,5 +195,40 @@ class PersistentHashSetTest {
         assertTrue(persistentHashSetOf(a1, a2, sibling).containsAll(persistentHashSetOf(a1, a2)))
         assertFalse(persistentHashSetOf(a1, sibling).containsAll(persistentHashSetOf(a1, a2)))
         assertFalse(persistentHashSetOf(a1, a2, sibling).containsAll(persistentHashSetOf(a3, sibling)))
+    }
+
+    @Test
+    fun `addingAll should keep the stored element instance when the argument holds it in a subtree`() {
+        val storedElement = IntWrapper(1, 0)
+        val set = persistentHashSetOf(storedElement)
+
+        val updated = set.addingAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 32)))
+
+        assertEquals(2, updated.size)
+        assertSame(storedElement, updated.single { it == storedElement })
+    }
+
+    @Test
+    fun `retainingAll should keep the stored element instance when the receiver holds it in a subtree`() {
+        val storedElement = IntWrapper(1, 0)
+        val set = persistentHashSetOf(storedElement, IntWrapper(2, 32))
+
+        val updated = set.retainingAll(persistentHashSetOf(IntWrapper(1, 0)))
+
+        assertEquals(1, updated.size)
+        assertSame(storedElement, updated.single { it == storedElement })
+    }
+
+    @Test
+    fun `retainingAll should keep every stored instance when the argument's collision node is an equality-subset`() {
+        val storedElement1 = IntWrapper(1, 0)
+        val storedElement2 = IntWrapper(2, 0)
+        val set = persistentHashSetOf(storedElement1, storedElement2, IntWrapper(3, 0))
+
+        val updated = set.retainingAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 0)))
+
+        assertEquals(2, updated.size)
+        assertSame(storedElement1, updated.single { it == storedElement1 })
+        assertSame(storedElement2, updated.single { it == storedElement2 })
     }
 }
