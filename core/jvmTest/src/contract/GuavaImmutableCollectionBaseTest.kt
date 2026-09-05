@@ -12,18 +12,6 @@ import java.lang.IllegalArgumentException
 open class GuavaImmutableCollectionBaseTest: TestListener {
     override fun addFailure(test: Test, e: AssertionFailedError) = throw e
     override fun addError(test: Test, e: Throwable) {
-        if (e is ConcurrentModificationException
-                && test is ListSubListTester<*>
-                && test.testMethodName in listOf("testSubList_originalListSetAffectsSubList", "testSubList_originalListSetAffectsSubListLargeList")) {
-            // These test cases check that changes in sublist are reflected in backed list, and vice-versa.
-            // Backed list is structurally modified due to `set` function invocation,
-            // leading to CME when `sublist.listIterator()` gets invoked to iterate elements of sublist to make sure changes are reflected.
-            // The `sublist.listIterator()` method has the comodification check.
-            //
-            // The guava-testlib doesn't expect any exceptions to be thrown,
-            // despite `List.subList` javadoc statement "The semantics of the list returned by this method become undefined" is such case.
-            return
-        }
         if (e is NoSuchElementException
                 // Removing the only element from the sublist and calling `next()` on it's earlier created iterator throws NSEE.
                 && (test is ListRemoveAtIndexTester<*> && test.testMethodName == "testRemoveAtIndexConcurrentWithIteration"
