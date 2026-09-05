@@ -50,7 +50,7 @@ class TrieIteratorTest {
     fun previousAtLeftEdgeTest() {
         for (height in 1..4) {
             val maxCount = MAX_BUFFER_SIZE.toDouble().pow(height - 1).toInt()
-            val leafCount = maxCount / 32 + 1
+            val leafCount = maxCount / MAX_BUFFER_SIZE + 1
             val root = makeRoot(height, leafCount)
             val size = leafCount * MAX_BUFFER_SIZE
 
