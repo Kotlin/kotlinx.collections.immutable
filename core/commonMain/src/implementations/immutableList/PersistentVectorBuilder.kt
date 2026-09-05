@@ -720,10 +720,19 @@ internal class PersistentVectorBuilder<E>(
 
     @IgnorableReturnValue
     fun removeAllWithPredicate(predicate: (E) -> Boolean): Boolean {
-        val anyRemoved = removeAll(predicate)
+        var thrown: Throwable? = null
+        val anyRemoved = removeAll { element ->
+            thrown == null && try {
+                predicate(element)
+            } catch (e: Throwable) {
+                thrown = e
+                false
+            }
+        }
         if (anyRemoved) {
             modCount++
         }
+        thrown?.let { throw it }
         return anyRemoved
     }
 
