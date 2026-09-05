@@ -210,6 +210,59 @@ class PersistentOrderedSetBuilderTest {
         assertEquals(listOf(2), builder.build().toList())
     }
 
+    @Test
+    fun `iterator remove keeps the iterator valid`() {
+        val builder = persistentSetOf(1, 2, 3).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+        assertEquals(2, iterator.next())
+        iterator.remove()
+
+        assertTrue(iterator.hasNext())
+        assertEquals(3, iterator.next())
+        assertFalse(iterator.hasNext())
+        assertEquals(listOf(1, 3), builder.build().toList())
+    }
+
+    @Test
+    fun `hasNext after a remove of an already visited element and then of every remaining element stays true`() {
+        val builder = persistentSetOf(1, 2, 3).builder()
+        val iterator = builder.iterator()
+        assertEquals(1, iterator.next())
+        assertEquals(2, iterator.next())
+
+        assertTrue(builder.remove(1))
+        assertTrue(iterator.hasNext())
+
+        assertTrue(builder.remove(2))
+        assertTrue(builder.remove(3))
+        assertTrue(iterator.hasNext())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `hasNext on an exhausted iterator after an external add stays false`() {
+        val builder = persistentSetOf(1, 2, 3).builder()
+        val iterator = builder.iterator()
+        repeat(3) { val _ = iterator.next() }
+        assertFalse(iterator.hasNext())
+
+        assertTrue(builder.add(9))
+
+        assertFalse(iterator.hasNext())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `hasNext on an iterator of an empty builder after an external add stays false`() {
+        val builder = persistentSetOf<Int>().builder()
+        val iterator = builder.iterator()
+
+        assertTrue(builder.add(1))
+
+        assertFalse(iterator.hasNext())
+    }
+
     private fun key(value: Int): TraceKey = TraceKey(value, hashForValue(value))
 
     private fun keys(vararg values: Int): List<TraceKey> = values.map(::key)
