@@ -316,7 +316,8 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(map: Map<out K, V>): Persis
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
-    replaceWith = ReplaceWith("puttingAll(map)")
+    replaceWith = ReplaceWith("puttingAll(map)"),
+    level = DeprecationLevel.ERROR
 )
 public fun <K, V> PersistentMap<out K, V>.putAll(map: Map<out K, V>): PersistentMap<K, V> = puttingAll(map)
 
@@ -340,7 +341,8 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Iterable<Pair<K, V>>
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
-    replaceWith = ReplaceWith("puttingAll(pairs)")
+    replaceWith = ReplaceWith("puttingAll(pairs)"),
+    level = DeprecationLevel.ERROR
 )
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
@@ -364,7 +366,8 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Array<out Pair<K, V>
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
-    replaceWith = ReplaceWith("puttingAll(pairs)")
+    replaceWith = ReplaceWith("puttingAll(pairs)"),
+    level = DeprecationLevel.ERROR
 )
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Array<out Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
@@ -388,7 +391,8 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Sequence<Pair<K, V>>
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
-    replaceWith = ReplaceWith("puttingAll(pairs)")
+    replaceWith = ReplaceWith("puttingAll(pairs)"),
+    level = DeprecationLevel.ERROR
 )
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
