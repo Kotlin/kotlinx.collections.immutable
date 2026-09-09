@@ -12,6 +12,7 @@ import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.plus
 import kotlinx.collections.immutable.toPersistentHashSet
 import tests.IntWrapper
+import tests.trie.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -19,11 +20,6 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashSetTest {
-
-    private val a1 = IntWrapper(1, 0)
-    private val a2 = IntWrapper(2, 0)
-    private val a3 = IntWrapper(4, 0)
-    private val sibling = IntWrapper(3, 1 shl 30)
 
     @Test
     fun `persistentHashSet and their builder should be equal before and after modification`() {
@@ -199,36 +195,32 @@ class PersistentHashSetTest {
 
     @Test
     fun `addingAll should keep the stored element instance when the argument holds it in a subtree`() {
-        val storedElement = IntWrapper(1, 0)
-        val set = persistentHashSetOf(storedElement)
+        val set = persistentHashSetOf(a1)
 
-        val updated = set.addingAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 32)))
+        val updated = set.addingAll(persistentHashSetOf(a1.copy(), levelOneSibling))
 
         assertEquals(2, updated.size)
-        assertSame(storedElement, updated.single { it == storedElement })
+        assertSame(a1, updated.single { it == a1 })
     }
 
     @Test
     fun `retainingAll should keep the stored element instance when the receiver holds it in a subtree`() {
-        val storedElement = IntWrapper(1, 0)
-        val set = persistentHashSetOf(storedElement, IntWrapper(2, 32))
+        val set = persistentHashSetOf(a1, levelOneSibling)
 
-        val updated = set.retainingAll(persistentHashSetOf(IntWrapper(1, 0)))
+        val updated = set.retainingAll(persistentHashSetOf(a1.copy()))
 
         assertEquals(1, updated.size)
-        assertSame(storedElement, updated.single { it == storedElement })
+        assertSame(a1, updated.single { it == a1 })
     }
 
     @Test
     fun `retainingAll should keep every stored instance when the argument's collision node is an equality-subset`() {
-        val storedElement1 = IntWrapper(1, 0)
-        val storedElement2 = IntWrapper(2, 0)
-        val set = persistentHashSetOf(storedElement1, storedElement2, IntWrapper(3, 0))
+        val set = persistentHashSetOf(a1, a2, a3)
 
-        val updated = set.retainingAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 0)))
+        val updated = set.retainingAll(persistentHashSetOf(a1.copy(), a2.copy()))
 
         assertEquals(2, updated.size)
-        assertSame(storedElement1, updated.single { it == storedElement1 })
-        assertSame(storedElement2, updated.single { it == storedElement2 })
+        assertSame(a1, updated.single { it == a1 })
+        assertSame(a2, updated.single { it == a2 })
     }
 }

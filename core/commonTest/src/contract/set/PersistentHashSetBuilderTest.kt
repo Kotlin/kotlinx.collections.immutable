@@ -5,11 +5,14 @@
 
 package tests.contract.set
 
+import kotlinx.collections.immutable.implementations.immutableSet.LOG_MAX_BRANCHING_FACTOR
+import kotlinx.collections.immutable.implementations.immutableSet.MAX_SHIFT
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSetBuilder
 import kotlinx.collections.immutable.implementations.immutableSet.TrieNode
 import kotlinx.collections.immutable.persistentHashSetOf
 import tests.IntWrapper
+import tests.trie.*
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,11 +22,6 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashSetBuilderTest {
-
-    private val a1 = IntWrapper(1, 0)
-    private val a2 = IntWrapper(2, 0)
-    private val a3 = IntWrapper(4, 0)
-    private val sibling = IntWrapper(3, 1 shl 30)
 
     @Test
     fun `should correctly iterate after removing integer element`() {
@@ -197,58 +195,53 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `addAll should keep the stored element instance when the collision node is reached at the last level`() {
-        val storedElement = IntWrapper(1, 0)
-        val builder = persistentHashSetOf(storedElement, sibling).builder()
+        val builder = persistentHashSetOf(a1, sibling).builder()
 
-        builder.addAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 0)))
+        builder.addAll(persistentHashSetOf(a1.copy(), a2))
 
         assertEquals(3, builder.size)
-        assertSame(storedElement, builder.single { it == storedElement })
+        assertSame(a1, builder.single { it == a1 })
         assertSame(sibling, builder.single { it == sibling })
     }
 
     @Test
     fun `addAll should keep every stored instance when the receiver's collision node is an equality-subset of the argument's`() {
-        val storedElement1 = IntWrapper(1, 0)
-        val storedElement2 = IntWrapper(2, 0)
-        val builder = persistentHashSetOf(storedElement1, storedElement2).builder()
+        val builder = persistentHashSetOf(a1, a2).builder()
 
-        builder.addAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 0), IntWrapper(3, 0)))
+        builder.addAll(persistentHashSetOf(a1.copy(), a2.copy(), a3))
 
         assertEquals(3, builder.size)
-        assertSame(storedElement1, builder.single { it == storedElement1 })
-        assertSame(storedElement2, builder.single { it == storedElement2 })
+        assertSame(a1, builder.single { it == a1 })
+        assertSame(a2, builder.single { it == a2 })
     }
 
     @Test
     fun `addAll should insert the element when the argument's subtree lacks it`() {
-        val storedElement = IntWrapper(1, 0)
-        val builder = persistentHashSetOf(storedElement).builder()
+        val builder = persistentHashSetOf(a1).builder()
 
-        builder.addAll(persistentHashSetOf(IntWrapper(2, 32), IntWrapper(3, 64)))
+        builder.addAll(persistentHashSetOf(levelOneSibling, otherLevelOneSibling))
 
         assertEquals(3, builder.size)
-        assertTrue(builder.contains(IntWrapper(2, 32)))
-        assertTrue(builder.contains(IntWrapper(3, 64)))
-        assertSame(storedElement, builder.single { it == storedElement })
+        assertTrue(builder.contains(levelOneSibling))
+        assertTrue(builder.contains(otherLevelOneSibling))
+        assertSame(a1, builder.single { it == a1 })
     }
 
     @Test
     fun `addAll should push the element deeper when it collides with an argument element inside the subtree`() {
-        val storedElement = IntWrapper(1, 0)
-        val builder = persistentHashSetOf(storedElement).builder()
+        val builder = persistentHashSetOf(a1).builder()
 
-        builder.addAll(persistentHashSetOf(IntWrapper(2, 1 shl 10), IntWrapper(3, 32)))
+        builder.addAll(persistentHashSetOf(levelTwoSibling, levelOneSibling))
 
         assertEquals(3, builder.size)
-        assertTrue(builder.contains(IntWrapper(2, 1 shl 10)))
-        assertTrue(builder.contains(IntWrapper(3, 32)))
-        assertSame(storedElement, builder.single { it == storedElement })
+        assertTrue(builder.contains(levelTwoSibling))
+        assertTrue(builder.contains(levelOneSibling))
+        assertSame(a1, builder.single { it == a1 })
     }
 
     @Test
     fun `addAll should reuse the argument's subtree when it holds the stored element instance`() {
-        val argument = persistentHashSetOf(a1, IntWrapper(2, 32)) as PersistentHashSet<IntWrapper>
+        val argument = persistentHashSetOf(a1, levelOneSibling) as PersistentHashSet<IntWrapper>
         val builder = (persistentHashSetOf(a1) as PersistentHashSet<IntWrapper>).builder() as PersistentHashSetBuilder<IntWrapper>
 
         builder.addAll(argument)
@@ -281,14 +274,13 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `addAll should not write the receiver's element into the argument's set`() {
-        val storedElement = IntWrapper(1, 0)
-        val argumentElement = IntWrapper(1, 0)
-        val argument = persistentHashSetOf(argumentElement, IntWrapper(2, 32))
-        val builder = persistentHashSetOf(storedElement).builder()
+        val argumentElement = a1.copy()
+        val argument = persistentHashSetOf(argumentElement, levelOneSibling)
+        val builder = persistentHashSetOf(a1).builder()
 
         builder.addAll(argument)
 
-        assertSame(storedElement, builder.single { it == storedElement })
+        assertSame(a1, builder.single { it == a1 })
         assertSame(argumentElement, argument.single { it == argumentElement })
     }
 
@@ -297,7 +289,7 @@ class PersistentHashSetBuilderTest {
         val builder = persistentHashSetOf(a1).builder()
 
         val iterator = builder.iterator()
-        builder.addAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 32)))
+        builder.addAll(persistentHashSetOf(a1.copy(), levelOneSibling))
 
         assertTrue(builder.contains(a1))
         assertFailsWith<ConcurrentModificationException> { iterator.next() }
@@ -319,27 +311,32 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `addAll that merges an element into the argument's subtree should count one size change`() {
-        val overlapping = persistentHashSetOf(IntWrapper(1, 0)).builder() as PersistentHashSetBuilder<IntWrapper>
+        val overlapping = persistentHashSetOf(a1).builder() as PersistentHashSetBuilder<IntWrapper>
         val modCount = overlapping.modCount
-        overlapping.addAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 32)))
+        overlapping.addAll(persistentHashSetOf(a1.copy(), levelOneSibling))
         assertEquals(modCount + 1, overlapping.modCount)
 
-        val disjoint = persistentHashSetOf(IntWrapper(1, 0)).builder() as PersistentHashSetBuilder<IntWrapper>
+        val disjoint = persistentHashSetOf(a1).builder() as PersistentHashSetBuilder<IntWrapper>
         val disjointModCount = disjoint.modCount
-        disjoint.addAll(persistentHashSetOf(IntWrapper(2, 32), IntWrapper(3, 64)))
+        disjoint.addAll(persistentHashSetOf(levelOneSibling, otherLevelOneSibling))
         assertEquals(disjointModCount + 1, disjoint.modCount)
 
         val collision =
-            persistentHashSetOf(IntWrapper(1, 0), sibling).builder() as PersistentHashSetBuilder<IntWrapper>
+            persistentHashSetOf(a1, sibling).builder() as PersistentHashSetBuilder<IntWrapper>
         val collisionModCount = collision.modCount
-        collision.addAll(persistentHashSetOf(IntWrapper(2, 0), IntWrapper(4, 0)))
+        collision.addAll(persistentHashSetOf(a2, a3))
         assertEquals(4, collision.size)
         assertEquals(collisionModCount + 1, collision.modCount)
     }
 
     @Test
     fun `addAll of random colliding sets should keep the stored element instances`() {
-        val hashes = intArrayOf(0, 1, 32, 33, 1 shl 10, 1 shl 30, (1 shl 30) or 32)
+        val hashes = intArrayOf(
+            0, 1,
+            1 shl LOG_MAX_BRANCHING_FACTOR, (1 shl LOG_MAX_BRANCHING_FACTOR) or 1,
+            1 shl (2 * LOG_MAX_BRANCHING_FACTOR),
+            1 shl MAX_SHIFT, (1 shl MAX_SHIFT) or (1 shl LOG_MAX_BRANCHING_FACTOR)
+        )
         val random = Random(316)
         repeat(200) { iteration ->
             val receiverElements = mutableMapOf<Int, IntWrapper>()
@@ -377,29 +374,27 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `retainAll should keep the stored element instance when the collision node is reached at the last level`() {
-        val storedElement = IntWrapper(1, 0)
-        val builder = persistentHashSetOf(storedElement, IntWrapper(2, 0), sibling).builder()
+        val builder = persistentHashSetOf(a1, a2, sibling).builder()
 
-        assertTrue(builder.retainAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(3, 1 shl 30))))
+        assertTrue(builder.retainAll(persistentHashSetOf(a1.copy(), sibling.copy())))
 
         assertEquals(2, builder.size)
-        assertSame(storedElement, builder.single { it == storedElement })
+        assertSame(a1, builder.single { it == a1 })
         assertSame(sibling, builder.single { it == sibling })
     }
 
     @Test
     fun `retainAll should drop the argument's element when the receiver's subtree does not hold it`() {
-        val storedElement = IntWrapper(5, 1)
 
-        val leafMiss = persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 32), storedElement).builder()
-        assertTrue(leafMiss.retainAll(persistentHashSetOf(IntWrapper(6, 0), IntWrapper(5, 1))))
+        val leafMiss = persistentHashSetOf(a1, levelOneSibling, rootSibling).builder()
+        assertTrue(leafMiss.retainAll(persistentHashSetOf(a3, rootSibling.copy())))
         assertEquals(1, leafMiss.size)
-        assertSame(storedElement, leafMiss.single())
+        assertSame(rootSibling, leafMiss.single())
 
-        val absentCell = persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 32), storedElement).builder()
-        assertTrue(absentCell.retainAll(persistentHashSetOf(IntWrapper(7, 64), IntWrapper(5, 1))))
+        val absentCell = persistentHashSetOf(a1, levelOneSibling, rootSibling).builder()
+        assertTrue(absentCell.retainAll(persistentHashSetOf(otherLevelOneSibling, rootSibling.copy())))
         assertEquals(1, absentCell.size)
-        assertSame(storedElement, absentCell.single())
+        assertSame(rootSibling, absentCell.single())
 
         val collisionMiss = persistentHashSetOf(a1, a2, sibling).builder()
         assertTrue(collisionMiss.retainAll(persistentHashSetOf(a3, sibling)))
@@ -414,7 +409,7 @@ class PersistentHashSetBuilderTest {
         builder.add(a2)
         builder.add(a3)
 
-        assertTrue(builder.retainAll(persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 0))))
+        assertTrue(builder.retainAll(persistentHashSetOf(a1.copy(), a2.copy())))
 
         assertEquals(2, builder.size)
         assertSame(a1, builder.single { it == a1 })
@@ -424,7 +419,7 @@ class PersistentHashSetBuilderTest {
     @Test
     fun `retainAll should reuse the argument's node when it already holds the receiver's element instance`() {
         val argument = persistentHashSetOf(a1) as PersistentHashSet<IntWrapper>
-        val builder = (persistentHashSetOf(a1, IntWrapper(2, 32)) as PersistentHashSet<IntWrapper>)
+        val builder = (persistentHashSetOf(a1, levelOneSibling) as PersistentHashSet<IntWrapper>)
                 .builder() as PersistentHashSetBuilder<IntWrapper>
 
         builder.retainAll(argument)
@@ -456,7 +451,12 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `retainAll of random colliding sets should keep the stored element instances`() {
-        val hashes = intArrayOf(0, 1, 32, 33, 1 shl 10, 1 shl 30, (1 shl 30) or 32)
+        val hashes = intArrayOf(
+            0, 1,
+            1 shl LOG_MAX_BRANCHING_FACTOR, (1 shl LOG_MAX_BRANCHING_FACTOR) or 1,
+            1 shl (2 * LOG_MAX_BRANCHING_FACTOR),
+            1 shl MAX_SHIFT, (1 shl MAX_SHIFT) or (1 shl LOG_MAX_BRANCHING_FACTOR)
+        )
         val random = Random(322)
         repeat(200) { iteration ->
             val receiverElements = mutableMapOf<Int, IntWrapper>()
