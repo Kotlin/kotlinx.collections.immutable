@@ -282,7 +282,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Sequence<P
  * Returns a new persistent map with keys and values from the specified [map] associated,
  * or this instance if no modifications were made in the result of this operation.
  *
- * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+ * The effect of this call is equivalent to that of calling `putting(k, v)` once for each
  * mapping from key `k` to value `v` in the specified map.
  */
 public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V>): PersistentMap<K, V> =
@@ -293,7 +293,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V
  * Returns a new persistent map with keys and values from the specified [map] associated,
  * or this instance if no modifications were made in the result of this operation.
  *
- * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+ * The effect of this call is equivalent to that of calling `putting(k, v)` once for each
  * mapping from key `k` to value `v` in the specified map.
  */
 @Suppress("UNCHECKED_CAST")

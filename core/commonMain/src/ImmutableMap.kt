@@ -119,7 +119,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * Returns a new persistent map with keys and values from the specified [m] map associated,
      * or this instance if no modifications were made in the result of this operation.
      *
-     * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+     * The effect of this call is equivalent to that of calling `putting(k, v)` once for each
      * mapping from key `k` to value `v` in the specified map.
      */
     public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>
