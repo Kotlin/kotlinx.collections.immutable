@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.implementations.immutableMap.PersistentHash
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.plus
 import tests.IntWrapper
+import tests.trie.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
@@ -17,11 +18,6 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashMapTest {
-
-    private val a1 = IntWrapper(1, 0)
-    private val a2 = IntWrapper(2, 0)
-    private val a3 = IntWrapper(4, 0)
-    private val sibling = IntWrapper(3, 1 shl 30)
 
     @Test
     fun `if the collision is of size 2 and one of the keys is removed the remaining key must be promoted`() {
@@ -175,14 +171,13 @@ class PersistentHashMapTest {
 
     @Test
     fun `puttingAll should keep the stored key instance when the argument holds the key in a subtree`() {
-        val storedKey = IntWrapper(1, 0)
-        val map = persistentHashMapOf(storedKey to "a")
+        val map = persistentHashMapOf(a1 to "a")
 
-        val updated = map.puttingAll(persistentHashMapOf(IntWrapper(1, 0) to "x", IntWrapper(2, 32) to "y"))
+        val updated = map.puttingAll(persistentHashMapOf(a1.copy() to "x", levelOneSibling to "y"))
 
         assertEquals(2, updated.size)
-        assertEquals("x", updated[storedKey])
-        assertSame(storedKey, updated.keys.single { it == storedKey })
+        assertEquals("x", updated[a1])
+        assertSame(a1, updated.keys.single { it == a1 })
     }
 
     @Test

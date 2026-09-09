@@ -24,6 +24,8 @@ class ObjectWrapper<K: Comparable<K>>(
         return obj == other.obj
     }
 
+    fun copy(): ObjectWrapper<K> = ObjectWrapper(obj, hashCode)
+
     override fun compareTo(other: ObjectWrapper<K>): Int {
         return obj.compareTo(other.obj)
     }
