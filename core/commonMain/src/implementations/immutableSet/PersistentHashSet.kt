@@ -16,57 +16,33 @@ internal class PersistentHashSet<E>(
         return node.contains(element.hashCode(), element, 0)
     }
 
-    @Deprecated(
-        "Use adding() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("adding(element)")
-    )
-    override fun add(element: E): PersistentSet<E> {
+    override fun adding(element: E): PersistentSet<E> {
         val newNode = node.add(element.hashCode(), element, 0)
         if (node === newNode) return this
         return PersistentHashSet(newNode, size + 1)
     }
 
-    @Deprecated(
-        "Use addingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("addingAll(elements)")
-    )
-    override fun addAll(elements: Collection<E>): PersistentSet<E> {
+    override fun addingAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return this.mutate { it.addAll(elements) }
     }
 
-    @Deprecated(
-        "Use removing() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("removing(element)")
-    )
-    override fun remove(element: E): PersistentSet<E> {
+    override fun removing(element: E): PersistentSet<E> {
         val newNode = node.remove(element.hashCode(), element, 0)
         if (node === newNode) return this
         return PersistentHashSet(newNode, size - 1)
     }
 
-    @Deprecated(
-        "Use removingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("removingAll(elements)")
-    )
-    override fun removeAll(elements: Collection<E>): PersistentSet<E> {
+    override fun removingAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return this
         return mutate { it.removeAll(elements) }
     }
 
-    @Deprecated(
-        "Use removingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("removingAll(predicate)")
-    )
-    override fun removeAll(predicate: (E) -> Boolean): PersistentSet<E> {
+    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> {
         return mutate { it.removeAll(predicate) }
     }
 
-    @Deprecated(
-        "Use retainingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("retainingAll(elements)")
-    )
-    override fun retainAll(elements: Collection<E>): PersistentSet<E> {
+    override fun retainingAll(elements: Collection<E>): PersistentSet<E> {
         if (elements.isEmpty()) return emptyOf()
         return mutate { it.retainAll(elements) }
     }
@@ -81,11 +57,7 @@ internal class PersistentHashSet<E>(
         return super.containsAll(elements)
     }
 
-    @Deprecated(
-        "Use cleared() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("cleared()")
-    )
-    override fun clear(): PersistentSet<E> {
+    override fun cleared(): PersistentSet<E> {
         return emptyOf()
     }
 
