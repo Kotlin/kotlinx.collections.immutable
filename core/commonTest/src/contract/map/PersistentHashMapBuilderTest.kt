@@ -126,55 +126,55 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `putAll should not duplicate a key stored in a bottom-level collision node`() {
-        val builder = persistentHashMapOf(a1 to 1, a2 to 2).builder()
-        builder.putAll(persistentHashMapOf(a1 to 10, sibling to 3))
+        val builder = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2).builder()
+        builder.putAll(persistentHashMapOf(collidingKey1 to 10, sibling to 3))
         assertEquals(3, builder.size)
-        assertEquals(persistentHashMapOf(a1 to 10, a2 to 2, sibling to 3), builder.build())
+        assertEquals(persistentHashMapOf(collidingKey1 to 10, collidingKey2 to 2, sibling to 3), builder.build())
 
-        val reversedBuilder = persistentHashMapOf(a1 to 10, sibling to 3).builder()
-        reversedBuilder.putAll(persistentHashMapOf(a1 to 1, a2 to 2))
+        val reversedBuilder = persistentHashMapOf(collidingKey1 to 10, sibling to 3).builder()
+        reversedBuilder.putAll(persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2))
         assertEquals(3, reversedBuilder.size)
-        assertEquals(persistentHashMapOf(a1 to 1, a2 to 2, sibling to 3), reversedBuilder.build())
+        assertEquals(persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, sibling to 3), reversedBuilder.build())
     }
 
     @Test
     fun `putAll should take the values of the argument builder without the two builders sharing storage`() {
-        val argument = persistentHashMapOf(a1 to 10, a2 to 20).builder()
-        val builder = persistentHashMapOf(a1 to 1, a2 to 2).builder()
+        val argument = persistentHashMapOf(collidingKey1 to 10, collidingKey2 to 20).builder()
+        val builder = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2).builder()
         builder.putAll(argument)
         assertEquals(2, builder.size)
 
-        builder[a1] = 100
-        argument[a2] = 200
+        builder[collidingKey1] = 100
+        argument[collidingKey2] = 200
 
-        assertEquals(persistentHashMapOf(a1 to 100, a2 to 20), builder.build())
-        assertEquals(persistentHashMapOf(a1 to 10, a2 to 200), argument.build())
+        assertEquals(persistentHashMapOf(collidingKey1 to 100, collidingKey2 to 20), builder.build())
+        assertEquals(persistentHashMapOf(collidingKey1 to 10, collidingKey2 to 200), argument.build())
     }
 
     @Test
     fun `put of a stored value should not rebuild a map whose key is in a bottom-level collision node`() {
-        val map = persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
-        val stored = map[a1]!!
+        val map = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", sibling to "c")
+        val stored = map[collidingKey1]!!
 
         val builder = map.builder()
-        assertSame(stored, builder.put(a1, stored))
+        assertSame(stored, builder.put(collidingKey1, stored))
         assertSame(map, builder.build())
     }
 
     @Test
     fun `put of a stored value should not invalidate an iterator when the collision node is shared`() {
-        val builder = persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", sibling to "c").builder()
         builder[sibling] = "C"
-        val stored = builder[a1]!!
+        val stored = builder[collidingKey1]!!
 
         val iterator = builder.keys.iterator()
         val visited = mutableListOf(iterator.next())
-        builder[a1] = stored
+        builder[collidingKey1] = stored
         while (iterator.hasNext()) {
             visited.add(iterator.next())
         }
 
-        assertEquals(listOf(a1, a2, sibling), visited.sorted())
+        assertEquals(listOf(collidingKey1, collidingKey2, sibling), visited.sorted())
     }
 
     @Test
@@ -190,12 +190,12 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `putAll that only replaces values in a bottom-level collision node should invalidate a live iterator`() {
-        val builder = persistentHashMapOf(a1 to "a", a2 to "b").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b").builder()
 
         val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(a1 to "x", a2 to "y"))
+        builder.putAll(persistentHashMapOf(collidingKey1 to "x", collidingKey2 to "y"))
 
-        assertEquals("x", builder[a1])
+        assertEquals("x", builder[collidingKey1])
         assertFailsWith<ConcurrentModificationException> { iterator.next() }
     }
 
@@ -214,28 +214,28 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `putAll that replaces values in an unowned collision node under an owned root should invalidate a live iterator`() {
-        val builder = (persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
+        val builder = (persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", sibling to "c")
                 as PersistentHashMap<IntWrapper, String>).builder()
         builder[sibling] = "C"
         val nodeBefore = builder.node
 
         val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(a1 to "x", a2 to "y"))
+        builder.putAll(persistentHashMapOf(collidingKey1 to "x", collidingKey2 to "y"))
 
         assertSame(nodeBefore, builder.node)
-        assertEquals("x", builder[a1])
+        assertEquals("x", builder[collidingKey1])
         assertFailsWith<ConcurrentModificationException> { iterator.next() }
     }
 
     @Test
     fun `putAll that replaces the value of a key stored in a two-entry node should invalidate a live iterator`() {
         val neighbor = IntWrapper(2, 32)
-        val builder = persistentHashMapOf(a1 to "a", neighbor to "b").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a", neighbor to "b").builder()
 
         val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(a1 to "x"))
+        builder.putAll(persistentHashMapOf(collidingKey1 to "x"))
 
-        assertEquals("x", builder[a1])
+        assertEquals("x", builder[collidingKey1])
         assertFailsWith<ConcurrentModificationException> { iterator.next() }
     }
 
@@ -263,32 +263,32 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `putAll of the stored values should not invalidate an iterator`() {
-        val map = persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
+        val map = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", sibling to "c")
         val builder = map.builder()
 
         val iterator = builder.keys.iterator()
         val visited = mutableListOf(iterator.next())
-        builder.putAll(persistentHashMapOf(a1 to map[a1]!!, a2 to map[a2]!!, sibling to map[sibling]!!))
+        builder.putAll(persistentHashMapOf(collidingKey1 to map[collidingKey1]!!, collidingKey2 to map[collidingKey2]!!, sibling to map[sibling]!!))
         while (iterator.hasNext()) {
             visited.add(iterator.next())
         }
 
-        assertEquals(listOf(a1, a2, sibling), visited.sorted())
+        assertEquals(listOf(collidingKey1, collidingKey2, sibling), visited.sorted())
     }
 
     @Test
     fun `putAll of the stored values should not rebuild the map`() {
-        val map = persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
+        val map = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", sibling to "c")
 
         val builder = map.builder()
-        builder.putAll(persistentHashMapOf(a1 to map[a1]!!, a2 to map[a2]!!, sibling to map[sibling]!!))
+        builder.putAll(persistentHashMapOf(collidingKey1 to map[collidingKey1]!!, collidingKey2 to map[collidingKey2]!!, sibling to map[sibling]!!))
 
         assertSame(map, builder.build())
     }
 
     @Test
     fun `putAll of the builder itself should not invalidate an iterator`() {
-        val builder = persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", sibling to "c").builder()
 
         val iterator = builder.keys.iterator()
         val visited = mutableListOf(iterator.next())
@@ -297,12 +297,12 @@ class PersistentHashMapBuilderTest {
             visited.add(iterator.next())
         }
 
-        assertEquals(listOf(a1, a2, sibling), visited.sorted())
+        assertEquals(listOf(collidingKey1, collidingKey2, sibling), visited.sorted())
     }
 
     @Test
     fun `putAll of the map this builder was built from should keep a live iterator valid`() {
-        val map = persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
+        val map = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", sibling to "c")
         val builder = map.builder()
 
         val iterator = builder.entries.iterator()
@@ -312,7 +312,7 @@ class PersistentHashMapBuilderTest {
             visited.add(iterator.next().key)
         }
 
-        assertEquals(listOf(a1, a2, sibling), visited.sorted())
+        assertEquals(listOf(collidingKey1, collidingKey2, sibling), visited.sorted())
     }
 
     @Test
@@ -331,11 +331,11 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `putAll that only replaces values does not count as a size change`() {
-        val builder = (persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
+        val builder = (persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", sibling to "c")
                 as PersistentHashMap<IntWrapper, String>).builder()
         val sizeModCount = builder.sizeModCount
 
-        builder.putAll(persistentHashMapOf(a1 to "x", a2 to "y", sibling to "z"))
+        builder.putAll(persistentHashMapOf(collidingKey1 to "x", collidingKey2 to "y", sibling to "z"))
 
         assertEquals(3, builder.size)
         assertEquals(sizeModCount, builder.sizeModCount)
@@ -356,7 +356,7 @@ class PersistentHashMapBuilderTest {
     @Test
     fun `putAll that replaces collision values should keep the stored key instances`() {
         val storedKey = IntWrapper(1, 0)
-        val builder = persistentHashMapOf(storedKey to "a", a2 to "b").builder()
+        val builder = persistentHashMapOf(storedKey to "a", collidingKey2 to "b").builder()
 
         builder.putAll(persistentHashMapOf(IntWrapper(1, 0) to "x", IntWrapper(2, 0) to "y"))
 
@@ -379,7 +379,7 @@ class PersistentHashMapBuilderTest {
     fun `putAll should keep the stored key instance when the argument holds the key one level down`() {
         val builder = persistentHashMapOf(levelOneSibling to "a").builder()
 
-        builder.putAll(persistentHashMapOf(levelOneSibling.copy() to "x", a2 to "y"))
+        builder.putAll(persistentHashMapOf(levelOneSibling.copy() to "x", collidingKey2 to "y"))
 
         assertEquals(2, builder.size)
         assertEquals("x", builder[levelOneSibling])
@@ -388,154 +388,154 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `putAll should keep the stored key instance when the argument holds the key in a bottom-level collision node`() {
-        val builder = persistentHashMapOf(a1 to "a").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a").builder()
 
-        builder.putAll(persistentHashMapOf(a1.copy() to "x", a2 to "y"))
+        builder.putAll(persistentHashMapOf(collidingKey1.copy() to "x", collidingKey2 to "y"))
 
         assertEquals(2, builder.size)
-        assertEquals("x", builder[a1])
-        assertSame(a1, builder.keys.single { it == a1 })
+        assertEquals("x", builder[collidingKey1])
+        assertSame(collidingKey1, builder.keys.single { it == collidingKey1 })
     }
 
     @Test
     fun `putAll should keep the stored key instance when the argument's collision node holds the same value`() {
         val value = "a"
-        val builder = persistentHashMapOf(a1 to value).builder()
+        val builder = persistentHashMapOf(collidingKey1 to value).builder()
 
-        builder.putAll(persistentHashMapOf(a1.copy() to value, a2 to "y"))
+        builder.putAll(persistentHashMapOf(collidingKey1.copy() to value, collidingKey2 to "y"))
 
         assertEquals(2, builder.size)
-        assertSame(value, builder[a1])
-        assertSame(a1, builder.keys.single { it == a1 })
+        assertSame(value, builder[collidingKey1])
+        assertSame(collidingKey1, builder.keys.single { it == collidingKey1 })
     }
 
     @Test
     fun `putAll should keep the stored key instance when the collision node is reached at the last level`() {
-        val builder = persistentHashMapOf(a1 to "a", sibling to "c").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a", sibling to "c").builder()
 
-        builder.putAll(persistentHashMapOf(a1.copy() to "x", a2 to "y"))
+        builder.putAll(persistentHashMapOf(collidingKey1.copy() to "x", collidingKey2 to "y"))
 
         assertEquals(3, builder.size)
-        assertEquals("x", builder[a1])
+        assertEquals("x", builder[collidingKey1])
         assertEquals("c", builder[sibling])
-        assertSame(a1, builder.keys.single { it == a1 })
+        assertSame(collidingKey1, builder.keys.single { it == collidingKey1 })
     }
 
     @Test
     fun `putAll should keep the stored key instance when the argument holds the key several levels down`() {
-        val builder = persistentHashMapOf(a1 to "a").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a").builder()
 
-        builder.putAll(persistentHashMapOf(a1.copy() to "x", levelTwoSibling to "y"))
+        builder.putAll(persistentHashMapOf(collidingKey1.copy() to "x", levelTwoSibling to "y"))
 
         assertEquals(2, builder.size)
-        assertEquals("x", builder[a1])
-        assertSame(a1, builder.keys.single { it == a1 })
+        assertEquals("x", builder[collidingKey1])
+        assertSame(collidingKey1, builder.keys.single { it == collidingKey1 })
     }
 
     @Test
     fun `putAll should reuse the argument's subtree when it holds the stored key instance`() {
-        val argument = persistentHashMapOf(a1 to "x", levelOneSibling to "y")
+        val argument = persistentHashMapOf(collidingKey1 to "x", levelOneSibling to "y")
                 as PersistentHashMap<IntWrapper, String>
-        val builder = (persistentHashMapOf(a1 to "a") as PersistentHashMap<IntWrapper, String>).builder()
+        val builder = (persistentHashMapOf(collidingKey1 to "a") as PersistentHashMap<IntWrapper, String>).builder()
 
         builder.putAll(argument)
 
         assertEquals(2, builder.size)
-        assertEquals("x", builder[a1])
+        assertEquals("x", builder[collidingKey1])
         assertSame(argument.node, builder.node)
     }
 
     @Test
     fun `putAll should reuse the argument's collision node when its key is already the receiver's instance`() {
-        val argument = persistentHashMapOf(a1 to "x", a2 to "y") as PersistentHashMap<IntWrapper, String>
-        val builder = (persistentHashMapOf(a1 to "old") as PersistentHashMap<IntWrapper, String>).builder()
+        val argument = persistentHashMapOf(collidingKey1 to "x", collidingKey2 to "y") as PersistentHashMap<IntWrapper, String>
+        val builder = (persistentHashMapOf(collidingKey1 to "old") as PersistentHashMap<IntWrapper, String>).builder()
 
         builder.putAll(argument)
 
         assertEquals(2, builder.size)
-        assertEquals("x", builder[a1])
+        assertEquals("x", builder[collidingKey1])
         assertSame(argument.node, builder.node)
     }
 
     @Test
     fun `putAll should insert the entry when the argument's subtree lacks the key`() {
-        val builder = persistentHashMapOf(a1 to "a").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a").builder()
 
         builder.putAll(persistentHashMapOf(levelOneSibling to "y", otherLevelOneSibling to "z"))
 
         assertEquals(3, builder.size)
-        assertEquals("a", builder[a1])
+        assertEquals("a", builder[collidingKey1])
         assertEquals("y", builder[levelOneSibling])
         assertEquals("z", builder[otherLevelOneSibling])
-        assertSame(a1, builder.keys.single { it == a1 })
+        assertSame(collidingKey1, builder.keys.single { it == collidingKey1 })
     }
 
     @Test
     fun `putAll should push the entry deeper when it collides with an argument entry inside the subtree`() {
-        val builder = persistentHashMapOf(a1 to "a").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a").builder()
 
         builder.putAll(persistentHashMapOf(levelTwoSibling to "y", levelOneSibling to "z"))
 
         assertEquals(3, builder.size)
-        assertEquals("a", builder[a1])
+        assertEquals("a", builder[collidingKey1])
         assertEquals("y", builder[levelTwoSibling])
         assertEquals("z", builder[levelOneSibling])
-        assertSame(a1, builder.keys.single { it == a1 })
+        assertSame(collidingKey1, builder.keys.single { it == collidingKey1 })
     }
 
     @Test
     fun `putAll should keep the stored key instance when the receiver holds the key in a subtree`() {
-        val builder = persistentHashMapOf(a1 to "a", levelOneSibling to "b").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a", levelOneSibling to "b").builder()
 
-        builder.putAll(persistentHashMapOf(a1.copy() to "x"))
+        builder.putAll(persistentHashMapOf(collidingKey1.copy() to "x"))
 
         assertEquals(2, builder.size)
-        assertEquals("x", builder[a1])
-        assertSame(a1, builder.keys.single { it == a1 })
+        assertEquals("x", builder[collidingKey1])
+        assertSame(collidingKey1, builder.keys.single { it == collidingKey1 })
     }
 
     @Test
     fun `putAll should not write the receiver's key into the argument's map`() {
-        val argumentKey = a1.copy()
+        val argumentKey = collidingKey1.copy()
         val argument = persistentHashMapOf(argumentKey to "x", levelOneSibling to "y")
-        val builder = persistentHashMapOf(a1 to "a").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a").builder()
 
         builder.putAll(argument)
 
-        assertSame(a1, builder.keys.single { it == a1 })
+        assertSame(collidingKey1, builder.keys.single { it == collidingKey1 })
         assertSame(argumentKey, argument.keys.single { it == argumentKey })
         assertEquals("x", argument[argumentKey])
     }
 
     @Test
     fun `putAll should invalidate a live iterator when the argument holds the key in a subtree`() {
-        val builder = persistentHashMapOf(a1 to "a").builder()
+        val builder = persistentHashMapOf(collidingKey1 to "a").builder()
 
         val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(a1.copy() to "x", levelOneSibling to "y"))
+        builder.putAll(persistentHashMapOf(collidingKey1.copy() to "x", levelOneSibling to "y"))
 
-        assertEquals("x", builder[a1])
+        assertEquals("x", builder[collidingKey1])
         assertFailsWith<ConcurrentModificationException> { iterator.next() }
     }
 
     @Test
     fun `putAll that merges an entry into the argument's subtree should count one size change`() {
-        val overlapping = (persistentHashMapOf(a1 to "a")
+        val overlapping = (persistentHashMapOf(collidingKey1 to "a")
                 as PersistentHashMap<IntWrapper, String>).builder()
         val sizeModCount = overlapping.sizeModCount
-        overlapping.putAll(persistentHashMapOf(a1.copy() to "x", levelOneSibling to "y"))
+        overlapping.putAll(persistentHashMapOf(collidingKey1.copy() to "x", levelOneSibling to "y"))
         assertEquals(sizeModCount + 1, overlapping.sizeModCount)
 
-        val disjoint = (persistentHashMapOf(a1 to "a")
+        val disjoint = (persistentHashMapOf(collidingKey1 to "a")
                 as PersistentHashMap<IntWrapper, String>).builder()
         val disjointSizeModCount = disjoint.sizeModCount
         disjoint.putAll(persistentHashMapOf(levelOneSibling to "y", otherLevelOneSibling to "z"))
         assertEquals(disjointSizeModCount + 1, disjoint.sizeModCount)
 
-        val collision = (persistentHashMapOf(a1 to "a", sibling to "c")
+        val collision = (persistentHashMapOf(collidingKey1 to "a", sibling to "c")
                 as PersistentHashMap<IntWrapper, String>).builder()
         val collisionSizeModCount = collision.sizeModCount
-        collision.putAll(persistentHashMapOf(a2 to "y", a3 to "z"))
+        collision.putAll(persistentHashMapOf(collidingKey2 to "y", collidingKey3 to "z"))
         assertEquals(4, collision.size)
         assertEquals(collisionSizeModCount + 1, collision.sizeModCount)
     }

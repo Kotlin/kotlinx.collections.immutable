@@ -120,107 +120,107 @@ class PersistentHashSetTest {
 
     @Test
     fun `plus should not duplicate an element shared with a bottom-level collision node`() {
-        val expected = persistentHashSetOf(a1, a2, sibling)
+        val expected = persistentHashSetOf(collidingKey1, collidingKey2, sibling)
 
-        val union = persistentHashSetOf(a1, a2) + persistentHashSetOf(a1, sibling)
+        val union = persistentHashSetOf(collidingKey1, collidingKey2) + persistentHashSetOf(collidingKey1, sibling)
         assertEquals(3, union.size)
         assertEquals(3, union.toList().size)
         assertEquals(expected, union)
         assertEquals(union, expected)
-        val withoutA1 = union - a1
-        assertEquals(persistentHashSetOf(a2, sibling), withoutA1)
-        assertFalse(a1 in withoutA1)
+        val withoutA1 = union - collidingKey1
+        assertEquals(persistentHashSetOf(collidingKey2, sibling), withoutA1)
+        assertFalse(collidingKey1 in withoutA1)
 
-        val reversedUnion = persistentHashSetOf(a1, sibling) + persistentHashSetOf(a1, a2)
+        val reversedUnion = persistentHashSetOf(collidingKey1, sibling) + persistentHashSetOf(collidingKey1, collidingKey2)
         assertEquals(3, reversedUnion.size)
         assertEquals(3, reversedUnion.toList().size)
         assertEquals(expected, reversedUnion)
-        assertEquals(persistentHashSetOf(a2, sibling), reversedUnion - a1)
+        assertEquals(persistentHashSetOf(collidingKey2, sibling), reversedUnion - collidingKey1)
     }
 
     @Test
     fun `plus should insert a new element into a bottom-level collision node`() {
-        val expected = persistentHashSetOf(a1, a2, a3, sibling)
+        val expected = persistentHashSetOf(collidingKey1, collidingKey2, collidingKey3, sibling)
 
-        val union = persistentHashSetOf(a1, a2) + persistentHashSetOf(a3, sibling)
+        val union = persistentHashSetOf(collidingKey1, collidingKey2) + persistentHashSetOf(collidingKey3, sibling)
         assertEquals(4, union.size)
         assertEquals(expected, union)
 
-        val reversedUnion = persistentHashSetOf(a3, sibling) + persistentHashSetOf(a1, a2)
+        val reversedUnion = persistentHashSetOf(collidingKey3, sibling) + persistentHashSetOf(collidingKey1, collidingKey2)
         assertEquals(4, reversedUnion.size)
         assertEquals(expected, reversedUnion)
     }
 
     @Test
     fun `intersect and minus should handle an element absent from a bottom-level collision node`() {
-        assertTrue((persistentHashSetOf(a1, a2) intersect persistentHashSetOf(a3, sibling)).isEmpty())
-        assertTrue((persistentHashSetOf(a3, sibling) intersect persistentHashSetOf(a1, a2)).isEmpty())
+        assertTrue((persistentHashSetOf(collidingKey1, collidingKey2) intersect persistentHashSetOf(collidingKey3, sibling)).isEmpty())
+        assertTrue((persistentHashSetOf(collidingKey3, sibling) intersect persistentHashSetOf(collidingKey1, collidingKey2)).isEmpty())
 
-        assertEquals(persistentHashSetOf(a1, a2), persistentHashSetOf(a1, a2) - persistentHashSetOf(a3, sibling))
-        assertEquals(persistentHashSetOf(a3, sibling), persistentHashSetOf(a3, sibling) - persistentHashSetOf(a1, a2))
+        assertEquals(persistentHashSetOf(collidingKey1, collidingKey2), persistentHashSetOf(collidingKey1, collidingKey2) - persistentHashSetOf(collidingKey3, sibling))
+        assertEquals(persistentHashSetOf(collidingKey3, sibling), persistentHashSetOf(collidingKey3, sibling) - persistentHashSetOf(collidingKey1, collidingKey2))
     }
 
     @Test
     fun `minus should remove an element from a bottom-level collision node`() {
-        val difference = persistentHashSetOf(a1, a2) - persistentHashSetOf(a1, sibling)
+        val difference = persistentHashSetOf(collidingKey1, collidingKey2) - persistentHashSetOf(collidingKey1, sibling)
         assertEquals(1, difference.size)
-        assertEquals(persistentHashSetOf(a2), difference)
+        assertEquals(persistentHashSetOf(collidingKey2), difference)
 
-        val reversedDifference = persistentHashSetOf(a1, sibling) - persistentHashSetOf(a1, a2)
+        val reversedDifference = persistentHashSetOf(collidingKey1, sibling) - persistentHashSetOf(collidingKey1, collidingKey2)
         assertEquals(1, reversedDifference.size)
         assertEquals(persistentHashSetOf(sibling), reversedDifference)
     }
 
     @Test
     fun `intersect should find the shared element inside a bottom-level collision node`() {
-        val expected = persistentHashSetOf(a1)
+        val expected = persistentHashSetOf(collidingKey1)
 
-        val intersection = persistentHashSetOf(a1, a2) intersect persistentHashSetOf(a1, sibling)
+        val intersection = persistentHashSetOf(collidingKey1, collidingKey2) intersect persistentHashSetOf(collidingKey1, sibling)
         assertEquals(expected, intersection)
         assertEquals(intersection, expected)
-        assertEquals(listOf(a1), intersection.toList())
+        assertEquals(listOf(collidingKey1), intersection.toList())
 
-        val reversedIntersection = persistentHashSetOf(a1, sibling) intersect persistentHashSetOf(a1, a2)
+        val reversedIntersection = persistentHashSetOf(collidingKey1, sibling) intersect persistentHashSetOf(collidingKey1, collidingKey2)
         assertEquals(expected, reversedIntersection)
-        assertEquals(listOf(a1), reversedIntersection.toList())
+        assertEquals(listOf(collidingKey1), reversedIntersection.toList())
     }
 
     @Test
     fun `containsAll should find elements inside a bottom-level collision node`() {
-        assertTrue(persistentHashSetOf(a1, a2, sibling).containsAll(persistentHashSetOf(a1, sibling)))
-        assertTrue(persistentHashSetOf(a1, a2, sibling).containsAll(persistentHashSetOf(a1, a2)))
-        assertFalse(persistentHashSetOf(a1, sibling).containsAll(persistentHashSetOf(a1, a2)))
-        assertFalse(persistentHashSetOf(a1, a2, sibling).containsAll(persistentHashSetOf(a3, sibling)))
+        assertTrue(persistentHashSetOf(collidingKey1, collidingKey2, sibling).containsAll(persistentHashSetOf(collidingKey1, sibling)))
+        assertTrue(persistentHashSetOf(collidingKey1, collidingKey2, sibling).containsAll(persistentHashSetOf(collidingKey1, collidingKey2)))
+        assertFalse(persistentHashSetOf(collidingKey1, sibling).containsAll(persistentHashSetOf(collidingKey1, collidingKey2)))
+        assertFalse(persistentHashSetOf(collidingKey1, collidingKey2, sibling).containsAll(persistentHashSetOf(collidingKey3, sibling)))
     }
 
     @Test
     fun `addingAll should keep the stored element instance when the argument holds it in a subtree`() {
-        val set = persistentHashSetOf(a1)
+        val set = persistentHashSetOf(collidingKey1)
 
-        val updated = set.addingAll(persistentHashSetOf(a1.copy(), levelOneSibling))
+        val updated = set.addingAll(persistentHashSetOf(collidingKey1.copy(), levelOneSibling))
 
         assertEquals(2, updated.size)
-        assertSame(a1, updated.single { it == a1 })
+        assertSame(collidingKey1, updated.single { it == collidingKey1 })
     }
 
     @Test
     fun `retainingAll should keep the stored element instance when the receiver holds it in a subtree`() {
-        val set = persistentHashSetOf(a1, levelOneSibling)
+        val set = persistentHashSetOf(collidingKey1, levelOneSibling)
 
-        val updated = set.retainingAll(persistentHashSetOf(a1.copy()))
+        val updated = set.retainingAll(persistentHashSetOf(collidingKey1.copy()))
 
         assertEquals(1, updated.size)
-        assertSame(a1, updated.single { it == a1 })
+        assertSame(collidingKey1, updated.single { it == collidingKey1 })
     }
 
     @Test
     fun `retainingAll should keep every stored instance when the argument's collision node is an equality-subset`() {
-        val set = persistentHashSetOf(a1, a2, a3)
+        val set = persistentHashSetOf(collidingKey1, collidingKey2, collidingKey3)
 
-        val updated = set.retainingAll(persistentHashSetOf(a1.copy(), a2.copy()))
+        val updated = set.retainingAll(persistentHashSetOf(collidingKey1.copy(), collidingKey2.copy()))
 
         assertEquals(2, updated.size)
-        assertSame(a1, updated.single { it == a1 })
-        assertSame(a2, updated.single { it == a2 })
+        assertSame(collidingKey1, updated.single { it == collidingKey1 })
+        assertSame(collidingKey2, updated.single { it == collidingKey2 })
     }
 }
