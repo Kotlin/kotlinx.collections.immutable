@@ -199,4 +199,82 @@ class PersistentListBuilderTest {
             assertFailsWith<ConcurrentModificationException>(flavour) { iterator.next() }
         }
     }
+
+    @Test
+    fun `removeAll whose contains throws removes the elements matched before the throw and keeps the rest at every depth`() {
+        val rows = listOf(
+            Triple(3, listOf(0), 1),
+            Triple(40, listOf(0, 30), 20),
+            Triple(100, listOf(0, 33, 70), 50),
+            Triple(100, listOf(96), 98),
+            Triple(1100, listOf(0, 33, 1000), 50),
+            Triple(1100, listOf(0, 33, 1095), 1090),
+        )
+        for ((size, matching, thrower) in rows) {
+            val expected = (0..<size).filter { it >= thrower || it !in matching }
+            for ((flavour, builder) in builders(size)) {
+                val elements = ThrowingContains(matching, thrower)
+
+                val caught = assertFailsWith<ContainsFailure>("$flavour at size $size throwing at $thrower") {
+                    builder.removeAll(elements)
+                }
+
+                assertSame(elements.failure, caught, "$flavour at size $size throwing at $thrower")
+                assertEquals((0..thrower).toList(), elements.checked, "$flavour at size $size throwing at $thrower")
+                assertEquals(expected, builder.toList(), "$flavour at size $size throwing at $thrower")
+                val built = builder.build()
+                builder.add(-1)
+                assertEquals(expected, built, "$flavour at size $size throwing at $thrower")
+                assertEquals(expected + (-1), builder.toList(), "$flavour at size $size throwing at $thrower")
+            }
+        }
+    }
+
+    @Test
+    fun `removeAll whose contains throws invalidates a live iterator when an element was removed before the throw`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.iterator()
+
+            assertFailsWith<ContainsFailure>(flavour) { builder.removeAll(ThrowingContains(listOf(0), 1)) }
+
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.next() }
+        }
+    }
+
+    @Test
+    fun `removeAll whose contains throws keeps a live iterator valid when nothing was removed before the throw`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.iterator()
+
+            assertFailsWith<ContainsFailure>(flavour) { builder.removeAll(ThrowingContains(listOf(2), 1)) }
+
+            assertEquals(listOf(0, 1, 2), builder.toList(), flavour)
+            assertEquals(0, iterator.next(), flavour)
+        }
+    }
+
+    @Test
+    fun `removeAll whose contains throws leaves the list built earlier untouched`() {
+        val builder = persistentListOf<Int>().builder().apply { addAll(List(100) { it }) }
+        val built = builder.build()
+        builder[0] = 0
+
+        assertFailsWith<ContainsFailure> { builder.removeAll(ThrowingContains(listOf(0, 33), 50)) }
+
+        assertEquals(List(100) { it }, built)
+        assertEquals((1..32) + (34..99), builder.toList())
+    }
+
+    private class ContainsFailure : Error()
+
+    private class ThrowingContains(private val matching: List<Int>, private val thrower: Int) : Collection<Int> by matching {
+        val failure = ContainsFailure()
+        val checked = mutableListOf<Int>()
+
+        override fun contains(element: Int): Boolean {
+            checked.add(element)
+            if (element == thrower) throw failure
+            return element in matching
+        }
+    }
 }
