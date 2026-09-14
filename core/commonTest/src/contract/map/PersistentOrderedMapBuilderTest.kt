@@ -166,7 +166,7 @@ class PersistentOrderedMapBuilderTest {
         assertEquals("a", builder.remove(1))
         assertNull(builder.put(1, null))
 
-        assertEquals("a", entry.setValue("z"))
+        assertNull(entry.setValue("z"))
 
         val built = builder.build()
         assertEquals(listOf(2, 3, 1), built.keys.toList())
@@ -182,7 +182,7 @@ class PersistentOrderedMapBuilderTest {
         val stored = builder[1]!!
         val snapshot = builder.build()
 
-        assertEquals("a", entry.setValue(stored))
+        assertEquals("x", entry.setValue(stored))
 
         assertSame(snapshot, builder.build())
     }
@@ -322,6 +322,61 @@ class PersistentOrderedMapBuilderTest {
         assertTrue(values.hasNext())
         assertFailsWith<ConcurrentModificationException> { keys.next() }
         assertFailsWith<ConcurrentModificationException> { values.next() }
+    }
+
+    @Test
+    fun `entry value and setValue follow an overwrite of its key whether the builder came from a map or from puts`() {
+        val fromMap = persistentMapOf(1 to "a").builder()
+        val fromPuts = persistentMapOf<Int, String>().builder()
+        fromPuts[1] = "a"
+
+        for ((flavour, builder) in listOf("from a map" to fromMap, "from puts" to fromPuts)) {
+            val entry = builder.entries.iterator().next()
+
+            builder[1] = "b"
+            assertEquals("b", entry.value, flavour)
+
+            builder[1] = "c"
+            assertEquals("c", entry.setValue("d"), flavour)
+            assertEquals("d", entry.value, flavour)
+            assertEquals("d", builder[1], flavour)
+        }
+    }
+
+    @Test
+    fun `entry setValue of an equal value that is not the stored instance writes the new instance`() {
+        val stored = TraceKey(1, hash = 1)
+        val equal = TraceKey(1, hash = 1)
+        val builder = persistentMapOf(1 to stored).builder()
+        val entry = builder.entries.iterator().next()
+
+        assertSame(stored, entry.setValue(equal))
+
+        assertSame(equal, builder[1])
+        assertSame(equal, entry.value)
+    }
+
+    @Test
+    fun `entry after a remove of its key keeps the last value it observed and follows the value put back`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b").builder()
+        val entry = builder.entries.iterator().next()
+        builder[1] = "x"
+        assertEquals("x", entry.value)
+
+        assertEquals("x", builder.remove(1))
+
+        assertEquals("x", entry.value)
+        assertEquals("x", entry.setValue("z"))
+        assertEquals("z", entry.setValue("y"))
+        assertNull(builder[1])
+        assertEquals(1, builder.size)
+
+        assertNull(builder.put(1, "p"))
+
+        assertEquals("p", entry.value)
+        assertEquals("p", entry.setValue("q"))
+        assertEquals("q", builder[1])
+        assertEquals(listOf(2, 1), builder.build().keys.toList())
     }
 
     private class TraceKey(val value: Int, private val hash: Int) {
