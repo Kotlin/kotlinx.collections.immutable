@@ -81,26 +81,26 @@ class PersistentHashMapTest {
 
     @Test
     fun `putAll should not duplicate a key stored in a bottom-level collision node`() {
-        val sum = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2) + persistentHashMapOf(collidingKey1 to 10, sibling to 3)
+        val sum = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2) + persistentHashMapOf(collidingKey1 to 10, lastLevelSibling to 3)
         assertEquals(3, sum.size)
-        assertEquals(persistentHashMapOf(collidingKey1 to 10, collidingKey2 to 2, sibling to 3), sum)
+        assertEquals(persistentHashMapOf(collidingKey1 to 10, collidingKey2 to 2, lastLevelSibling to 3), sum)
         assertEquals(10, sum[collidingKey1])
 
-        val reversedSum = persistentHashMapOf(collidingKey1 to 10, sibling to 3) + persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2)
+        val reversedSum = persistentHashMapOf(collidingKey1 to 10, lastLevelSibling to 3) + persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2)
         assertEquals(3, reversedSum.size)
-        assertEquals(persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, sibling to 3), reversedSum)
+        assertEquals(persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, lastLevelSibling to 3), reversedSum)
         assertEquals(1, reversedSum[collidingKey1])
     }
 
     @Test
     fun `putAll should insert a new key into a bottom-level collision node`() {
-        val expected = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, collidingKey3 to 4, sibling to 3)
+        val expected = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, collidingKey3 to 4, lastLevelSibling to 3)
 
-        val sum = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2) + persistentHashMapOf(collidingKey3 to 4, sibling to 3)
+        val sum = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2) + persistentHashMapOf(collidingKey3 to 4, lastLevelSibling to 3)
         assertEquals(4, sum.size)
         assertEquals(expected, sum)
 
-        val reversedSum = persistentHashMapOf(collidingKey3 to 4, sibling to 3) + persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2)
+        val reversedSum = persistentHashMapOf(collidingKey3 to 4, lastLevelSibling to 3) + persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2)
         assertEquals(4, reversedSum.size)
         assertEquals(expected, reversedSum)
     }
@@ -130,17 +130,17 @@ class PersistentHashMapTest {
 
     @Test
     fun `putAll should return a new map when the argument only replaces values of a collision node`() {
-        val receiver = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, collidingKey3 to 4, sibling to 3)
+        val receiver = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, collidingKey3 to 4, lastLevelSibling to 3)
         val argument = persistentHashMapOf(collidingKey1 to 10, collidingKey2 to 20)
 
         val sum = receiver.puttingAll(argument)
         assertNotSame(receiver, sum)
         assertEquals(4, sum.size)
-        assertEquals(persistentHashMapOf(collidingKey1 to 10, collidingKey2 to 20, collidingKey3 to 4, sibling to 3), sum)
+        assertEquals(persistentHashMapOf(collidingKey1 to 10, collidingKey2 to 20, collidingKey3 to 4, lastLevelSibling to 3), sum)
 
         val reversedSum = argument.puttingAll(receiver)
         assertEquals(4, reversedSum.size)
-        assertEquals(persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, collidingKey3 to 4, sibling to 3), reversedSum)
+        assertEquals(persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 2, collidingKey3 to 4, lastLevelSibling to 3), reversedSum)
     }
 
     @Test
@@ -184,7 +184,7 @@ class PersistentHashMapTest {
     fun `putAll should return the same map when the argument brings no new values`() {
         val one = "one"
         val two = "two"
-        val receiver = persistentHashMapOf(collidingKey1 to one, collidingKey2 to two, sibling to "three")
+        val receiver = persistentHashMapOf(collidingKey1 to one, collidingKey2 to two, lastLevelSibling to "three")
         val argument = persistentHashMapOf(collidingKey1 to one, collidingKey2 to two)
 
         assertSame(receiver, receiver.puttingAll(argument))

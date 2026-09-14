@@ -137,14 +137,14 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `addAll should not duplicate an element shared with a bottom-level collision node`() {
-        val expected = persistentHashSetOf(collidingKey1, collidingKey2, sibling)
+        val expected = persistentHashSetOf(collidingKey1, collidingKey2, lastLevelSibling)
 
         val builder = persistentHashSetOf(collidingKey1, collidingKey2).builder()
-        assertTrue(builder.addAll(persistentHashSetOf(collidingKey1, sibling)))
+        assertTrue(builder.addAll(persistentHashSetOf(collidingKey1, lastLevelSibling)))
         assertEquals(3, builder.size)
         assertEquals(expected, builder.build())
 
-        val reversedBuilder = persistentHashSetOf(collidingKey1, sibling).builder()
+        val reversedBuilder = persistentHashSetOf(collidingKey1, lastLevelSibling).builder()
         assertTrue(reversedBuilder.addAll(persistentHashSetOf(collidingKey1, collidingKey2)))
         assertEquals(3, reversedBuilder.size)
         assertEquals(expected, reversedBuilder.build())
@@ -152,14 +152,14 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `addAll should insert a new element into a bottom-level collision node`() {
-        val expected = persistentHashSetOf(collidingKey1, collidingKey2, collidingKey3, sibling)
+        val expected = persistentHashSetOf(collidingKey1, collidingKey2, collidingKey3, lastLevelSibling)
 
         val builder = persistentHashSetOf(collidingKey1, collidingKey2).builder()
-        assertTrue(builder.addAll(persistentHashSetOf(collidingKey3, sibling)))
+        assertTrue(builder.addAll(persistentHashSetOf(collidingKey3, lastLevelSibling)))
         assertEquals(4, builder.size)
         assertEquals(expected, builder.build())
 
-        val reversedBuilder = persistentHashSetOf(collidingKey3, sibling).builder()
+        val reversedBuilder = persistentHashSetOf(collidingKey3, lastLevelSibling).builder()
         assertTrue(reversedBuilder.addAll(persistentHashSetOf(collidingKey1, collidingKey2)))
         assertEquals(4, reversedBuilder.size)
         assertEquals(expected, reversedBuilder.build())
@@ -170,11 +170,11 @@ class PersistentHashSetBuilderTest {
         val expected = persistentHashSetOf(collidingKey1)
 
         val builder = persistentHashSetOf(collidingKey1, collidingKey2).builder()
-        assertTrue(builder.retainAll(persistentHashSetOf(collidingKey1, sibling)))
+        assertTrue(builder.retainAll(persistentHashSetOf(collidingKey1, lastLevelSibling)))
         assertEquals(1, builder.size)
         assertEquals(expected, builder.build())
 
-        val reversedBuilder = persistentHashSetOf(collidingKey1, sibling).builder()
+        val reversedBuilder = persistentHashSetOf(collidingKey1, lastLevelSibling).builder()
         assertTrue(reversedBuilder.retainAll(persistentHashSetOf(collidingKey1, collidingKey2)))
         assertEquals(1, reversedBuilder.size)
         assertEquals(expected, reversedBuilder.build())
@@ -183,25 +183,25 @@ class PersistentHashSetBuilderTest {
     @Test
     fun `removeAll should remove elements stored in a bottom-level collision node`() {
         val builder = persistentHashSetOf(collidingKey1, collidingKey2).builder()
-        assertTrue(builder.removeAll(persistentHashSetOf(collidingKey1, sibling)))
+        assertTrue(builder.removeAll(persistentHashSetOf(collidingKey1, lastLevelSibling)))
         assertEquals(1, builder.size)
         assertEquals(persistentHashSetOf(collidingKey2), builder.build())
 
-        val reversedBuilder = persistentHashSetOf(collidingKey1, sibling).builder()
+        val reversedBuilder = persistentHashSetOf(collidingKey1, lastLevelSibling).builder()
         assertTrue(reversedBuilder.removeAll(persistentHashSetOf(collidingKey1, collidingKey2)))
         assertEquals(1, reversedBuilder.size)
-        assertEquals(persistentHashSetOf(sibling), reversedBuilder.build())
+        assertEquals(persistentHashSetOf(lastLevelSibling), reversedBuilder.build())
     }
 
     @Test
     fun `addAll should keep the stored element instance when the collision node is reached at the last level`() {
-        val builder = persistentHashSetOf(collidingKey1, sibling).builder()
+        val builder = persistentHashSetOf(collidingKey1, lastLevelSibling).builder()
 
         builder.addAll(persistentHashSetOf(collidingKey1.copy(), collidingKey2))
 
         assertEquals(3, builder.size)
         assertSame(collidingKey1, builder.single { it == collidingKey1 })
-        assertSame(sibling, builder.single { it == sibling })
+        assertSame(lastLevelSibling, builder.single { it == lastLevelSibling })
     }
 
     @Test
@@ -297,16 +297,16 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `addAll of the stored elements should not invalidate an iterator`() {
-        val builder = persistentHashSetOf(collidingKey1, collidingKey2, sibling).builder()
+        val builder = persistentHashSetOf(collidingKey1, collidingKey2, lastLevelSibling).builder()
 
         val iterator = builder.iterator()
         val visited = mutableListOf(iterator.next())
-        builder.addAll(persistentHashSetOf(collidingKey1, collidingKey2, sibling))
+        builder.addAll(persistentHashSetOf(collidingKey1, collidingKey2, lastLevelSibling))
         while (iterator.hasNext()) {
             visited.add(iterator.next())
         }
 
-        assertEquals(listOf(collidingKey1, collidingKey2, sibling), visited.sorted())
+        assertEquals(listOf(collidingKey1, collidingKey2, lastLevelSibling), visited.sorted())
     }
 
     @Test
@@ -322,7 +322,7 @@ class PersistentHashSetBuilderTest {
         assertEquals(disjointModCount + 1, disjoint.modCount)
 
         val collision =
-            persistentHashSetOf(collidingKey1, sibling).builder() as PersistentHashSetBuilder<IntWrapper>
+            persistentHashSetOf(collidingKey1, lastLevelSibling).builder() as PersistentHashSetBuilder<IntWrapper>
         val collisionModCount = collision.modCount
         collision.addAll(persistentHashSetOf(collidingKey2, collidingKey3))
         assertEquals(4, collision.size)
@@ -374,13 +374,13 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `retainAll should keep the stored element instance when the collision node is reached at the last level`() {
-        val builder = persistentHashSetOf(collidingKey1, collidingKey2, sibling).builder()
+        val builder = persistentHashSetOf(collidingKey1, collidingKey2, lastLevelSibling).builder()
 
-        assertTrue(builder.retainAll(persistentHashSetOf(collidingKey1.copy(), sibling.copy())))
+        assertTrue(builder.retainAll(persistentHashSetOf(collidingKey1.copy(), lastLevelSibling.copy())))
 
         assertEquals(2, builder.size)
         assertSame(collidingKey1, builder.single { it == collidingKey1 })
-        assertSame(sibling, builder.single { it == sibling })
+        assertSame(lastLevelSibling, builder.single { it == lastLevelSibling })
     }
 
     @Test
@@ -396,10 +396,10 @@ class PersistentHashSetBuilderTest {
         assertEquals(1, absentCell.size)
         assertSame(rootSibling, absentCell.single())
 
-        val collisionMiss = persistentHashSetOf(collidingKey1, collidingKey2, sibling).builder()
-        assertTrue(collisionMiss.retainAll(persistentHashSetOf(collidingKey3, sibling)))
+        val collisionMiss = persistentHashSetOf(collidingKey1, collidingKey2, lastLevelSibling).builder()
+        assertTrue(collisionMiss.retainAll(persistentHashSetOf(collidingKey3, lastLevelSibling)))
         assertEquals(1, collisionMiss.size)
-        assertSame(sibling, collisionMiss.single())
+        assertSame(lastLevelSibling, collisionMiss.single())
     }
 
     @Test
