@@ -262,7 +262,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
     public fun addAll(index: Int, c: Collection<@UnsafeVariance E>): PersistentList<E>
 
     /**
-     * Returns a new persistent list with the element at the specified [index] replaced with the specified [element].
+     * Returns a new persistent list with the element at the specified [index] replaced with the specified [element],
+     * or this instance if no modifications were made in the result of this operation.
      *
      * @throws IndexOutOfBoundsException if [index] is out of bounds of this list.
      */
@@ -270,7 +271,8 @@ public interface PersistentList<out E> : ImmutableList<E>, PersistentCollection<
         @Suppress("DEPRECATION") set(index, element)
 
     /**
-     * Returns a new persistent list with the element at the specified [index] replaced with the specified [element].
+     * Returns a new persistent list with the element at the specified [index] replaced with the specified [element],
+     * or this instance if no modifications were made in the result of this operation.
      *
      * Use the function [replacingAt] to make it clear that a new list is returned.
      *
