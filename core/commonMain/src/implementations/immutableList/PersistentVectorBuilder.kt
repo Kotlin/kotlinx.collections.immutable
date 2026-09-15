@@ -795,8 +795,12 @@ internal class PersistentVectorBuilder<E>(
         val newRootSize = unaffectedElementsCount + (buffers.size shl LOG_MAX_BUFFER_SIZE)
 
         root = retainFirst(newRoot, newRootSize)
-        tail = newTail
-        size = newRootSize + newTailSize
+        if (newTailSize == 0) {
+            pullLastBufferFromRoot(root, newRootSize, rootShift)
+        } else {
+            tail = newTail
+            size = newRootSize + newTailSize
+        }
 
         return true
     }
