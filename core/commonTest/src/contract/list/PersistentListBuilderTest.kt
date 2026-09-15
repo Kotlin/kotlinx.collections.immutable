@@ -367,6 +367,25 @@ class PersistentListBuilderTest {
     }
 
     @Test
+    fun `removeAll of an aligned suffix preserves the retained prefix and allows further additions`() {
+        val rows = listOf(100 to 64, 65 to 32, 1100 to 32, 1100 to 1024, 1100 to 1056, 100 to 0)
+        for ((size, retainedSize) in rows) {
+            val expected = List(retainedSize) { it }
+            for ((flavour, builder) in builders(size)) {
+                val message = "$flavour at size $size retaining $retainedSize"
+
+                assertTrue(builder.removeAll((retainedSize..<size).toList()), message)
+
+                assertEquals(expected, builder.toList(), message)
+                val built = builder.build()
+                builder.add(-1)
+                assertEquals(expected, built, message)
+                assertEquals(expected + (-1), builder.toList(), message)
+            }
+        }
+    }
+
+    @Test
     fun `removeAll whose contains throws removes the elements matched before the throw and keeps the rest at every depth`() {
         val rows = listOf(
             Triple(3, listOf(0), 1),
