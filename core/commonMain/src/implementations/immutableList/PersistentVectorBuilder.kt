@@ -652,11 +652,11 @@ internal class PersistentVectorBuilder<E>(
     }
 
     /**
-     * Extracts the last entirely filled leaf buffer from the trie of this vector and makes it a tail in this
+     * Extracts the last entirely filled leaf buffer from the trie of this builder and makes it the tail.
      *
      * Used when there are no elements left in current tail.
      *
-     * Requires the trie to contain at least one leaf buffer.
+     * A null [root], which comes with a [rootSize] and a [shift] of 0, empties this builder.
      */
     private fun pullLastBufferFromRoot(root: Array<Any?>?, rootSize: Int, shift: Int) {
         if (shift == 0) {
@@ -767,10 +767,6 @@ internal class PersistentVectorBuilder<E>(
         val newTailSize =
             recyclableRemoveAll(predicate, tail, tailSize, bufferSize, bufferRef, recyclableBuffers, buffers)
 
-        @Suppress("UNCHECKED_CAST")
-        val newTail = bufferRef.value as Array<Any?>
-        newTail.fill(null, newTailSize, MAX_BUFFER_SIZE)
-
         // build the root
         val newRoot = if (buffers.isEmpty()) {
             root!!
@@ -780,8 +776,15 @@ internal class PersistentVectorBuilder<E>(
         val newRootSize = unaffectedElementsCount + (buffers.size shl LOG_MAX_BUFFER_SIZE)
 
         root = retainFirst(newRoot, newRootSize)
-        tail = newTail
-        size = newRootSize + newTailSize
+        if (newTailSize == 0) {
+            pullLastBufferFromRoot(root, newRootSize, rootShift)
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            val newTail = bufferRef.value as Array<Any?>
+            newTail.fill(null, newTailSize, MAX_BUFFER_SIZE)
+            tail = newTail
+            size = newRootSize + newTailSize
+        }
 
         return true
     }
