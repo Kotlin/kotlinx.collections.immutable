@@ -5,6 +5,7 @@
 
 package tests.contract.map
 
+import kotlinx.collections.immutable.PersistentUnorderedMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentUnorderedMapOf
 import tests.IntWrapper
@@ -25,9 +26,7 @@ class PersistentHashMapBuilderTest {
     @Test
     fun `should correctly iterate after removing integer key and promotion colliding key during iteration`() {
         val removedKey = 0
-        val map: PersistentHashMap<Int, String> =
-            persistentUnorderedMapOf(1 to "a", 2 to "b", 3 to "c", removedKey to "y", 32 to "z")
-                    as PersistentHashMap<Int, String>
+        val map = persistentUnorderedMapOf(1 to "a", 2 to "b", 3 to "c", removedKey to "y", 32 to "z")
 
         validatePromotion(map, removedKey)
     }
@@ -35,17 +34,17 @@ class PersistentHashMapBuilderTest {
     @Test
     fun `should correctly iterate after removing IntWrapper key and promotion colliding key during iteration`() {
         val removedKey = IntWrapper(0, 0)
-        val map: PersistentHashMap<IntWrapper, String> = persistentUnorderedMapOf(
+        val map = persistentUnorderedMapOf(
             removedKey to "a",
             IntWrapper(1, 0) to "b",
             IntWrapper(2, 32) to "c",
             IntWrapper(3, 32) to "d"
-        ) as PersistentHashMap<IntWrapper, String>
+        )
 
         validatePromotion(map, removedKey)
     }
 
-    private fun <K> validatePromotion(map: PersistentHashMap<K, *>, removedKey: K) {
+    private fun <K> validatePromotion(map: PersistentUnorderedMap<K, *>, removedKey: K) {
         val builder = map.builder()
         val iterator = builder.entries.iterator()
 
@@ -75,8 +74,7 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `removing twice on iterators throws IllegalStateException`() {
-        val map: PersistentHashMap<Int, String> =
-            persistentUnorderedMapOf(1 to "a", 2 to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
+        val map = persistentUnorderedMapOf(1 to "a", 2 to "b", 3 to "c", 0 to "y", 32 to "z")
         val builder = map.builder()
         val iterator = builder.entries.iterator()
 
@@ -94,8 +92,7 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `removing elements from different iterators throws ConcurrentModificationException`() {
-        val map: PersistentHashMap<Int, String> =
-            persistentUnorderedMapOf(1 to "a", 2 to "b", 3 to "c", 0 to "y", 32 to "z") as PersistentHashMap<Int, String>
+        val map = persistentUnorderedMapOf(1 to "a", 2 to "b", 3 to "c", 0 to "y", 32 to "z")
         val builder = map.builder()
         val iterator1 = builder.entries.iterator()
         val iterator2 = builder.entries.iterator()
