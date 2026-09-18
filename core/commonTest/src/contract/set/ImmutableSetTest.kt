@@ -14,9 +14,9 @@ import tests.IntWrapper
 import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {
-    override fun <T> immutableSetOf(vararg elements: T) = persistentHashSetOf(*elements)
+    override fun <T> immutableSetOf(vararg elements: T) = persistentUnorderedSetOf(*elements)
     override fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>) {
-        assertNotSame(builder.build(), builder.toPersistentSet(), "toPersistent shouldn't call build()")
+        assertSame(builder.build(), builder.toPersistentSet(), "toPersistent should call build()")
     }
 
     @Test fun addAllElements() {
@@ -371,9 +371,9 @@ abstract class ImmutableSetTestBase {
         }
 
         testEqualsAndHashCode(set, setOf(*elements))
-        testEqualsAndHashCode(set, persistentHashSetOf(*elements))
+        testEqualsAndHashCode(set, persistentUnorderedSetOf(*elements))
         testEqualsAndHashCode(set, persistentSetOf(*elements))
-        testEqualsAndHashCode(set, persistentHashSetOf<E>().builder().apply { addAll(elements) })
+        testEqualsAndHashCode(set, persistentUnorderedSetOf<E>().builder().apply { addAll(elements) })
         testEqualsAndHashCode(set, persistentSetOf<E>().builder().apply { addAll(elements) })
     }
 

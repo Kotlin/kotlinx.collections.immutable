@@ -16,9 +16,9 @@ import tests.ObjectWrapper
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
-    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentHashMapOf(*pairs)
+    override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentUnorderedMapOf(*pairs)
     override fun <K, V> testBuilderToPersistentMap(builder: PersistentMap.Builder<K, V>) {
-        assertNotSame(builder.build(), builder.toPersistentMap(), "toPersistent shouldn't call build()")
+        assertSame(builder.build(), builder.toPersistentMap(), "toPersistent should call build()")
     }
 
     @Test fun putAllElements() {
@@ -364,9 +364,9 @@ abstract class ImmutableMapTest {
         }
 
         testEqualsAndHashCode(map, mapOf(*pairs))
-        testEqualsAndHashCode(map, persistentHashMapOf(*pairs))
+        testEqualsAndHashCode(map, persistentUnorderedMapOf(*pairs))
         testEqualsAndHashCode(map, persistentMapOf(*pairs))
-        testEqualsAndHashCode(map, persistentHashMapOf<K, V>().builder().apply { putAll(pairs) })
+        testEqualsAndHashCode(map, persistentUnorderedMapOf<K, V>().builder().apply { putAll(pairs) })
         testEqualsAndHashCode(map, persistentMapOf<K, V>().builder().apply { putAll(pairs) })
     }
 

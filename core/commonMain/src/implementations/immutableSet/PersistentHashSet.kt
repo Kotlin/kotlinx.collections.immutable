@@ -5,46 +5,45 @@
 
 package kotlinx.collections.immutable.implementations.immutableSet
 
-import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.PersistentUnorderedSet
 
 internal class PersistentHashSet<E>(
     internal val node: TrieNode<E>,
     override val size: Int
-) : AbstractSet<E>(), PersistentSet<E> {
+) : AbstractSet<E>(), PersistentUnorderedSet<E> {
     override fun contains(element: E): Boolean {
         return node.contains(element.hashCode(), element, 0)
     }
 
-    override fun adding(element: E): PersistentSet<E> {
+    override fun adding(element: E): PersistentHashSet<E> {
         val newNode = node.add(element.hashCode(), element, 0)
         if (node === newNode) return this
         return PersistentHashSet(newNode, size + 1)
     }
 
-    override fun addingAll(elements: Collection<E>): PersistentSet<E> {
+    override fun addingAll(elements: Collection<E>): PersistentHashSet<E> {
         if (elements.isEmpty()) return this
-        return this.mutate { it.addAll(elements) }
+        return builder().apply { addAll(elements) }.build()
     }
 
-    override fun removing(element: E): PersistentSet<E> {
+    override fun removing(element: E): PersistentHashSet<E> {
         val newNode = node.remove(element.hashCode(), element, 0)
         if (node === newNode) return this
         return PersistentHashSet(newNode, size - 1)
     }
 
-    override fun removingAll(elements: Collection<E>): PersistentSet<E> {
+    override fun removingAll(elements: Collection<E>): PersistentHashSet<E> {
         if (elements.isEmpty()) return this
-        return mutate { it.removeAll(elements) }
+        return builder().apply { removeAll(elements) }.build()
     }
 
-    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> {
-        return mutate { it.removeAll(predicate) }
+    override fun removingAll(predicate: (E) -> Boolean): PersistentHashSet<E> {
+        return builder().apply { removeAll(predicate) }.build()
     }
 
-    override fun retainingAll(elements: Collection<E>): PersistentSet<E> {
+    override fun retainingAll(elements: Collection<E>): PersistentHashSet<E> {
         if (elements.isEmpty()) return emptyOf()
-        return mutate { it.retainAll(elements) }
+        return builder().apply { retainAll(elements) }.build()
     }
 
     override fun containsAll(elements: Collection<E>): Boolean {
@@ -57,7 +56,7 @@ internal class PersistentHashSet<E>(
         return super.containsAll(elements)
     }
 
-    override fun cleared(): PersistentSet<E> {
+    override fun cleared(): PersistentHashSet<E> {
         return emptyOf()
     }
 
@@ -65,12 +64,14 @@ internal class PersistentHashSet<E>(
         return PersistentHashSetIterator(node)
     }
 
-    override fun builder(): PersistentSet.Builder<E> {
+    override fun builder(): PersistentHashSetBuilder<E> {
         return PersistentHashSetBuilder(this)
     }
 
     internal companion object {
         private val EMPTY = PersistentHashSet(TrieNode.EMPTY, 0)
-        internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
+
+        @Suppress("UNCHECKED_CAST")
+        internal fun <E> emptyOf(): PersistentHashSet<E> = EMPTY as PersistentHashSet<E>
     }
 }
