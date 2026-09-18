@@ -5,13 +5,13 @@
 
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
-import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.PersistentOrderedSet
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.assert
 
-internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
-    AbstractMutableSet<E>(), PersistentSet.Builder<E> {
-    private var builtSet: PersistentOrderedSet<E>? = set
+internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSetImpl<E>) :
+    AbstractMutableSet<E>(), PersistentOrderedSet.Builder<E> {
+    private var builtSet: PersistentOrderedSetImpl<E>? = set
     internal var firstElement = set.firstElement
     private var lastElement = set.lastElement
     internal val hashMapBuilder = set.hashMap.builder()
@@ -19,7 +19,7 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
     override val size: Int
         get() = hashMapBuilder.size
 
-    override fun build(): PersistentSet<E> {
+    override fun build(): PersistentOrderedSetImpl<E> {
         return builtSet?.also { set ->
             assert { hashMapBuilder.builtMap != null }
             assert { firstElement === set.firstElement }
@@ -27,7 +27,7 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         } ?: run {
             assert { hashMapBuilder.builtMap == null }
             val newMap = hashMapBuilder.build()
-            val newSet = PersistentOrderedSet(firstElement, lastElement, newMap)
+            val newSet = PersistentOrderedSetImpl(firstElement, lastElement, newMap)
             builtSet = newSet
             newSet
         }
@@ -101,7 +101,7 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedSet<*> -> hashMapBuilder.node.equalsWith(other.hashMap.node) { _, _ -> true }
+            is PersistentOrderedSetImpl<*> -> hashMapBuilder.node.equalsWith(other.hashMap.node) { _, _ -> true }
             is PersistentOrderedSetBuilder<*> ->
                 hashMapBuilder.node.equalsWith(other.hashMapBuilder.node) { _, _ -> true }
             else -> super.equals(other)

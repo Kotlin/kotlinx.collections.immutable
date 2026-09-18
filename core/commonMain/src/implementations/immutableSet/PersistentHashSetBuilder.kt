@@ -5,12 +5,12 @@
 
 package kotlinx.collections.immutable.implementations.immutableSet
 
-import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.PersistentUnorderedSet
 import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
-    AbstractMutableSet<E>(), PersistentSet.Builder<E> {
+    AbstractMutableSet<E>(), PersistentUnorderedSet.Builder<E> {
     private var builtSet: PersistentHashSet<E>? = set
     internal var ownership = MutabilityOwnership()
         private set

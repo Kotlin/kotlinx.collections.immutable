@@ -5,14 +5,14 @@
 
 package kotlinx.collections.immutable.implementations.immutableMap
 
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
+import kotlinx.collections.immutable.PersistentUnorderedMap
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapImpl
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
 import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) :
-    PersistentMap.Builder<K, V>, AbstractMutableMap<K, V>() {
+    PersistentUnorderedMap.Builder<K, V>, AbstractMutableMap<K, V>() {
     internal var builtMap: PersistentHashMap<K, V>? = map
         private set
     internal var ownership = MutabilityOwnership()
@@ -118,7 +118,7 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) :
         return when (other) {
             is PersistentHashMap<*, *> -> node.equalsWith(other.node) { a, b -> a == b }
             is PersistentHashMapBuilder<*, *> -> node.equalsWith(other.node) { a, b -> a == b }
-            is PersistentOrderedMap<*, *> -> node.equalsWith(other.hashMap.node) { a, b -> a == b.value }
+            is PersistentOrderedMapImpl<*, *> -> node.equalsWith(other.hashMap.node) { a, b -> a == b.value }
             is PersistentOrderedMapBuilder<*, *> -> node.equalsWith(other.hashMapBuilder.node) { a, b -> a == b.value }
             else -> super.equals(other)
         }
