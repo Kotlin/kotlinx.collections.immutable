@@ -107,36 +107,39 @@ public abstract interface class kotlinx/collections/immutable/ImmutableMap : jav
 public abstract interface class kotlinx/collections/immutable/ImmutableSet : java/util/Set, kotlin/jvm/internal/markers/KMappedMarker, kotlinx/collections/immutable/ImmutableCollection {
 }
 
-public final class kotlinx/collections/immutable/OrderedExtensionsKt {
-	public static final fun intersect (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+public final class kotlinx/collections/immutable/OrderedMapExtensionsKt {
 	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedMap;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedMap;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedMap;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedMap;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedMap;
-	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedSet;
-	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
-	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedSet;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentOrderedSet;
-	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedSet;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
 	public static final fun mutate (Lkotlinx/collections/immutable/PersistentOrderedMap;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentOrderedMap;
-	public static final fun mutate (Lkotlinx/collections/immutable/PersistentOrderedSet;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentOrderedSet;
 	public static final fun persistentOrderedMapOf ()Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun persistentOrderedMapOf ([Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentOrderedMap;
-	public static final fun persistentOrderedSetOf ()Lkotlinx/collections/immutable/PersistentOrderedSet;
-	public static final fun persistentOrderedSetOf ([Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedMap;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedMap;Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedMap;Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedMap;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedMap;[Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentOrderedMap;
-	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedSet;
-	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
-	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedSet;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentOrderedSet;
-	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedSet;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
 	public static final fun puttingAll (Lkotlinx/collections/immutable/PersistentOrderedMap;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun puttingAll (Lkotlinx/collections/immutable/PersistentOrderedMap;Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun puttingAll (Lkotlinx/collections/immutable/PersistentOrderedMap;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun puttingAll (Lkotlinx/collections/immutable/PersistentOrderedMap;[Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentOrderedMap;
 	public static final fun toPersistentOrderedMap (Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentOrderedMap;
+}
+
+public final class kotlinx/collections/immutable/OrderedSetExtensionsKt {
+	public static final fun intersect (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedSet;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun minus (Lkotlinx/collections/immutable/PersistentOrderedSet;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun mutate (Lkotlinx/collections/immutable/PersistentOrderedSet;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun persistentOrderedSetOf ()Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun persistentOrderedSetOf ([Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedSet;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedSet;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentOrderedSet;
+	public static final fun plus (Lkotlinx/collections/immutable/PersistentOrderedSet;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentOrderedSet;
 	public static final fun toPersistentOrderedSet (Ljava/lang/CharSequence;)Lkotlinx/collections/immutable/PersistentOrderedSet;
 	public static final fun toPersistentOrderedSet (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentOrderedSet;
 	public static final fun toPersistentOrderedSet (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentOrderedSet;
@@ -370,36 +373,39 @@ public final class kotlinx/collections/immutable/PersistentUnorderedSet$DefaultI
 	public static fun retainAll (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/util/Collection;)Lkotlinx/collections/immutable/PersistentSet;
 }
 
-public final class kotlinx/collections/immutable/UnorderedExtensionsKt {
-	public static final fun intersect (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+public final class kotlinx/collections/immutable/UnorderedMapExtensionsKt {
 	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedMap;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedMap;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedMap;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedMap;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
-	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
-	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
-	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
-	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedSet;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
 	public static final fun mutate (Lkotlinx/collections/immutable/PersistentUnorderedMap;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
-	public static final fun mutate (Lkotlinx/collections/immutable/PersistentUnorderedSet;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
 	public static final fun persistentUnorderedMapOf ()Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun persistentUnorderedMapOf ([Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
-	public static final fun persistentUnorderedSetOf ()Lkotlinx/collections/immutable/PersistentUnorderedSet;
-	public static final fun persistentUnorderedSetOf ([Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedMap;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedMap;Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedMap;Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedMap;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedMap;[Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
-	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
-	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
-	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
-	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedSet;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
 	public static final fun puttingAll (Lkotlinx/collections/immutable/PersistentUnorderedMap;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun puttingAll (Lkotlinx/collections/immutable/PersistentUnorderedMap;Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun puttingAll (Lkotlinx/collections/immutable/PersistentUnorderedMap;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun puttingAll (Lkotlinx/collections/immutable/PersistentUnorderedMap;[Lkotlin/Pair;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
 	public static final fun toPersistentUnorderedMap (Ljava/util/Map;)Lkotlinx/collections/immutable/PersistentUnorderedMap;
+}
+
+public final class kotlinx/collections/immutable/UnorderedSetExtensionsKt {
+	public static final fun intersect (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun minus (Lkotlinx/collections/immutable/PersistentUnorderedSet;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun mutate (Lkotlinx/collections/immutable/PersistentUnorderedSet;Lkotlin/jvm/functions/Function1;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun persistentUnorderedSetOf ()Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun persistentUnorderedSetOf ([Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedSet;Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
+	public static final fun plus (Lkotlinx/collections/immutable/PersistentUnorderedSet;[Ljava/lang/Object;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
 	public static final fun toPersistentUnorderedSet (Ljava/lang/CharSequence;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
 	public static final fun toPersistentUnorderedSet (Ljava/lang/Iterable;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
 	public static final fun toPersistentUnorderedSet (Lkotlin/sequences/Sequence;)Lkotlinx/collections/immutable/PersistentUnorderedSet;
