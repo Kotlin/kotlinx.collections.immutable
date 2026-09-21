@@ -135,4 +135,24 @@ class SetFlavorsTest {
         assertEquals(expected.map { it.toList() }, orderedResults.map { it.toList() })
         assertEquals(expected, unorderedResults)
     }
+
+    @Test
+    fun `intersect of a list is an ordered set`() {
+        val result = persistentListOf(3, 1, 2) intersect listOf(1, 3)
+        assertEquals(listOf(3, 1), assertIs<PersistentOrderedSet<Int>>(result).toList())
+    }
+
+    @Test
+    fun `converters return a custom implementation as is`() {
+        val ordered: PersistentOrderedSet<Int> = CustomOrderedSet(persistentOrderedSetOf(1))
+        assertSame(ordered, ordered.toPersistentOrderedSet())
+        assertSame(ordered, ordered.toPersistentSet())
+        val unordered: PersistentUnorderedSet<Int> = CustomUnorderedSet(persistentUnorderedSetOf(1))
+        assertSame(unordered, unordered.toPersistentUnorderedSet())
+        assertSame(unordered, unordered.toPersistentSet())
+    }
 }
+
+private class CustomOrderedSet<E>(set: PersistentOrderedSet<E>) : PersistentOrderedSet<E> by set
+
+private class CustomUnorderedSet<E>(set: PersistentUnorderedSet<E>) : PersistentUnorderedSet<E> by set

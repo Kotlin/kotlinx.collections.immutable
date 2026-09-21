@@ -131,4 +131,18 @@ class MapFlavorsTest {
         assertEquals(expected.map { it.toList() }, orderedResults.map { it.toList() })
         assertEquals(expected, unorderedResults)
     }
+
+    @Test
+    fun `converters return a custom implementation as is`() {
+        val ordered: PersistentOrderedMap<Int, Int> = CustomOrderedMap(persistentOrderedMapOf(1 to 10))
+        assertSame(ordered, ordered.toPersistentOrderedMap())
+        assertSame(ordered, ordered.toPersistentMap())
+        val unordered: PersistentUnorderedMap<Int, Int> = CustomUnorderedMap(persistentUnorderedMapOf(1 to 10))
+        assertSame(unordered, unordered.toPersistentUnorderedMap())
+        assertSame(unordered, unordered.toPersistentMap())
+    }
 }
+
+private class CustomOrderedMap<K, V>(map: PersistentOrderedMap<K, V>) : PersistentOrderedMap<K, V> by map
+
+private class CustomUnorderedMap<K, V>(map: PersistentUnorderedMap<K, V>) : PersistentUnorderedMap<K, V> by map
