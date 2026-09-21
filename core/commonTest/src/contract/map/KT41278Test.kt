@@ -79,7 +79,7 @@ class KT41278Test {
     }
 
     @Test
-    fun persistentHashMapBuilder() {
+    fun persistentUnorderedMapBuilder() {
         val mapLetterToIndex = persistentUnorderedMapOf<String, Int>().builder().apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
 
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
