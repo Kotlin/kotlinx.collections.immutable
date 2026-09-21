@@ -17,9 +17,6 @@ import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
     override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentUnorderedMapOf(*pairs)
-    override fun <K, V> testBuilderToPersistentMap(builder: PersistentMap.Builder<K, V>) {
-        assertSame(builder.build(), builder.toPersistentMap(), "toPersistent should call build()")
-    }
 
     @Test fun putAllElements() {
         run {
@@ -105,9 +102,6 @@ class ImmutableHashMapTest : ImmutableMapTest() {
 class ImmutableOrderedMapTest : ImmutableMapTest() {
     override fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
     override fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = true) }
-    override fun <K, V> testBuilderToPersistentMap(builder: PersistentMap.Builder<K, V>) {
-        assertSame(builder.build(), builder.toPersistentMap(), "toPersistent should call build()")
-    }
 
     @Test fun iterationOrder() {
         var map = immutableMapOf("x" to null, "y" to 1).toPersistentMap()
@@ -144,7 +138,6 @@ class ImmutableOrderedMapTest : ImmutableMapTest() {
 
 abstract class ImmutableMapTest {
     abstract fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V>
-    abstract fun <K, V> testBuilderToPersistentMap(builder: PersistentMap.Builder<K, V>)
 
     open fun <K, V> compareMaps(expected: Map<K, V>, actual: Map<K, V>) = compareMapsUnordered(expected, actual)
     fun <K, V> compareMapsUnordered(expected: Map<K, V>, actual: Map<K, V>) = compare(expected, actual) { mapBehavior(ordered = false) }
@@ -267,8 +260,7 @@ abstract class ImmutableMapTest {
 
         val map2 = builder.toImmutableMap()
         assertSame(map2, map, "toImmutable calls build()")
-
-        testBuilderToPersistentMap(builder)
+        assertSame(map, builder.toPersistentMap(), "toPersistent calls build()")
 
         with(map) {
             testMutation { put('K', null) }

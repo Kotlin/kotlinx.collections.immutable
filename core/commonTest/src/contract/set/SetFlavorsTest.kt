@@ -46,4 +46,66 @@ class SetFlavorsTest {
             assertSame(set, set.builder().toPersistentSet())
         }
     }
+
+    @Test
+    fun `flavor converters return the receiver`() {
+        val ordered = persistentOrderedSetOf('a', 'b')
+        assertSame(ordered, ordered.toPersistentOrderedSet())
+        assertSame(ordered, ordered.builder().toPersistentOrderedSet())
+        val unordered = persistentUnorderedSetOf('a', 'b')
+        assertSame(unordered, unordered.toPersistentUnorderedSet())
+        assertSame(unordered, unordered.builder().toPersistentUnorderedSet())
+    }
+
+    @Test
+    fun `flavor converters convert between flavors`() {
+        val ordered = persistentOrderedSetOf('c', 'a', 'b')
+        for (set in listOf(ordered, ordered.builder())) {
+            assertEquals(setOf('c', 'a', 'b'), assertIs<PersistentUnorderedSet<Char>>(set.toPersistentUnorderedSet()))
+        }
+        val unordered = persistentUnorderedSetOf('c', 'a', 'b')
+        for (set in listOf(unordered, unordered.builder())) {
+            assertEquals(set.toList(), assertIs<PersistentOrderedSet<Char>>(set.toPersistentOrderedSet()).toList())
+        }
+    }
+
+    @Test
+    fun `operations keep the flavor of the receiver`() {
+        val ordered: PersistentSet<Int> = persistentSetOf(1, 2)
+        for (set in listOf(ordered) + resultsOfOperations(ordered)) {
+            val _ = assertIs<PersistentOrderedSet<Int>>(set)
+        }
+        val unordered: PersistentSet<Int> = persistentUnorderedSetOf(1, 2)
+        for (set in listOf(unordered) + resultsOfOperations(unordered)) {
+            val _ = assertIs<PersistentUnorderedSet<Int>>(set)
+        }
+    }
+
+    private fun resultsOfOperations(set: PersistentSet<Int>): List<PersistentSet<Int>> {
+        val collection: PersistentCollection<Int> = set
+        return listOf(
+            set + 3, set + listOf(3), set + arrayOf(3), set + sequenceOf(3),
+            set - 1, set - listOf(1), set - arrayOf(1), set - sequenceOf(1),
+            set intersect listOf(1), collection intersect listOf(1),
+            set.mutate { it.add(3) }, set.builder().build(), set.cleared()
+        )
+    }
+
+    @Test
+    fun `flavor extensions declare the flavor of the receiver`() {
+        val ordered = persistentOrderedSetOf(1, 2)
+        val orderedResults: List<PersistentOrderedSet<Int>> = listOf(
+            ordered + 3, ordered + listOf(3), ordered + arrayOf(3), ordered + sequenceOf(3),
+            ordered - 1, ordered - listOf(1), ordered - arrayOf(1), ordered - sequenceOf(1),
+            ordered intersect listOf(1), ordered.mutate { it.add(3) }, ordered.builder().build()
+        )
+        val unordered = persistentUnorderedSetOf(1, 2)
+        val unorderedResults: List<PersistentUnorderedSet<Int>> = listOf(
+            unordered + 3, unordered + listOf(3), unordered + arrayOf(3), unordered + sequenceOf(3),
+            unordered - 1, unordered - listOf(1), unordered - arrayOf(1), unordered - sequenceOf(1),
+            unordered intersect listOf(1), unordered.mutate { it.add(3) }, unordered.builder().build()
+        )
+        val expected: List<PersistentSet<Int>> = orderedResults
+        assertEquals(expected, unorderedResults)
+    }
 }

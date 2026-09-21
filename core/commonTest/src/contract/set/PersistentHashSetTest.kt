@@ -5,7 +5,6 @@
 
 package tests.contract.set
 
-import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.intersect
 import kotlinx.collections.immutable.persistentUnorderedSetOf
 import kotlinx.collections.immutable.minus
@@ -57,8 +56,8 @@ class PersistentHashSetTest {
 
     @Test
     fun `after removing elements from one collision the remaining one element must be promoted to the root`() {
-        val set1: PersistentHashSet<Int> = persistentUnorderedSetOf(0, 32768, 65536) as PersistentHashSet<Int>
-        val set2: PersistentHashSet<Int> = persistentUnorderedSetOf(0, 32768) as PersistentHashSet<Int>
+        val set1 = persistentUnorderedSetOf(0, 32768, 65536)
+        val set2 = persistentUnorderedSetOf(0, 32768)
 
         val expected = persistentUnorderedSetOf(65536)
         val actual = set1 - set2
