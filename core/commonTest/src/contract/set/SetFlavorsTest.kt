@@ -95,15 +95,33 @@ class SetFlavorsTest {
     fun `flavor extensions declare the flavor of the receiver`() {
         val ordered = persistentOrderedSetOf(1, 2)
         val orderedResults: List<PersistentOrderedSet<Int>> = listOf(
-            ordered + 3, ordered + listOf(3), ordered + arrayOf(3), ordered + sequenceOf(3),
-            ordered - 1, ordered - listOf(1), ordered - arrayOf(1), ordered - sequenceOf(1), ordered.removingAll { it == 1 },
-            ordered intersect listOf(1), ordered.mutate { it.add(3) }, ordered.builder().build()
+            ordered + 3,
+            ordered + listOf(3),
+            ordered + arrayOf(3),
+            ordered + sequenceOf(3),
+            ordered - 1,
+            ordered - listOf(1),
+            ordered - arrayOf(1),
+            ordered - sequenceOf(1),
+            ordered.removingAll { it == 1 },
+            ordered intersect listOf(1),
+            ordered.mutate { it.add(3) },
+            ordered.builder().build()
         )
         val unordered = persistentUnorderedSetOf(1, 2)
         val unorderedResults: List<PersistentUnorderedSet<Int>> = listOf(
-            unordered + 3, unordered + listOf(3), unordered + arrayOf(3), unordered + sequenceOf(3),
-            unordered - 1, unordered - listOf(1), unordered - arrayOf(1), unordered - sequenceOf(1), unordered.removingAll { it == 1 },
-            unordered intersect listOf(1), unordered.mutate { it.add(3) }, unordered.builder().build()
+            unordered + 3,
+            unordered + listOf(3),
+            unordered + arrayOf(3),
+            unordered + sequenceOf(3),
+            unordered - 1,
+            unordered - listOf(1),
+            unordered - arrayOf(1),
+            unordered - sequenceOf(1),
+            unordered.removingAll { it == 1 },
+            unordered intersect listOf(1),
+            unordered.mutate { it.add(3) },
+            unordered.builder().build()
         )
         val expected = listOf(
             setOf(1, 2, 3), setOf(1, 2, 3), setOf(1, 2, 3), setOf(1, 2, 3),

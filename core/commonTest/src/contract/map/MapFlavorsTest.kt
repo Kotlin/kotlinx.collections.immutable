@@ -81,19 +81,39 @@ class MapFlavorsTest {
     fun `flavor extensions declare the flavor of the receiver`() {
         val ordered = persistentOrderedMapOf(1 to 10, 2 to 20)
         val orderedResults: List<PersistentOrderedMap<Int, Int>> = listOf(
-            ordered + (3 to 30), ordered + mapOf(3 to 30),
-            ordered + listOf(3 to 30), ordered + arrayOf(3 to 30), ordered + sequenceOf(3 to 30),
-            ordered.puttingAll(listOf(3 to 30)), ordered.puttingAll(arrayOf(3 to 30)), ordered.puttingAll(sequenceOf(3 to 30)),
-            ordered - 1, ordered - listOf(1), ordered - arrayOf(1), ordered - sequenceOf(1), ordered.removing(1, 10),
-            ordered.mutate { it[3] = 30 }, ordered.builder().build()
+            ordered + (3 to 30),
+            ordered + mapOf(3 to 30),
+            ordered + listOf(3 to 30),
+            ordered + arrayOf(3 to 30),
+            ordered + sequenceOf(3 to 30),
+            ordered.puttingAll(listOf(3 to 30)),
+            ordered.puttingAll(arrayOf(3 to 30)),
+            ordered.puttingAll(sequenceOf(3 to 30)),
+            ordered - 1,
+            ordered - listOf(1),
+            ordered - arrayOf(1),
+            ordered - sequenceOf(1),
+            ordered.removing(1, 10),
+            ordered.mutate { it[3] = 30 },
+            ordered.builder().build()
         )
         val unordered = persistentUnorderedMapOf(1 to 10, 2 to 20)
         val unorderedResults: List<PersistentUnorderedMap<Int, Int>> = listOf(
-            unordered + (3 to 30), unordered + mapOf(3 to 30),
-            unordered + listOf(3 to 30), unordered + arrayOf(3 to 30), unordered + sequenceOf(3 to 30),
-            unordered.puttingAll(listOf(3 to 30)), unordered.puttingAll(arrayOf(3 to 30)), unordered.puttingAll(sequenceOf(3 to 30)),
-            unordered - 1, unordered - listOf(1), unordered - arrayOf(1), unordered - sequenceOf(1), unordered.removing(1, 10),
-            unordered.mutate { it[3] = 30 }, unordered.builder().build()
+            unordered + (3 to 30),
+            unordered + mapOf(3 to 30),
+            unordered + listOf(3 to 30),
+            unordered + arrayOf(3 to 30),
+            unordered + sequenceOf(3 to 30),
+            unordered.puttingAll(listOf(3 to 30)),
+            unordered.puttingAll(arrayOf(3 to 30)),
+            unordered.puttingAll(sequenceOf(3 to 30)),
+            unordered - 1,
+            unordered - listOf(1),
+            unordered - arrayOf(1),
+            unordered - sequenceOf(1),
+            unordered.removing(1, 10),
+            unordered.mutate { it[3] = 30 },
+            unordered.builder().build()
         )
         val with3 = mapOf(1 to 10, 2 to 20, 3 to 30)
         val without1 = mapOf(2 to 20)
