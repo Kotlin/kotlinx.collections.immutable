@@ -545,7 +545,8 @@ public fun <E> immutableSetOf(): PersistentSet<E> = persistentSetOf()
  * Order of the elements in the returned set is unspecified.
  */
 @Deprecated("Use persistentUnorderedSetOf instead.", ReplaceWith("persistentUnorderedSetOf(*elements)"))
-public fun <E> immutableHashSetOf(vararg elements: E): PersistentSet<E> = persistentUnorderedSetOf(*elements)
+public fun <E> immutableHashSetOf(vararg elements: E): PersistentSet<E> =
+    persistentUnorderedSetOf<E>().addingAll(elements.asList())
 
 
 /**
@@ -568,7 +569,8 @@ public fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> 
  * Order of the entries in the returned map is unspecified.
  */
 @Deprecated("Use persistentUnorderedMapOf instead.", ReplaceWith("persistentUnorderedMapOf(*pairs)"))
-public fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentUnorderedMapOf(*pairs)
+public fun <K, V> immutableHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> =
+    persistentUnorderedMapOf<K, V>().puttingAll(pairs)
 
 
 /**
