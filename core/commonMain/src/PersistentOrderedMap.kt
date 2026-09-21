@@ -31,9 +31,6 @@ public interface PersistentOrderedMap<K, out V> : PersistentMap<K, V> {
 
     override fun cleared(): PersistentOrderedMap<K, V>
 
-    /**
-     * Returns a new builder with the same contents and iteration order as this map.
-     */
     override fun builder(): Builder<K, @UnsafeVariance V>
 
     /**
@@ -43,9 +40,6 @@ public interface PersistentOrderedMap<K, out V> : PersistentMap<K, V> {
      * [PersistentOrderedMap] contract. Modifications do not affect previously built maps.
      */
     public interface Builder<K, V> : PersistentMap.Builder<K, V> {
-        /**
-         * Returns an ordered persistent map with the same contents and iteration order as this builder.
-         */
         override fun build(): PersistentOrderedMap<K, V>
     }
 }

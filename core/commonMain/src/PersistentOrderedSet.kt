@@ -33,9 +33,6 @@ public interface PersistentOrderedSet<out E> : PersistentSet<E> {
 
     override fun cleared(): PersistentOrderedSet<E>
 
-    /**
-     * Returns a new builder with the same contents and iteration order as this set.
-     */
     override fun builder(): Builder<@UnsafeVariance E>
 
     /**
@@ -45,9 +42,6 @@ public interface PersistentOrderedSet<out E> : PersistentSet<E> {
      * Modifications do not affect previously built sets.
      */
     public interface Builder<E> : PersistentSet.Builder<E> {
-        /**
-         * Returns an ordered persistent set with the same contents and iteration order as this builder.
-         */
         override fun build(): PersistentOrderedSet<E>
     }
 }
