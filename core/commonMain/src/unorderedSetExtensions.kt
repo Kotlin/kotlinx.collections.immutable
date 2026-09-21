@@ -28,7 +28,8 @@ public inline operator fun <E> PersistentUnorderedSet<E>.plus(element: E): Persi
  * Returns a new persistent set with the specified [element] removed,
  * or this instance if there is no such element in this set.
  */
-public inline operator fun <E> PersistentUnorderedSet<E>.minus(element: E): PersistentUnorderedSet<E> = removing(element)
+public inline operator fun <E> PersistentUnorderedSet<E>.minus(element: E): PersistentUnorderedSet<E> =
+    removing(element)
 
 /**
  * Returns a new persistent set with elements of the specified [elements] collection added,
@@ -41,13 +42,15 @@ public operator fun <E> PersistentUnorderedSet<E>.plus(elements: Iterable<E>): P
  * Returns a new persistent set with elements of the specified [elements] array added,
  * or this instance if it already contains every element of the specified array.
  */
-public operator fun <E> PersistentUnorderedSet<E>.plus(elements: Array<out E>): PersistentUnorderedSet<E> = mutate { it.addAll(elements) }
+public operator fun <E> PersistentUnorderedSet<E>.plus(elements: Array<out E>): PersistentUnorderedSet<E> =
+    mutate { it.addAll(elements) }
 
 /**
  * Returns a new persistent set with elements of the specified [elements] sequence added,
  * or this instance if it already contains every element of the specified sequence.
  */
-public operator fun <E> PersistentUnorderedSet<E>.plus(elements: Sequence<E>): PersistentUnorderedSet<E> = mutate { it.addAll(elements) }
+public operator fun <E> PersistentUnorderedSet<E>.plus(elements: Sequence<E>): PersistentUnorderedSet<E> =
+    mutate { it.addAll(elements) }
 
 /**
  * Returns a new persistent set containing all elements of this set

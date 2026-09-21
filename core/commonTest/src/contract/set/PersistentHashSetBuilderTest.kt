@@ -5,7 +5,7 @@
 
 package tests.contract.set
 
-import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
+import kotlinx.collections.immutable.PersistentUnorderedSet
 import kotlinx.collections.immutable.persistentUnorderedSetOf
 import tests.IntWrapper
 import kotlin.test.Test
@@ -24,9 +24,7 @@ class PersistentHashSetBuilderTest {
     @Test
     fun `should correctly iterate after removing integer element`() {
         val removedElement = 0
-        val set: PersistentHashSet<Int> =
-            persistentUnorderedSetOf(1, 2, 3, removedElement, 32)
-                    as PersistentHashSet<Int>
+        val set = persistentUnorderedSetOf(1, 2, 3, removedElement, 32)
 
         validate(set, removedElement)
     }
@@ -34,17 +32,17 @@ class PersistentHashSetBuilderTest {
     @Test
     fun `should correctly iterate after removing IntWrapper element`() {
         val removedElement = IntWrapper(0, 0)
-        val set: PersistentHashSet<IntWrapper> = persistentUnorderedSetOf(
+        val set = persistentUnorderedSetOf(
             removedElement,
             IntWrapper(1, 0),
             IntWrapper(2, 32),
             IntWrapper(3, 32)
-        ) as PersistentHashSet<IntWrapper>
+        )
 
         validate(set, removedElement)
     }
 
-    private fun <E> validate(set: PersistentHashSet<E>, removedElement: E) {
+    private fun <E> validate(set: PersistentUnorderedSet<E>, removedElement: E) {
         val builder = set.builder()
         val iterator = builder.iterator()
 
@@ -73,8 +71,7 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `removing twice on iterators throws IllegalStateException`() {
-        val set: PersistentHashSet<Int> =
-            persistentUnorderedSetOf(1, 2, 3, 0, 32) as PersistentHashSet<Int>
+        val set = persistentUnorderedSetOf(1, 2, 3, 0, 32)
         val builder = set.builder()
         val iterator = builder.iterator()
 
@@ -92,8 +89,7 @@ class PersistentHashSetBuilderTest {
 
     @Test
     fun `removing elements from different iterators throws ConcurrentModificationException`() {
-        val set: PersistentHashSet<Int> =
-            persistentUnorderedSetOf(1, 2, 3, 0, 32) as PersistentHashSet<Int>
+        val set = persistentUnorderedSetOf(1, 2, 3, 0, 32)
         val builder = set.builder()
         val iterator1 = builder.iterator()
         val iterator2 = builder.iterator()
