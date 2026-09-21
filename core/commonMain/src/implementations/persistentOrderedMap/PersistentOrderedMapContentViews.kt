@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -9,7 +9,7 @@ import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.internal.containsEntry
 
-internal class PersistentOrderedMapEntries<K, V>(private val map: PersistentOrderedMap<K, V>) :
+internal class PersistentOrderedMapEntries<K, V>(private val map: PersistentOrderedMapImpl<K, V>) :
     ImmutableSet<Map.Entry<K, V>>, AbstractSet<Map.Entry<K, V>>() {
     override val size: Int get() = map.size
 
@@ -22,7 +22,7 @@ internal class PersistentOrderedMapEntries<K, V>(private val map: PersistentOrde
     }
 }
 
-internal class PersistentOrderedMapKeys<K, V>(private val map: PersistentOrderedMap<K, V>) :
+internal class PersistentOrderedMapKeys<K, V>(private val map: PersistentOrderedMapImpl<K, V>) :
     ImmutableSet<K>, AbstractSet<K>() {
     override val size: Int
         get() = map.size
@@ -36,7 +36,7 @@ internal class PersistentOrderedMapKeys<K, V>(private val map: PersistentOrdered
     }
 }
 
-internal class PersistentOrderedMapValues<K, V>(private val map: PersistentOrderedMap<K, V>) :
+internal class PersistentOrderedMapValues<K, V>(private val map: PersistentOrderedMapImpl<K, V>) :
     ImmutableCollection<V>, AbstractCollection<V>() {
     override val size: Int
         get() = map.size

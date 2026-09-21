@@ -34,6 +34,8 @@ public interface ImmutableMap<K, out V> : Map<K, V> {
  * the value corresponding to each key. Map keys are unique; the map holds only one value for each key.
  *
  * Modification operations return new instances of the persistent map with the modification applied.
+ * Iteration order depends on the implementation. [PersistentOrderedMap] preserves key insertion order,
+ * while [PersistentUnorderedMap] leaves iteration order unspecified.
  *
  * @param K the type of map keys. The map is invariant on its key type.
  * @param V the type of map values. The persistent map is covariant on its value type.

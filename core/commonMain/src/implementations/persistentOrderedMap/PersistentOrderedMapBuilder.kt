@@ -1,19 +1,19 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
 package kotlinx.collections.immutable.implementations.persistentOrderedMap
 
-import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.PersistentOrderedMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.assert
 
-internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>) :
-    AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
-    private var builtMap: PersistentOrderedMap<K, V>? = map
+internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMapImpl<K, V>) :
+    AbstractMutableMap<K, V>(), PersistentOrderedMap.Builder<K, V> {
+    private var builtMap: PersistentOrderedMapImpl<K, V>? = map
 
     internal var firstKey = map.firstKey
         private set
@@ -24,7 +24,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
 
     override val size: Int get() = hashMapBuilder.size
 
-    override fun build(): PersistentMap<K, V> {
+    override fun build(): PersistentOrderedMapImpl<K, V> {
         return builtMap?.also { map ->
             assert { hashMapBuilder.builtMap != null }
             assert { firstKey === map.firstKey }
@@ -32,7 +32,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         } ?: run {
             assert { hashMapBuilder.builtMap == null }
             val newHashMap = hashMapBuilder.build()
-            val newOrdered = PersistentOrderedMap(firstKey, lastKey, newHashMap)
+            val newOrdered = PersistentOrderedMapImpl(firstKey, lastKey, newHashMap)
             builtMap = newOrdered
             newOrdered
         }
@@ -140,7 +140,7 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedMap<*, *> ->
+            is PersistentOrderedMapImpl<*, *> ->
                 hashMapBuilder.node.equalsWith(other.hashMap.node) { a, b -> a.value == b.value }
             is PersistentOrderedMapBuilder<*, *> ->
                 hashMapBuilder.node.equalsWith(other.hashMapBuilder.node) { a, b -> a.value == b.value }

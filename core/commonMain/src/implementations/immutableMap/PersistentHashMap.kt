@@ -7,15 +7,14 @@ package kotlinx.collections.immutable.implementations.immutableMap
 
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.ImmutableSet
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMap
+import kotlinx.collections.immutable.PersistentUnorderedMap
+import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapImpl
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapBuilder
-import kotlinx.collections.immutable.mutate
 
 internal class PersistentHashMap<K, V>(
     internal val node: TrieNode<K, V>,
     override val size: Int
-) : AbstractMap<K, V>(), PersistentMap<K, V> {
+) : AbstractMap<K, V>(), PersistentUnorderedMap<K, V> {
 
     override val keys: ImmutableSet<K>
         get() {
@@ -73,13 +72,13 @@ internal class PersistentHashMap<K, V>(
         return PersistentHashMap(newNode, size - 1)
     }
 
-    override fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> {
+    override fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentHashMap<K, V> {
         if (m.isEmpty()) return this
-        return this.mutate { it.putAll(m) }
+        return builder().apply { putAll(m) }.build()
     }
 
-    override fun cleared(): PersistentMap<K, V> {
-        return PersistentHashMap.emptyOf()
+    override fun cleared(): PersistentHashMap<K, V> {
+        return emptyOf()
     }
 
     override fun builder(): PersistentHashMapBuilder<K, V> {
@@ -92,7 +91,7 @@ internal class PersistentHashMap<K, V>(
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedMap<*, *> -> node.equalsWith(other.hashMap.node) { a, b -> a == b.value }
+            is PersistentOrderedMapImpl<*, *> -> node.equalsWith(other.hashMap.node) { a, b -> a == b.value }
             is PersistentOrderedMapBuilder<*, *> -> node.equalsWith(other.hashMapBuilder.node) { a, b -> a == b.value }
             is PersistentHashMap<*, *> -> node.equalsWith(other.node) { a, b -> a == b }
             is PersistentHashMapBuilder<*, *> -> node.equalsWith(other.node) { a, b -> a == b }
