@@ -13,14 +13,20 @@ class MapFlavorsTest {
     @Test
     fun `factories and converters return expected maps`() {
         val source: Map<Int, Int> = linkedMapOf(3 to 30, 1 to 10)
-        for (map in listOf(persistentOrderedMapOf(3 to 30, 1 to 10), source.toPersistentOrderedMap())) {
-            assertEquals(source.toList(), assertIs<PersistentOrderedMap<Int, Int>>(map).toList())
+        val orderedMaps: List<PersistentOrderedMap<Int, Int>> =
+            listOf(persistentOrderedMapOf(3 to 30, 1 to 10), source.toPersistentOrderedMap())
+        for (map in orderedMaps) {
+            assertEquals(source.toList(), map.toList())
         }
-        for (map in listOf(persistentUnorderedMapOf(3 to 30, 1 to 10), source.toPersistentUnorderedMap())) {
-            assertEquals(source, assertIs<PersistentUnorderedMap<Int, Int>>(map))
+        val unorderedMaps: List<PersistentUnorderedMap<Int, Int>> =
+            listOf(persistentUnorderedMapOf(3 to 30, 1 to 10), source.toPersistentUnorderedMap())
+        for (map in unorderedMaps) {
+            assertEquals(source, map)
         }
-        assertEquals(emptyMap(), assertIs<PersistentOrderedMap<Int, Int>>(persistentOrderedMapOf<Int, Int>()))
-        assertEquals(emptyMap(), assertIs<PersistentUnorderedMap<Int, Int>>(persistentUnorderedMapOf<Int, Int>()))
+        val emptyOrdered: PersistentOrderedMap<Int, Int> = persistentOrderedMapOf()
+        val emptyUnordered: PersistentUnorderedMap<Int, Int> = persistentUnorderedMapOf()
+        assertEquals(emptyMap(), emptyOrdered)
+        assertEquals(emptyMap(), emptyUnordered)
     }
 
     @Test

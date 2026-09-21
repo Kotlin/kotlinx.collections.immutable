@@ -13,26 +13,30 @@ class SetFlavorsTest {
     @Test
     fun `factories and converters return expected sets`() {
         val elements = listOf('c', 'a', 'b', 'c')
-        for (set in listOf(
+        val orderedSets: List<PersistentOrderedSet<Char>> = listOf(
             persistentOrderedSetOf('c', 'a', 'b', 'c'),
             elements.toPersistentOrderedSet(),
             elements.toTypedArray().toPersistentOrderedSet(),
             elements.asSequence().toPersistentOrderedSet(),
             "cabc".toPersistentOrderedSet()
-        )) {
-            assertEquals(listOf('c', 'a', 'b'), assertIs<PersistentOrderedSet<Char>>(set).toList())
+        )
+        for (set in orderedSets) {
+            assertEquals(listOf('c', 'a', 'b'), set.toList())
         }
-        for (set in listOf(
+        val unorderedSets: List<PersistentUnorderedSet<Char>> = listOf(
             persistentUnorderedSetOf('c', 'a', 'b', 'c'),
             elements.toPersistentUnorderedSet(),
             elements.toTypedArray().toPersistentUnorderedSet(),
             elements.asSequence().toPersistentUnorderedSet(),
             "cabc".toPersistentUnorderedSet()
-        )) {
-            assertEquals(setOf('c', 'a', 'b'), assertIs<PersistentUnorderedSet<Char>>(set))
+        )
+        for (set in unorderedSets) {
+            assertEquals(setOf('c', 'a', 'b'), set)
         }
-        assertEquals(emptySet(), assertIs<PersistentOrderedSet<Char>>(persistentOrderedSetOf<Char>()))
-        assertEquals(emptySet(), assertIs<PersistentUnorderedSet<Char>>(persistentUnorderedSetOf<Char>()))
+        val emptyOrdered: PersistentOrderedSet<Char> = persistentOrderedSetOf()
+        val emptyUnordered: PersistentUnorderedSet<Char> = persistentUnorderedSetOf()
+        assertEquals(emptySet(), emptyOrdered)
+        assertEquals(emptySet(), emptyUnordered)
     }
 
     @Test
