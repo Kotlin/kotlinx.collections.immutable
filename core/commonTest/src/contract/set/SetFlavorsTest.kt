@@ -85,7 +85,7 @@ class SetFlavorsTest {
         val collection: PersistentCollection<Int> = set
         return listOf(
             set + 3, set + listOf(3), set + arrayOf(3), set + sequenceOf(3),
-            set - 1, set - listOf(1), set - arrayOf(1), set - sequenceOf(1),
+            set - 1, set - listOf(1), set - arrayOf(1), set - sequenceOf(1), set.removingAll { it == 1 },
             set intersect listOf(1), collection intersect listOf(1),
             set.mutate { it.add(3) }, set.builder().build(), set.cleared()
         )
@@ -96,16 +96,21 @@ class SetFlavorsTest {
         val ordered = persistentOrderedSetOf(1, 2)
         val orderedResults: List<PersistentOrderedSet<Int>> = listOf(
             ordered + 3, ordered + listOf(3), ordered + arrayOf(3), ordered + sequenceOf(3),
-            ordered - 1, ordered - listOf(1), ordered - arrayOf(1), ordered - sequenceOf(1),
+            ordered - 1, ordered - listOf(1), ordered - arrayOf(1), ordered - sequenceOf(1), ordered.removingAll { it == 1 },
             ordered intersect listOf(1), ordered.mutate { it.add(3) }, ordered.builder().build()
         )
         val unordered = persistentUnorderedSetOf(1, 2)
         val unorderedResults: List<PersistentUnorderedSet<Int>> = listOf(
             unordered + 3, unordered + listOf(3), unordered + arrayOf(3), unordered + sequenceOf(3),
-            unordered - 1, unordered - listOf(1), unordered - arrayOf(1), unordered - sequenceOf(1),
+            unordered - 1, unordered - listOf(1), unordered - arrayOf(1), unordered - sequenceOf(1), unordered.removingAll { it == 1 },
             unordered intersect listOf(1), unordered.mutate { it.add(3) }, unordered.builder().build()
         )
-        val expected: List<PersistentSet<Int>> = orderedResults
+        val expected = listOf(
+            setOf(1, 2, 3), setOf(1, 2, 3), setOf(1, 2, 3), setOf(1, 2, 3),
+            setOf(2), setOf(2), setOf(2), setOf(2), setOf(2),
+            setOf(1), setOf(1, 2, 3), setOf(1, 2)
+        )
+        assertEquals(expected.map { it.toList() }, orderedResults.map { it.toList() })
         assertEquals(expected, unorderedResults)
     }
 }
