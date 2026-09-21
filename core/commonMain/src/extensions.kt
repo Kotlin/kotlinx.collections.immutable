@@ -516,7 +516,8 @@ public fun <K, V> persistentHashMapOf(): PersistentMap<K, V> = persistentUnorder
  * Returns a new persistent list of the specified elements.
  */
 @Deprecated("Use persistentListOf instead.", ReplaceWith("persistentListOf(*elements)"))
-public fun <E> immutableListOf(vararg elements: E): PersistentList<E> = persistentListOf(*elements)
+public fun <E> immutableListOf(vararg elements: E): PersistentList<E> =
+    persistentListOf<E>().addingAll(elements.asList())
 
 /**
  * Returns an empty persistent list.
@@ -531,7 +532,8 @@ public fun <E> immutableListOf(): PersistentList<E> = persistentListOf()
  * Elements of the returned set are iterated in the order they were specified.
  */
 @Deprecated("Use persistentSetOf instead.", ReplaceWith("persistentSetOf(*elements)"))
-public fun <E> immutableSetOf(vararg elements: E): PersistentSet<E> = persistentSetOf(*elements)
+public fun <E> immutableSetOf(vararg elements: E): PersistentSet<E> =
+    persistentSetOf<E>().addingAll(elements.asList())
 
 /**
  * Returns an empty persistent set.
@@ -559,7 +561,8 @@ public fun <E> immutableHashSetOf(vararg elements: E): PersistentSet<E> =
  * Entries of the map are iterated in the order they were specified.
  */
 @Deprecated("Use persistentMapOf instead.", ReplaceWith("persistentMapOf(*pairs)"))
-public fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = persistentMapOf(*pairs)
+public fun <K, V> immutableMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> =
+    persistentMapOf<K, V>().puttingAll(pairs)
 
 /**
  * Returns a new persistent map with the specified contents, given as a list of pairs
