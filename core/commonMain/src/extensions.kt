@@ -695,8 +695,8 @@ public fun CharSequence.toPersistentSet(): PersistentSet<Char> =
 /**
  * Returns a persistent set containing all elements from this iterable.
  *
- * If the receiver is already a persistent hash set, returns it as is.
- * If the receiver is a persistent hash set builder, calls `build` on it and returns the result.
+ * If the receiver is already a persistent unordered set, returns it as is.
+ * If the receiver is a persistent unordered set builder, calls `build` on it and returns the result.
  *
  * Order of the elements in the returned set is unspecified.
  *
@@ -767,8 +767,8 @@ public fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V> =
 /**
  * Returns a persistent map containing all entries from this map.
  *
- * If the receiver is already a persistent hash map, returns it as is.
- * If the receiver is a persistent hash map builder, calls `build` on it and returns the result.
+ * If the receiver is already a persistent unordered map, returns it as is.
+ * If the receiver is a persistent unordered map builder, calls `build` on it and returns the result.
  *
  * Order of the entries in the returned map is unspecified.
  *
