@@ -73,7 +73,7 @@ class MapFlavorsTest {
     private fun resultsOfOperations(map: PersistentMap<Int, Int>): List<PersistentMap<Int, Int>> = listOf(
         map + (3 to 30), map + mapOf(3 to 30), map + listOf(3 to 30), map + arrayOf(3 to 30), map + sequenceOf(3 to 30),
         map.puttingAll(listOf(3 to 30)), map.puttingAll(arrayOf(3 to 30)), map.puttingAll(sequenceOf(3 to 30)),
-        map - 1, map - listOf(1), map - arrayOf(1), map - sequenceOf(1),
+        map - 1, map - listOf(1), map - arrayOf(1), map - sequenceOf(1), map.removing(1, 10),
         map.mutate { it[3] = 30 }, map.builder().build(), map.cleared()
     )
 
@@ -84,7 +84,7 @@ class MapFlavorsTest {
             ordered + (3 to 30), ordered + mapOf(3 to 30),
             ordered + listOf(3 to 30), ordered + arrayOf(3 to 30), ordered + sequenceOf(3 to 30),
             ordered.puttingAll(listOf(3 to 30)), ordered.puttingAll(arrayOf(3 to 30)), ordered.puttingAll(sequenceOf(3 to 30)),
-            ordered - 1, ordered - listOf(1), ordered - arrayOf(1), ordered - sequenceOf(1),
+            ordered - 1, ordered - listOf(1), ordered - arrayOf(1), ordered - sequenceOf(1), ordered.removing(1, 10),
             ordered.mutate { it[3] = 30 }, ordered.builder().build()
         )
         val unordered = persistentUnorderedMapOf(1 to 10, 2 to 20)
@@ -92,10 +92,17 @@ class MapFlavorsTest {
             unordered + (3 to 30), unordered + mapOf(3 to 30),
             unordered + listOf(3 to 30), unordered + arrayOf(3 to 30), unordered + sequenceOf(3 to 30),
             unordered.puttingAll(listOf(3 to 30)), unordered.puttingAll(arrayOf(3 to 30)), unordered.puttingAll(sequenceOf(3 to 30)),
-            unordered - 1, unordered - listOf(1), unordered - arrayOf(1), unordered - sequenceOf(1),
+            unordered - 1, unordered - listOf(1), unordered - arrayOf(1), unordered - sequenceOf(1), unordered.removing(1, 10),
             unordered.mutate { it[3] = 30 }, unordered.builder().build()
         )
-        val expected: List<PersistentMap<Int, Int>> = orderedResults
+        val with3 = mapOf(1 to 10, 2 to 20, 3 to 30)
+        val without1 = mapOf(2 to 20)
+        val expected = listOf(
+            with3, with3, with3, with3, with3, with3, with3, with3,
+            without1, without1, without1, without1, without1,
+            with3, mapOf(1 to 10, 2 to 20)
+        )
+        assertEquals(expected.map { it.toList() }, orderedResults.map { it.toList() })
         assertEquals(expected, unorderedResults)
     }
 }
