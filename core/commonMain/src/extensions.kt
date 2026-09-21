@@ -234,8 +234,9 @@ public infix fun <E> PersistentSet<E>.intersect(elements: Iterable<E>): Persiste
     if (elements is Collection) retainingAll(elements) else mutate { it.retainAll(elements) }
 
 /**
- * Returns a new persistent set with elements in this collection that are also
- * contained in the specified [elements] collection.
+ * Returns a persistent set with elements in this collection that are also
+ * contained in the specified [elements] collection,
+ * or this instance if it is a persistent set and no modifications were made in the result of this operation.
  */
 public infix fun <E> PersistentCollection<E>.intersect(elements: Iterable<E>): PersistentSet<E> =
     this.toPersistentSet().intersect(elements)
