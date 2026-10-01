@@ -307,7 +307,7 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(map: Map<out K, V>): Persis
  * Old functions mimicking [MutableMap] names, like this one,
  * were deprecated and will be removed in future releases. Refer to the
  * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
@@ -332,7 +332,7 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Iterable<Pair<K, V>>
  * Old functions mimicking [MutableMap] names, like this one,
  * were deprecated and will be removed in future releases.
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
@@ -357,7 +357,7 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Array<out Pair<K, V>
  * Old functions mimicking [MutableMap] names, like this one,
  * were deprecated and will be removed in future releases.
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
@@ -382,7 +382,7 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Sequence<Pair<K, V>>
  * Old functions mimicking [MutableMap] names, like this one,
  * were deprecated and will be removed in future releases.
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
@@ -456,7 +456,7 @@ public fun <E> persistentSetOf(): PersistentSet<E> = PersistentOrderedSetImpl.em
  * Order of the elements in the returned set is unspecified.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use persistentUnorderedSetOf instead.", ReplaceWith("persistentUnorderedSetOf(*elements)"))
 public fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> =
@@ -466,7 +466,7 @@ public fun <E> persistentHashSetOf(vararg elements: E): PersistentSet<E> =
  * Returns an empty persistent set.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use persistentUnorderedSetOf instead.", ReplaceWith("persistentUnorderedSetOf()"))
 public fun <E> persistentHashSetOf(): PersistentSet<E> = persistentUnorderedSetOf()
@@ -497,7 +497,7 @@ public fun <K, V> persistentMapOf(): PersistentMap<K, V> = PersistentOrderedMapI
  * Order of the entries in the returned map is unspecified.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use persistentUnorderedMapOf instead.", ReplaceWith("persistentUnorderedMapOf(*pairs)"))
 public fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> =
@@ -507,7 +507,7 @@ public fun <K, V> persistentHashMapOf(vararg pairs: Pair<K, V>): PersistentMap<K
  * Returns an empty persistent map.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use persistentUnorderedMapOf instead.", ReplaceWith("persistentUnorderedMapOf()"))
 public fun <K, V> persistentHashMapOf(): PersistentMap<K, V> = persistentUnorderedMapOf()
@@ -707,7 +707,7 @@ public fun CharSequence.toPersistentSet(): PersistentSet<Char> =
  * Order of the elements in the returned set is unspecified.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use toPersistentUnorderedSet instead.", ReplaceWith("toPersistentUnorderedSet()"))
 public fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T> = toPersistentUnorderedSet()
@@ -718,7 +718,7 @@ public fun <T> Iterable<T>.toPersistentHashSet(): PersistentSet<T> = toPersisten
  * Order of the elements in the returned set is unspecified.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use toPersistentUnorderedSet instead.", ReplaceWith("toPersistentUnorderedSet()"))
 public fun <T> Array<out T>.toPersistentHashSet(): PersistentSet<T> = toPersistentUnorderedSet()
@@ -729,7 +729,7 @@ public fun <T> Array<out T>.toPersistentHashSet(): PersistentSet<T> = toPersiste
  * Order of the elements in the returned set is unspecified.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use toPersistentUnorderedSet instead.", ReplaceWith("toPersistentUnorderedSet()"))
 public fun <T> Sequence<T>.toPersistentHashSet(): PersistentSet<T> = toPersistentUnorderedSet()
@@ -740,7 +740,7 @@ public fun <T> Sequence<T>.toPersistentHashSet(): PersistentSet<T> = toPersisten
  * Order of the elements in the returned set is unspecified.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use toPersistentUnorderedSet instead.", ReplaceWith("toPersistentUnorderedSet()"))
 public fun CharSequence.toPersistentHashSet(): PersistentSet<Char> = toPersistentUnorderedSet()
@@ -779,7 +779,7 @@ public fun <K, V> Map<K, V>.toPersistentMap(): PersistentMap<K, V> =
  * Order of the entries in the returned map is unspecified.
  *
  * Refer to the [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.6.0-MIGRATION.md)
- * for more details and guidance with the migration.
+ * for more details and guidance on the migration.
  */
 @Deprecated("Use toPersistentUnorderedMap instead.", ReplaceWith("toPersistentUnorderedMap()"))
 public fun <K, V> Map<K, V>.toPersistentHashMap(): PersistentMap<K, V> = toPersistentUnorderedMap()
