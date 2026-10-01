@@ -5,7 +5,7 @@
 
 package tests.contract.map
 
-import kotlinx.collections.immutable.persistentHashMapOf
+import kotlinx.collections.immutable.persistentUnorderedMapOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -55,8 +55,8 @@ class KT41278Test {
     }
 
     @Test
-    fun persistentHashMap() {
-        val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentHashMapOf<String, Int>()) { map, pair ->
+    fun persistentUnorderedMap() {
+        val mapLetterToIndex = ('a'..'z').mapIndexed { i, c -> "$c" to i }.fold(persistentUnorderedMapOf<String, Int>()) { map, pair ->
             map.putting(pair.first, pair.second)
         }
 
@@ -79,8 +79,8 @@ class KT41278Test {
     }
 
     @Test
-    fun persistentHashMapBuilder() {
-        val mapLetterToIndex = persistentHashMapOf<String, Int>().builder().apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
+    fun persistentUnorderedMapBuilder() {
+        val mapLetterToIndex = persistentUnorderedMapOf<String, Int>().builder().apply { putAll(('a'..'z').mapIndexed { i, c -> "$c" to i }) }
 
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMapEntry)
         doContainsTest(mapLetterToIndex, "h", 7, ::TestMutableMapEntry)

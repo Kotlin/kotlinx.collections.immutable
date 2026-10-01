@@ -5,11 +5,10 @@
 
 package kotlinx.collections.immutable.implementations.persistentOrderedSet
 
-import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.PersistentOrderedSet
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.assert
-import kotlinx.collections.immutable.mutate
 
 internal class Links(val previous: Any?, val next: Any?) {
     /** Constructs Links for a new single element */
@@ -25,23 +24,23 @@ internal class Links(val previous: Any?, val next: Any?) {
     val hasPrevious get() = previous !== EndOfChain
 }
 
-internal class PersistentOrderedSet<E>(
+internal class PersistentOrderedSetImpl<E>(
     internal val firstElement: Any?,
     internal val lastElement: Any?,
     internal val hashMap: PersistentHashMap<E, Links>
-) : AbstractSet<E>(), PersistentSet<E> {
+) : AbstractSet<E>(), PersistentOrderedSet<E> {
 
     override val size: Int get() = hashMap.size
 
     override fun contains(element: E): Boolean = hashMap.containsKey(element)
 
-    override fun adding(element: E): PersistentSet<E> {
+    override fun adding(element: E): PersistentOrderedSetImpl<E> {
         if (hashMap.containsKey(element)) {
             return this
         }
         if (isEmpty()) {
             val newMap = hashMap.putting(element, Links())
-            return PersistentOrderedSet(element, element, newMap)
+            return PersistentOrderedSetImpl(element, element, newMap)
         }
         @Suppress("UNCHECKED_CAST")
         val lastElement = lastElement as E
@@ -51,15 +50,15 @@ internal class PersistentOrderedSet<E>(
         val newMap = hashMap
             .putting(lastElement, lastLinks.withNext(element))
             .putting(element, Links(previous = lastElement))
-        return PersistentOrderedSet(firstElement, element, newMap)
+        return PersistentOrderedSetImpl(firstElement, element, newMap)
     }
 
-    override fun addingAll(elements: Collection<E>): PersistentSet<E> {
+    override fun addingAll(elements: Collection<E>): PersistentOrderedSetImpl<E> {
         if (elements.isEmpty()) return this
-        return this.mutate { it.addAll(elements) }
+        return builder().apply { addAll(elements) }.build()
     }
 
-    override fun removing(element: E): PersistentSet<E> {
+    override fun removing(element: E): PersistentOrderedSetImpl<E> {
         val links = hashMap[element] ?: return this
 
         var newMap = hashMap.removing(element)
@@ -77,24 +76,24 @@ internal class PersistentOrderedSet<E>(
         }
         val newFirstElement = if (!links.hasPrevious) links.next else firstElement
         val newLastElement = if (!links.hasNext) links.previous else lastElement
-        return PersistentOrderedSet(newFirstElement, newLastElement, newMap)
+        return PersistentOrderedSetImpl(newFirstElement, newLastElement, newMap)
     }
 
-    override fun removingAll(elements: Collection<E>): PersistentSet<E> {
+    override fun removingAll(elements: Collection<E>): PersistentOrderedSetImpl<E> {
         if (elements.isEmpty()) return this
-        return mutate { it.removeAll(elements) }
+        return builder().apply { removeAll(elements) }.build()
     }
 
-    override fun removingAll(predicate: (E) -> Boolean): PersistentSet<E> {
-        return mutate { it.removeAll(predicate) }
+    override fun removingAll(predicate: (E) -> Boolean): PersistentOrderedSetImpl<E> {
+        return builder().apply { removeAll(predicate) }.build()
     }
 
-    override fun retainingAll(elements: Collection<E>): PersistentSet<E> {
-        if (elements.isEmpty()) return PersistentOrderedSet.emptyOf<E>()
-        return mutate { it.retainAll(elements) }
+    override fun retainingAll(elements: Collection<E>): PersistentOrderedSetImpl<E> {
+        if (elements.isEmpty()) return emptyOf()
+        return builder().apply { retainAll(elements) }.build()
     }
 
-    override fun cleared(): PersistentSet<E> {
+    override fun cleared(): PersistentOrderedSetImpl<E> {
         return emptyOf()
     }
 
@@ -102,7 +101,7 @@ internal class PersistentOrderedSet<E>(
         return PersistentOrderedSetIterator(firstElement, hashMap)
     }
 
-    override fun builder(): PersistentSet.Builder<E> {
+    override fun builder(): PersistentOrderedSetBuilder<E> {
         return PersistentOrderedSetBuilder(this)
     }
 
@@ -112,7 +111,7 @@ internal class PersistentOrderedSet<E>(
         if (size != other.size) return false
 
         return when (other) {
-            is PersistentOrderedSet<*> -> hashMap.node.equalsWith(other.hashMap.node) { _, _ -> true }
+            is PersistentOrderedSetImpl<*> -> hashMap.node.equalsWith(other.hashMap.node) { _, _ -> true }
             is PersistentOrderedSetBuilder<*> -> hashMap.node.equalsWith(other.hashMapBuilder.node) { _, _ -> true }
             else -> super.equals(other)
         }
@@ -125,7 +124,9 @@ internal class PersistentOrderedSet<E>(
     override fun hashCode(): Int = super<AbstractSet>.hashCode()
 
     internal companion object {
-        private val EMPTY = PersistentOrderedSet<Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf())
-        internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
+        private val EMPTY = PersistentOrderedSetImpl<Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf())
+
+        @Suppress("UNCHECKED_CAST")
+        internal fun <E> emptyOf(): PersistentOrderedSetImpl<E> = EMPTY as PersistentOrderedSetImpl<E>
     }
 }

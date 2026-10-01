@@ -81,9 +81,24 @@ The default [`persistentSetOf`][kotlinx.collections.immutable.persistentSetOf] a
 [`persistentMapOf`][kotlinx.collections.immutable.persistentMapOf] preserve element
 insertion order during iteration. If iteration order does not matter, the unordered
 implementations returned by
-[`persistentHashSetOf`][kotlinx.collections.immutable.persistentHashSetOf] and
-[`persistentHashMapOf`][kotlinx.collections.immutable.persistentHashMapOf] are more
+[`persistentUnorderedSetOf`][kotlinx.collections.immutable.persistentUnorderedSetOf] and
+[`persistentUnorderedMapOf`][kotlinx.collections.immutable.persistentUnorderedMapOf] are more
 memory- and time-efficient.
+
+To carry the insertion-order guarantee in a type, use
+[`PersistentOrderedSet`][kotlinx.collections.immutable.PersistentOrderedSet] or
+[`PersistentOrderedMap`][kotlinx.collections.immutable.PersistentOrderedMap], created by
+[`persistentOrderedSetOf`][kotlinx.collections.immutable.persistentOrderedSetOf] and
+[`persistentOrderedMapOf`][kotlinx.collections.immutable.persistentOrderedMapOf].
+[`PersistentUnorderedSet`][kotlinx.collections.immutable.PersistentUnorderedSet] and
+[`PersistentUnorderedMap`][kotlinx.collections.immutable.PersistentUnorderedMap] express that
+insertion order is not required. Modification operations preserve the collection's flavor.
+Each interface has a nested `Builder` whose `build()` returns the corresponding collection type.
+
+The `toPersistentOrderedSet` / `toPersistentUnorderedSet` and
+`toPersistentOrderedMap` / `toPersistentUnorderedMap` converters select a specific flavor and reuse
+matching persistent instances or build matching builders. The generic `toPersistentSet` and
+`toPersistentMap` preserve any persistent receiver.
 
 ## Modifying persistent collections
 
@@ -134,7 +149,7 @@ The main API: immutable and persistent collection interfaces
 [`PersistentMap`][kotlinx.collections.immutable.PersistentMap], etc.), entry-point factory
 functions ([`persistentListOf`][kotlinx.collections.immutable.persistentListOf],
 [`persistentSetOf`][kotlinx.collections.immutable.persistentSetOf],
-[`persistentMapOf`][kotlinx.collections.immutable.persistentMapOf] and their hash-based
+[`persistentMapOf`][kotlinx.collections.immutable.persistentMapOf] and their ordered and unordered
 counterparts), and extension functions for conversion
 ([`toImmutableList`][kotlinx.collections.immutable.toImmutableList],
 [`toPersistentSet`][kotlinx.collections.immutable.toPersistentSet], …), operators

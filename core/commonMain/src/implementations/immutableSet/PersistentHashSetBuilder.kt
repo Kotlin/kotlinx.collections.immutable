@@ -1,16 +1,16 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
 package kotlinx.collections.immutable.implementations.immutableSet
 
-import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.PersistentUnorderedSet
 import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 
 internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
-    AbstractMutableSet<E>(), PersistentSet.Builder<E> {
+    AbstractMutableSet<E>(), PersistentUnorderedSet.Builder<E> {
     private var builtSet: PersistentHashSet<E>? = set
     internal var ownership = MutabilityOwnership()
         private set

@@ -14,10 +14,7 @@ import tests.IntWrapper
 import kotlin.test.*
 
 class ImmutableHashSetTest : ImmutableSetTestBase() {
-    override fun <T> immutableSetOf(vararg elements: T) = persistentHashSetOf(*elements)
-    override fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>) {
-        assertNotSame(builder.build(), builder.toPersistentSet(), "toPersistent shouldn't call build()")
-    }
+    override fun <T> immutableSetOf(vararg elements: T) = persistentUnorderedSetOf(*elements)
 
     @Test fun addAllElements() {
         run {
@@ -200,9 +197,6 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
 class ImmutableOrderedSetTest : ImmutableSetTestBase() {
     override fun <T> immutableSetOf(vararg elements: T) = persistentSetOf(*elements)
     override fun <T> compareSets(expected: Set<T>, actual: Set<T>) = compare(expected, actual) { setBehavior(ordered = true) }
-    override fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>) {
-        assertSame(builder.build(), builder.toPersistentSet(), "toPersistent should call build()")
-    }
 
     @Test fun elementHashCodeChanged() {
         val changing = mutableSetOf("ok")
@@ -225,7 +219,6 @@ class ImmutableOrderedSetTest : ImmutableSetTestBase() {
 
 abstract class ImmutableSetTestBase {
     abstract fun <T> immutableSetOf(vararg elements: T): PersistentSet<T>
-    abstract fun <T> testBuilderToPersistentSet(builder: PersistentSet.Builder<T>)
 
     fun <T> immutableSetOf(elements: Collection<T>) = immutableSetOf<T>() + elements
 
@@ -303,12 +296,11 @@ abstract class ImmutableSetTestBase {
         "abcxaxyz12".toCollection(builder)
         val set = builder.build()
         compareSets(set, builder)
-        assertTrue(set === builder.build(), "Building the same set without modifications")
+        assertSame(set, builder.build(), "Building the same set without modifications")
 
         val set2 = builder.toImmutableSet()
-        assertTrue(set2 === set, "toImmutable calls build()")
-
-        testBuilderToPersistentSet(builder)
+        assertSame(set, set2, "toImmutable calls build()")
+        assertSame(set, builder.toPersistentSet(), "toPersistent calls build()")
 
         with(set) {
             testMutation { add('K') }
@@ -371,9 +363,9 @@ abstract class ImmutableSetTestBase {
         }
 
         testEqualsAndHashCode(set, setOf(*elements))
-        testEqualsAndHashCode(set, persistentHashSetOf(*elements))
+        testEqualsAndHashCode(set, persistentUnorderedSetOf(*elements))
         testEqualsAndHashCode(set, persistentSetOf(*elements))
-        testEqualsAndHashCode(set, persistentHashSetOf<E>().builder().apply { addAll(elements) })
+        testEqualsAndHashCode(set, persistentUnorderedSetOf<E>().builder().apply { addAll(elements) })
         testEqualsAndHashCode(set, persistentSetOf<E>().builder().apply { addAll(elements) })
     }
 

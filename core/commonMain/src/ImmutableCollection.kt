@@ -40,7 +40,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use adding() instead. For more details, read the documentation for this function.",
@@ -64,7 +64,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use addingAll() instead. For more details, read the documentation for this function.",
@@ -88,7 +88,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
@@ -114,7 +114,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use removingAll() instead. For more details, read the documentation for this function.",
@@ -138,7 +138,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use removingAll() instead. For more details, read the documentation for this function.",
@@ -164,7 +164,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use retainingAll() instead. For more details, read the documentation for this function.",
@@ -186,7 +186,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use cleared() instead. For more details, read the documentation for this function.",

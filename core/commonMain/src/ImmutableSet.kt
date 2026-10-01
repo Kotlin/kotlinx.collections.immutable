@@ -6,7 +6,7 @@
 package kotlinx.collections.immutable
 
 /**
- * A generic immutable unordered collection of elements that does not support duplicate elements.
+ * A generic immutable collection of elements that does not support duplicate elements.
  * Methods in this interface support only read-only access to the immutable set.
  *
  * Modification operations are supported through the [PersistentSet] interface.
@@ -19,10 +19,12 @@ package kotlinx.collections.immutable
 public interface ImmutableSet<out E> : Set<E>, ImmutableCollection<E>
 
 /**
- * A generic persistent unordered collection of elements that does not support duplicate elements, and supports
+ * A generic persistent collection of elements that does not support duplicate elements, and supports
  * adding and removing elements.
  *
  * Modification operations return new instances of the persistent set with the modification applied.
+ * Iteration order depends on the implementation. [PersistentOrderedSet] preserves insertion order,
+ * while [PersistentUnorderedSet] leaves iteration order unspecified.
  *
  * @param E the type of elements contained in the set. The persistent set is covariant on its element type.
  */
@@ -42,7 +44,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use adding() instead. For more details, read the documentation for this function.",
@@ -66,7 +68,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use addingAll() instead. For more details, read the documentation for this function.",
@@ -90,7 +92,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
@@ -116,7 +118,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use removingAll() instead. For more details, read the documentation for this function.",
@@ -140,7 +142,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use removingAll() instead. For more details, read the documentation for this function.",
@@ -166,7 +168,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use retainingAll() instead. For more details, read the documentation for this function.",
@@ -188,7 +190,7 @@ public interface PersistentSet<out E> : ImmutableSet<E>, PersistentCollection<E>
      * Old functions mimicking [MutableCollection] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use cleared() instead. For more details, read the documentation for this function.",
