@@ -709,6 +709,14 @@ internal class PersistentVectorBuilder<E>(
         return mutableRoot
     }
 
+    override fun clear() {
+        this.root = null
+        this.tail = emptyArray()
+        this.size = 0
+        this.rootShift = 0
+        modCount++
+    }
+
     override fun removeAll(elements: Collection<E>): Boolean {
         if (elements.isEmpty()) return false
         return removeAllWithPredicate { elements.contains(it) }

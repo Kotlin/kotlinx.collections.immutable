@@ -224,4 +224,28 @@ class ImmutableListTest {
 
         assertEquals<List<*>>(listOf("x", null, 1), listAny)
     }
+
+    @Test fun clearEmptyBuilderInvalidatesIterator() {
+        val builder = persistentListOf<Int>().builder()
+        val iterator = builder.listIterator()
+
+        builder.clear()
+
+        assertFailsWith<ConcurrentModificationException> {
+            iterator.add(1)
+        }
+    }
+
+    @Test fun clearBuilder() {
+        val builder = persistentListOf<Int>().builder().apply { addAll(List(10_000) { it }) }
+        builder.clear()
+        assertEquals(0, builder.size)
+        assertTrue(builder.isEmpty())
+        assertTrue(builder.build().isEmpty())
+
+        builder.add(42)
+        assertEquals(1, builder.size)
+        assertEquals(42, builder[0])
+        assertEquals(listOf(42), builder.build())
+    }
 }

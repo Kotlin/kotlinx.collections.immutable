@@ -59,6 +59,30 @@ class PersistentListBuilderTest : ExecutionTimeMeasuringTest() {
         }
     }
 
+    @Test
+    fun clearTests() {
+        val builder = persistentListOf<Int>().builder()
+        builder.clear()
+        assertTrue(builder.isEmpty())
+        assertEquals(0, builder.size)
+
+        val elementsToAdd = 80_000
+        for (i in 0 until elementsToAdd) {
+            builder.add(i)
+        }
+        assertEquals(elementsToAdd, builder.size)
+
+        builder.clear()
+        assertTrue(builder.isEmpty())
+        assertEquals(0, builder.size)
+        assertTrue(builder.build().isEmpty())
+
+        builder.add(100)
+        assertEquals(1, builder.size)
+        assertEquals(100, builder[0])
+        assertEquals(listOf(100), builder.build())
+    }
+
 
     @Test
     fun firstTests() {
