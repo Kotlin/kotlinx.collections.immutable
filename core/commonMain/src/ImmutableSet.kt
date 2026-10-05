@@ -22,7 +22,8 @@ public interface ImmutableSet<out E> : Set<E>, ImmutableCollection<E>
  * A generic persistent collection of elements that does not support duplicate elements, and supports
  * adding and removing elements.
  *
- * Modification operations return new instances of the persistent set with the modification applied.
+ * Modification operations return new instances of the persistent set with the modification applied
+ * and the same iteration order guarantee.
  * Iteration order depends on the implementation. [PersistentOrderedSet] preserves insertion order,
  * while [PersistentUnorderedSet] leaves iteration order unspecified.
  *

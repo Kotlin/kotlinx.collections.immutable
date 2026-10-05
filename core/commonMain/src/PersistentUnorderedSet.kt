@@ -8,6 +8,9 @@ package kotlinx.collections.immutable
 /**
  * A persistent set whose element iteration order is unspecified.
  *
+ * Because the set does not maintain the insertion order, iteration, [adding], and [removing] are faster
+ * than in a [PersistentOrderedSet], and the set takes less memory.
+ *
  * This interface expresses that insertion order is not required. Modification operations return
  * unordered sets and may change the relative iteration order of existing elements. Iteration order
  * remains the same for any given immutable set instance.
