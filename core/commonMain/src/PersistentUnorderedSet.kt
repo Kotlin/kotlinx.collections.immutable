@@ -34,9 +34,10 @@ public interface PersistentUnorderedSet<out E> : PersistentSet<E> {
     override fun builder(): Builder<@UnsafeVariance E>
 
     /**
-     * A reusable builder of an unordered persistent set.
+     * A builder of a [PersistentUnorderedSet].
      *
-     * Iteration order is unspecified. Modifications do not affect previously built sets.
+     * The iteration order of the builder's elements is unspecified, and modifications may change the
+     * relative order of existing elements.
      */
     public interface Builder<E> : PersistentSet.Builder<E> {
         override fun build(): PersistentUnorderedSet<E>

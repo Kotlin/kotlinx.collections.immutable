@@ -31,9 +31,10 @@ public interface PersistentUnorderedMap<K, out V> : PersistentMap<K, V> {
     override fun builder(): Builder<K, @UnsafeVariance V>
 
     /**
-     * A reusable builder of an unordered persistent map.
+     * A builder of a [PersistentUnorderedMap].
      *
-     * Iteration order is unspecified. Modifications do not affect previously built maps.
+     * The iteration order of the builder's keys, values, and entries is unspecified, and modifications may
+     * change the relative order of existing entries.
      */
     public interface Builder<K, V> : PersistentMap.Builder<K, V> {
         override fun build(): PersistentUnorderedMap<K, V>

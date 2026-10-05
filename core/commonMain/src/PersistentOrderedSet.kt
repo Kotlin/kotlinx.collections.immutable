@@ -36,10 +36,11 @@ public interface PersistentOrderedSet<out E> : PersistentSet<E> {
     override fun builder(): Builder<@UnsafeVariance E>
 
     /**
-     * A reusable builder of an ordered persistent set.
+     * A builder of a [PersistentOrderedSet].
      *
-     * The builder maintains insertion order according to the [PersistentOrderedSet] contract.
-     * Modifications do not affect previously built sets.
+     * [PersistentOrderedSet.Builder] extends the [PersistentSet.Builder] contract with the iteration order
+     * guarantee of [PersistentOrderedSet]: the builder's elements are iterated in the insertion order, and
+     * [build] returns a set with the same iteration order.
      */
     public interface Builder<E> : PersistentSet.Builder<E> {
         override fun build(): PersistentOrderedSet<E>
