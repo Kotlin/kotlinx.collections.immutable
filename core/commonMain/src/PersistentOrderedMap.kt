@@ -8,12 +8,11 @@ package kotlinx.collections.immutable
 /**
  * A persistent map that iterates its entries in the key insertion order.
  *
- * Adding a new key appends its entry to the iteration order. Replacing the value of an existing key
- * does not change its position. Removing a key preserves the relative order of the remaining entries;
- * removing and then adding it again places its entry at the end. Bulk additions process entries in
- * the iteration order of the source map.
+ * The map maintains a predictable iteration order for its keys, values, and entries: entries are
+ * iterated in the order their keys were inserted into the map, from oldest to newest. The insertion
+ * order is not affected if a key is re-inserted, i.e. when [putting] is called with a key the map
+ * already contains.
  *
- * The [keys], [values], and [entries] views follow the same iteration order.
  * Modification operations return ordered maps. Equality and hash codes follow the [Map] contract
  * and do not depend on iteration order.
  *
