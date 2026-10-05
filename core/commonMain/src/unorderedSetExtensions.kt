@@ -3,11 +3,15 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
+@file:JvmMultifileClass
+@file:JvmName("ExtensionsKt")
 @file:Suppress("NOTHING_TO_INLINE")
 
 package kotlinx.collections.immutable
 
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /**
  * Returns a new persistent set with the provided modifications applied,
