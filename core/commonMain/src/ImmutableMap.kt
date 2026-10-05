@@ -33,7 +33,8 @@ public interface ImmutableMap<K, out V> : Map<K, V> {
  * A generic persistent collection that holds pairs of objects (keys and values) and supports efficiently retrieving
  * the value corresponding to each key. Map keys are unique; the map holds only one value for each key.
  *
- * Modification operations return new instances of the persistent map with the modification applied.
+ * Modification operations return new instances of the persistent map with the modification applied
+ * and the same iteration order guarantee.
  * Iteration order depends on the implementation. [PersistentOrderedMap] preserves key insertion order,
  * while [PersistentUnorderedMap] leaves iteration order unspecified.
  *
