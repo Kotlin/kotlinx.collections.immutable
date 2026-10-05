@@ -3,6 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
+@file:JvmMultifileClass
+@file:JvmName("ExtensionsKt")
 @file:Suppress("NOTHING_TO_INLINE")
 
 package kotlinx.collections.immutable
@@ -10,6 +12,8 @@ package kotlinx.collections.immutable
 import kotlinx.collections.immutable.implementations.immutableList.persistentVectorOf
 import kotlinx.collections.immutable.implementations.persistentOrderedMap.PersistentOrderedMapImpl
 import kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSetImpl
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 //@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 //inline fun <T> @kotlin.internal.Exact ImmutableCollection<T>.mutate(mutator: (MutableCollection<T>) -> Unit): ImmutableCollection<T> = builder().apply(mutator).build()
