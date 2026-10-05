@@ -6,7 +6,7 @@
 package kotlinx.collections.immutable
 
 /**
- * A persistent map that iterates its entries in key insertion order.
+ * A persistent map that iterates its entries in the key insertion order.
  *
  * Adding a new key appends its entry to the iteration order. Replacing the value of an existing key
  * does not change its position. Removing a key preserves the relative order of the remaining entries;
