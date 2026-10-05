@@ -8,10 +8,9 @@ package kotlinx.collections.immutable
 /**
  * A persistent set that iterates its elements in the insertion order.
  *
- * Adding a new element appends it to the iteration order. Adding an element already in the set does not
- * change its position. Removing an element preserves the relative order of the remaining elements;
- * removing and then adding it again places it at the end. Bulk additions process elements in the
- * iteration order of the source collection.
+ * The set maintains a predictable iteration order: elements are iterated in the order they were
+ * inserted into the set, from oldest to newest. The insertion order is not affected if an element is
+ * re-inserted, i.e. when [adding] is called with an element equal to one the set already contains.
  *
  * Modification operations return ordered sets. Equality and hash codes follow the [Set] contract
  * and do not depend on iteration order.
