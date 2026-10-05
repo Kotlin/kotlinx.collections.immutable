@@ -34,10 +34,11 @@ public interface PersistentOrderedMap<K, out V> : PersistentMap<K, V> {
     override fun builder(): Builder<K, @UnsafeVariance V>
 
     /**
-     * A reusable builder of an ordered persistent map.
+     * A builder of a [PersistentOrderedMap].
      *
-     * The builder and its keys, values, and entries views maintain insertion order according to the
-     * [PersistentOrderedMap] contract. Modifications do not affect previously built maps.
+     * [PersistentOrderedMap.Builder] extends the [PersistentMap.Builder] contract with the iteration order
+     * guarantee of [PersistentOrderedMap]: the builder's keys, values, and entries are iterated in the key
+     * insertion order, and [build] returns a map with the same iteration order.
      */
     public interface Builder<K, V> : PersistentMap.Builder<K, V> {
         override fun build(): PersistentOrderedMap<K, V>
