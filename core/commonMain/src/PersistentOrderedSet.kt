@@ -6,7 +6,7 @@
 package kotlinx.collections.immutable
 
 /**
- * A persistent set that iterates its elements in insertion order.
+ * A persistent set that iterates its elements in the insertion order.
  *
  * Adding a new element appends it to the iteration order. Adding an element already in the set does not
  * change its position. Removing an element preserves the relative order of the remaining elements;
