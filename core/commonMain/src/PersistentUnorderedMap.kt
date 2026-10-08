@@ -8,12 +8,10 @@ package kotlinx.collections.immutable
 /**
  * A persistent map whose entry iteration order is unspecified.
  *
- * Because the map does not maintain the insertion order, iteration, [putting], and [removing] are faster
- * than in a [PersistentOrderedMap], and the map takes less memory.
- *
- * This interface expresses that insertion order is not required. Modification operations return
- * unordered maps and may change the relative iteration order of existing entries. Iteration order
- * remains the same for any given immutable map instance.
+ * This interface expresses that insertion order is not required. An implementation does not maintain
+ * it and spends no time or memory on it. Modification operations return unordered maps and may change
+ * the relative iteration order of existing entries. Iteration order remains the same for any given
+ * immutable map instance.
  *
  * Equality and hash codes follow the [Map] contract and do not depend on iteration order.
  *
