@@ -38,6 +38,8 @@ This library provides interfaces for immutable and persistent collections.
 | `PersistentList` | `PersistentCollection`, `ImmutableList` | 
 | `PersistentSet` | `PersistentCollection`, `ImmutableSet` | 
 | `PersistentMap` | `ImmutableMap` |
+| `PersistentOrderedSet`, `PersistentUnorderedSet` | `PersistentSet` |
+| `PersistentOrderedMap`, `PersistentUnorderedMap` | `PersistentMap` |
 
 #### Persistent collection builder interfaces
 
@@ -47,15 +49,22 @@ This library provides interfaces for immutable and persistent collections.
 | `PersistentList.Builder` | `PersistentCollection.Builder`, `MutableList` | 
 | `PersistentSet.Builder` | `PersistentCollection.Builder`, `MutableSet` | 
 | `PersistentMap.Builder` | `MutableMap` |
+| `PersistentOrderedSet.Builder`, `PersistentUnorderedSet.Builder` | `PersistentSet.Builder` |
+| `PersistentOrderedMap.Builder`, `PersistentUnorderedMap.Builder` | `PersistentMap.Builder` |
 
 
 To instantiate an empty persistent collection or a collection with the specified elements use the functions 
 `persistentListOf`, `persistentSetOf`, and `persistentMapOf`.
 
-The default implementations of `PersistentSet` and `PersistentMap`, which are returned by `persistentSetOf` and `persistentMapOf`,
-preserve the element insertion order during iteration. This comes at expense of maintaining more complex data structures.
-If the order of elements doesn't matter, the more efficient implementations returned by the functions 
-`persistentHashSetOf` and `persistentHashMapOf` can be used.
+The `persistentSetOf` and `persistentMapOf` factories return `PersistentSet` and `PersistentMap`,
+respectively, with implementations that preserve insertion order during iteration. This comes at
+the expense of maintaining more complex data structures. If iteration order does not matter, use
+the more efficient `persistentUnorderedSetOf` and `persistentUnorderedMapOf` factories.
+
+Use `persistentOrderedSetOf` and `persistentOrderedMapOf` to expose the insertion-order guarantee
+in the result type. Their unordered counterparts return `PersistentUnorderedSet` and
+`PersistentUnorderedMap`, expressing that insertion order is not required. Each interface has a
+nested `Builder` whose `build()` returns the corresponding collection type.
 
 ### Operations
 
@@ -80,12 +89,20 @@ fun Iterable<T>.toPersistentList(): PersistentList<T>
 fun Iterable<T>.toPersistentSet(): PersistentSet<T>
 ```
 
+`toPersistentOrderedSet` / `toPersistentUnorderedSet` and
+`toPersistentOrderedMap` / `toPersistentUnorderedMap` convert to a specific flavor. Converting to
+ordered preserves the source's current iteration order.
+
 #### `+` and `-` operators
 
 `plus` and `minus` operators on persistent collections exploit their immutability
 and delegate the implementation to the collections themselves. 
 The operation is performed with persistence in mind: the returned immutable collection may share storage 
 with the original collection.
+Set and map operations preserve the receiver's runtime flavor even when its static type is
+`PersistentSet` or `PersistentMap`. On the more specific interfaces, the result also retains that
+specific static type. Unordered operations do not promise to preserve the relative iteration order
+of existing elements.
 
 ```kotlin
 val newList = persistentListOf("a", "b") + "c"

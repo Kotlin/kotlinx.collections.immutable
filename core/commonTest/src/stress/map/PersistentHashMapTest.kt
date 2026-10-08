@@ -6,7 +6,7 @@
 package tests.stress.map
 
 import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.persistentHashMapOf
+import kotlinx.collections.immutable.persistentUnorderedMapOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
 import tests.remove
@@ -20,7 +20,7 @@ import kotlin.test.*
 class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
     @Test
     fun isEmptyTests() {
-        var map = persistentHashMapOf<Int, String>()
+        var map = persistentUnorderedMapOf<Int, String>()
 
         assertTrue(map.isEmpty())
         assertFalse(map.putting(0, "last").isEmpty())
@@ -42,7 +42,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun sizeTests() {
-        var map = persistentHashMapOf<Int, Int>()
+        var map = persistentUnorderedMapOf<Int, Int>()
 
         assertTrue(map.size == 0)
         assertEquals(1, map.putting(1, 1).size)
@@ -86,7 +86,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
             }
         }
 
-        var map = persistentHashMapOf<Int, Int>()
+        var map = persistentUnorderedMapOf<Int, Int>()
         assertTrue(map.keys.isEmpty())
         assertTrue(map.values.isEmpty())
 
@@ -111,7 +111,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeTests() {
-        var map = persistentHashMapOf<Int, String>()
+        var map = persistentUnorderedMapOf<Int, String>()
         assertTrue(map.putting(0, "0").removing(0).isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
@@ -131,7 +131,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeEntryTests() {
-        var map = persistentHashMapOf<Int, String>()
+        var map = persistentUnorderedMapOf<Int, String>()
         assertTrue(map.putting(0, "0").removing(0, "0").isEmpty())
         assertFalse(map.putting(0, "0").removing(0, "x").isEmpty())
 
@@ -154,7 +154,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun getTests() {
-        var map = persistentHashMapOf<Int, String>()
+        var map = persistentUnorderedMapOf<Int, String>()
         assertEquals("1", map.putting(1, "1")[1])
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
@@ -178,7 +178,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun putTests() {
-        var map = persistentHashMapOf<Int, String>()
+        var map = persistentUnorderedMapOf<Int, String>()
         assertEquals("2", map.putting(1, "1").putting(1, "2")[1])
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
@@ -211,7 +211,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun collisionTests() {
-        var map = persistentHashMapOf<IntWrapper, Int>()
+        var map = persistentUnorderedMapOf<IntWrapper, Int>()
 
         val oneWrapper = IntWrapper(1, 1)
         val twoWrapper = IntWrapper(2, 1)
@@ -284,7 +284,7 @@ class PersistentHashMapTest : ExecutionTimeMeasuringTest() {
         repeat(times = 1) {
 
             val mutableMaps = List(10) { hashMapOf<IntWrapper?, Int?>() }
-            val immutableMaps = MutableList(10) { persistentHashMapOf<IntWrapper?, Int?>() }
+            val immutableMaps = MutableList(10) { persistentUnorderedMapOf<IntWrapper?, Int?>() }
 
             val operationCount = NForAlgorithmComplexity.O_NlogN
 

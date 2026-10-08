@@ -5,7 +5,7 @@
 
 package tests.stress.set
 
-import kotlinx.collections.immutable.persistentHashSetOf
+import kotlinx.collections.immutable.persistentUnorderedSetOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
 import tests.stress.ExecutionTimeMeasuringTest
@@ -21,7 +21,7 @@ import kotlin.test.assertTrue
 class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
     @Test
     fun isEmptyTests() {
-        var set = persistentHashSetOf<Int>()
+        var set = persistentUnorderedSetOf<Int>()
 
         assertTrue(set.isEmpty())
         assertFalse(set.adding(0).isEmpty())
@@ -42,7 +42,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun sizeTests() {
-        var set = persistentHashSetOf<Int>()
+        var set = persistentUnorderedSetOf<Int>()
 
         assertTrue(set.size == 0)
         assertEquals(1, set.adding(1).size)
@@ -67,7 +67,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun storedElementsTests() {
-        var set = persistentHashSetOf<Int>()
+        var set = persistentUnorderedSetOf<Int>()
         assertTrue(set.isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NN
@@ -93,7 +93,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeTests() {
-        var set = persistentHashSetOf<Int>()
+        var set = persistentUnorderedSetOf<Int>()
         assertTrue(set.adding(0).removing(0).isEmpty())
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
@@ -113,7 +113,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun containsTests() {
-        var set = persistentHashSetOf<String>()
+        var set = persistentUnorderedSetOf<String>()
         assertTrue(set.adding("1").contains("1"))
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
@@ -137,7 +137,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun addTests() {
-        var set = persistentHashSetOf<Int>()
+        var set = persistentUnorderedSetOf<Int>()
         assertTrue(set.adding(1).adding(1).contains(1))
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
@@ -175,7 +175,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun collisionTests() {
-        var set = persistentHashSetOf<IntWrapper>()
+        var set = persistentUnorderedSetOf<IntWrapper>()
 
         assertTrue(set.adding(IntWrapper(1, 1)).contains(IntWrapper(1, 1)))
 
@@ -232,7 +232,7 @@ class PersistentHashSetTest : ExecutionTimeMeasuringTest() {
         repeat(times = 1) {
 
             val mutableSets = List(10) { hashSetOf<IntWrapper?>() }
-            val immutableSets = MutableList(10) { persistentHashSetOf<IntWrapper?>() }
+            val immutableSets = MutableList(10) { persistentUnorderedSetOf<IntWrapper?>() }
 
             val operationCount = NForAlgorithmComplexity.O_NlogN
 

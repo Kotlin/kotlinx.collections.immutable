@@ -6,7 +6,7 @@
 package tests.stress.map
 
 import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.persistentHashMapOf
+import kotlinx.collections.immutable.persistentUnorderedMapOf
 import tests.NForAlgorithmComplexity
 import tests.distinctStringValues
 import tests.remove
@@ -20,7 +20,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun isEmptyTests() {
-        val builder = persistentHashMapOf<Int, String>().builder()
+        val builder = persistentUnorderedMapOf<Int, String>().builder()
 
         assertTrue(builder.isEmpty())
 
@@ -41,7 +41,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun sizeTests() {
-        val builder = persistentHashMapOf<Int, Int>().builder()
+        val builder = persistentUnorderedMapOf<Int, Int>().builder()
 
         assertTrue(builder.size == 0)
 
@@ -84,7 +84,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
             }
         }
 
-        val builder = persistentHashMapOf<Int, Int>().builder()
+        val builder = persistentUnorderedMapOf<Int, Int>().builder()
         assertTrue(builder.keys.isEmpty())
         assertTrue(builder.values.isEmpty())
 
@@ -110,7 +110,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
     private fun testAfterRandomPut(block: (MutableMap<IntWrapper, Int>, PersistentMap<IntWrapper, Int>) -> Unit) {
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
-        var map = persistentHashMapOf<IntWrapper, Int>()
+        var map = persistentUnorderedMapOf<IntWrapper, Int>()
         val expected = hashMapOf<IntWrapper, Int>()
 
         repeat(times = elementsToAdd) {
@@ -227,7 +227,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeTests() {
-        val builder = persistentHashMapOf<Int, String>().builder()
+        val builder = persistentUnorderedMapOf<Int, String>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
@@ -245,7 +245,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeBuildTests() {
-        val builder = persistentHashMapOf<IntWrapper, Int>().builder()
+        val builder = persistentUnorderedMapOf<IntWrapper, Int>().builder()
 
         val elementsToAddToBuilder = NForAlgorithmComplexity.O_NlogN
 
@@ -292,7 +292,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun removeEntryTests() {
-        val builder = persistentHashMapOf<Int, String>().builder()
+        val builder = persistentUnorderedMapOf<Int, String>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NlogN
 
@@ -312,7 +312,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun getTests() {
-        val builder = persistentHashMapOf<Int, String>().builder()
+        val builder = persistentUnorderedMapOf<Int, String>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
@@ -335,7 +335,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun putTests() {
-        val builder = persistentHashMapOf<Int, String>().builder()
+        val builder = persistentUnorderedMapOf<Int, String>().builder()
 
         val elementsToAdd = NForAlgorithmComplexity.O_NNlogN
 
@@ -367,7 +367,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun collisionTests() {
-        val builder = persistentHashMapOf<IntWrapper, Int>().builder()
+        val builder = persistentUnorderedMapOf<IntWrapper, Int>().builder()
 
         repeat(times = 2) { removeEntryPredicate ->
 
@@ -430,7 +430,7 @@ class PersistentHashMapBuilderTest : ExecutionTimeMeasuringTest() {
 
     @Test
     fun randomOperationsTests() {
-        val mapGen = mutableListOf(List(20) { persistentHashMapOf<IntWrapper, Int>() })
+        val mapGen = mutableListOf(List(20) { persistentUnorderedMapOf<IntWrapper, Int>() })
         val expected = mutableListOf(List(20) { mapOf<IntWrapper, Int>() })
 
         val operationCount = NForAlgorithmComplexity.O_NlogN

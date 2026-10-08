@@ -7,14 +7,14 @@ package benchmarks.immutableSet
 
 import benchmarks.*
 import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.persistentHashSetOf
+import kotlinx.collections.immutable.persistentUnorderedSetOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlin.math.ceil
 import kotlin.math.log
 
 
 fun <E> emptyPersistentSet(implementation: String): PersistentSet<E> = when (implementation) {
-    HASH_IMPL -> persistentHashSetOf()
+    HASH_IMPL -> persistentUnorderedSetOf()
     ORDERED_IMPL -> persistentSetOf()
     else -> throw AssertionError("Unknown PersistentSet implementation: $implementation")
 }
