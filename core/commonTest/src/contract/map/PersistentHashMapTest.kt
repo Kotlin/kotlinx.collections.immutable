@@ -22,7 +22,7 @@ class PersistentHashMapTest {
     @Test
     fun `if the collision is of size 2 and one of the keys is removed the remaining key must be promoted`() {
         val map1: PersistentHashMap<Int, String> =
-            persistentHashMapOf(-1 to "a", 0 to "b", 32 to "c") as PersistentHashMap<Int, String>
+            persistentHashMapOf(-1 to "a", 0 to "b", 32 to "c") as PersistentHashMap<Int, String> // 32 shares root cell 0 with 0
         val builder = map1.builder()
         val map2 = builder.build()
 
@@ -41,19 +41,15 @@ class PersistentHashMapTest {
 
     @Test
     fun `builder should correctly handle multiple element removals in case of full collision`() {
-        val a = IntWrapper(0, 0)
-        val b = IntWrapper(1, 0)
-        val c = IntWrapper(2, 0)
-
         val original: PersistentHashMap<IntWrapper, String> =
-            persistentHashMapOf(a to "a", b to "b", c to "c") as PersistentHashMap<IntWrapper, String>
+            persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", collidingKey3 to "c") as PersistentHashMap<IntWrapper, String>
 
         val onlyA: PersistentHashMap<IntWrapper, String> =
-            persistentHashMapOf(a to "a") as PersistentHashMap<IntWrapper, String>
+            persistentHashMapOf(collidingKey1 to "a") as PersistentHashMap<IntWrapper, String>
 
         val builder = original.builder()
-        builder.remove(b)
-        builder.remove(c)
+        builder.remove(collidingKey2)
+        builder.remove(collidingKey3)
         val removedBC = builder.build()
 
         assertEquals(onlyA, removedBC)
@@ -61,19 +57,14 @@ class PersistentHashMapTest {
 
     @Test
     fun `builder should correctly handle multiple element removals in case of partial collision`() {
-        val a = IntWrapper(0, 0)
-        val b = IntWrapper(1, 0)
-        val c = IntWrapper(2, 0)
-        val d = IntWrapper(3, 11)
-
         val original: PersistentHashMap<IntWrapper, String> =
-            persistentHashMapOf(a to "a", b to "b", c to "c", d to "d") as PersistentHashMap<IntWrapper, String>
+            persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", collidingKey3 to "c", rootSibling to "d") as PersistentHashMap<IntWrapper, String>
 
-        val afterImmutableRemoving = original.removing(b).removing(c)
+        val afterImmutableRemoving = original.removing(collidingKey2).removing(collidingKey3)
 
         val builder = original.builder()
-        builder.remove(b)
-        builder.remove(c)
+        builder.remove(collidingKey2)
+        builder.remove(collidingKey3)
         val afterMutableRemoving = builder.build()
 
         assertEquals(afterImmutableRemoving, afterMutableRemoving)
