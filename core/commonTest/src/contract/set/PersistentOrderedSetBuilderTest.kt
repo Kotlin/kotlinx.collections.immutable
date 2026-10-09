@@ -5,23 +5,79 @@
 
 package tests.contract.set
 
+import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
-import kotlin.collections.LinkedHashSet
+import tests.IntWrapper
+import tests.contract.BuilderOperation
+import tests.contract.iteratorOperations
+import tests.contract.testIterationContinues
+import tests.contract.testIterator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+/** Builders of three elements built from a set, which shares its trie, and from adds, which own theirs. */
+private val orderedSetBuilders: List<Pair<String, () -> PersistentSet.Builder<Any>>> = listOf(
+    "from a set" to { persistentSetOf<Any>(1, 2, 3).builder() },
+    "from adds" to { persistentSetOf<Any>().builder().apply { addAll(listOf(1, 2, 3)) } },
+)
+
+/*
+ * The keys of the cache test, a recorded reproduction: the hashes are part of the scenario. By the last digit of
+ * the value, 0 to 2 share a collision node, 3 to 5 fan out at level 1 under root cell 13, 6 and 7 at level 2 under
+ * cell 7 of that node, and the rest are spread over the root by a mixing hash.
+ */
+private fun key(value: Int): IntWrapper = IntWrapper(
+    value,
+    when (value.mod(10)) {
+        0, 1, 2 -> 0
+        3, 4, 5 -> 13 or ((value and 31) shl 5)
+        6, 7 -> 13 or (7 shl 5) or ((value and 31) shl 10)
+        else -> (value * 0x9E3779B9.toInt()).rotateLeft(7)
+    },
+)
+
+private fun keys(vararg values: Int): List<IntWrapper> = values.map(::key)
+
 class PersistentOrderedSetBuilderTest {
 
     @Test
-    fun `builder cache remains consistent after repeated removals and rebuilds`() {
-        var persistent = persistentSetOf<TraceKey>()
-        var builder = persistentSetOf<TraceKey>().builder()
+    fun iterators() {
+        val views = listOf<Pair<String, PersistentSet.Builder<Any>.() -> MutableIterator<*>>>("iterator" to { iterator() })
+        val operations = listOf<BuilderOperation<PersistentSet.Builder<Any>>>(
+            BuilderOperation("no call", throwsCME = false) { },
 
-        var expectedPersistent = linkedSetOf<TraceKey>()
-        var expectedBuilder = linkedSetOf<TraceKey>()
+            BuilderOperation("add(a new element)") { add("new") },
+            BuilderOperation("remove(the first element)") { remove(first()) },
+            BuilderOperation("remove(the last element)") { remove(last()) },
+            BuilderOperation("clear()") { clear() },
+            BuilderOperation("addAll(a list with a new element)") { addAll(listOf(first(), "new")) },
+            BuilderOperation("removeAll(a list holding the first element)") { removeAll(listOf(first())) },
+            BuilderOperation("retainAll(a list holding only the first element)") { retainAll(listOf(first())) },
+            BuilderOperation("add(a new element) then remove(it)") { add("new"); remove("new") },
+
+            BuilderOperation("add(a stored element)", throwsCME = false) { add(first()) },
+            BuilderOperation("remove(a missing element)", throwsCME = false) { remove("missing") },
+            BuilderOperation("addAll(the stored elements)", throwsCME = false) { addAll(toList()) },
+            BuilderOperation("removeAll(missing elements)", throwsCME = false) { removeAll(listOf("missing")) },
+            BuilderOperation("retainAll(a superset)", throwsCME = false) { retainAll(toList() + "missing") },
+        )
+
+        for (operation in operations) {
+            for (iteratorOp in iteratorOperations) testIterator(orderedSetBuilders, views, operation, iteratorOp)
+            if (!operation.throwsCME) testIterationContinues(orderedSetBuilders, views, operation)
+        }
+    }
+
+    @Test
+    fun `builder cache remains consistent after repeated removals and rebuilds`() {
+        var persistent = persistentSetOf<IntWrapper>()
+        var builder = persistentSetOf<IntWrapper>().builder()
+
+        var expectedPersistent = linkedSetOf<IntWrapper>()
+        var expectedBuilder = linkedSetOf<IntWrapper>()
 
         fun builderAdd(value: Int) {
             builder.add(key(value))
@@ -122,163 +178,28 @@ class PersistentOrderedSetBuilderTest {
     }
 
     @Test
-    fun `iterator remove after a remove of a different element throws ConcurrentModificationException`() {
-        val builder = persistentSetOf(1, 2).builder()
-        val iterator = builder.iterator()
-        assertEquals(1, iterator.next())
+    fun `removes of every remaining element keep hasNext true and next throws`() {
+        for ((origin, newBuilder) in orderedSetBuilders) {
+            val builder = newBuilder()
+            val iterator = builder.iterator()
+            assertEquals(1, iterator.next(), origin)
+            assertEquals(2, iterator.next(), origin)
 
-        assertTrue(builder.remove(2))
+            for (element in listOf(1, 2, 3)) assertTrue(builder.remove(element), origin)
 
-        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
-        assertEquals(listOf(1), builder.build().toList())
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+            assertTrue(iterator.hasNext(), origin)
+            assertFailsWith<ConcurrentModificationException>(origin) { iterator.next() }
+        }
     }
 
     @Test
-    fun `iterator remove after a remove of an already visited element throws ConcurrentModificationException`() {
-        val builder = persistentSetOf(1, 2, 3).builder()
-        val iterator = builder.iterator()
-        assertEquals(1, iterator.next())
-        assertEquals(2, iterator.next())
-
-        assertTrue(builder.remove(1))
-
-        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
-        assertEquals(listOf(2, 3), builder.build().toList())
-    }
-
-    @Test
-    fun `iterator remove after external changes that cancel out in size throws ConcurrentModificationException`() {
-        val builder = persistentSetOf(1, 2, 3).builder()
-        val iterator = builder.iterator()
-        assertEquals(1, iterator.next())
-
-        assertTrue(builder.remove(3))
-        assertTrue(builder.add(4))
-
-        assertTrue(iterator.hasNext())
-        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
-        assertEquals(listOf(1, 2, 4), builder.build().toList())
-    }
-
-    @Test
-    fun `iterator remove on an exhausted iterator after an external add throws ConcurrentModificationException`() {
-        val builder = persistentSetOf(1).builder()
-        val iterator = builder.iterator()
-        assertEquals(1, iterator.next())
-        assertFalse(iterator.hasNext())
-
-        assertTrue(builder.add(2))
-
-        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
-        assertEquals(listOf(1, 2), builder.build().toList())
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
-    fun `iterator remove after an external clear throws ConcurrentModificationException`() {
-        val builder = persistentSetOf(1, 2).builder()
-        val iterator = builder.iterator()
-        assertEquals(1, iterator.next())
-
-        builder.clear()
-
-        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
-    }
-
-    @Test
-    fun `iterator remove without a preceding next after an external remove throws IllegalStateException`() {
-        val builder = persistentSetOf(1, 2).builder()
-        val iterator = builder.iterator()
-
-        assertTrue(builder.remove(2))
-
-        assertFailsWith<IllegalStateException> { iterator.remove() }
-        assertEquals(listOf(1), builder.build().toList())
-    }
-
-    @Test
-    fun `iterator remove after external calls that change nothing does not throw`() {
-        val builder = persistentSetOf(1, 2).builder()
-        val iterator = builder.iterator()
-        assertEquals(1, iterator.next())
-
-        assertFalse(builder.add(2))
-        assertFalse(builder.remove(3))
-
-        iterator.remove()
-        assertEquals(listOf(2), builder.build().toList())
-    }
-
-    @Test
-    fun `iterator remove keeps the iterator valid`() {
-        val builder = persistentSetOf(1, 2, 3).builder()
-        val iterator = builder.iterator()
-        assertEquals(1, iterator.next())
-        assertEquals(2, iterator.next())
-        iterator.remove()
-
-        assertTrue(iterator.hasNext())
-        assertEquals(3, iterator.next())
-        assertFalse(iterator.hasNext())
-        assertEquals(listOf(1, 3), builder.build().toList())
-    }
-
-    @Test
-    fun `hasNext after a remove of an already visited element and then of every remaining element stays true`() {
-        val builder = persistentSetOf(1, 2, 3).builder()
-        val iterator = builder.iterator()
-        assertEquals(1, iterator.next())
-        assertEquals(2, iterator.next())
-
-        assertTrue(builder.remove(1))
-        assertTrue(iterator.hasNext())
-
-        assertTrue(builder.remove(2))
-        assertTrue(builder.remove(3))
-        assertTrue(iterator.hasNext())
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
-    fun `hasNext on an exhausted iterator after an external add stays false`() {
-        val builder = persistentSetOf(1, 2, 3).builder()
-        val iterator = builder.iterator()
-        repeat(3) { val _ = iterator.next() }
-        assertFalse(iterator.hasNext())
-
-        assertTrue(builder.add(9))
-
-        assertFalse(iterator.hasNext())
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
-    fun `hasNext on an iterator of an empty builder after an external add stays false`() {
+    fun `add to the iterator of an empty builder keeps it false and next throws`() {
         val builder = persistentSetOf<Int>().builder()
         val iterator = builder.iterator()
 
         assertTrue(builder.add(1))
 
         assertFalse(iterator.hasNext())
-    }
-
-    private fun key(value: Int): TraceKey = TraceKey(value, hashForValue(value))
-
-    private fun keys(vararg values: Int): List<TraceKey> = values.map(::key)
-
-    private fun hashForValue(value: Int): Int =
-        when (value.mod(10)) {
-            0, 1, 2 -> 0
-            3, 4, 5 -> 13 or ((value and 31) shl 5)
-            6, 7 -> 13 or (7 shl 5) or ((value and 31) shl 10)
-            else -> (value * 0x9E3779B9.toInt()).rotateLeft(7)
-        }
-
-    private class TraceKey(val value: Int, private val hash: Int) {
-        override fun equals(other: Any?): Boolean =
-            other is TraceKey && value == other.value && hash == other.hash
-
-        override fun hashCode(): Int = hash
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
     }
 }

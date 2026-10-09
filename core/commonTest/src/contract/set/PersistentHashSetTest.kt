@@ -11,7 +11,6 @@ import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.plus
 import kotlinx.collections.immutable.toPersistentHashSet
-import tests.IntWrapper
 import tests.trie.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,7 +22,7 @@ class PersistentHashSetTest {
 
     @Test
     fun `persistentHashSet and their builder should be equal before and after modification`() {
-        val set1 = persistentHashSetOf(-1, 0, 32)
+        val set1 = persistentHashSetOf(-1, 0, 32) // 32 shares root cell 0 with 0
         val builder = set1.builder()
 
         assertTrue(set1.equals(builder))
@@ -54,6 +53,7 @@ class PersistentHashSetTest {
 
     @Test
     fun `after removing elements from one collision the remaining one element must be promoted to the root`() {
+        // 32768 and 65536 share the cells of 0 down to level 2 and part at level 3
         val set1: PersistentHashSet<Int> = persistentHashSetOf(0, 32768, 65536) as PersistentHashSet<Int>
         val set2: PersistentHashSet<Int> = persistentHashSetOf(0, 32768) as PersistentHashSet<Int>
 
@@ -65,7 +65,7 @@ class PersistentHashSetTest {
 
     @Test
     fun `intersect should promote the only remaining element to the root`() {
-        val intersection = persistentHashSetOf(1, 33) intersect persistentHashSetOf(1, 65)
+        val intersection = persistentHashSetOf(1, 33) intersect persistentHashSetOf(1, 65) // 33 and 65 share root cell 1 with 1
         val expected = persistentHashSetOf(1)
 
         assertEquals(expected, intersection)
@@ -78,6 +78,7 @@ class PersistentHashSetTest {
 
     @Test
     fun `intersect should promote the only remaining element through multiple levels`() {
+        // 1025 and 2049 share root cell 1 and level-1 cell 0 with 1 and part at level 2
         val intersection = persistentHashSetOf(1, 1 + (1 shl 10)) intersect persistentHashSetOf(1, 1 + (1 shl 11))
         val expected = persistentHashSetOf(1)
 
@@ -88,6 +89,7 @@ class PersistentHashSetTest {
 
     @Test
     fun `intersect should keep a single remaining sub-node on its level`() {
+        // 1 and 1025 share root cell 1 and level-1 cell 0, 33 and 65 take level-1 cells 1 and 2
         val intersection = persistentHashSetOf(1, 1 + (1 shl 10), 33) intersect
                 persistentHashSetOf(1, 1 + (1 shl 10), 65)
         val expected = persistentHashSetOf(1, 1 + (1 shl 10))
@@ -99,9 +101,8 @@ class PersistentHashSetTest {
 
     @Test
     fun `intersect of colliding elements should promote the only remaining element to the root`() {
-        val intersection = persistentHashSetOf(IntWrapper(1, 0), IntWrapper(2, 0)) intersect
-                persistentHashSetOf(IntWrapper(1, 0), IntWrapper(3, 0))
-        val expected = persistentHashSetOf(IntWrapper(1, 0))
+        val intersection = persistentHashSetOf(collidingKey1, collidingKey2) intersect persistentHashSetOf(collidingKey1.copy(), collidingKey3)
+        val expected = persistentHashSetOf(collidingKey1)
 
         assertEquals(expected, intersection)
         assertEquals(intersection, expected)
@@ -110,7 +111,7 @@ class PersistentHashSetTest {
 
     @Test
     fun `removing the only remaining element after intersect should result in an empty set`() {
-        val intersection = persistentHashSetOf(1, 33) intersect persistentHashSetOf(1, 65)
+        val intersection = persistentHashSetOf(1, 33) intersect persistentHashSetOf(1, 65) // 33 and 65 share root cell 1 with 1
         val empty = intersection - 1
 
         assertEquals(persistentHashSetOf<Int>(), empty)

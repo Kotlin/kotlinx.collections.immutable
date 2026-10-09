@@ -15,7 +15,6 @@ class ImmutableListTest {
 
     private fun <T> compareLists(expected: List<T>, actual: List<T>) = compare(expected, actual) { listBehavior() }
 
-
     @Test fun empty() {
         val empty1 = persistentListOf<Int>()
         val empty2 = persistentListOf<String>()
@@ -208,8 +207,6 @@ class ImmutableListTest {
         compareLists(mutable, builder.build())
     }
 
-    private fun indices(size: Int) = listOf(0, 31, 32, 1023, 1024, size - 1).filter { it < size }.distinct()
-
     @Test fun noOperation() {
         persistentListOf<Int>().testNoOperation({ cleared() }, { clear() })
 
@@ -223,9 +220,9 @@ class ImmutableListTest {
             testNoOperation({ addingAllAt(2, emptyList()) }, { addAll(2, emptyList())})
         }
 
-        for (size in listOf(3, 40, 100, 1100)) {
+        for (size in listOf(TAIL_ONLY, ONE_LEAF, LEAVES, NODES)) {
             val wrappers = List(size) { IntWrapper(it, it) }.toPersistentList()
-            for (index in indices(size)) {
+            for (index in boundaryIndices(size)) {
                 val element = wrappers[index]
                 val equalElement = IntWrapper(index, index)
                 val elementAtNextIndex = wrappers[(index + 1) % size]
@@ -259,9 +256,9 @@ class ImmutableListTest {
     }
 
     @Test fun replacingAtEqualButNotSameElement() {
-        for (size in listOf(3, 40, 100, 1100)) {
+        for (size in listOf(TAIL_ONLY, ONE_LEAF, LEAVES, NODES)) {
             val list = List(size) { IntWrapper(it, it) }.toPersistentList()
-            for (index in indices(size)) {
+            for (index in boundaryIndices(size)) {
                 val newElement = IntWrapper(index, index)
                 val newList = list.replacingAt(index, newElement)
                 assertNotSame(list, newList, "size $size index $index")
@@ -276,9 +273,9 @@ class ImmutableListTest {
 
     @Test fun replacingAtNullElements() {
         val element = Any()
-        for (size in listOf(3, 40, 100, 1100)) {
+        for (size in listOf(TAIL_ONLY, ONE_LEAF, LEAVES, NODES)) {
             val nulls = List<Any?>(size) { null }.toPersistentList()
-            for (index in indices(size)) {
+            for (index in boundaryIndices(size)) {
                 val message = "size $size index $index"
                 nulls.testNoOperation({ replacingAt(index, null) }, { this[index] = null }, message)
 
