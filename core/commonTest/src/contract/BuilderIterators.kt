@@ -134,8 +134,8 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
 /**
  * Makes the non-structural [builderOp] on a fresh builder of every origin in [builders], behind every iterator of
  * [views], with 0 to size elements returned, and checks that the rest of the iteration is the builder's live
- * content from the cursor on, before and after the iterator's own remove, that the remove takes the returned
- * element out of the builder, and that it fails every other live iterator.
+ * content from the cursor on and ends with NoSuchElementException, before and after the iterator's own remove, that
+ * the remove takes the returned element out of the builder, and that it fails every other live iterator.
  */
 fun <C : Any> Cells.testIterationContinues(
     builders: List<Pair<String, () -> C>>,
@@ -165,6 +165,7 @@ fun <C : Any> Cells.testIterationContinues(
                 }
 
                 assertEquals(live.drop(returned), iterator.drain())
+                assertFailsWith<NoSuchElementException> { iterator.next() }
                 val expected = live.toMutableList().apply { if (removeAtTheCursor) removeAt(returned - 1) }
                 assertEquals(expected.unordered(), builder.open().drain().unordered())
             }
