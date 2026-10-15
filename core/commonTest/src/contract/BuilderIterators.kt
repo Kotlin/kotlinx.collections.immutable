@@ -68,6 +68,8 @@ class IteratorOperation<in I>(
 
 val iteratorOperations: List<IteratorOperation<MutableIterator<*>>> = listOf(
     IteratorOperation("next()") { next() },
+    IteratorOperation("remove()", needsAnElement = true) { remove() },
+    IteratorOperation("remove() twice", needsAnElement = true) { remove(); assertFailsWith<IllegalStateException> { remove() } },
 )
 
 /** The elements an iterator still has. A live map entry is read as its key and value the moment it is drained. */
