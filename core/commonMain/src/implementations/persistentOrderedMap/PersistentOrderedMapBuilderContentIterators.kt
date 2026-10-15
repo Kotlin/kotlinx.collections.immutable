@@ -121,11 +121,11 @@ private class MutableMapEntry<K, V>(
     private fun ensureSlotIsLive() {
         val hashMapBuilder = builder.hashMapBuilder
         if (hashMapBuilder.modCount != slotModCount) {
-            slotModCount = hashMapBuilder.modCount
             if (!hashMapBuilder.node.locate(key.hashCode(), key, 0, this)) {
                 buffer = TrieNode.EMPTY.buffer
                 index = -1
             }
+            slotModCount = hashMapBuilder.modCount
         }
         if (index != -1) lastValue = links().value
     }

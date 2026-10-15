@@ -48,11 +48,11 @@ private class MutableMapEntry<K, V>(
 
     private fun ensureSlotIsLive() {
         if (builder.modCount != slotModCount) {
-            slotModCount = builder.modCount
             if (!builder.node.locate(key.hashCode(), key, 0, this)) {
                 buffer = TrieNode.EMPTY.buffer
                 index = -1
             }
+            slotModCount = builder.modCount
         }
         if (index != -1) lastValue = slotValue()
     }
