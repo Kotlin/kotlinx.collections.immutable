@@ -42,6 +42,7 @@ internal class PersistentHashSet<E>(
     override fun remove(element: E): PersistentSet<E> {
         val newNode = node.remove(element.hashCode(), element, 0)
         if (node === newNode) return this
+        if (size == 1) return emptyOf()
         return PersistentHashSet(newNode, size - 1)
     }
 
@@ -99,6 +100,8 @@ internal class PersistentHashSet<E>(
 
     internal companion object {
         private val EMPTY = PersistentHashSet(TrieNode.EMPTY, 0)
-        internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
+
+        @Suppress("UNCHECKED_CAST")
+        internal fun <E> emptyOf(): PersistentHashSet<E> = EMPTY as PersistentHashSet<E>
     }
 }

@@ -27,7 +27,11 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         } ?: run {
             assert { hashMapBuilder.builtMap == null }
             val newMap = hashMapBuilder.build()
-            val newSet = PersistentOrderedSet(firstElement, lastElement, newMap)
+            val newSet = if (newMap.isEmpty()) {
+                PersistentOrderedSet.emptyOf()
+            } else {
+                PersistentOrderedSet(firstElement, lastElement, newMap)
+            }
             builtSet = newSet
             newSet
         }

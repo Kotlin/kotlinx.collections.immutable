@@ -33,7 +33,11 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         } ?: run {
             assert { hashMapBuilder.builtMap == null }
             val newHashMap = hashMapBuilder.build()
-            val newOrdered = PersistentOrderedMap(firstKey, lastKey, newHashMap)
+            val newOrdered = if (newHashMap.isEmpty()) {
+                PersistentOrderedMap.emptyOf()
+            } else {
+                PersistentOrderedMap(firstKey, lastKey, newHashMap)
+            }
             builtMap = newOrdered
             newOrdered
         }

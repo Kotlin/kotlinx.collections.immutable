@@ -41,7 +41,7 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) :
 
     override fun build(): PersistentHashMap<K, V> {
         return builtMap ?: run {
-            val newlyBuiltMap = PersistentHashMap(node, size)
+            val newlyBuiltMap = if (size == 0) PersistentHashMap.emptyOf() else PersistentHashMap(node, size)
             builtMap = newlyBuiltMap
             ownership = MutabilityOwnership()
             newlyBuiltMap
