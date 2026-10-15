@@ -52,9 +52,9 @@ internal val listDepths: Map<Int, String> = mapOf(
     NODES to "a root over level-1 nodes",
 )
 
-/** Runs [test] on a fresh builder of every origin in [builders]; the message names the origin. */
-fun <B> forEachBuilder(builders: List<Pair<String, () -> B>>, test: (message: String, builder: B) -> Unit) {
-    for ((origin, newBuilder) in builders) test(origin, newBuilder())
+/** Runs [test] on a fresh builder of every origin in [builders], one cell per origin; the message names the origin. */
+fun <B> forEachBuilder(builders: List<Pair<String, () -> B>>, test: (message: String, builder: B) -> Unit): Unit = runCells {
+    for ((origin, newBuilder) in builders) cell(origin) { test(origin, newBuilder()) }
 }
 
 /** Builders of a list of [size] elements, each equal to its index: from a list, which shares its leaves, and from adds, which own theirs. */
