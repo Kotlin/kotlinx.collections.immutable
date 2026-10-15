@@ -17,10 +17,14 @@ import kotlin.test.fail
  * iterator.
  */
 
-/** The cells of one table. Each cell runs on its own; the table then fails once, listing every failing cell. */
+/**
+ * The cells of one table. Each cell runs on its own; the table then fails once, listing the first 100 failing cells
+ * with the count of the rest, and keeps the first failure as the cause.
+ */
 class Cells {
     private var count = 0
     private val failures = mutableListOf<String>()
+    private var firstFailure: Throwable? = null
 
     /** Runs [body] as one cell; [message] names the cell in the report. */
     fun cell(message: String, body: () -> Unit) {
@@ -29,6 +33,7 @@ class Cells {
             body()
         } catch (e: Throwable) {
             failures += "$message: $e"
+            if (firstFailure == null) firstFailure = e
         }
     }
 
@@ -37,7 +42,7 @@ class Cells {
         if (failures.isEmpty()) return
         val shown = failures.take(100)
         val more = if (failures.size > shown.size) "\n... and ${failures.size - shown.size} more" else ""
-        fail("${failures.size} of $count cells failed:\n" + shown.joinToString("\n") + more)
+        fail("${failures.size} of $count cells failed:\n" + shown.joinToString("\n") + more, firstFailure)
     }
 }
 
