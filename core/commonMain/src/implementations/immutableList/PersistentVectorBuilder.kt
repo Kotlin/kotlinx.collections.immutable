@@ -971,6 +971,15 @@ internal class PersistentVectorBuilder<E>(
         return newToBufferSize
     }
 
+    override fun clear() {
+        modCount += 1
+
+        root = null
+        tail = emptyArray()
+        rootShift = 0
+        size = 0
+    }
+
     override fun set(index: Int, element: E): E {
         // TODO: Should list[i] = list[i] make it mutable?
         checkElementIndex(index, size)
