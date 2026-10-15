@@ -7,14 +7,27 @@ package tests.contract.map
 
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
+import kotlinx.collections.immutable.toPersistentHashMap
 import tests.IntWrapper
+import tests.contract.drain
+import tests.contract.forEachBuilder
+import tests.contract.hashMapBuildersOf
+import tests.trie.*
 import kotlin.collections.iterator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+
+private class MutableHashKey(private val id: Int, var hash: Int) {
+    override fun hashCode(): Int = hash
+
+    override fun toString(): String = "MutableHashKey($id)"
+}
 
 class PersistentHashMapBuilderTest {
 
@@ -328,5 +341,219 @@ class PersistentHashMapBuilderTest {
         assertEquals(if (entry.key == 1) 2 else 1, iterator.next().key)
         assertFalse(iterator.hasNext())
         assertFalse(builder.build().containsKey(entry.key))
+    }
+
+    @Test
+    fun `next after a promoting remove returns the value written after the remove`() {
+        val removed = IntWrapper(1, 0)
+        val promoted = removed.siblingAt(level = 1, id = 2)
+        val rootEntry = removed.siblingAt(level = 0, id = 3)
+        forEachBuilder(hashMapBuildersOf(listOf(rootEntry, removed, promoted).map { it to "old" })) { message, builder ->
+            val iterator = builder.entries.iterator()
+            assertEquals(listOf(rootEntry, removed), List(2) { iterator.next().key }, message)
+            iterator.remove()
+
+            builder[promoted] = "new"
+
+            assertEquals(listOf(promoted to "new"), iterator.drain(), message)
+        }
+    }
+
+    @Test
+    fun `next after a promoting remove and a build returns the value written after the build`() {
+        val removed = IntWrapper(1, 0)
+        val promoted = removed.siblingAt(level = 1, id = 2)
+        val rootEntry = removed.siblingAt(level = 0, id = 3)
+        forEachBuilder(hashMapBuildersOf(listOf(rootEntry, removed, promoted).map { it to "old" })) { message, builder ->
+            val iterator = builder.entries.iterator()
+            assertEquals(listOf(rootEntry, removed), List(2) { iterator.next().key }, message)
+            iterator.remove()
+            val built = builder.build()
+
+            builder[promoted] = "new"
+
+            assertEquals(listOf(promoted to "new"), iterator.drain(), message)
+            assertEquals("old", built[promoted], message)
+        }
+    }
+
+    @Test
+    fun `overwrite in an unowned node after a promoting remove keeps the iterator valid`() {
+        val overwritten = IntWrapper(1, 0)
+        val overwrittenSibling = overwritten.siblingAt(level = 1, id = 2)
+        val removed = overwritten.siblingAt(level = 0, id = 3, cell = 1)
+        val promoted = removed.siblingAt(level = 1, id = 4)
+        val visitedBefore = overwritten.siblingAt(level = 0, id = 5, cell = 2)
+        val visitedBeforeSibling = visitedBefore.siblingAt(level = 1, id = 6)
+        val rootEntry = overwritten.siblingAt(level = 0, id = 7, cell = 3)
+        val builder = listOf(rootEntry, visitedBefore, visitedBeforeSibling, removed, promoted, overwritten, overwrittenSibling)
+            .associateWith { "old" }.toPersistentHashMap().builder()
+        val iterator = builder.entries.iterator()
+        assertEquals(listOf(rootEntry, visitedBefore, visitedBeforeSibling, removed), List(4) { iterator.next().key })
+        iterator.remove()
+
+        builder[overwritten] = "new"
+
+        assertEquals(listOf(promoted to "old", overwritten to "new", overwrittenSibling to "old"), iterator.drain())
+        assertEquals(6, builder.size)
+    }
+
+    @Test
+    fun `overwrites after a promoting remove and a build keep the iterator valid`() {
+        val lastOverwritten = IntWrapper(1, 0)
+        val lastOverwrittenSibling = lastOverwritten.siblingAt(level = 1, id = 2)
+        val firstOverwritten = lastOverwritten.siblingAt(level = 0, id = 3)
+        val firstOverwrittenSibling = firstOverwritten.siblingAt(level = 2, id = 4)
+        val removed = firstOverwritten.siblingAt(level = 1, id = 5)
+        val promoted = removed.siblingAt(level = 2, id = 6)
+        val builder = listOf(removed, promoted, firstOverwritten, firstOverwrittenSibling, lastOverwritten, lastOverwrittenSibling)
+            .associateWith { "old" }.toPersistentHashMap().builder()
+        val iterator = builder.entries.iterator()
+        assertEquals(removed, iterator.next().key)
+        iterator.remove()
+
+        val _ = builder.build()
+        builder[firstOverwritten] = "new"
+        builder[lastOverwritten] = "new"
+
+        assertEquals(
+            listOf(
+                promoted to "old",
+                firstOverwritten to "new", firstOverwrittenSibling to "old",
+                lastOverwritten to "new", lastOverwrittenSibling to "old",
+            ),
+            iterator.drain(),
+        )
+        assertEquals(5, builder.size)
+    }
+
+    @Test
+    fun `overwrite in a later node while the iterator is inside another node is seen`() {
+        val overwritten = IntWrapper(1, 0)
+        val overwrittenSibling = overwritten.siblingAt(level = 1, id = 2)
+        val rootEntry = overwritten.siblingAt(level = 0, id = 3, cell = 1)
+        val returned = overwritten.siblingAt(level = 0, id = 4, cell = 2)
+        val returnedSibling = returned.siblingAt(level = 1, id = 5)
+        val builder = listOf(rootEntry, returned, returnedSibling, overwritten, overwrittenSibling)
+            .associateWith { "old" }.toPersistentHashMap().builder()
+        val iterator = builder.entries.iterator()
+        assertEquals(listOf(rootEntry, returned), List(2) { iterator.next().key })
+
+        builder[overwritten] = "new"
+
+        assertEquals(listOf(returnedSibling to "old", overwritten to "new", overwrittenSibling to "old"), iterator.drain())
+    }
+
+    @Test
+    fun `putAll of new values in another collision order keeps the receiver's order`() {
+        val builder = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", collidingKey3 to "c", collidingKey1.colliding(11) to "d").builder()
+        val storedKeys = builder.keys.toList()
+        val (first, second, third, last) = storedKeys
+        val argument = persistentHashMapOf(third to "z", last to "w", first to "x", second to "y")
+        assertNotEquals(storedKeys, argument.keys.toList())
+        val iterator = builder.entries.iterator()
+        assertEquals(first, iterator.next().key)
+
+        builder.putAll(argument)
+
+        assertEquals(listOf(second to "y", third to "z", last to "w"), iterator.drain())
+        assertEquals(storedKeys, builder.keys.toList())
+    }
+
+    @Test
+    fun `putAll of new values in an unowned collision node under an owned root keeps the root`() {
+        val builder = (persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", lastLevelSibling to "c") as PersistentHashMap<IntWrapper, String>).builder()
+        builder[lastLevelSibling] = "C"
+        val root = builder.node
+        val iterator = builder.entries.iterator()
+        assertEquals("C", iterator.next().value)
+
+        builder.putAll(persistentHashMapOf(collidingKey1 to "x", collidingKey2 to "y"))
+
+        assertSame(root, builder.node)
+        assertEquals("x", builder[collidingKey1])
+        assertEquals(listOf("x", "y"), List(2) { iterator.next().value }.sorted())
+        assertFalse(iterator.hasNext())
+    }
+
+    @Test
+    fun `next after setValue of the returned entry reads a value written later`() =
+        forEachBuilder(hashMapBuildersOf(listOf(1, 2, 3).map { it to "old" })) { message, builder ->
+            val order = builder.keys.toList()
+            val iterator = builder.entries.iterator()
+            assertEquals("old", iterator.next().setValue("x"), message)
+
+            builder[order[1]] = "new"
+
+            assertEquals(listOf(order[1] to "new", order[2] to "old"), iterator.drain(), message)
+        }
+
+    @Test
+    fun `next after the hash of the next key changed and an overwrite copied its path throws ConcurrentModificationException until the hash is back`() {
+        fun check(case: String, hashes: List<Int>, returned: Int, newHash: Int) {
+            val keys = hashes.mapIndexed { id, hash -> MutableHashKey(id, hash) }
+            val builder = persistentHashMapOf(*keys.map { it to "old" }.toTypedArray()).builder()
+            val order = builder.keys.toList()
+            val iterator = builder.entries.iterator()
+            repeat(returned) { val _ = iterator.next() }
+            val hash = order[returned].hash
+            assertNotEquals(newHash, hash, case)
+
+            order[returned].hash = newHash
+            builder[keys[0]] = "new"
+
+            assertFailsWith<ConcurrentModificationException>(case) { val _ = iterator.next() }
+            order[returned].hash = hash
+            assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain(), case)
+        }
+        check("onto another entry", hashes = listOf(0, 1, 2), returned = 1, newHash = 2)
+        check("onto an empty cell", hashes = listOf(0, 1, 2), returned = 1, newHash = 5)
+        check("onto another collision node", hashes = listOf(0, 0, 32, 32), returned = 0, newHash = 0)
+        check("onto an empty cell of a subnode", hashes = listOf(0, 2, 1, 33), returned = 1, newHash = 65)
+    }
+
+    @Test
+    fun `remove after the hash of the next key changed takes out the key returned last`() {
+        val keys = List(3) { MutableHashKey(it, it) }
+        val builder = persistentHashMapOf(*keys.map { it to "old" }.toTypedArray()).builder()
+        val iterator = builder.keys.iterator()
+        assertEquals(keys[0], iterator.next())
+        keys[1].hash = 5
+
+        iterator.remove()
+
+        assertEquals(2, builder.size)
+        assertFailsWith<ConcurrentModificationException> { val _ = iterator.next() }
+        keys[1].hash = 1
+        assertEquals(keys.drop(1), iterator.drain())
+    }
+
+    @Test
+    fun `a live iterator goes on after an overwrite at a null key and a NaN key and removes the null key`() {
+        val entries = listOf(null to null, Double.NaN to "nan", 1.0 to "one")
+        val order = persistentHashMapOf(*entries.toTypedArray()).keys.toList()
+        for (returned in order.indices) {
+            val builder = persistentHashMapOf(*entries.toTypedArray()).builder()
+            val iterator = builder.entries.iterator()
+            repeat(returned) { val _ = iterator.next() }
+
+            builder[order[returned]] = "new"
+
+            assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain(), "after $returned next")
+        }
+
+        val builder = persistentHashMapOf(*entries.toTypedArray()).builder()
+        val iterator = builder.entries.iterator()
+        val skipped = order.indexOf(null)
+        repeat(skipped) { val _ = iterator.next() }
+        val entry = iterator.next()
+        assertNull(entry.key)
+        assertNull(entry.setValue("n"))
+        assertEquals("n", builder[null])
+
+        iterator.remove()
+
+        assertFalse(null in builder)
+        assertEquals(order.drop(skipped + 1).map { it to builder[it] }, iterator.drain())
     }
 }

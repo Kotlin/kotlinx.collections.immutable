@@ -8,10 +8,13 @@ package tests.contract.set
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.persistentHashSetOf
 import tests.IntWrapper
+import tests.contract.forEachBuilder
+import tests.contract.hashSetBuildersOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashSetBuilderTest {
@@ -189,5 +192,50 @@ class PersistentHashSetBuilderTest {
         assertTrue(reversedBuilder.removeAll(persistentHashSetOf(a1, a2)))
         assertEquals(1, reversedBuilder.size)
         assertEquals(persistentHashSetOf(sibling), reversedBuilder.build())
+    }
+
+    @Test
+    fun `retainAll and removeAll on an empty builder keep the iterator valid`() {
+        val builders = listOf(
+            "from the empty set" to { persistentHashSetOf<Int>().builder() },
+            "emptied by remove" to { persistentHashSetOf(7).builder().apply { assertTrue(remove(7)) } },
+        )
+        val operations = listOf<Pair<String, MutableSet<Int>.() -> Boolean>>(
+            "retainAll of a set" to { retainAll(persistentHashSetOf(1, 2)) },
+            "retainAll of the empty set" to { retainAll(persistentHashSetOf<Int>()) },
+            "retainAll of a builder" to { retainAll(persistentHashSetOf(1, 2).builder()) },
+            "removeAll of a set" to { removeAll(persistentHashSetOf(1, 2)) },
+            "removeAll of a builder" to { removeAll(persistentHashSetOf(1, 2).builder()) },
+        )
+        for ((flavour, newBuilder) in builders) {
+            for ((operation, operate) in operations) {
+                val builder = newBuilder()
+                val built = builder.build()
+                val iterator = builder.iterator()
+
+                assertFalse(builder.operate(), "$operation, $flavour")
+
+                assertSame(built, builder.build(), "$operation, $flavour")
+                assertFailsWith<NoSuchElementException>("$operation, $flavour") { iterator.next() }
+            }
+        }
+    }
+
+    @Test
+    fun `removeAll of a stored element and retainAll that empties the builder invalidate the iterator`() = forEachBuilder(hashSetBuildersOf(listOf(1, 2, 3))) { message, builder ->
+        val iterator = builder.iterator()
+        repeat(3) { val _ = iterator.next() }
+
+        assertTrue(builder.removeAll(persistentHashSetOf(1)), message)
+
+        assertEquals(2, builder.size, message)
+        assertFailsWith<ConcurrentModificationException>(message) { iterator.next() }
+
+        val second = builder.iterator()
+
+        assertTrue(builder.retainAll(persistentHashSetOf(8, 9)), message)
+
+        assertEquals(0, builder.size, message)
+        assertFailsWith<ConcurrentModificationException>(message) { second.next() }
     }
 }
