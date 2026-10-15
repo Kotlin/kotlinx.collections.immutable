@@ -30,17 +30,17 @@ import tests.trie.trieShapes
  * A new row in a table below costs builders x views x (size + 1) fresh builders per iterator call.
  */
 
-/** The list sizes at which the trie changes shape. */
+/** One list size for each shape of the trie. */
 internal const val TAIL_ONLY = 3
 internal const val FULL_TAIL = MAX_BUFFER_SIZE
 internal const val ONE_LEAF = MAX_BUFFER_SIZE + 8
 internal const val LEAVES = 3 * MAX_BUFFER_SIZE + 4
 internal const val NODES = MAX_BUFFER_SIZE * MAX_BUFFER_SIZE + 76
 
-/** The indices at the leaf and level boundaries of a list of [size]. */
+/** The first index, the indices around the first leaf and level boundaries, and the last index of a list of [size]. */
 internal fun boundaryIndices(size: Int): List<Int> =
     listOf(0, MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE, size - 1)
-        .filter { it < size }
+        .filter { it in 0..<size }
         .distinct()
 
 /** The shapes of the list trie by size, for the tests that run at every depth. */
