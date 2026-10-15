@@ -120,6 +120,10 @@ val listViews: List<Pair<String, PersistentList.Builder<Any>.() -> MutableIterat
     "iterator" to { iterator() },
 )
 
+val listIteratorViews: List<Pair<String, PersistentList.Builder<Any>.() -> MutableListIterator<Any>>> = listOf(
+    "listIterator" to { listIterator() },
+)
+
 val mapViews: List<Pair<String, PersistentMap.Builder<Any, String>.() -> MutableIterator<*>>> = listOf(
     "entries" to { entries.iterator() },
     "keys" to { keys.iterator() },
