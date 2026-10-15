@@ -10,7 +10,6 @@ import kotlinx.collections.immutable.implementations.immutableMap.MAX_BRANCHING_
 import kotlinx.collections.immutable.implementations.immutableMap.MAX_SHIFT
 import kotlinx.collections.immutable.implementations.immutableMap.indexSegment
 import tests.IntWrapper
-import kotlin.random.Random
 
 // Keys for the hash trie tests, declared by their relation to another key. The node at level n reads the bits
 // [n * LOG_MAX_BRANCHING_FACTOR, (n + 1) * LOG_MAX_BRANCHING_FACTOR) of the hash, the root being level 0, so a
@@ -68,25 +67,3 @@ val trieShapes: Map<String, List<Any>> = mapOf(
     "a level-2 node under a level-1 node" to listOf(collidingKey1, levelTwoSibling, levelOneSibling, rootSibling),
     "two collision nodes under a level-1 node" to listOf(collidingKey1, collidingKey2, levelOneSibling, levelOneSibling.colliding(9)),
 )
-
-/**
- * Seven hashes reaching every kind of node: root entries, a level-1 node, a level-2 node, the last level and a
- * collision node. The ids of the keys are irrelevant: [randomTrieKeys] hands the hashes out by id, so the ids
- * id and id + 7 collide.
- */
-private val trieLevelHashes: List<Int> = listOf(
-    collidingKey1, rootSibling,
-    levelOneSibling, rootSibling.siblingAt(level = 1, id = 9),
-    levelTwoSibling,
-    lastLevelSibling, levelOneSibling.siblingAt(level = LAST_LEVEL, id = 10),
-).map { it.hashCode }
-
-/** A random subset of [ids] as keys placed all over the trie, by id. */
-fun randomTrieKeys(random: Random, ids: IntRange): Map<Int, IntWrapper> =
-    ids.filter { random.nextBoolean() }.associateWith { IntWrapper(it, trieLevelHashes[it % trieLevelHashes.size]) }
-
-/** The instance the map stores for [key]. */
-fun <K> Map<K, *>.storedKey(key: K): K = keys.single { it == key }
-
-/** The instance the set stores for [element]. */
-fun <E> Set<E>.storedElement(element: E): E = single { it == element }
