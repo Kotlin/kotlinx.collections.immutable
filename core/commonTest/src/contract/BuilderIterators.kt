@@ -76,6 +76,15 @@ internal fun Iterator<*>.drain(): List<Any?> = asSequence().map { if (it is Map.
 /** The elements as a multiset: a remove from a hash trie may promote an element ahead of the ones already visited. */
 private fun List<Any?>.unordered(): List<Any?> = sortedBy { it.toString() }
 
+/** The number of elements [open] gives on a fresh builder; if that throws, a failed cell named [message] says so and the result is null. */
+private fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() -> Iterator<*>): Int? =
+    try {
+        newBuilder().open().drain().size
+    } catch (e: Throwable) {
+        cell(message) { throw e }
+        null
+    }
+
 /**
  * Makes [builderOp] on a fresh builder of every origin in [builders], behind every iterator of [views], with 0 to
  * size elements returned, and checks what [iteratorOp] then does. The contract is java.util's: a structural call
@@ -91,7 +100,7 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
     iteratorOp: IteratorOperation<I>,
 ) {
     for ((origin, newBuilder) in builders) for ((viewName, open) in views) {
-        val size = newBuilder().open().drain().size
+        val size = sizeOf("$origin, $viewName", newBuilder, open) ?: continue
         for (returned in 0..size) cell("$origin, $viewName, ${iteratorOp.description} after $returned next, ${builderOp.description}") {
             val control = newBuilder().open()
             repeat(returned) { val _ = control.next() }
@@ -135,7 +144,7 @@ fun <C : Any> Cells.testIterationContinues(
 ) {
     require(!builderOp.throwsCME) { "${builderOp.description} is structural" }
     for ((origin, newBuilder) in builders) for ((viewName, open) in views) {
-        val size = newBuilder().open().drain().size
+        val size = sizeOf("$origin, $viewName", newBuilder, open) ?: continue
         for (returned in 0..size) for (removeAtTheCursor in listOf(false, true)) {
             if (removeAtTheCursor && returned == 0) continue
             val message = "$origin, $viewName after $returned next, ${builderOp.description}" +
