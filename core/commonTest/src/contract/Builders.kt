@@ -87,9 +87,6 @@ fun <K, V> orderedMapBuildersOf(entries: List<Pair<K, V>>) = mapBuildersOf(entri
 fun <E> hashSetBuildersOf(elements: List<E>) = setBuildersOf(elements) { it.toPersistentHashSet() }
 fun <E> orderedSetBuildersOf(elements: List<E>) = setBuildersOf(elements) { it.toPersistentSet() }
 
-/** An element no fixture holds: a set's write adds it and removes it again, which copies the path to its cell. */
-private const val SPARE = "spare"
-
 /** List builders of the tail alone and of a leaf with a tail. */
 val listBuilders: List<Pair<String, () -> PersistentList.Builder<Any>>> = listOf(TAIL_ONLY, FULL_TAIL + 1).flatMap { size ->
     val elements = List<Any>(size) { it }
@@ -124,15 +121,16 @@ private fun mapBuilders(mapOf: (List<Pair<Any, String>>) -> PersistentMap<Any, S
         )
     }
 
-/** Set builders of every trie shape from the sets [setOf] makes, in the shape's element order; the write adds an element and removes it. */
+/** Set builders of every trie shape from the sets [setOf] makes, in the shape's element order; the write removes the first element and adds it back. */
 private fun setBuilders(setOf: (List<Any>) -> PersistentSet<Any>): List<Pair<String, () -> PersistentSet.Builder<Any>>> =
     trieShapes.flatMap { (shape, elements) ->
+        val first = elements.first()
         listOf(
             "from a set of $shape" to { setOf(elements).builder() },
             "from adds of $shape" to { setOf(emptyList()).builder().apply { addAll(elements) } },
-            "from a set of $shape with an add and a remove" to { setOf(elements).builder().apply { add(SPARE); remove(SPARE) } },
-            "from adds of $shape after a build, an add and a remove" to {
-                setOf(emptyList()).builder().apply { addAll(elements); val _ = build(); add(SPARE); remove(SPARE) }
+            "from a set of $shape with a remove and an add" to { setOf(elements).builder().apply { remove(first); add(first) } },
+            "from adds of $shape after a build, a remove and an add" to {
+                setOf(emptyList()).builder().apply { addAll(elements); val _ = build(); remove(first); add(first) }
             },
         )
     }
