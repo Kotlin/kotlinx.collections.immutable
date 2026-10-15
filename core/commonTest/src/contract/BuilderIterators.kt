@@ -88,10 +88,10 @@ private fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() ->
 /**
  * Makes [builderOp] on a fresh builder of every origin in [builders], behind every iterator of [views], with 0 to
  * size elements returned, and checks what [iteratorOp] then does. The contract is java.util's: a structural call
- * makes next and remove throw ConcurrentModificationException; with nothing returned, remove reports
- * IllegalStateException first; a failed call leaves the iterator failed and the builder as the call left it; a
- * non-structural call changes nothing, so the iterator does what it does on an untouched builder (the control run
- * says what that is).
+ * makes next and remove throw ConcurrentModificationException, and with nothing returned remove reports
+ * IllegalStateException first; either way the iterator stays failed and the builder stays as the structural call
+ * left it. A non-structural call changes nothing, so the iterator does what it does on an untouched builder (the
+ * control run says what that is).
  */
 fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
     builders: List<Pair<String, () -> C>>,
