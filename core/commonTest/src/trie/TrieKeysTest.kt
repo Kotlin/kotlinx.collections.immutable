@@ -56,6 +56,12 @@ class TrieKeysTest {
     }
 
     @Test
+    fun `a sibling keeps the path of its key above its level`() {
+        val keys = listOf(levelOneSibling, levelOneSibling.siblingAt(level = 2, id = 10))
+        assertEquals(listOf(2, 2), keys.map { levelOf(trieOf(keys), it) })
+    }
+
+    @Test
     fun `the shapes form the tries they are named after`() {
         val levels = mapOf(
             "int keys" to listOf(0, 0, 0),
