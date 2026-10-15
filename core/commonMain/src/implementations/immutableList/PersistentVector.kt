@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.internal.writeChangesNothing
 
 /**
  * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having
@@ -329,7 +330,7 @@ internal class PersistentVector<E>(
         checkElementIndex(index, size)
         if (rootSize() <= index) {
             val tailIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
-            if (tail[tailIndex] === element) return this
+            if (writeChangesNothing(tail[tailIndex], element)) return this
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)
             newTail[tailIndex] = element
             return PersistentVector(root, newTail, size, rootShift)
@@ -342,7 +343,7 @@ internal class PersistentVector<E>(
     private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: Any?): Array<Any?>? {
         val bufferIndex = indexSegment(index, shift)
         if (shift == 0) {
-            if (root[bufferIndex] === e) return null
+            if (writeChangesNothing(root[bufferIndex], e)) return null
             val newRoot = root.copyOf(MAX_BUFFER_SIZE)
             newRoot[bufferIndex] = e
             return newRoot

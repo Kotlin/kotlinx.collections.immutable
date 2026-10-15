@@ -308,7 +308,8 @@ abstract class ImmutableMapTest {
           * remove(key, value):
               the above, or the value for the found key is not equal (!=) to the given value
           * put(key, value):
-              map has a key equal (==) to the given key, and the value for the found key is the same (===) as the given value
+              map has a key equal (==) to the given key, and the value for the found key is the same (===) as the given value,
+              or, for a primitive or unsigned number, a char or a Boolean, an equal (==) one
          */
         val map = immutableMapOf(key to value, null to "x").toPersistentMap()
 
