@@ -57,10 +57,10 @@ fun <B> forEachBuilder(builders: List<Pair<String, () -> B>>, test: (message: St
     for ((origin, newBuilder) in builders) cell(origin) { test(origin, newBuilder()) }
 }
 
-/** Builders of a list of [size] elements, each equal to its index: from a list, which shares its leaves, and from adds, which own theirs. */
+/** Builders of a list of one of the [listDepths] sizes, each element equal to its index: from a list, which shares its leaves, and from adds, which own theirs. */
 fun listBuildersOf(size: Int): List<Pair<String, () -> PersistentList.Builder<Int>>> {
     val elements = List(size) { it }
-    val shape = listDepths[size] ?: "a root over leaves"
+    val shape = listDepths.getValue(size)
     return listOf(
         "from a list of $size, $shape" to { elements.toPersistentList().builder() },
         "from adds of $size, $shape" to { persistentListOf<Int>().builder().apply { addAll(elements) } },
