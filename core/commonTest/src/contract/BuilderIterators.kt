@@ -79,7 +79,7 @@ private val Any.reportedSize: Int get() = if (this is Map<*, *>) size else (this
 private fun List<Any?>.unordered(): List<Any?> = sortedBy { it.toString() }
 
 /** The size [open] gives on a fresh builder, or null when that throws and a failed cell named [message] reports it. */
-private fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() -> Iterator<*>): Int? =
+internal fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() -> Iterator<*>): Int? =
     try {
         newBuilder().open().drain().size
     } catch (e: Throwable) {
