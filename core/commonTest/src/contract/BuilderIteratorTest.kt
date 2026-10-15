@@ -1,0 +1,34 @@
+/*
+ * Copyright 2016-2026 JetBrains s.r.o.
+ * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
+ */
+
+package tests.contract
+
+import kotlin.test.Test
+
+/**
+ * The builder iterators fail fast as java.util's do: a call through the builder that moves its size makes next of
+ * every live iterator throw ConcurrentModificationException; a call that keeps the size, an overwrite or a no-op,
+ * leaves them valid, and the iteration goes on over the live content.
+ */
+class BuilderIteratorTest {
+
+    @Test
+    fun hashSet() = runCells { sweep(hashSetBuilders, setViews, hashSetOperations) }
+
+    @Test
+    fun orderedSet() = runCells { sweep(orderedSetBuilders, setViews, orderedSetOperations) }
+}
+
+/** Every call of [operations] behind every iterator call, and the rest of the iteration after each call that keeps the size. */
+private fun <C : Any> Cells.sweep(
+    builders: List<Pair<String, () -> C>>,
+    views: List<Pair<String, C.() -> MutableIterator<*>>>,
+    operations: List<BuilderOperation<C>>,
+) {
+    for (operation in operations) {
+        for (iteratorOp in iteratorOperations) testIterator(builders, views, operation, iteratorOp)
+        if (!operation.throwsCME) testIterationContinues(builders, views, operation)
+    }
+}
