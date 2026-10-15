@@ -105,6 +105,7 @@ internal class PersistentOrderedMap<K, V>(
     )
     override fun remove(key: K): PersistentOrderedMap<K, V> {
         val links = hashMap[key] ?: return this
+        if (size == 1) return emptyOf()
 
         var newMap = hashMap.removing(key)
         if (links.hasPrevious) {

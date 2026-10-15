@@ -56,7 +56,7 @@ internal class PersistentVectorBuilder<E>(
             val tail = tail
             ownership = MutabilityOwnership()
             val newlyBuiltVector: PersistentList<E> = if (root == null) {
-                if (tail.isEmpty()) {
+                if (size == 0) {
                     persistentVectorOf()
                 } else {
                     SmallPersistentVector(tail.copyOf(size))
