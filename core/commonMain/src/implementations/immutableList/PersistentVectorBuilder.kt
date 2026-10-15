@@ -10,6 +10,7 @@ import kotlinx.collections.immutable.internal.ListImplementation.checkElementInd
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.internal.writeChangesNothing
 
 internal class PersistentVectorBuilder<E>(
     vector: PersistentList<E>,
@@ -989,7 +990,7 @@ internal class PersistentVectorBuilder<E>(
             val tailIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
             @Suppress("UNCHECKED_CAST")
             val oldElement = tail[tailIndex] as E
-            if (oldElement !== element) {
+            if (!writeChangesNothing(oldElement, element)) {
                 val mutableTail = makeMutable(tail)
                 mutableTail[tailIndex] = element
                 this.tail = mutableTail
@@ -1009,7 +1010,7 @@ internal class PersistentVectorBuilder<E>(
         if (shift == 0) {
             val oldElement = root[bufferIndex]
             replacedElement = oldElement
-            if (oldElement === e) return root
+            if (writeChangesNothing(oldElement, e)) return root
 
             val mutableRoot = makeMutable(root)
             // An owned leaf has owned ancestors, so the leaf alone tells whether the path was copied.

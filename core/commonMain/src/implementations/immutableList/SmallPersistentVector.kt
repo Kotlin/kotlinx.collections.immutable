@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.internal.writeChangesNothing
 import kotlinx.collections.immutable.mutate
 
 internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : AbstractPersistentList<E>() {
@@ -181,7 +182,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
     )
     override fun set(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
-        if (buffer[index] === element) return this
+        if (writeChangesNothing(buffer[index], element)) return this
         val newBuffer = buffer.copyOf()
         newBuffer[index] = element
         return SmallPersistentVector(newBuffer)
