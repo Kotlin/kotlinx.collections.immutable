@@ -48,20 +48,18 @@ private fun Array<Any?>.removeCellAtIndex(cellIndex: Int): Array<Any?> {
 
 /**
  * Writes all elements from [this] to [newArray], starting with [newArrayOffset], filtering
- * on the fly using [predicate]. By default, filters out [TrieNode.EMPTY] instances
+ * on the fly using [predicate].
  *
  * return number of elements written to [newArray]
  **/
-@IgnorableReturnValue
 private inline fun Array<Any?>.filterTo(
     newArray: Array<Any?>,
     newArrayOffset: Int = 0,
-    predicate: (Any?) -> Boolean = { it !== TrieNode.EMPTY }
+    predicate: (Any?) -> Boolean
 ): Int {
     var i = 0
     var j = 0
     while (i < size) {
-        assert { j <= i } // this is extremely important if newArray === this
         val e = this[i]
         if (predicate(e)) {
             newArray[newArrayOffset + j] = this[i]
@@ -287,9 +285,7 @@ internal class TrieNode<E>(
             intersectionSizeRef += buffer.size
             return this
         }
-        val tempBuffer =
-            if (owner === ownedBy) buffer
-            else arrayOfNulls<Any?>(minOf(buffer.size, otherNode.buffer.size))
+        val tempBuffer = arrayOfNulls<Any?>(minOf(buffer.size, otherNode.buffer.size))
         val totalWritten = buffer.filterTo(tempBuffer) {
             @Suppress("UNCHECKED_CAST")
             otherNode.collisionContainsElement(it as E)
@@ -314,7 +310,7 @@ internal class TrieNode<E>(
             intersectionSizeRef += buffer.size
             return EMPTY
         }
-        val tempBuffer = if (owner === ownedBy) buffer else arrayOfNulls<Any?>(buffer.size)
+        val tempBuffer = arrayOfNulls<Any?>(buffer.size)
         val totalWritten = buffer.filterTo(tempBuffer) {
             @Suppress("UNCHECKED_CAST")
             !otherNode.collisionContainsElement(it as E)
@@ -329,7 +325,7 @@ internal class TrieNode<E>(
         }
     }
 
-    private fun calculateSize(): Int {
+    internal fun calculateSize(): Int {
         if (bitmap == 0) return buffer.size
         var result = 0
         for (e in buffer) {
@@ -492,7 +488,7 @@ internal class TrieNode<E>(
         // zero means no nodes intersect
         if (newBitMap == 0) return EMPTY
         val mutableNode =
-            if (ownedBy == mutator.ownership && newBitMap == bitmap) this
+            if (ownedBy == mutator.ownership && newBitMap == bitmap && (shift == 0 || buffer.size > 1)) this
             else TrieNode<E>(newBitMap, arrayOfNulls<Any?>(newBitMap.countOneBits()), mutator.ownership)
         // we need to keep track of the real mask 'cos some of the children may intersect to nothing
         var realBitMap = 0
@@ -555,8 +551,8 @@ internal class TrieNode<E>(
             if (newValue !== EMPTY) {
                 // elements that are not in realBitMap will be removed later
                 realBitMap = realBitMap or positionMask
+                mutableNode.buffer[newNodeIndex] = newValue
             }
-            mutableNode.buffer[newNodeIndex] = newValue
         }
         // resulting array's size is the popcount of resulting mask
         val realSize = realBitMap.countOneBits()
@@ -578,9 +574,10 @@ internal class TrieNode<E>(
             }
 
             else -> {
-                // clean up all the EMPTYs in the resulting buffer
                 val realBuffer = arrayOfNulls<Any>(realSize)
-                mutableNode.buffer.filterTo(realBuffer)
+                realBitMap.forEachOneBit { positionMask, index ->
+                    realBuffer[index] = mutableNode.buffer[mutableNode.indexOfCellAt(positionMask)]
+                }
                 TrieNode<E>(realBitMap, realBuffer, mutator.ownership)
             }
         }
@@ -675,8 +672,9 @@ internal class TrieNode<E>(
             if (newValue === EMPTY) {
                 // if we removed something, keep track
                 realBitMap = realBitMap xor positionMask
+            } else {
+                mutableNode.buffer[thisIndex] = newValue
             }
-            mutableNode.buffer[thisIndex] = newValue
         }
         // resulting size is popcount of the resulting mask
         val realSize = realBitMap.countOneBits()
@@ -697,9 +695,10 @@ internal class TrieNode<E>(
             }
 
             else -> {
-                // clean up all the EMPTYs in the resulting buffer
                 val realBuffer = arrayOfNulls<Any>(realSize)
-                mutableNode.buffer.filterTo(realBuffer)
+                realBitMap.forEachOneBit { positionMask, index ->
+                    realBuffer[index] = mutableNode.buffer[mutableNode.indexOfCellAt(positionMask)]
+                }
                 TrieNode<E>(realBitMap, realBuffer, mutator.ownership)
             }
         }
