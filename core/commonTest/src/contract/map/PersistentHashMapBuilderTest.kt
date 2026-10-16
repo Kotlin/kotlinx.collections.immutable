@@ -462,8 +462,11 @@ class PersistentHashMapBuilderTest {
         val builder = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", collidingKey3 to "c", collidingKey1.colliding(11) to "d").builder()
         val storedKeys = builder.keys.toList()
         val (first, second, third, last) = storedKeys
-        val argument = persistentHashMapOf(third to "z", last to "w", first to "x", second to "y")
-        assertNotEquals(storedKeys, argument.keys.toList())
+        // The last key stays in place, so a check that looks at the last key alone would take the argument's order.
+        val reordered = listOf(second to "y", first to "x", third to "z", last to "w")
+        val argument = persistentHashMapOf(*reordered.toTypedArray()).takeIf { map -> map.keys.toList() == reordered.map { it.first } }
+            ?: persistentHashMapOf(*reordered.asReversed().toTypedArray())
+        assertEquals(reordered.map { it.first }, argument.keys.toList())
         val iterator = builder.entries.iterator()
         assertEquals(first, iterator.next().key)
 

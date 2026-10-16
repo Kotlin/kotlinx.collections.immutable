@@ -22,6 +22,7 @@ import tests.trie.trieShapes
 internal const val TAIL_ONLY = 3
 internal const val FULL_TAIL = MAX_BUFFER_SIZE
 internal const val ONE_LEAF = MAX_BUFFER_SIZE + 8
+internal const val ONE_LEAF_LONG_TAIL = 2 * MAX_BUFFER_SIZE - 2
 internal const val LEAVES = 3 * MAX_BUFFER_SIZE + 4
 internal const val NODES = MAX_BUFFER_SIZE * MAX_BUFFER_SIZE + 76
 
@@ -34,6 +35,7 @@ internal val listDepths: Map<Int, String> = mapOf(
     TAIL_ONLY to "the tail only",
     FULL_TAIL to "a full tail",
     ONE_LEAF to "a root that is one leaf",
+    ONE_LEAF_LONG_TAIL to "a root that is one leaf and a tail two short of full",
     LEAVES to "a root over leaves",
     NODES to "a root over level-1 nodes",
 )
