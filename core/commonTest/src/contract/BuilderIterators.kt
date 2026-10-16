@@ -5,7 +5,6 @@
 
 package tests.contract
 
-import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
@@ -135,8 +134,7 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
             if (failure == null) {
                 val _ = iteratorOp.function(iterator)
             } else {
-                @Suppress("UNCHECKED_CAST")
-                assertFailsWith(failure as KClass<Throwable>) { iteratorOp.function(iterator) }
+                assertFailsWith(failure) { iteratorOp.function(iterator) }
                 if (builderOp.throwsCME) {
                     assertFailsWith<ConcurrentModificationException> { iterator.next() }
                     assertEquals(live, builder.open().drain())
