@@ -25,8 +25,8 @@ import tests.trie.trieShapes
  * - from a persistent collection, the builder shares every node, and its first write copies;
  * - from adds, one element at a time, it owns every node and writes in place (an addAll or putAll of a persistent
  *   collection into an empty builder would adopt the argument's nodes, owned by nobody);
- * - from a persistent collection with a write, it owns the path the write copied and shares the rest;
- * - from adds after a build and a write, build took the ownership back, so the write copied the path again.
+ * - from a persistent collection with a write, it owns the path the write copied and shares the rest; the two such
+ *   origins write at different places, so they own different paths where the shape has more than one.
  * A new row in a table below costs builders x views x (size + 1) fresh builders per iterator call.
  */
 
@@ -93,45 +93,43 @@ val listBuilders: List<Pair<String, () -> PersistentList.Builder<Any>>> = listOf
     listOf(
         "from a list of $size" to { elements.toPersistentList().builder() },
         "from adds of $size" to { persistentListOf<Any>().builder().apply { addAll(elements) } },
-        "from a list of $size with a set" to { elements.toPersistentList().builder().apply { this[0] = "written" } },
-        "from adds of $size after a build and a set" to {
-            persistentListOf<Any>().builder().apply { addAll(elements); val _ = build(); this[0] = "written" }
-        },
+        "from a list of $size with a set of the first element" to { elements.toPersistentList().builder().apply { this[0] = "written" } },
+        "from a list of $size with a set of the last element" to { elements.toPersistentList().builder().apply { this[lastIndex] = "written" } },
     )
 }
 
 /**
  * Map builders of every trie shape from the maps [mapOf] makes, holding "v0", "v1", ... in the shape's key order; the
- * write puts a new value for the first key.
+ * writes put a new value for the first key and for the last.
  */
 private fun mapBuilders(mapOf: (List<Pair<Any, String>>) -> PersistentMap<Any, String>): List<Pair<String, () -> PersistentMap.Builder<Any, String>>> =
     trieShapes.flatMap { (shape, keys) ->
         val entries = keys.mapIndexed { index, key -> key to "v$index" }
+        val first = keys.first()
+        val last = keys.last()
         listOf(
             "from a map of $shape" to { mapOf(entries).builder() },
             "from puts of $shape" to { mapOf(emptyList()).builder().apply { for ((key, value) in entries) set(key, value) } },
-            "from a map of $shape with a put" to { mapOf(entries).builder().apply { set(keys.first(), "put") } },
-            "from puts of $shape after a build and a put" to {
-                mapOf(emptyList()).builder().apply {
-                    for ((key, value) in entries) set(key, value)
-                    val _ = build()
-                    set(keys.first(), "put")
-                }
-            },
+            "from a map of $shape with a put of the first key" to { mapOf(entries).builder().apply { set(first, "put") } },
+            "from a map of $shape with a put of the last key" to { mapOf(entries).builder().apply { set(last, "put") } },
         )
     }
 
-/** Set builders of every trie shape from the sets [setOf] makes, in the shape's element order; the write removes the first element and adds it back. */
+/** An element no shape holds, which a set's write adds and removes again. */
+private const val SPARE = "spare"
+
+/**
+ * Set builders of every trie shape from the sets [setOf] makes, in the shape's element order; the writes add the
+ * [SPARE] element and remove it, and remove the last element and add it back.
+ */
 private fun setBuilders(setOf: (List<Any>) -> PersistentSet<Any>): List<Pair<String, () -> PersistentSet.Builder<Any>>> =
     trieShapes.flatMap { (shape, elements) ->
-        val first = elements.first()
+        val last = elements.last()
         listOf(
             "from a set of $shape" to { setOf(elements).builder() },
             "from adds of $shape" to { setOf(emptyList()).builder().apply { addAll(elements) } },
-            "from a set of $shape with a remove and an add" to { setOf(elements).builder().apply { remove(first); add(first) } },
-            "from adds of $shape after a build, a remove and an add" to {
-                setOf(emptyList()).builder().apply { addAll(elements); val _ = build(); remove(first); add(first) }
-            },
+            "from a set of $shape with an add and a remove of a spare element" to { setOf(elements).builder().apply { add(SPARE); remove(SPARE) } },
+            "from a set of $shape with a remove and an add of the last element" to { setOf(elements).builder().apply { remove(last); add(last) } },
         )
     }
 
