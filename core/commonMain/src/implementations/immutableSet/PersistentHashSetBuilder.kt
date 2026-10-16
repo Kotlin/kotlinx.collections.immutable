@@ -56,7 +56,7 @@ internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
         if (set !== null) {
             val deltaCounter = DeltaCounter()
             val size = this.size
-            val result = node.mutableAddAll(set.node, 0, deltaCounter, this)
+            val result = recountingSizeOnThrow { node.mutableAddAll(set.node, 0, deltaCounter, this) }
             val newSize = size + elements.size - deltaCounter.count
             if (size != newSize) {
                 this.node = result
@@ -72,7 +72,7 @@ internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
         if (set !== null) {
             val deltaCounter = DeltaCounter()
             val size = this.size
-            val result = node.mutableRetainAll(set.node, 0, deltaCounter, this)
+            val result = recountingSizeOnThrow { node.mutableRetainAll(set.node, 0, deltaCounter, this) }
             when (val newSize = deltaCounter.count) {
                 size -> {}
                 0 -> clear()
@@ -93,7 +93,7 @@ internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
         if (set !== null) {
             val counter = DeltaCounter()
             val size = this.size
-            val result = node.mutableRemoveAll(set.node, 0, counter, this)
+            val result = recountingSizeOnThrow { node.mutableRemoveAll(set.node, 0, counter, this) }
 
             when (val newSize = size - counter.count) {
                 size -> {}
@@ -107,6 +107,18 @@ internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
             return size != this.size
         }
         return super.removeAll(elements)
+    }
+
+    private inline fun <T> recountingSizeOnThrow(merge: () -> T): T {
+        val size = this.size
+        val modCount = this.modCount
+        try {
+            return merge()
+        } catch (e: Throwable) {
+            this.size = node.calculateSize()
+            if (this.size == size) this.modCount = modCount
+            throw e
+        }
     }
 
     override fun containsAll(elements: Collection<E>): Boolean {
