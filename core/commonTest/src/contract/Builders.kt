@@ -27,7 +27,8 @@ import tests.trie.trieShapes
  *   collection into an empty builder would adopt the argument's nodes, owned by nobody);
  * - from a persistent collection with a write, it owns the path the write copied and shares the rest; the two such
  *   origins write at different places, so they own different paths where the shape has more than one.
- * A new row in a table below costs builders x views x (size + 1) fresh builders per iterator call.
+ * A new row in a table below costs, for each origin and view, 2 x size + 3 fresh builders per iterator call, plus
+ * 2 x size + 2 when the row keeps the size.
  */
 
 /** One list size for each shape of the trie. */
@@ -181,7 +182,7 @@ val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = listOf
     BuilderOperation("build()", throwsCME = false) { val _ = build() },
 )
 
-/** A hash map of [keys] in the given order, with a new value for each. */
+/** A hash map with a new value for each of [keys], put in the given order. */
 private fun newValuesFor(keys: List<Any>): PersistentMap<Any, String> =
     persistentHashMapOf(*keys.mapIndexed { index, key -> key to "new $index" }.toTypedArray())
 
