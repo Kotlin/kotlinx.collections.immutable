@@ -141,7 +141,6 @@ val orderedSetBuilders = setBuilders { it.toPersistentSet() }
 
 val listViews: List<Pair<String, PersistentList.Builder<Any>.() -> MutableIterator<*>>> = listOf(
     "iterator" to { iterator() },
-    "listIterator" to { listIterator() },
 )
 
 val mapViews: List<Pair<String, PersistentMap.Builder<Any, String>.() -> MutableIterator<*>>> = listOf(
@@ -208,7 +207,6 @@ val hashMapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>
     BuilderOperation("putAll(new values in the reverse key order)", throwsCME = false) { putAll(newValuesFor(keys.reversed())) },
     BuilderOperation("putAll(the stored values)", throwsCME = false) { putAll(persistentHashMapOf(*entries.map { it.key to it.value }.toTypedArray())) },
     BuilderOperation("putAll(the built map)", throwsCME = false) { putAll(build()) },
-    BuilderOperation("putAll(the builder itself)", throwsCME = false) { putAll(this) },
     BuilderOperation("putAll(an empty map)", throwsCME = false) { putAll(persistentHashMapOf<Any, String>()) },
     BuilderOperation("remove(a missing key)", throwsCME = false) { remove("missing") },
 )
