@@ -16,6 +16,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentHashSet
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentSet
+import tests.ObjectWrapper
 import tests.trie.trieShapes
 
 /*
@@ -211,6 +212,9 @@ val hashMapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>
     BuilderOperation("remove(a missing key)", throwsCME = false) { remove("missing") },
 )
 
+/** An element equal to this one but not the same instance, where it is a wrapper; an int stays as it is. */
+private fun Any.equalCopy(): Any = if (this is ObjectWrapper<*>) copy() else this
+
 val hashSetOperations: List<BuilderOperation<PersistentSet.Builder<Any>>> = listOf(
     BuilderOperation("no call", throwsCME = false) { },
 
@@ -228,6 +232,7 @@ val hashSetOperations: List<BuilderOperation<PersistentSet.Builder<Any>>> = list
     BuilderOperation("remove(every element)") { for (element in toList()) remove(element) },
 
     BuilderOperation("add(a stored element)", throwsCME = false) { add(first()) },
+    BuilderOperation("add(an equal copy of a stored element)", throwsCME = false) { add(first().equalCopy()) },
     BuilderOperation("remove(a missing element)", throwsCME = false) { remove("missing") },
     BuilderOperation("addAll(the built set)", throwsCME = false) { addAll(build()) },
     BuilderOperation("addAll(the stored elements as a list)", throwsCME = false) { addAll(toList()) },
@@ -275,6 +280,7 @@ val orderedSetOperations: List<BuilderOperation<PersistentSet.Builder<Any>>> = l
     BuilderOperation("remove(every element)") { for (element in toList()) remove(element) },
 
     BuilderOperation("add(a stored element)", throwsCME = false) { add(first()) },
+    BuilderOperation("add(an equal copy of a stored element)", throwsCME = false) { add(first().equalCopy()) },
     BuilderOperation("remove(a missing element)", throwsCME = false) { remove("missing") },
     BuilderOperation("addAll(the stored elements)", throwsCME = false) { addAll(toList()) },
     BuilderOperation("removeAll(missing elements)", throwsCME = false) { removeAll(listOf("missing")) },
