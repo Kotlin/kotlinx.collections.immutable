@@ -41,38 +41,40 @@ internal class PersistentOrderedSetBuilder<E>(set: PersistentOrderedSet<E>) :
         if (hashMapBuilder.containsKey(element)) {
             return false
         }
-        builtSet = null
         if (isEmpty()) {
+            hashMapBuilder[element] = Links()
+            builtSet = null
             firstElement = element
             lastElement = element
-            hashMapBuilder[element] = Links()
             return true
         }
 
         val lastLinks = hashMapBuilder[lastElement]!!
         assert { !lastLinks.hasNext }
+        hashMapBuilder[element] = Links(previous = lastElement)
+        builtSet = null
         @Suppress("UNCHECKED_CAST")
         hashMapBuilder[lastElement as E] = lastLinks.withNext(element)
-        hashMapBuilder[element] = Links(previous = lastElement)
         lastElement = element
 
         return true
     }
 
     override fun remove(element: E): Boolean {
-        val links = hashMapBuilder.remove(element) ?: return false
+        val links = hashMapBuilder[element] ?: return false
+        val previousLinks = if (links.hasPrevious) hashMapBuilder[links.previous]!! else null
+        val nextLinks = if (links.hasNext) hashMapBuilder[links.next]!! else null
+        assert { previousLinks == null || previousLinks.next == element }
+        assert { nextLinks == null || nextLinks.previous == element }
+        hashMapBuilder.remove(element) ?: return false
         builtSet = null
-        if (links.hasPrevious) {
-            val previousLinks = hashMapBuilder[links.previous]!!
-            assert { previousLinks.next == element }
+        if (previousLinks != null) {
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.previous as E] = previousLinks.withNext(links.next)
         } else {
             firstElement = links.next
         }
-        if (links.hasNext) {
-            val nextLinks = hashMapBuilder[links.next]!!
-            assert { nextLinks.previous == element }
+        if (nextLinks != null) {
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.next as E] = nextLinks.withPrevious(links.previous)
         } else {

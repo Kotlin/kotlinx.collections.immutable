@@ -63,23 +63,24 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
             if (links.value === value) {
                 value
             } else {
-                builtMap = null
                 hashMapBuilder[key] = links.withValue(value)
+                builtMap = null
                 links.value
             }
         } else {
-            builtMap = null
             if (isEmpty()) {
+                hashMapBuilder[key] = LinkedValue(value)
+                builtMap = null
                 firstKey = key
                 lastKey = key
-                hashMapBuilder[key] = LinkedValue(value)
             } else {
                 @Suppress("UNCHECKED_CAST")
                 val lastKey = lastKey as K
                 val lastLinks = hashMapBuilder[lastKey]!!
                 assert { !lastLinks.hasNext }
-                hashMapBuilder[lastKey] = lastLinks.withNext(key)
                 hashMapBuilder[key] = LinkedValue(value, previous = lastKey)
+                builtMap = null
+                hashMapBuilder[lastKey] = lastLinks.withNext(key)
                 this.lastKey = key
             }
             null
@@ -87,24 +88,25 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
     }
 
     internal fun setLinkedValue(key: K, links: LinkedValue<V>) {
-        builtMap = null
         hashMapBuilder[key] = links
+        builtMap = null
     }
 
     override fun remove(key: K): V? {
-        val links = hashMapBuilder.remove(key) ?: return null
+        val links = hashMapBuilder[key] ?: return null
+        val previousLinks = if (links.hasPrevious) hashMapBuilder[links.previous]!! else null
+        val nextLinks = if (links.hasNext) hashMapBuilder[links.next]!! else null
+        assert { previousLinks == null || previousLinks.next == key }
+        assert { nextLinks == null || nextLinks.previous == key }
+        hashMapBuilder.remove(key) ?: return null
         builtMap = null
-        if (links.hasPrevious) {
-            val previousLinks = hashMapBuilder[links.previous]!!
-            assert { previousLinks.next == key }
+        if (previousLinks != null) {
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.previous as K] = previousLinks.withNext(links.next)
         } else {
             firstKey = links.next
         }
-        if (links.hasNext) {
-            val nextLinks = hashMapBuilder[links.next]!!
-            assert { nextLinks.previous == key }
+        if (nextLinks != null) {
             @Suppress("UNCHECKED_CAST")
             hashMapBuilder[links.next as K] = nextLinks.withPrevious(links.previous)
         } else {
