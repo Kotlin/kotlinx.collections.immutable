@@ -100,8 +100,9 @@ private fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() ->
  * size elements returned, and checks what [iteratorOp] then does. The contract is java.util's: a structural call
  * makes next and remove throw ConcurrentModificationException, and with nothing returned remove reports
  * IllegalStateException first; either way the iterator stays failed and the builder stays as the structural call
- * left it. A non-structural call changes nothing, so the iterator does what it does on an untouched builder (the
- * control run says what that is).
+ * left it. A non-structural call keeps the iterator valid, so the iterator does what it does on an untouched builder
+ * (the control run says what that is), and a remove with nothing returned changes neither the builder nor the rest
+ * of the iteration.
  */
 fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
     builders: List<Pair<String, () -> C>>,
@@ -135,6 +136,9 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
                 if (builderOp.throwsCME) {
                     assertFailsWith<ConcurrentModificationException> { iterator.next() }
                     assertEquals(live.unordered(), builder.open().drain().unordered())
+                } else if (iteratorOp.needsAnElement && returned == 0) {
+                    assertEquals(live, iterator.drain())
+                    assertEquals(live, builder.open().drain())
                 }
             }
         }
