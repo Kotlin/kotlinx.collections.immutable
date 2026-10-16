@@ -83,6 +83,9 @@ val iteratorOperations: List<IteratorOperation<MutableIterator<*>>> = listOf(
 /** The elements an iterator still has; a live map entry is read as its key and value the moment it is drained. */
 internal fun Iterator<*>.drain(): List<Any?> = asSequence().map { if (it is Map.Entry<*, *>) it.key to it.value else it }.toList()
 
+/** The size a list, set or map builder reports. */
+private val Any.reportedSize: Int get() = if (this is Map<*, *>) size else (this as Collection<*>).size
+
 /** The elements as a multiset: a remove from a hash trie may promote an element ahead of the ones already visited. */
 private fun List<Any?>.unordered(): List<Any?> = sortedBy { it.toString() }
 
@@ -97,12 +100,12 @@ private fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() ->
 
 /**
  * Makes [builderOp] on a fresh builder of every origin in [builders], behind every iterator of [views], with 0 to
- * size elements returned, and checks what [iteratorOp] then does. The contract is java.util's: a structural call
- * makes next and remove throw ConcurrentModificationException, and with nothing returned remove reports
- * IllegalStateException first; either way the iterator stays failed and the builder stays as the structural call
- * left it. A non-structural call keeps the iterator valid, so the iterator does what it does on an untouched builder
- * (the control run says what that is), and a remove with nothing returned changes neither the builder nor the rest
- * of the iteration.
+ * size elements returned, checks that the builder's size still matches its content, and checks what [iteratorOp]
+ * then does. The contract is java.util's: a structural call makes next and remove throw
+ * ConcurrentModificationException, and with nothing returned remove reports IllegalStateException first; either way
+ * the iterator stays failed and the builder stays as the structural call left it. A non-structural call keeps the
+ * iterator valid, so the iterator does what it does on an untouched builder (the control run says what that is), and
+ * a remove with nothing returned changes neither the builder nor the rest of the iteration.
  */
 fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
     builders: List<Pair<String, () -> C>>,
@@ -122,6 +125,7 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
             repeat(returned) { val _ = iterator.next() }
             builderOp.function.invoke(builder)
             val live = builder.open().drain()
+            assertEquals(live.size, builder.reportedSize)
 
             val failure = when {
                 iteratorOp.needsAnElement && returned == 0 -> IllegalStateException::class
@@ -149,7 +153,8 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
  * Makes the non-structural [builderOp] on a fresh builder of every origin in [builders], behind every iterator of
  * [views], with 0 to size elements returned, and checks that the rest of the iteration is the builder's live
  * content from the cursor on and ends with NoSuchElementException, before and after the iterator's own remove, that
- * the remove takes the returned element out of the builder, and that it fails every other live iterator.
+ * the remove takes the returned element out of the builder's content and size, and that it fails every other live
+ * iterator.
  */
 fun <C : Any> Cells.testIterationContinues(
     builders: List<Pair<String, () -> C>>,
@@ -182,6 +187,7 @@ fun <C : Any> Cells.testIterationContinues(
                 assertFailsWith<NoSuchElementException> { iterator.next() }
                 val expected = live.toMutableList().apply { if (removeAtTheCursor) removeAt(returned - 1) }
                 assertEquals(expected.unordered(), builder.open().drain().unordered())
+                assertEquals(expected.size, builder.reportedSize)
             }
         }
     }
