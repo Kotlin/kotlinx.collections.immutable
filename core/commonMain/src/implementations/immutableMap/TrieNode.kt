@@ -802,8 +802,8 @@ internal class TrieNode<K, V>(
 
                 return mutableUpdateValueAtIndex(keyIndex, value, mutator)
             }
-            mutator.size++
             return mutableMoveEntryToNode(keyIndex, keyPositionMask, keyHash, key, value, shift, mutator.ownership)
+                .also { mutator.size++ }
         }
         if (hasNodeAt(keyPositionMask)) { // key is in node
             val nodeIndex = nodeIndex(keyPositionMask)

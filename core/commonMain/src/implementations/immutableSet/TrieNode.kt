@@ -797,8 +797,7 @@ internal class TrieNode<E>(
         }
         // element is directly in buffer
         if (element == buffer[cellIndex]) return this
-        mutator.size++
-        return moveElementToNode(cellIndex, elementHash, element, shift, mutator.ownership)
+        return moveElementToNode(cellIndex, elementHash, element, shift, mutator.ownership).also { mutator.size++ }
     }
 
     fun remove(elementHash: Int, element: E, shift: Int): TrieNode<E> {
