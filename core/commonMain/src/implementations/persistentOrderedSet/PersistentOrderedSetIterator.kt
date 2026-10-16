@@ -20,10 +20,10 @@ internal open class PersistentOrderedSetIterator<E>(
 
         @Suppress("UNCHECKED_CAST")
         val result = nextElement as E
-        index++
         nextElement = map.getOrElse(result) {
             throw ConcurrentModificationException("Hash code of an element ($result) has changed after it was added to the persistent set.")
         }.next
+        index++
         return result
     }
 
