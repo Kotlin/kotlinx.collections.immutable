@@ -387,7 +387,7 @@ internal class TrieNode<K, V>(
         return TrieNode(0, 0, newBuffer, mutator.ownership)
     }
 
-    private fun collisionKeyIndex(key: Any?): Int {
+    internal fun collisionKeyIndex(key: Any?): Int {
         for (i in buffer.indices step ENTRY_SIZE) {
             if (key == keyAtIndex(i)) return i
         }
