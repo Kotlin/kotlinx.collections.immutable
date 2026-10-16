@@ -413,7 +413,7 @@ internal class TrieNode<K, V>(
             newBuffer[keyIndex + 1] = value
             return TrieNode<K, V>(0, 0, newBuffer).asUpdateResult()
         }
-        val newBuffer = buffer.insertEntryAtIndex(0, key, value)
+        val newBuffer = buffer.insertEntryAtIndex(buffer.size, key, value)
         return TrieNode<K, V>(0, 0, newBuffer).asInsertResult()
     }
 
@@ -441,7 +441,7 @@ internal class TrieNode<K, V>(
         }
         // Create new collision node with the specified entry added to it.
         mutator.size++
-        val newBuffer = buffer.insertEntryAtIndex(0, key, value)
+        val newBuffer = buffer.insertEntryAtIndex(buffer.size, key, value)
         return TrieNode(0, 0, newBuffer, mutator.ownership)
     }
 
