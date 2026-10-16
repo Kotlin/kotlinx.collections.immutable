@@ -46,8 +46,18 @@ class Cells {
     }
 }
 
-/** Runs the cells of [table], then fails once if any of them failed or if there were none. */
-fun runCells(table: Cells.() -> Unit): Unit = Cells().apply(table).report()
+/**
+ * Runs the cells of [table], then fails once if any of them failed or if there were none; an exception thrown between
+ * the cells counts as one more failed cell.
+ */
+fun runCells(table: Cells.() -> Unit): Unit = Cells().run {
+    try {
+        table()
+    } catch (e: Throwable) {
+        cell("between the cells") { throw e }
+    }
+    report()
+}
 
 /** A call made through the builder behind a live iterator, as stdlib's CollectionOperation. */
 class BuilderOperation<in C>(

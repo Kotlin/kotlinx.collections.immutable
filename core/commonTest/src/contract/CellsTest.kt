@@ -46,6 +46,18 @@ class CellsTest {
     }
 
     @Test
+    fun `an exception between the cells fails the table and keeps the cells before it`() {
+        val failure = assertFailsWith<AssertionError> {
+            runCells {
+                cell("a failing cell") { error("in the cell") }
+                error("between the cells")
+            }
+        }
+        assertTrue(failure.message!!.startsWith("2 of 2 cells failed:\na failing cell: "), failure.message)
+        assertEquals("in the cell", failure.cause?.message)
+    }
+
+    @Test
     fun `a table without cells fails`() {
         assertFailsWith<AssertionError> { runCells { } }
     }
