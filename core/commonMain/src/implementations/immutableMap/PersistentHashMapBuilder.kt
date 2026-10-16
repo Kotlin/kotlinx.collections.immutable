@@ -83,7 +83,15 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) :
         if (map != null) @Suppress("UNCHECKED_CAST") {
             val intersectionCounter = DeltaCounter()
             val oldSize = this.size
-            node = node.mutablePutAll(map.node as TrieNode<K, V>, 0, intersectionCounter, this)
+            val oldSizeModCount = sizeModCount
+            try {
+                node = node.mutablePutAll(map.node as TrieNode<K, V>, 0, intersectionCounter, this)
+            } catch (e: Throwable) {
+                val recount = node.calculateSize()
+                if (recount != size) size = recount
+                if (recount == oldSize) sizeModCount = oldSizeModCount
+                throw e
+            }
             val newSize = oldSize + map.size - intersectionCounter.count
             if (oldSize != newSize) this.size = newSize
         }
