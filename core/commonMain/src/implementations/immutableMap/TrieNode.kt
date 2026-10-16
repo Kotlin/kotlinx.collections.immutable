@@ -611,7 +611,7 @@ internal class TrieNode<K, V>(
         }
     }
 
-    private fun calculateSize(): Int {
+    internal fun calculateSize(): Int {
         if (nodeMap == 0) return buffer.size / ENTRY_SIZE
         val numValues = dataMap.countOneBits()
         var result = numValues
