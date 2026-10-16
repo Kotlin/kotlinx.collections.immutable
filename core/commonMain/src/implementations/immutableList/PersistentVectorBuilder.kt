@@ -179,17 +179,16 @@ internal class PersistentVectorBuilder<E>(
             return false
         }
 
-        modCount++
-
         val tailSize = tailSize()
+        val elementsSize = elements.size
         val elementsIterator = elements.iterator()
 
-        if (MAX_BUFFER_SIZE - tailSize >= elements.size) {
+        if (MAX_BUFFER_SIZE - tailSize >= elementsSize) {
             // there is enough space in tail, add all elements to it
             tail = copyToBuffer(makeMutable(tail), tailSize, elementsIterator)
-            size += elements.size
+            size += elementsSize
         } else {
-            val buffersSize = (elements.size + tailSize - 1) / MAX_BUFFER_SIZE
+            val buffersSize = (elementsSize + tailSize - 1) / MAX_BUFFER_SIZE
             val buffers = arrayOfNulls<Array<Any?>?>(buffersSize)
 
             // fill remained space of tail
@@ -198,15 +197,17 @@ internal class PersistentVectorBuilder<E>(
             for (index in 1..<buffersSize) {
                 buffers[index] = copyToBuffer(mutableBuffer(), 0, elementsIterator)
             }
+            // create new tail and copy remained elements there
+            val newTail = copyToBuffer(mutableBuffer(), 0, elementsIterator)
 
             // add buffers to the root, rootShift is updated appropriately there
             @Suppress("UNCHECKED_CAST")
             root = pushBuffersIncreasingHeightIfNeeded(root, rootSize(), buffers as Array<Array<Any?>>)
-            // create new tail and copy remained elements there
-            tail = copyToBuffer(mutableBuffer(), 0, elementsIterator)
-            size += elements.size
+            tail = newTail
+            size += elementsSize
         }
 
+        modCount++
         return true
     }
 
@@ -378,44 +379,54 @@ internal class PersistentVectorBuilder<E>(
             return false
         }
 
-        modCount++
-
+        val elementsSize = elements.size
         val unaffectedElementsCount = (index shr LOG_MAX_BUFFER_SIZE) shl LOG_MAX_BUFFER_SIZE
-        val buffersSize = (size - unaffectedElementsCount + elements.size - 1) / MAX_BUFFER_SIZE
+        val buffersSize = (size - unaffectedElementsCount + elementsSize - 1) / MAX_BUFFER_SIZE
 
         if (buffersSize == 0) {
             assert { index >= rootSize() }
 
             val startIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
-            val endIndex = (index + elements.size - 1) and MAX_BUFFER_SIZE_MINUS_ONE // inclusive
+            val endIndex = (index + elementsSize - 1) and MAX_BUFFER_SIZE_MINUS_ONE // inclusive
 
             // Copy the unaffected tail prefix and shift the affected tail suffix to the end
-            val newTail = tail.copyInto(makeMutable(tail), endIndex + 1, startIndex, tailSize())
+            val newTail = tail.copyInto(mutableBuffer(), endIndex = startIndex)
+            tail.copyInto(newTail, endIndex + 1, startIndex, tailSize())
             // Copy the specified elements to the new tail
             copyToBuffer(newTail, startIndex, elements.iterator())
 
             tail = newTail
-            size += elements.size
+            size += elementsSize
+            modCount++
             return true
         }
 
         val buffers = arrayOfNulls<Array<Any?>?>(buffersSize)
 
+        val startIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
+        val endBufferIndex = (startIndex + elementsSize - 1) shr LOG_MAX_BUFFER_SIZE
+        val elementsIterator = elements.iterator()
+        buffers[0] = copyToBuffer(mutableBuffer(), startIndex, elementsIterator)
+        for (i in 1..<endBufferIndex) {
+            buffers[i] = copyToBuffer(mutableBuffer(), 0, elementsIterator)
+        }
+        val lastElements = if (endBufferIndex > 0) copyToBuffer(mutableBuffer(), 0, elementsIterator) else null
+
         val tailSize = tailSize()
-        val newTailSize = tailSize(size + elements.size)
+        val newTailSize = tailSize(size + elementsSize)
 
         val newTail: Array<Any?>
         when {
             index >= rootSize() -> {
                 newTail = mutableBuffer()
-                splitToBuffers(elements, index, tail, tailSize, buffers, buffersSize, newTail)
+                splitToBuffers(elementsSize, lastElements, index, tail, tailSize, buffers, buffersSize, newTail)
             }
 
             newTailSize > tailSize -> {
                 val rightShift = newTailSize - tailSize
                 newTail = makeMutableShiftingRight(tail, rightShift)
 
-                insertIntoRoot(elements, index, rightShift, buffers, buffersSize, newTail)
+                insertIntoRoot(elementsSize, lastElements, index, rightShift, buffers, buffersSize, newTail)
             }
 
             else -> {
@@ -426,26 +437,29 @@ internal class PersistentVectorBuilder<E>(
 
                 buffers[buffersSize - 1] = lastBuffer
 
-                insertIntoRoot(elements, index, rightShift, buffers, buffersSize - 1, lastBuffer)
+                insertIntoRoot(elementsSize, lastElements, index, rightShift, buffers, buffersSize - 1, lastBuffer)
             }
         }
 
         @Suppress("UNCHECKED_CAST")
         root = pushBuffersIncreasingHeightIfNeeded(root, unaffectedElementsCount, buffers as Array<Array<Any?>>)
         tail = newTail
-        size += elements.size
+        size += elementsSize
+        modCount++
 
         return true
     }
 
     /**
-     * Inserts the [elements] into the [root] at the given [index].
+     * Inserts [elementsSize] elements into the [root] at the given [index].
      *
      * Affected elements are copied to the [buffers] split into [nullBuffers] buffers.
      * Elements that do not fit [nullBuffers] buffers are copied to the [nextBuffer].
+     * The [buffers] and [lastElements] already hold the elements, as [splitToBuffers] describes.
      */
     private fun insertIntoRoot(
-        elements: Collection<E>,
+        elementsSize: Int,
+        lastElements: Array<Any?>?,
         index: Int,
         rightShift: Int,
         buffers: Array<Array<Any?>?>,
@@ -461,7 +475,16 @@ internal class PersistentVectorBuilder<E>(
         val newNullBuffers = nullBuffers - (lastLeafIndex - startLeafIndex)
         val newNextBuffer = if (newNullBuffers < nullBuffers) buffers[newNullBuffers]!! else nextBuffer
 
-        splitToBuffers(elements, index, startLeaf, MAX_BUFFER_SIZE, buffers, newNullBuffers, newNextBuffer)
+        splitToBuffers(
+            elementsSize,
+            lastElements,
+            index,
+            startLeaf,
+            MAX_BUFFER_SIZE,
+            buffers,
+            newNullBuffers,
+            newNextBuffer
+        )
     }
 
     /**
@@ -500,12 +523,14 @@ internal class PersistentVectorBuilder<E>(
     }
 
     /**
-     * Inserts [elements] into [startBuffer] of size [startBufferSize] and splits the result into [nullBuffers] buffers.
-     *
-     * Elements that do not fit [nullBuffers] buffers are copied to the [nextBuffer].
+     * Splits [startBuffer] of size [startBufferSize], with [elementsSize] elements inserted at [index], into
+     * [nullBuffers] buffers, and copies the elements that do not fit into [nextBuffer]. The inserted elements are
+     * already in the [buffers] from the position of [index] on, the last of them in [lastElements], which is null when
+     * the first buffer holds them all.
      */
     private fun splitToBuffers(
-        elements: Collection<E>,
+        elementsSize: Int,
+        lastElements: Array<Any?>?,
         index: Int,
         startBuffer: Array<Any?>,
         startBufferSize: Int,
@@ -515,43 +540,33 @@ internal class PersistentVectorBuilder<E>(
     ) {
         check(nullBuffers >= 1)
 
-        val firstBuffer = makeMutable(startBuffer)
-        buffers[0] = firstBuffer
-
-        var newNextBuffer = nextBuffer
-        var newNullBuffers = nullBuffers
-
         val startBufferStartIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
-        val endBufferEndIndex = (index + elements.size - 1) and MAX_BUFFER_SIZE_MINUS_ONE // inclusive
+        val endBufferEndIndex = (index + elementsSize - 1) and MAX_BUFFER_SIZE_MINUS_ONE // inclusive
+
+        val firstBuffer = startBuffer.copyInto(buffers[0]!!, endIndex = startBufferStartIndex)
+        var newNextBuffer = nextBuffer
 
         val elementsToShift = startBufferSize - startBufferStartIndex
 
         if (endBufferEndIndex + elementsToShift < MAX_BUFFER_SIZE) {
-            firstBuffer.copyInto(newNextBuffer, endBufferEndIndex + 1, startBufferStartIndex, startBufferSize)
+            lastElements!!.copyInto(newNextBuffer, endIndex = endBufferEndIndex + 1)
+            startBuffer.copyInto(newNextBuffer, endBufferEndIndex + 1, startBufferStartIndex, startBufferSize)
         } else {
             val toCopyToLast = endBufferEndIndex + elementsToShift - MAX_BUFFER_SIZE + 1
             if (nullBuffers == 1) {
                 newNextBuffer = firstBuffer
             } else {
-                newNextBuffer = mutableBuffer()
-                buffers[--newNullBuffers] = newNextBuffer
+                newNextBuffer = lastElements!!
+                buffers[nullBuffers - 1] = newNextBuffer
             }
-            firstBuffer.copyInto(nextBuffer, 0, startBufferSize - toCopyToLast, startBufferSize)
-            firstBuffer.copyInto(
+            startBuffer.copyInto(nextBuffer, 0, startBufferSize - toCopyToLast, startBufferSize)
+            startBuffer.copyInto(
                 newNextBuffer,
                 endBufferEndIndex + 1,
                 startBufferStartIndex,
                 startBufferSize - toCopyToLast
             )
         }
-
-        val elementsIterator = elements.iterator()
-
-        copyToBuffer(firstBuffer, startBufferStartIndex, elementsIterator)
-        for (i in 1..<newNullBuffers) {
-            buffers[i] = copyToBuffer(mutableBuffer(), 0, elementsIterator)
-        }
-        copyToBuffer(newNextBuffer, 0, elementsIterator)
     }
 
     override fun get(index: Int): E {
