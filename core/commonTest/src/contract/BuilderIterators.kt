@@ -86,7 +86,7 @@ internal fun Iterator<*>.drain(): List<Any?> = asSequence().map { if (it is Map.
 /** The size a list, set or map builder reports. */
 private val Any.reportedSize: Int get() = if (this is Map<*, *>) size else (this as Collection<*>).size
 
-/** The elements as a multiset: a remove from a hash trie may promote an element ahead of the ones already visited. */
+/** The elements as a multiset: a remove from a hash map may promote an entry ahead of the ones already visited; the other builders keep their order. */
 private fun List<Any?>.unordered(): List<Any?> = sortedBy { it.toString() }
 
 /** The number of elements [open] gives on a fresh builder; if that throws, a failed cell named [message] says so and the result is null. */
@@ -139,7 +139,7 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
                 assertFailsWith(failure as KClass<Throwable>) { iteratorOp.function(iterator) }
                 if (builderOp.throwsCME) {
                     assertFailsWith<ConcurrentModificationException> { iterator.next() }
-                    assertEquals(live.unordered(), builder.open().drain().unordered())
+                    assertEquals(live, builder.open().drain())
                 } else if (iteratorOp.needsAnElement && returned == 0) {
                     assertEquals(live, iterator.drain())
                     assertEquals(live, builder.open().drain())
