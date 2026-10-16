@@ -76,10 +76,8 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         val shift = pathIndex * LOG_MAX_BRANCHING_FACTOR
 
         if (shift > MAX_SHIFT) { // collision
-            path[pathIndex].reset(node.buffer, node.buffer.size, 0)
-            while (path[pathIndex].currentKey() != key) {
-                path[pathIndex].moveToNextKey()
-            }
+            val keyIndex = node.collisionKeyIndex(key)
+            path[pathIndex].reset(node.buffer, node.buffer.size, keyIndex)
             pathLastIndex = pathIndex
             return
         }
