@@ -19,33 +19,17 @@ import kotlinx.collections.immutable.toPersistentSet
 import tests.ObjectWrapper
 import tests.trie.trieShapes
 
-/*
- * The builders the family tests run on, the iterators they open on them and the calls they make through them.
- *
- * A builder's origin decides who owns the nodes its first write touches, which is where the builder bugs live:
- * - from a persistent collection, the builder shares every node, and its first write copies;
- * - from adds, one element at a time, it owns every node and writes in place (an addAll or putAll of a persistent
- *   collection into an empty builder would adopt the argument's nodes, owned by nobody);
- * - from a persistent collection with a write, it owns the path the write copied and shares the rest; the two such
- *   origins write at different places, so they own different paths where the shape has more than one.
- * A new row in a table below costs, for each origin and view, 2 x size + 3 fresh builders per iterator call, plus
- * 2 x size + 2 when the row keeps the size.
- */
-
-/** One list size for each shape of the trie. */
 internal const val TAIL_ONLY = 3
 internal const val FULL_TAIL = MAX_BUFFER_SIZE
 internal const val ONE_LEAF = MAX_BUFFER_SIZE + 8
 internal const val LEAVES = 3 * MAX_BUFFER_SIZE + 4
 internal const val NODES = MAX_BUFFER_SIZE * MAX_BUFFER_SIZE + 76
 
-/** The first index, the indices around the first leaf and level boundaries, and the last index of a list of [size]. */
 internal fun boundaryIndices(size: Int): List<Int> =
     listOf(0, MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE, size - 1)
         .filter { it in 0..<size }
         .distinct()
 
-/** The shapes of the list trie by size, for the tests that run at every depth. */
 internal val listDepths: Map<Int, String> = mapOf(
     TAIL_ONLY to "the tail only",
     FULL_TAIL to "a full tail",
@@ -54,12 +38,17 @@ internal val listDepths: Map<Int, String> = mapOf(
     NODES to "a root over level-1 nodes",
 )
 
-/** Runs [test] on a fresh builder of every origin in [builders], one cell per origin; the message names the origin. */
+/*
+ * A builder's origin decides which nodes it owns. From a persistent collection, it shares every node. From adds, it
+ * owns every node (an addAll or putAll of a persistent hash collection would adopt that collection's nodes instead).
+ * From a persistent collection with a write, it owns the path of that write and shares the rest. The two such origins
+ * write at different places to own different paths.
+ */
+
 fun <B> forEachBuilder(builders: List<Pair<String, () -> B>>, test: (message: String, builder: B) -> Unit): Unit = runCells {
     for ((origin, newBuilder) in builders) cell(origin) { test(origin, newBuilder()) }
 }
 
-/** Builders of a list of one of the [listDepths] sizes, each element equal to its index: from a list, which shares its leaves, and from adds, which own theirs. */
 fun listBuildersOf(size: Int): List<Pair<String, () -> PersistentList.Builder<Int>>> {
     val elements = List(size) { it }
     val shape = listDepths.getValue(size)
@@ -69,7 +58,6 @@ fun listBuildersOf(size: Int): List<Pair<String, () -> PersistentList.Builder<In
     )
 }
 
-/** Builders of [entries]: from the map [mapOf] makes of them, which shares its nodes, and from puts, which own theirs. */
 private fun <K, V> mapBuildersOf(
     entries: List<Pair<K, V>>,
     mapOf: (List<Pair<K, V>>) -> PersistentMap<K, V>,
@@ -78,7 +66,6 @@ private fun <K, V> mapBuildersOf(
     "from puts" to { mapOf(emptyList()).builder().apply { for ((key, value) in entries) set(key, value) } },
 )
 
-/** Builders of [elements]: from the set [setOf] makes of them, which shares its nodes, and from adds, which own theirs. */
 private fun <E> setBuildersOf(elements: List<E>, setOf: (List<E>) -> PersistentSet<E>): List<Pair<String, () -> PersistentSet.Builder<E>>> = listOf(
     "from a set" to { setOf(elements).builder() },
     "from adds" to { setOf(emptyList()).builder().apply { addAll(elements) } },
@@ -100,10 +87,6 @@ val listBuilders: List<Pair<String, () -> PersistentList.Builder<Any>>> = listOf
     )
 }
 
-/**
- * Map builders of every trie shape from the maps [mapOf] makes, holding "v0", "v1", ... in the shape's key order; the
- * writes put a new value for the first key and for the last.
- */
 private fun mapBuilders(mapOf: (List<Pair<Any, String>>) -> PersistentMap<Any, String>): List<Pair<String, () -> PersistentMap.Builder<Any, String>>> =
     trieShapes.flatMap { (shape, keys) ->
         val entries = keys.mapIndexed { index, key -> key to "v$index" }
@@ -117,20 +100,13 @@ private fun mapBuilders(mapOf: (List<Pair<Any, String>>) -> PersistentMap<Any, S
         )
     }
 
-/** An element no shape holds, which a set's write adds and removes again. */
-private const val SPARE = "spare"
-
-/**
- * Set builders of every trie shape from the sets [setOf] makes, in the shape's element order; the writes add the
- * [SPARE] element and remove it, and remove the last element and add it back.
- */
 private fun setBuilders(setOf: (List<Any>) -> PersistentSet<Any>): List<Pair<String, () -> PersistentSet.Builder<Any>>> =
     trieShapes.flatMap { (shape, elements) ->
         val last = elements.last()
         listOf(
             "from a set of $shape" to { setOf(elements).builder() },
             "from adds of $shape" to { setOf(emptyList()).builder().apply { addAll(elements) } },
-            "from a set of $shape with an add and a remove of a spare element" to { setOf(elements).builder().apply { add(SPARE); remove(SPARE) } },
+            "from a set of $shape with an add and a remove of a spare element" to { setOf(elements).builder().apply { add("spare"); remove("spare") } },
             "from a set of $shape with a remove and an add of the last element" to { setOf(elements).builder().apply { remove(last); add(last) } },
         )
     }
@@ -153,11 +129,6 @@ val mapViews: List<Pair<String, PersistentMap.Builder<Any, String>.() -> Mutable
 val setViews: List<Pair<String, PersistentSet.Builder<Any>.() -> MutableIterator<*>>> = listOf(
     "iterator" to { iterator() },
 )
-
-/*
- * The calls a test makes through each builder behind a live iterator, as stdlib's CollectionOperation tables: the
- * calls that move the size first, then those that keep it (throwsCME = false).
- */
 
 val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = listOf(
     BuilderOperation("no call", throwsCME = false) { },
@@ -182,7 +153,6 @@ val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = listOf
     BuilderOperation("build()", throwsCME = false) { val _ = build() },
 )
 
-/** A hash map with a new value for each of [keys], put in the given order. */
 private fun newValuesFor(keys: List<Any>): PersistentMap<Any, String> =
     persistentHashMapOf(*keys.mapIndexed { index, key -> key to "new $index" }.toTypedArray())
 
@@ -212,7 +182,6 @@ val hashMapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>
     BuilderOperation("remove(a missing key)", throwsCME = false) { remove("missing") },
 )
 
-/** An element equal to this one but not the same instance, where it is a wrapper; an int stays as it is. */
 private fun Any.equalCopy(): Any = if (this is ObjectWrapper<*>) copy() else this
 
 val hashSetOperations: List<BuilderOperation<PersistentSet.Builder<Any>>> = listOf(

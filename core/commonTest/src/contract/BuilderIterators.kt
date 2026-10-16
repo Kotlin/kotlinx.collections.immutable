@@ -10,22 +10,17 @@ import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 /*
- * The MutableIterator contract of the builders, tested the way the standard library tests it in
- * libraries/stdlib/test/collections/ConcurrentModificationTest.kt: a table of named calls made through the builder
- * (Builders.kt), each saying whether it invalidates a live iterator, crossed with a table of calls made on the
- * iterator.
+ * The fail-fast contract of the builder iterators, tested as stdlib's ConcurrentModificationTest tests it. A table of
+ * calls through the builder, each saying whether it invalidates live iterators, is crossed with a table of calls on
+ * a live iterator.
  */
 
-/**
- * The cells of one table. Each cell runs on its own; the table then fails once, listing the first 100 failing cells
- * with the count of the rest, and keeps the first failure as the cause.
- */
+/** The cells of one table. Each cell runs on its own, and [runCells] then fails once, listing the failed ones. */
 class Cells {
     private var count = 0
     private val failures = mutableListOf<String>()
     private var firstFailure: Throwable? = null
 
-    /** Runs [body] as one cell; [message] names the cell in the report. */
     fun cell(message: String, body: () -> Unit) {
         count++
         try {
@@ -45,10 +40,6 @@ class Cells {
     }
 }
 
-/**
- * Runs the cells of [table], then fails once if any of them failed or if there were none; an exception thrown between
- * the cells counts as one more failed cell.
- */
 fun runCells(table: Cells.() -> Unit): Unit = Cells().run {
     try {
         table()
@@ -58,7 +49,6 @@ fun runCells(table: Cells.() -> Unit): Unit = Cells().run {
     report()
 }
 
-/** A call made through the builder behind a live iterator, as stdlib's CollectionOperation. */
 class BuilderOperation<in C>(
     val description: String,
     /** true when the call moves the size at least once, which invalidates every live iterator. */
@@ -66,29 +56,29 @@ class BuilderOperation<in C>(
     val function: C.() -> Unit,
 )
 
-/** A call made on the live iterator, as stdlib's IteratorOperation. */
 class IteratorOperation<in I>(
     val description: String,
-    /** true when the call needs an element returned by next, as remove and set do: with none, it throws IllegalStateException first, as in java.util. */
+    /**
+     * true when the call needs an element returned by next, as remove and set do. Without one it throws
+     * IllegalStateException first, even after a structural call, as in java.util.
+     */
     val needsAnElement: Boolean = false,
     val function: I.() -> Any?,
 )
 
-/** The calls made on a live iterator, as stdlib's iteratorOperations. */
 val iteratorOperations: List<IteratorOperation<MutableIterator<*>>> = listOf(
     IteratorOperation("next()") { next() },
 )
 
-/** The elements an iterator still has; a live map entry is read as its key and value the moment it is drained. */
+/** The elements an iterator still has. A live map entry is read as its key and value the moment it is drained. */
 internal fun Iterator<*>.drain(): List<Any?> = asSequence().map { if (it is Map.Entry<*, *>) it.key to it.value else it }.toList()
 
-/** The size a list, set or map builder reports. */
 private val Any.reportedSize: Int get() = if (this is Map<*, *>) size else (this as Collection<*>).size
 
-/** The elements as a multiset: a remove from a hash map may promote an entry ahead of the ones already visited; the other builders keep their order. */
+/** The elements as a multiset, since a remove from a hash map may promote an entry ahead of the visited ones. */
 private fun List<Any?>.unordered(): List<Any?> = sortedBy { it.toString() }
 
-/** The number of elements [open] gives on a fresh builder; if that throws, a failed cell named [message] says so and the result is null. */
+/** The size [open] gives on a fresh builder, or null when that throws and a failed cell named [message] reports it. */
 private fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() -> Iterator<*>): Int? =
     try {
         newBuilder().open().drain().size
@@ -98,13 +88,10 @@ private fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() ->
     }
 
 /**
- * Makes [builderOp] on a fresh builder of every origin in [builders], behind every iterator of [views], with 0 to
- * size elements returned, checks that the builder's size still matches its content, and checks what [iteratorOp]
- * then does. The contract is java.util's: a structural call makes next and remove throw
- * ConcurrentModificationException, and with nothing returned remove reports IllegalStateException first; either way
- * the iterator stays failed and the builder stays as the structural call left it. A non-structural call keeps the
- * iterator valid, so the iterator does what it does on an untouched builder (the control run says what that is), and
- * a remove with nothing returned changes neither the builder nor the rest of the iteration.
+ * Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to size times, makes
+ * [builderOp] and checks what [iteratorOp] does. After a structural call it throws ConcurrentModificationException,
+ * and the iterator stays failed. After a non-structural call it throws what it throws on an untouched builder, or
+ * succeeds. A call that needs an element throws IllegalStateException first when next returned nothing.
  */
 fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
     builders: List<Pair<String, () -> C>>,
@@ -148,11 +135,10 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
 }
 
 /**
- * Makes the non-structural [builderOp] on a fresh builder of every origin in [builders], behind every iterator of
- * [views], with 0 to size elements returned, and checks that the rest of the iteration is the builder's live
- * content from the cursor on and ends with NoSuchElementException, before and after the iterator's own remove, that
- * the remove takes the returned element out of the builder's content and size, and that it fails every other live
- * iterator.
+ * Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to size times and
+ * makes the non-structural [builderOp], with and without the iterator's own remove after it. Checks that the rest of
+ * the iteration is the live content from the cursor on, that the remove takes the element out of the builder, and that
+ * it fails the other live iterators.
  */
 fun <C : Any> Cells.testIterationContinues(
     builders: List<Pair<String, () -> C>>,

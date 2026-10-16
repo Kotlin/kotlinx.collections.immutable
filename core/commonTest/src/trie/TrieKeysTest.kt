@@ -15,10 +15,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/** The level reported for a key held in a collision node, under the last level. */
 private const val COLLISION = LAST_LEVEL + 1
 
-/** Walks the trie of [map] by the hash of [key] and returns the level of the node holding it. */
 private fun levelOf(map: PersistentHashMap<*, *>, key: Any): Int {
     var node: TrieNode<*, *> = map.node
     var shift = 0
@@ -43,7 +41,7 @@ private fun trieOf(keys: List<Any>): PersistentHashMap<Any, String> =
 class TrieKeysTest {
 
     @Test
-    fun `the fixtures form the drawn trie`() {
+    fun `the fixtures stored together sit at the levels of their names`() {
         val levels = mapOf(
             collidingKey1 to COLLISION, collidingKey2 to COLLISION, collidingKey3 to COLLISION,
             lastLevelSibling to LAST_LEVEL, levelTwoSibling to 2,
