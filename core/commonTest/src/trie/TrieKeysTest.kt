@@ -78,4 +78,15 @@ class TrieKeysTest {
             assertEquals(levels.getValue(shape), keys.map { levelOf(trieOf(keys), it) }, shape)
         }
     }
+
+    @Test
+    fun `no two keys of the fixtures or of a shape are equal`() {
+        val fixtures = listOf(
+            collidingKey1, collidingKey2, collidingKey3, lastLevelSibling,
+            levelTwoSibling, levelOneSibling, otherLevelOneSibling, rootSibling,
+        )
+        for (keys in trieShapes.values + listOf(fixtures)) {
+            assertEquals(keys.indices.toList(), keys.map { keys.indexOf(it) }, "$keys")
+        }
+    }
 }
