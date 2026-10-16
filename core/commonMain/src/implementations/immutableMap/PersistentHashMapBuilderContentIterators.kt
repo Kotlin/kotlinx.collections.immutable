@@ -76,10 +76,9 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         val shift = pathIndex * LOG_MAX_BRANCHING_FACTOR
 
         if (shift > MAX_SHIFT) { // collision
-            path[pathIndex].reset(node.buffer, node.buffer.size, 0)
-            while (path[pathIndex].currentKey() != key) {
-                path[pathIndex].moveToNextKey()
-            }
+            val keyIndex = node.collisionKeyIndex(key)
+            if (keyIndex == -1) throw hashCodeChanged(key)
+            path[pathIndex].reset(node.buffer, node.buffer.size, keyIndex)
             pathLastIndex = pathIndex
             return
         }
@@ -88,7 +87,8 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
 
         if (node.hasEntryAt(keyPositionMask)) { // key is directly in buffer
             val keyIndex = node.entryKeyIndex(keyPositionMask)
-            assert { node.keyAtIndex(keyIndex) == key }
+            val storedKey = node.keyAtIndex(keyIndex)
+            if (storedKey !== key && key != storedKey) throw hashCodeChanged(key)
 
             if (pathIndex < pathLastIndex) {
                 // The key was promoted out of a removed subnode into the entries this level has passed:
@@ -106,13 +106,16 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
             return
         }
 
-        assert { node.hasNodeAt(keyPositionMask) } // key is in node
+        if (!node.hasNodeAt(keyPositionMask)) throw hashCodeChanged(key)
 
         val nodeIndex = node.nodeIndex(keyPositionMask)
         val targetNode = node.nodeAtIndex(nodeIndex)
-        path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), nodeIndex)
         resetPath(keyHash, targetNode, key, pathIndex + 1)
+        path[pathIndex].reset(node.buffer, ENTRY_SIZE * node.entryCount(), nodeIndex)
     }
+
+    private fun hashCodeChanged(key: K) =
+        ConcurrentModificationException("Hash code of a key ($key) has changed after it was added to the persistent map.")
 
     private fun checkNextWasInvoked() {
         if (!nextWasInvoked)

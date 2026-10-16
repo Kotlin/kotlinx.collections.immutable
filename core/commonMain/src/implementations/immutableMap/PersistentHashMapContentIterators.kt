@@ -36,11 +36,6 @@ internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> 
         return buffer[index] as K
     }
 
-    fun moveToNextKey() {
-        assert { hasNextKey() }
-        index += 2
-    }
-
     fun hasNextNode(): Boolean {
         assert { index >= dataSize }
         return index < buffer.size
