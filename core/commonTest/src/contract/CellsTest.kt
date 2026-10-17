@@ -46,6 +46,15 @@ class CellsTest {
     }
 
     @Test
+    fun `an iterator call whose own assertion fails on an untouched builder fails every cell`() {
+        val failing = IteratorOperation<MutableIterator<Int>>("an assertion that fails") { assertTrue(false) }
+        val failure = assertFailsWith<AssertionError> {
+            runCells { testIterator(setOfTwo, iterator, BuilderOperation("no call", throwsCME = false) { }, failing) }
+        }
+        assertTrue(failure.message!!.startsWith("3 of 3 cells failed:"), failure.message)
+    }
+
+    @Test
     fun `an exception between the cells fails the table and keeps the cells before it`() {
         val failure = assertFailsWith<AssertionError> {
             runCells {

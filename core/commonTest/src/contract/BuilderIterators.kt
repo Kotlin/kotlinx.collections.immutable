@@ -91,7 +91,8 @@ private fun <C> Cells.sizeOf(message: String, newBuilder: () -> C, open: C.() ->
  * Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to size times, makes
  * [builderOp] and checks what [iteratorOp] does. After a structural call it throws ConcurrentModificationException,
  * and the iterator stays failed. After a non-structural call it throws what it throws on an untouched builder, or
- * succeeds. A call that needs an element throws IllegalStateException first when next returned nothing.
+ * succeeds. A call that needs an element throws IllegalStateException first when next returned nothing. An assertion
+ * of [iteratorOp] that fails on the untouched builder fails the cell, rather than becoming the outcome to expect.
  */
 fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
     builders: List<Pair<String, () -> C>>,
@@ -104,7 +105,7 @@ fun <C : Any, I : MutableIterator<*>> Cells.testIterator(
         for (returned in 0..size) cell("$origin, $viewName, ${iteratorOp.description} after $returned next, ${builderOp.description}") {
             val control = newBuilder().open()
             repeat(returned) { val _ = control.next() }
-            val onUntouched = runCatching { iteratorOp.function(control) }
+            val onUntouched = runCatching { iteratorOp.function(control) }.onFailure { if (it is AssertionError) throw it }
 
             val builder = newBuilder()
             val iterator = builder.open()
