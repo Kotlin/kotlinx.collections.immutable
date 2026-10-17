@@ -26,6 +26,7 @@ import tests.ObjectWrapper
 import tests.remove
 import tests.trie.collidingKey1
 import tests.trie.collidingKey2
+import tests.trie.levelOneSibling
 import tests.trie.trieShapes
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -244,6 +245,17 @@ class NoOpIdentityTest {
                 assertSame(stored, mapOf(entries).puttingAll(map)[key])
             }
         }
+        val stored: Any = 1000
+        val withASubtree = persistentHashMapOf<Any, Any>(collidingKey1 to 1000, levelOneSibling to NEW)
+        for ((kind, mapOf) in mapKinds) {
+            cell("$kind, an entry facing a subtree of the argument, puttingAll") {
+                assertSame(stored, mapOf(listOf(collidingKey1 to stored)).puttingAll(withASubtree)[collidingKey1])
+            }
+            cell("$kind, an entry facing a subtree of the argument, a builder's putAll") {
+                val builder = mapOf(listOf(collidingKey1 to stored)).builder().apply { putAll(withASubtree) }
+                assertSame(stored, builder[collidingKey1])
+            }
+        }
     }
 
     @Test
@@ -298,11 +310,11 @@ class NoOpIdentityTest {
 
     @Test
     fun `an equal number or char put into a hash map changes nothing and a zero of the other sign or an equal Number object is stored`() =
-        runCells { testValueWrites("a hash map", setValueOfAnEqualValueWrites = false) { persistentHashMapOf(*it.toTypedArray()) } }
+        runCells { testValueWrites("a hash map") { persistentHashMapOf(*it.toTypedArray()) } }
 
     @Test
     fun `an equal number or char put into an ordered map changes nothing and a zero of the other sign or an equal Number object is stored`() =
-        runCells { testValueWrites("an ordered map", setValueOfAnEqualValueWrites = true) { persistentMapOf(*it.toTypedArray()) } }
+        runCells { testValueWrites("an ordered map") { persistentMapOf(*it.toTypedArray()) } }
 }
 
 /**
@@ -814,12 +826,10 @@ private fun assertSameValue(expected: Any?, actual: Any?) {
 /**
  * Makes every write of [valueWrites] under every key of every trie shape: by putting, by puttingAll of a hash map of
  * that key and of every key, which a hash map merges trie by trie, and the same through a builder, whose put returns
- * the stored value and whose live iterator survives a write that changes nothing. An entry's setValue of an equal
- * value is skipped when [setValueOfAnEqualValueWrites], as the ordered map builder's still writes the slot (#366).
+ * the stored value and whose live iterator survives a write that changes nothing, and through an entry's setValue.
  */
 private fun Cells.testValueWrites(
     kind: String,
-    setValueOfAnEqualValueWrites: Boolean,
     mapOf: (List<Pair<Any, Any>>) -> PersistentMap<Any, Any>,
 ) {
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
@@ -856,8 +866,6 @@ private fun Cells.testValueWrites(
         }
         builderCell("a builder's put") { assertSameValue(stored, put(key, it)) }
         for ((argument, argumentWith) in arguments) builderCell("a builder's putAll of $argument") { putAll(argumentWith(it)) }
-        if (write.changes || !setValueOfAnEqualValueWrites) {
-            builderCell("an entry's setValue") { written -> assertSameValue(stored, entries.first { it.key == key }.setValue(written)) }
-        }
+        builderCell("an entry's setValue") { written -> assertSameValue(stored, entries.first { it.key == key }.setValue(written)) }
     }
 }

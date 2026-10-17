@@ -593,8 +593,9 @@ internal class TrieNode<K, V>(
                     val value = this.valueAtKeyIndex(keyIndex)
                     val storedKey = otherNode.keyOrEmpty(keyHash, key, shift)
                     when {
-                        // putAll takes the argument's value, so a subtree holding the very key is the merge
-                        storedKey === key -> {
+                        // putAll takes the argument's value, so a subtree holding the very key is the merge, unless that
+                        // value is an equal box the merge must not store
+                        storedKey === key && otherNode.get(keyHash, key, shift).let { it === value || !writeChangesNothing(value, it) } -> {
                             intersectionCounter.count++
                             otherTargetNode
                         }
