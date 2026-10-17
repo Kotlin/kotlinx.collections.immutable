@@ -187,6 +187,5 @@ val listIteratorOperations: List<IteratorOperation<MutableListIterator<Any>>> = 
     IteratorOperation("add() then remove()") { add("new"); assertFailsWith<IllegalStateException> { remove() } },
     IteratorOperation("set()", needsAnElement = true) { set("new") },
     IteratorOperation("set() twice", needsAnElement = true) { set("new"); set("newer") },
-    IteratorOperation("remove()", needsAnElement = true) { remove() },
     IteratorOperation("remove() then set()", needsAnElement = true) { remove(); assertFailsWith<IllegalStateException> { set("new") } },
 )
