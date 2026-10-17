@@ -9,19 +9,19 @@ import kotlinx.collections.immutable.internal.assert
 
 
 internal class TrieNodeMutableEntriesIterator<K, V>(
-    private val parentIterator: PersistentHashMapBuilderEntriesIterator<K, V>
+    private val builder: PersistentHashMapBuilder<K, V>
 ) : TrieNodeBaseIterator<K, V, MutableMap.MutableEntry<K, V>>() {
 
     override fun next(): MutableMap.MutableEntry<K, V> {
         assert { hasNextKey() }
         index += 2
         @Suppress("UNCHECKED_CAST")
-        return MutableMapEntry(parentIterator, buffer[index - 2] as K, buffer[index - 1] as V)
+        return MutableMapEntry(builder, buffer[index - 2] as K, buffer[index - 1] as V)
     }
 }
 
 private class MutableMapEntry<K, V>(
-    private val parentIterator: PersistentHashMapBuilderEntriesIterator<K, V>,
+    private val builder: PersistentHashMapBuilder<K, V>,
     key: K,
     override var value: V
 ) : MapEntry<K, V>(key, value), MutableMap.MutableEntry<K, V> {
@@ -29,7 +29,7 @@ private class MutableMapEntry<K, V>(
     override fun setValue(newValue: V): V {
         val result = value
         value = newValue
-        parentIterator.setValue(key, newValue)
+        if (builder.containsKey(key)) builder[key] = newValue
         return result
     }
 }
@@ -60,12 +60,6 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
         lastIteratedKey = null
         nextWasInvoked = false
         expectedSizeModCount = builder.sizeModCount
-    }
-
-    fun setValue(key: K, newValue: V) {
-        if (!builder.containsKey(key)) return
-
-        builder[key] = newValue
     }
 
     private fun ensurePathIsLive() {
@@ -131,21 +125,10 @@ internal open class PersistentHashMapBuilderBaseIterator<K, V, T>(
     }
 }
 
-internal class PersistentHashMapBuilderEntriesIterator<K, V>(
-    builder: PersistentHashMapBuilder<K, V>
-) : MutableIterator<MutableMap.MutableEntry<K, V>> {
-    private val base = PersistentHashMapBuilderBaseIterator<K, V, MutableMap.MutableEntry<K, V>>(
-        builder, Array(TRIE_MAX_HEIGHT + 1) {
-            TrieNodeMutableEntriesIterator(this)
-        }
+internal class PersistentHashMapBuilderEntriesIterator<K, V>(builder: PersistentHashMapBuilder<K, V>) :
+    PersistentHashMapBuilderBaseIterator<K, V, MutableMap.MutableEntry<K, V>>(
+        builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeMutableEntriesIterator(builder) }
     )
-
-    override fun hasNext(): Boolean = base.hasNext()
-    override fun next(): MutableMap.MutableEntry<K, V> = base.next()
-    override fun remove(): Unit = base.remove()
-
-    fun setValue(key: K, newValue: V): Unit = base.setValue(key, newValue)
-}
 
 internal class PersistentHashMapBuilderKeysIterator<K, V>(builder: PersistentHashMapBuilder<K, V>) :
     PersistentHashMapBuilderBaseIterator<K, V, K>(builder, Array(TRIE_MAX_HEIGHT + 1) { TrieNodeKeysIterator() })
