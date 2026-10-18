@@ -11,11 +11,20 @@ import kotlinx.collections.immutable.implementations.immutableMap.PersistentHash
 import kotlinx.collections.immutable.implementations.immutableMap.TrieNode
 import kotlinx.collections.immutable.implementations.immutableMap.indexSegment
 import kotlinx.collections.immutable.persistentHashMapOf
+import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 private const val COLLISION = LAST_LEVEL + 1
+
+/** The level each fixture takes when they are all stored together. */
+private val fixtureLevels: Map<IntWrapper, Int> = mapOf(
+    collidingKey1 to COLLISION, collidingKey2 to COLLISION, collidingKey3 to COLLISION,
+    lastLevelSibling to LAST_LEVEL, levelTwoSibling to 2,
+    levelOneSibling to 1, otherLevelOneSibling to 1,
+    rootSibling to 0,
+)
 
 private fun levelOf(map: PersistentHashMap<*, *>, key: Any): Int {
     var node: TrieNode<*, *> = map.node
@@ -38,19 +47,13 @@ private fun levelOf(map: PersistentHashMap<*, *>, key: Any): Int {
 private fun trieOf(keys: List<Any>): PersistentHashMap<Any, String> =
     persistentHashMapOf(*keys.map { it to "" }.toTypedArray()) as PersistentHashMap<Any, String>
 
+/** The fixtures sit at the levels their names give, and each shape forms the trie it is named after. */
 class TrieKeysTest {
 
     @Test
     fun `the fixtures stored together sit at the levels of their names`() {
-        val levels = mapOf(
-            collidingKey1 to COLLISION, collidingKey2 to COLLISION, collidingKey3 to COLLISION,
-            lastLevelSibling to LAST_LEVEL, levelTwoSibling to 2,
-            levelOneSibling to 1, otherLevelOneSibling to 1,
-            rootSibling to 0,
-        )
-        val map = trieOf(levels.keys.toList())
-
-        assertEquals(levels, levels.keys.associateWith { levelOf(map, it) })
+        val map = trieOf(fixtureLevels.keys.toList())
+        assertEquals(fixtureLevels, fixtureLevels.keys.associateWith { levelOf(map, it) })
     }
 
     @Test
@@ -79,12 +82,8 @@ class TrieKeysTest {
 
     @Test
     fun `no two keys of the fixtures or of a shape are equal`() {
-        val fixtures = listOf(
-            collidingKey1, collidingKey2, collidingKey3, lastLevelSibling,
-            levelTwoSibling, levelOneSibling, otherLevelOneSibling, rootSibling,
-        )
-        for (keys in trieShapes.values + listOf(fixtures)) {
-            assertEquals(keys.indices.toList(), keys.map { keys.indexOf(it) }, "$keys")
+        for (keys in trieShapes.values + listOf(fixtureLevels.keys.toList())) {
+            assertEquals(keys, keys.distinct(), "$keys")
         }
     }
 }

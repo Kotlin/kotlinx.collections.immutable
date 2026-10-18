@@ -16,6 +16,7 @@ import kotlinx.collections.immutable.toPersistentHashSet
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.collections.immutable.toPersistentSet
 import tests.IntWrapper
+import tests.equalCopy
 import tests.trie.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -121,7 +122,7 @@ private val merges: List<Merge> = tries.flatMap { (receiverShape, receiver) ->
     tries.flatMap { (argumentShape, argument) ->
         listOf(
             Merge("receiver $receiverShape, argument $argumentShape", receiver, argument),
-            Merge("receiver $receiverShape, argument $argumentShape of equal copies", receiver, argument.map { it?.copy() }),
+            Merge("receiver $receiverShape, argument $argumentShape of equal copies", receiver, argument.map { it.equalCopy() }),
         )
     }
 } + listOf(
@@ -157,7 +158,7 @@ private fun Cells.testPutAll(
             assertHolds(receiver, receiverMap)
             assertHolds(argument, argumentMap)
         }
-        for ((origin, newBuilder) in buildersOf(receiver.toList())) cell("${merge.description}, putAll on a builder $origin") {
+        for ((origin, newBuilder) in buildersOf(receiver.toList())) cell("${merge.description}, putAll on $origin") {
             val builder = newBuilder()
             val argumentMap = argument.toPersistentHashMap()
             builder.putAll(argumentMap)
@@ -194,7 +195,7 @@ private fun Cells.testBulkCalls(
             assertHolds(merge.receiver, receiver)
             assertHolds(merge.argument, argument)
         }
-        for ((origin, newBuilder) in buildersOf(merge.receiver)) cell("${merge.description}, ${call.builderName} on a builder $origin") {
+        for ((origin, newBuilder) in buildersOf(merge.receiver)) cell("${merge.description}, ${call.builderName} on $origin") {
             val builder = newBuilder()
             val argument = merge.argument.toPersistentHashSet()
             assertEquals(expected.size != merge.receiver.size, call.builder(builder, argument), "the result")

@@ -8,6 +8,7 @@ package tests.contract
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.IntWrapper
+import tests.trie.missingKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -86,16 +87,12 @@ private typealias MapBuilder = PersistentMap.Builder<Any, String>
 private typealias Entry = MutableMap.MutableEntry<Any, String>
 
 private fun <K, V> mapBuildersOf(vararg entries: Pair<K, V>): Origins<PersistentMap.Builder<K, V>> =
-    hashMapBuildersOf(entries.toList()).map { (origin, newBuilder) -> "hash map $origin" to newBuilder } +
-        orderedMapBuildersOf(entries.toList()).map { (origin, newBuilder) -> "ordered map $origin" to newBuilder }
-
-/** A key no fixture holds, with the hash of [key], so it takes the slot of a removed [key]. */
-private fun keyWithTheHashOf(key: Any): Any = IntWrapper(99, key.hashCode())
+    hashMapBuildersOf(entries.toList()) + orderedMapBuildersOf(entries.toList())
 
 /** The calls beyond [mapOperations] that move a key's slot, take it away or bring it back. */
 private val slotMoves: List<BuilderOperation<MapBuilder>> = listOf(
-    BuilderOperation("put(a key with the hash of the first key)") { put(keyWithTheHashOf(keys.first()), "c") },
-    BuilderOperation("remove(the first key) then put(a key with its hash)") { val key = keys.first(); remove(key); put(keyWithTheHashOf(key), "c") },
+    BuilderOperation("put(a key with the hash of the first key)") { put(missingKey(keys.first().hashCode()), "c") },
+    BuilderOperation("remove(the first key) then put(a key with its hash)") { val key = keys.first(); remove(key); put(missingKey(key.hashCode()), "c") },
     BuilderOperation("remove(the first key) then put it back") { val key = keys.first(); remove(key); put(key, "p") },
     BuilderOperation("remove(the last key) then put it back") { val key = keys.last(); remove(key); put(key, "p") },
     BuilderOperation("clear() then put(the first key) back") { val key = keys.first(); clear(); put(key, "p") },
@@ -103,20 +100,19 @@ private val slotMoves: List<BuilderOperation<MapBuilder>> = listOf(
 )
 
 /** The first call on an entry after a call through the builder, with nothing read from the entry in between. */
-private val firstReads: List<Pair<String, Entry.(value: String, message: String) -> Unit>> = listOf(
-    "value" to { value, message -> assertEquals(value, this.value, message) },
-    "toString" to { value, message -> assertEquals("$key=$value", toString(), message) },
-    "hashCode" to { value, message -> assertEquals(key.hashCode() xor value.hashCode(), hashCode(), message) },
-    "equals" to { value, message -> assertTrue(this == mapOf(key to value).entries.single(), message) },
-    "setValue of the value it holds" to { value, message -> assertSame(value, setValue(value), message) },
+private val firstReads: List<Pair<String, Entry.(expected: String) -> Unit>> = listOf(
+    "value" to { expected -> assertEquals(expected, value) },
+    "toString" to { expected -> assertEquals("$key=$expected", toString()) },
+    "hashCode" to { expected -> assertEquals(key.hashCode() xor expected.hashCode(), hashCode()) },
+    "equals" to { expected -> assertTrue(this == mapOf(key to expected).entries.single()) },
+    "setValue of the value it holds" to { expected -> assertSame(expected, setValue(expected)) },
 )
 
 private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<BuilderOperation<MapBuilder>>) {
     for (operation in operations) for ((read, check) in firstReads) for ((origin, newBuilder) in builders) {
         cell("$origin, $read first after ${operation.description}") {
             val keys = newBuilder().keys.toList()
-            for (position in keys.indices) {
-                val message = "entry $position"
+            for (position in keys.indices) at("entry $position") {
                 val builder = newBuilder()
                 val iterator = builder.entries.iterator()
                 repeat(position) { val _ = iterator.next() }
@@ -127,17 +123,17 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                 val value = if (kept) builder.getValue(entry.key) else before
                 val built = builder.build()
 
-                entry.check(value, message)
+                entry.check(value)
 
-                assertSame(value, entry.setValue(value), message)
-                assertSame(built, builder.build(), message)
-                assertEquals(value, entry.setValue("z"), message)
-                assertEquals("z", entry.value, message)
-                assertEquals(built.map { (k, v) -> k to (if (kept && k == entry.key) "z" else v) }, builder.toList(), message)
+                assertSame(value, entry.setValue(value))
+                assertSame(built, builder.build())
+                assertEquals(value, entry.setValue("z"))
+                assertEquals("z", entry.value)
+                assertEquals(built.map { (k, v) -> k to (if (kept && k == entry.key) "z" else v) }, builder.toList())
                 if (operation.throwsCME) {
-                    assertFailsWith<ConcurrentModificationException>(message) { iterator.next() }
+                    assertFailsWith<ConcurrentModificationException> { iterator.next() }
                 } else {
-                    assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList(), message)
+                    assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList())
                 }
             }
         }

@@ -78,11 +78,6 @@ private fun newElements(count: Int): List<Int> = List(count) { -10 - it }
 
 private fun trieSize(size: Int): Int = if (size <= LEAF) 0 else rootSize(size)
 
-/** The ends of the first leaf, the first level-1 node and the last leaf, the index past each, and the last index. */
-private fun indices(size: Int): List<Int> =
-    listOf(0, LEAF - 1, LEAF, LEVEL - 1, LEVEL, trieSize(size) - LEAF, trieSize(size) - 1, trieSize(size), size - 1)
-        .filter { it in 0..<size }.distinct().sorted()
-
 /** One, as many as fill the tail, one more, and a leaf and one. */
 private fun counts(size: Int): List<Int> {
     val room = LEAF - (size - trieSize(size))
@@ -136,14 +131,14 @@ private fun calls(size: Int): List<Pair<String, MutableList<Int>.() -> Any?>> = 
         return@buildList
     }
 
-    val positions = indices(size) + size
+    val positions = boundaryIndices(size) + size
     call("add(x)") { add(NEW) }
     for (count in listOf(0, LEVEL + LEAF) + counts(size)) call("addAll($count elements)") { addAll(newElements(count)) }
     for (position in positions) {
         call("add($position, x)") { add(position, NEW) }
         for (count in counts(size)) call("addAll($position, $count elements)") { addAll(position, newElements(count)) }
     }
-    for (index in indices(size)) {
+    for (index in boundaryIndices(size)) {
         call("set($index, x)") { set(index, NEW) }
         call("removeAt($index)") { removeAt(index) }
     }
@@ -156,7 +151,7 @@ private fun calls(size: Int): List<Pair<String, MutableList<Int>.() -> Any?>> = 
     call("removeAll(nothing)") { removeAll(emptySet()) }
     call("removeAll(a missing element)") { removeAll(setOf(MISSING)) }
     call("removeAll(every other element)") { removeAll((0..<size step 2).toSet()) }
-    for (index in indices(size)) {
+    for (index in boundaryIndices(size)) {
         call("removeAll(the suffix from $index)") { removeAll((index..<size).toSet()) }
         call("removeAll(the prefix before $index)") { removeAll((0..<index).toSet()) }
         if (index % LEAF == 0 && index < trieSize(size)) call("removeAll(the leaf at $index)") { removeAll((index..<index + LEAF).toSet()) }
@@ -170,7 +165,7 @@ private fun calls(size: Int): List<Pair<String, MutableList<Int>.() -> Any?>> = 
     call("retainAll(nothing)") { retainAll(emptySet()) }
     call("retainAll(every other element)") { retainAll((0..<size step 2).toSet()) }
     call("removeAll { every other element }") { removeAll { it % 2 == 0 } }
-    for (index in indices(size)) {
+    for (index in boundaryIndices(size)) {
         call("retainAll(the suffix from $index)") { retainAll((index..<size).toSet()) }
         call("retainAll(the prefix before $index)") { retainAll((0..<index).toSet()) }
         call("removeAll { the suffix from $index }") { removeAll { it >= index } }

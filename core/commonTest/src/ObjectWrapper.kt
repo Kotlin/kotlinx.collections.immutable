@@ -36,3 +36,7 @@ class ObjectWrapper<K: Comparable<K>>(
 }
 
 typealias IntWrapper = ObjectWrapper<Int>
+
+/** An equal instance that is not this one when this is an [ObjectWrapper]; anything else as it is. */
+@Suppress("UNCHECKED_CAST")
+fun <T> T.equalCopy(): T = if (this is ObjectWrapper<*>) copy() as T else this

@@ -21,9 +21,10 @@ import kotlinx.collections.immutable.toPersistentHashSet
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentSet
 import tests.IntWrapper
-import tests.ObjectWrapper
+import tests.equalCopy
 import tests.remove
 import tests.trie.collidingKey1
+import tests.trie.missingKey
 import tests.trie.trieShapes
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -107,16 +108,8 @@ private inline fun <E> PersistentCollection<E>.mutate(mutator: (MutableCollectio
 /** An element or a value no fixture holds. */
 private const val NEW = "new"
 
-private fun Any?.equalCopy(): Any? = if (this is ObjectWrapper<*>) copy() else this
-
-/** A key no fixture holds, with the given [hash]; the ids of the fixtures are not negative. */
-private fun missing(hash: Int): Any = IntWrapper(-1 - hash, hash)
-
-/** A missing key with [stored]'s hash, so with its path to the bottom. */
-private fun missingWithTheHashOf(stored: Any?): Any = missing(stored.hashCode())
-
 /** A missing key whose path parts from [stored]'s at level 1. */
-private fun missingBesideAtLevelOne(stored: Any?): Any = missing(stored.hashCode() xor MAX_BRANCHING_FACTOR)
+private fun missingBesideAtLevelOne(stored: Any?): Any = missingKey(stored.hashCode() xor MAX_BRANCHING_FACTOR)
 
 /** Every key wrapped, so that an equal key that is not the stored instance exists. */
 private val wrappedShapes: Map<String, List<Any>> = trieShapes.mapValues { (_, keys) -> keys.map { if (it is Int) IntWrapper(it, it) else it } }
@@ -141,7 +134,7 @@ private val nothing: List<Pair<String, Collection<Any?>>> = listOf("nothing" to 
 private fun noElementOf(elements: Collection<Any?>): List<Pair<String, Collection<Any?>>> = nothing + listOf(
     "missing elements" to listOf("missing", "absent"),
     "a hash set of missing elements" to persistentHashSetOf("missing", "absent"),
-    "a hash set of missing elements with the stored hashes" to elements.map(::missingWithTheHashOf).toPersistentHashSet(),
+    "a hash set of missing elements with the stored hashes" to elements.map { missingKey(it.hashCode()) }.toPersistentHashSet(),
 )
 
 private fun <C : PersistentCollection<Any?>> collectionNoOps(collection: C): List<Call<C>> = buildList {
@@ -222,8 +215,8 @@ private fun setNoOps(set: PersistentSet<Any?>): List<Call<PersistentSet<Any?>>> 
         add("add($element)" to { mutate { it.add(element) } })
         add("adding(a copy of $element)" to { adding(element.equalCopy()) })
         add("add(a copy of $element)" to { mutate { it.add(element.equalCopy()) } })
-        add("removing(a missing element with the hash of $element)" to { removing(missingWithTheHashOf(element)) })
-        add("remove(a missing element with the hash of $element)" to { mutate { it.remove(missingWithTheHashOf(element)) } })
+        add("removing(a missing element with the hash of $element)" to { removing(missingKey(element.hashCode())) })
+        add("remove(a missing element with the hash of $element)" to { mutate { it.remove(missingKey(element.hashCode())) } })
         add("removing(a missing element beside $element at level 1)" to { removing(missingBesideAtLevelOne(element)) })
         add("remove(a missing element beside $element at level 1)" to { mutate { it.remove(missingBesideAtLevelOne(element)) } })
     }
@@ -273,8 +266,8 @@ private fun mapNoOps(map: PersistentMap<Any?, Any?>): List<Call<PersistentMap<An
     for (key in map.keys) {
         add("removing($key, a new value)" to { removing(key, NEW) })
         add("remove($key, a new value)" to { mutate { val _ = it.remove(key, NEW) } })
-        add("removing(a missing key with the hash of $key)" to { removing(missingWithTheHashOf(key)) })
-        add("remove(a missing key with the hash of $key)" to { mutate { it.remove(missingWithTheHashOf(key)) } })
+        add("removing(a missing key with the hash of $key)" to { removing(missingKey(key.hashCode())) })
+        add("remove(a missing key with the hash of $key)" to { mutate { it.remove(missingKey(key.hashCode())) } })
         add("removing(a missing key beside $key at level 1)" to { removing(missingBesideAtLevelOne(key)) })
         add("remove(a missing key beside $key at level 1)" to { mutate { it.remove(missingBesideAtLevelOne(key)) } })
     }
@@ -374,14 +367,14 @@ private fun <C : Any> Cells.testWrites(
  * trie, and by an entry's setValue. A putAll that writes other keys too, or brings the key in a subtree beside a new
  * key, keeps the stored value when the write changes nothing.
  */
-private fun Cells.testValueWrites(kind: String, mapOf: (List<Pair<Any, Any?>>) -> PersistentMap<Any, Any?>) {
+private fun Cells.testValueWrites(kind: String, newMap: (List<Pair<Any, Any?>>) -> PersistentMap<Any, Any?>) {
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
         val stored = write.stored()
         val pairs = keys.mapIndexed { index, shapeKey -> shapeKey to if (index == position) stored else IntWrapper(index, index) }
         fun everyKey(written: Any?) = persistentHashMapOf(*pairs.mapIndexed { index, pair -> if (index == position) key to written else pair }.toTypedArray())
         fun newValuesForTheOthers(written: Any?) = persistentHashMapOf(*keys.map { if (it == key) key to written else it to NEW }.toTypedArray())
         fun aNewKeyBeside(written: Any?) = persistentHashMapOf(key to written, missingBesideAtLevelOne(key) to NEW)
-        testWrites("$kind of $shape, ${write.description} under the key at $position", write, mapOf(pairs), { this[key] },
+        testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(pairs), { this[key] },
             writes = listOf(
                 "putting" to { putting(key, it) },
                 "puttingAll of a hash map of the key" to { puttingAll(persistentHashMapOf(key to it)) },

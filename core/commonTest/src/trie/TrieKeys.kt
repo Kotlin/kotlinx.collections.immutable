@@ -16,6 +16,9 @@ const val LAST_LEVEL = MAX_SHIFT / LOG_MAX_BRANCHING_FACTOR
 
 fun IntWrapper.colliding(id: Int): IntWrapper = IntWrapper(id, hashCode)
 
+/** A key no fixture holds, with the given [hash]; the ids of the fixtures are not negative. */
+fun missingKey(hash: Int): IntWrapper = IntWrapper(-1 - hash, hash)
+
 /**
  * A key that follows this key's path down to the node at [level], takes [cell] there, and takes cell 0 below. At the
  * last level only cells 0 and 1 are offered, since the trie reads cells 2 and 3 there as 30 and 31.

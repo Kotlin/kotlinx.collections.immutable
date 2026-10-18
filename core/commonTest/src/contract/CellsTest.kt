@@ -10,6 +10,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
+/**
+ * A table runs every cell even after one fails, then fails once naming the failed cells; a table that ran no cell
+ * fails too.
+ */
 class CellsTest {
     private val setOfTwo: Origins<MutableSet<Int>> = listOf("a set of 2" to { mutableSetOf(1, 2) })
     private val iterator: Views<MutableSet<Int>, MutableIterator<Int>> = listOf("iterator" to { iterator() })

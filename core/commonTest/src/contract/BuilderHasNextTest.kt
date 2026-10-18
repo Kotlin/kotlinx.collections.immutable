@@ -132,7 +132,7 @@ private fun <B> Cells.testHasNext(builders: Origins<B>, views: Views<B, MutableI
     for ((origin, newBuilder) in builders) for ((view, open) in views) {
         cell("$origin, $view, hasNext() after ${builderOp.description}") {
             val size = newBuilder().open().drain().size
-            for (returned in 0..size) {
+            for (returned in 0..size) at("after $returned next") {
                 val builder = newBuilder()
                 val iterator = builder.open()
                 repeat(returned) { val _ = iterator.next() }
@@ -140,7 +140,7 @@ private fun <B> Cells.testHasNext(builders: Origins<B>, views: Views<B, MutableI
                 builderOp.function(builder)
 
                 val end = if (builder is List<*>) builder.size else size
-                assertEquals(returned != end, iterator.hasNext(), "after $returned next")
+                assertEquals(returned != end, iterator.hasNext())
             }
         }
     }

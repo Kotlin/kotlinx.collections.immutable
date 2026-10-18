@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.implementations.immutableList.MAX_BUFFER_SIZE
+import kotlinx.collections.immutable.implementations.immutableList.rootSize
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.collections.immutable.persistentListOf
@@ -16,7 +17,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentHashSet
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentSet
-import tests.ObjectWrapper
+import tests.equalCopy
 import tests.trie.trieShapes
 
 /**
@@ -29,24 +30,33 @@ typealias Origins<B> = List<Pair<String, () -> B>>
 /** The iterators a builder opens, each named after its view. */
 typealias Views<B, I> = List<Pair<String, B.() -> I>>
 
-internal const val TAIL_ONLY = 3
-internal const val FULL_TAIL = MAX_BUFFER_SIZE
-internal const val ONE_LEAF = MAX_BUFFER_SIZE + 8
-internal const val LEAVES = 3 * MAX_BUFFER_SIZE + 4
-internal const val NODES = MAX_BUFFER_SIZE * MAX_BUFFER_SIZE + 76
+/** Runs [test], the assertions of one bug, on a fresh builder of every origin, one cell per origin. */
+fun <B> forEachBuilder(builders: Origins<B>, test: (B) -> Unit): Unit = runCells {
+    for ((origin, newBuilder) in builders) cell(origin) { test(newBuilder()) }
+}
 
-internal fun boundaryIndices(size: Int): List<Int> =
-    listOf(0, MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE, size - 1)
-        .filter { it in 0..<size }
-        .distinct()
+const val TAIL_ONLY = 3
+const val FULL_TAIL = MAX_BUFFER_SIZE
+const val ONE_LEAF = MAX_BUFFER_SIZE + 8
+const val LEAVES = 3 * MAX_BUFFER_SIZE + 4
+const val NODES = MAX_BUFFER_SIZE * MAX_BUFFER_SIZE + 76
 
-internal val listDepths: Map<Int, String> = mapOf(
+val listDepths: Map<Int, String> = mapOf(
     TAIL_ONLY to "the tail only",
     FULL_TAIL to "a full tail",
     ONE_LEAF to "a root that is one leaf",
     LEAVES to "a root over leaves",
     NODES to "a root over level-1 nodes",
 )
+
+/** The ends of the first leaf, the first level-1 node and the last leaf, the index past each, and the last index. */
+fun boundaryIndices(size: Int): List<Int> {
+    val trieSize = if (size <= MAX_BUFFER_SIZE) 0 else rootSize(size)
+    return listOf(
+        0, MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE,
+        trieSize - MAX_BUFFER_SIZE, trieSize - 1, trieSize, size - 1,
+    ).filter { it in 0..<size }.distinct().sorted()
+}
 
 /*
  * A builder from a persistent collection shares every node with it, and one from adds owns every node (an addAll or
@@ -57,37 +67,43 @@ internal val listDepths: Map<Int, String> = mapOf(
 
 fun listBuildersOf(size: Int): Origins<PersistentList.Builder<Any>> {
     val elements = List<Any>(size) { it }
-    val shape = listDepths.getValue(size)
+    val shape = listDepths[size]?.let { ", $it" }.orEmpty()
     val middle = size / 2
     return listOf(
-        "from a list of $size, $shape" to { elements.toPersistentList().builder() },
-        "from adds of $size, $shape" to { persistentListOf<Any>().builder().apply { addAll(elements) } },
-        "from a list of $size with the element at $middle overwritten and restored, $shape" to {
+        "from a list of $size$shape" to { elements.toPersistentList().builder() },
+        "from adds of $size$shape" to { persistentListOf<Any>().builder().apply { addAll(elements) } },
+        "from a list of $size with the element at $middle overwritten and restored$shape" to {
             elements.toPersistentList().builder().apply { this[middle] = "overwritten"; this[middle] = elements[middle] }
         },
     )
 }
 
-private fun <K, V> mapBuildersOf(entries: List<Pair<K, V>>, mapOf: (List<Pair<K, V>>) -> PersistentMap<K, V>): Origins<PersistentMap.Builder<K, V>> =
-    listOf(
-        "from a map" to { mapOf(entries).builder() },
-        "from puts" to { mapOf(emptyList()).builder().apply { for ((key, value) in entries) set(key, value) } },
-    ) + entries.takeLast(1).map { (key, value) ->
-        "from a map with its last key removed and put back" to { mapOf(entries).builder().apply { remove(key); set(key, value) } }
-    }
+private fun <K, V> mapBuildersOf(
+    kind: String,
+    entries: List<Pair<K, V>>,
+    newMap: (List<Pair<K, V>>) -> PersistentMap<K, V>,
+): Origins<PersistentMap.Builder<K, V>> = listOf(
+    "$kind from a map" to { newMap(entries).builder() },
+    "$kind from puts" to { newMap(emptyList()).builder().apply { for ((key, value) in entries) put(key, value) } },
+) + entries.takeLast(1).map { (key, value) ->
+    "$kind from a map with its last key removed and put back" to { newMap(entries).builder().apply { remove(key); put(key, value) } }
+}
 
-private fun <E> setBuildersOf(elements: List<E>, setOf: (List<E>) -> PersistentSet<E>): Origins<PersistentSet.Builder<E>> =
-    listOf(
-        "from a set" to { setOf(elements).builder() },
-        "from adds" to { setOf(emptyList()).builder().apply { addAll(elements) } },
-    ) + elements.takeLast(1).map { last ->
-        "from a set with its last element removed and added back" to { setOf(elements).builder().apply { remove(last); add(last) } }
-    }
+private fun <E> setBuildersOf(
+    kind: String,
+    elements: List<E>,
+    newSet: (List<E>) -> PersistentSet<E>,
+): Origins<PersistentSet.Builder<E>> = listOf(
+    "$kind from a set" to { newSet(elements).builder() },
+    "$kind from adds" to { newSet(emptyList()).builder().apply { addAll(elements) } },
+) + elements.takeLast(1).map { last ->
+    "$kind from a set with its last element removed and added back" to { newSet(elements).builder().apply { remove(last); add(last) } }
+}
 
-fun <K, V> hashMapBuildersOf(entries: List<Pair<K, V>>) = mapBuildersOf(entries) { persistentHashMapOf(*it.toTypedArray()) }
-fun <K, V> orderedMapBuildersOf(entries: List<Pair<K, V>>) = mapBuildersOf(entries) { persistentMapOf(*it.toTypedArray()) }
-fun <E> hashSetBuildersOf(elements: List<E>) = setBuildersOf(elements) { it.toPersistentHashSet() }
-fun <E> orderedSetBuildersOf(elements: List<E>) = setBuildersOf(elements) { it.toPersistentSet() }
+fun <K, V> hashMapBuildersOf(entries: List<Pair<K, V>>) = mapBuildersOf("a hash map builder", entries) { persistentHashMapOf(*it.toTypedArray()) }
+fun <K, V> orderedMapBuildersOf(entries: List<Pair<K, V>>) = mapBuildersOf("an ordered map builder", entries) { persistentMapOf(*it.toTypedArray()) }
+fun <E> hashSetBuildersOf(elements: List<E>) = setBuildersOf("a hash set builder", elements) { it.toPersistentHashSet() }
+fun <E> orderedSetBuildersOf(elements: List<E>) = setBuildersOf("an ordered set builder", elements) { it.toPersistentSet() }
 
 /**
  * Lists of the tail alone and of a leaf and a tail, and one over several leaves that owns its root but not its first
@@ -117,13 +133,16 @@ private fun <B : MutableCollection<Any>> emptyBuildersOf(kind: String, builderOf
     "a $kind builder emptied by clear" to { builderOf(removedElements).apply { clear() } },
 )
 
-private fun emptyMapBuildersOf(kind: String, mapOf: (List<Pair<Any, String>>) -> PersistentMap<Any, String>): Origins<PersistentMap.Builder<Any, String>> {
+private fun emptyMapBuildersOf(
+    kind: String,
+    newMap: (List<Pair<Any, String>>) -> PersistentMap<Any, String>,
+): Origins<PersistentMap.Builder<Any, String>> {
     val entries = removedElements.map { it to "v$it" }
     return listOf(
-        "a new $kind builder" to { mapOf(emptyList()).builder() },
-        "a $kind builder emptied by remove" to { mapOf(entries).builder().apply { for (key in removedElements) remove(key) } },
-        "a $kind builder emptied by the keys' removeAll" to { mapOf(entries).builder().apply { keys.removeAll(removedElements) } },
-        "a $kind builder emptied by clear" to { mapOf(entries).builder().apply { clear() } },
+        "a new $kind builder" to { newMap(emptyList()).builder() },
+        "a $kind builder emptied by remove" to { newMap(entries).builder().apply { for (key in removedElements) remove(key) } },
+        "a $kind builder emptied by the keys' removeAll" to { newMap(entries).builder().apply { keys.removeAll(removedElements) } },
+        "a $kind builder emptied by clear" to { newMap(entries).builder().apply { clear() } },
     )
 }
 
@@ -194,7 +213,7 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>> = 
     BuilderOperation("putAll(new values)", throwsCME = false) { putAll(newValuesFor(keys.toList())) },
     BuilderOperation("putAll(new values in the reverse key order)", throwsCME = false) { putAll(newValuesFor(keys.reversed())) },
     BuilderOperation("putAll(new values as a map)", throwsCME = false) { putAll(mapValues { it.value + "!" }) },
-    BuilderOperation("putAll(the stored values)", throwsCME = false) { putAll(persistentHashMapOf(*entries.map { it.key to it.value }.toTypedArray())) },
+    BuilderOperation("putAll(the stored values)", throwsCME = false) { putAll(persistentHashMapOf(*toList().toTypedArray())) },
     BuilderOperation("putAll(the stored values as a map)", throwsCME = false) { putAll(toMap()) },
     BuilderOperation("putAll(the built map)", throwsCME = false) { putAll(build()) },
     BuilderOperation("putAll(the builder itself)", throwsCME = false) { putAll(this) },
@@ -203,8 +222,6 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>> = 
     BuilderOperation("remove(a missing key)", throwsCME = false) { remove("missing") },
     BuilderOperation("build() then put(a new value for the first key)", throwsCME = false) { val _ = build(); put(keys.first(), "changed") },
 )
-
-private fun Any.equalCopy(): Any = if (this is ObjectWrapper<*>) copy() else this
 
 /** For the hash and the ordered set builders; a hash set argument takes the hash builder's trie-by-trie path. */
 val setOperations: List<BuilderOperation<PersistentSet.Builder<Any>>> = listOf(

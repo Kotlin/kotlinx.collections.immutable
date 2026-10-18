@@ -7,52 +7,12 @@ package tests.contract
 
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.fail
 
 /*
  * The fail-fast contract of the builder iterators, tested as stdlib's ConcurrentModificationTest tests it. A table of
  * calls through the builder, each saying whether it invalidates live iterators, is crossed with a table of calls on
  * a live iterator.
  */
-
-/** The cells of one table. Each cell runs on its own, and [runCells] then fails once, listing the failed ones. */
-class Cells {
-    private var count = 0
-    private val failures = mutableListOf<String>()
-    private var firstFailure: Throwable? = null
-
-    fun cell(message: String, body: () -> Unit) {
-        count++
-        try {
-            body()
-        } catch (e: Throwable) {
-            failures += "$message: $e"
-            if (firstFailure == null) firstFailure = e
-        }
-    }
-
-    internal fun report() {
-        if (count == 0) fail("The table ran no cell")
-        if (failures.isEmpty()) return
-        val shown = failures.take(100)
-        val more = if (failures.size > shown.size) "\n... and ${failures.size - shown.size} more" else ""
-        fail("${failures.size} of $count cells failed:\n" + shown.joinToString("\n") + more, firstFailure)
-    }
-}
-
-fun runCells(table: Cells.() -> Unit): Unit = Cells().run {
-    try {
-        table()
-    } catch (e: Throwable) {
-        cell("between the cells") { throw e }
-    }
-    report()
-}
-
-/** Runs [test], the assertions of one bug, on a fresh builder of every origin, one cell per origin. */
-fun <B> forEachBuilder(builders: Origins<B>, test: (B) -> Unit): Unit = runCells {
-    for ((origin, newBuilder) in builders) cell(origin) { test(newBuilder()) }
-}
 
 class BuilderOperation<in B>(
     val description: String,
@@ -89,7 +49,7 @@ val listIteratorOperations: List<IteratorOperation<MutableListIterator<Any>>> = 
 )
 
 /** The elements an iterator still has. A live map entry is read as its key and value the moment it is drained. */
-internal fun Iterator<*>.drain(): List<Any?> = asSequence().map(::read).toList()
+fun Iterator<*>.drain(): List<Any?> = asSequence().map(::read).toList()
 
 private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.key to element.value else element
 
@@ -109,8 +69,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
 ) {
     for ((origin, newBuilder) in builders) for ((view, open) in views) {
         cell("$origin, $view, ${iteratorOp.description} after ${builderOp.description}") {
-            for (returned in 0..newBuilder().open().drain().size) {
-                val message = "after $returned next"
+            for (returned in 0..newBuilder().open().drain().size) at("after $returned next") {
                 val builder = newBuilder()
                 val iterator = builder.open()
                 repeat(returned) { val _ = iterator.next() }
@@ -118,19 +77,20 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                 val content = builder.open().drain()
 
                 if (builderOp.throwsCME) {
-                    val failure = if (iteratorOp.needsAnElement && returned == 0) IllegalStateException::class else ConcurrentModificationException::class
-                    assertFailsWith(failure, message) { iteratorOp.function(iterator) }
-                    assertFailsWith<ConcurrentModificationException>(message) { iterator.next() }
-                    assertEquals(content, builder.open().drain(), message)
+                    val failure = if (iteratorOp.needsAnElement && returned == 0) IllegalStateException::class
+                                  else ConcurrentModificationException::class
+                    assertFailsWith(failure) { iteratorOp.function(iterator) }
+                    assertFailsWith<ConcurrentModificationException> { iterator.next() }
+                    assertEquals(content, builder.open().drain())
                 } else {
                     val model = content.toMutableList()
                     @Suppress("UNCHECKED_CAST")
                     val modelIterator = model.listIterator() as I
                     repeat(returned) { val _ = modelIterator.next() }
-                    assertEquals(outcomeOf { iteratorOp.function(modelIterator) }, outcomeOf { iteratorOp.function(iterator) }, message)
-                    assertEquals(modelIterator.drain(), iterator.drain(), message)
-                    if (builder is List<*>) assertEquals(model, builder.open().drain(), message)
-                    else assertEquals(model.unordered(), builder.open().drain().unordered(), message)
+                    assertEquals(outcomeOf { iteratorOp.function(modelIterator) }, outcomeOf { iteratorOp.function(iterator) })
+                    assertEquals(modelIterator.drain(), iterator.drain())
+                    if (builder is List<*>) assertEquals(model, builder.open().drain())
+                    else assertEquals(model.unordered(), builder.open().drain().unordered())
                 }
             }
         }
