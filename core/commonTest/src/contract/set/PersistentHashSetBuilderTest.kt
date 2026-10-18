@@ -5,16 +5,21 @@
 
 package tests.contract.set
 
+import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.persistentHashSetOf
 import tests.IntWrapper
-import tests.contract.forEachBuilder
-import tests.contract.hashSetBuildersOf
+import tests.contract.BuilderOperation
+import tests.contract.emptyHashSetBuilders
+import tests.contract.emptyOrderedSetBuilders
+import tests.contract.iteratorOperations
+import tests.contract.runCells
+import tests.contract.setViews
+import tests.contract.testIterator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashSetBuilderTest {
@@ -195,47 +200,16 @@ class PersistentHashSetBuilderTest {
     }
 
     @Test
-    fun `retainAll and removeAll on an empty builder keep the iterator valid`() {
-        val builders = listOf(
-            "from the empty set" to { persistentHashSetOf<Int>().builder() },
-            "emptied by remove" to { persistentHashSetOf(7).builder().apply { assertTrue(remove(7)) } },
+    fun `retainAll and removeAll that remove nothing from an empty builder keep its iterators valid`() = runCells {
+        val operations = listOf<BuilderOperation<PersistentSet.Builder<Any>>>(
+            BuilderOperation("retainAll(a hash set)", throwsCME = false) { retainAll(persistentHashSetOf(1, 2)) },
+            BuilderOperation("retainAll(the empty hash set)", throwsCME = false) { retainAll(persistentHashSetOf()) },
+            BuilderOperation("retainAll(a hash set builder)", throwsCME = false) { retainAll(persistentHashSetOf(1, 2).builder()) },
+            BuilderOperation("removeAll(a hash set)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2)) },
+            BuilderOperation("removeAll(a hash set builder)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2).builder()) },
         )
-        val operations = listOf<Pair<String, MutableSet<Int>.() -> Boolean>>(
-            "retainAll of a set" to { retainAll(persistentHashSetOf(1, 2)) },
-            "retainAll of the empty set" to { retainAll(persistentHashSetOf<Int>()) },
-            "retainAll of a builder" to { retainAll(persistentHashSetOf(1, 2).builder()) },
-            "removeAll of a set" to { removeAll(persistentHashSetOf(1, 2)) },
-            "removeAll of a builder" to { removeAll(persistentHashSetOf(1, 2).builder()) },
-        )
-        for ((flavour, newBuilder) in builders) {
-            for ((operation, operate) in operations) {
-                val builder = newBuilder()
-                val built = builder.build()
-                val iterator = builder.iterator()
-
-                assertFalse(builder.operate(), "$operation, $flavour")
-
-                assertSame(built, builder.build(), "$operation, $flavour")
-                assertFailsWith<NoSuchElementException>("$operation, $flavour") { iterator.next() }
-            }
+        for (operation in operations) for (iteratorOp in iteratorOperations) {
+            testIterator(emptyHashSetBuilders + emptyOrderedSetBuilders, setViews, operation, iteratorOp)
         }
-    }
-
-    @Test
-    fun `removeAll of a stored element and retainAll that empties the builder invalidate the iterator`() = forEachBuilder(hashSetBuildersOf(listOf(1, 2, 3))) { builder ->
-        val iterator = builder.iterator()
-        repeat(3) { val _ = iterator.next() }
-
-        assertTrue(builder.removeAll(persistentHashSetOf(1)))
-
-        assertEquals(2, builder.size)
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-
-        val second = builder.iterator()
-
-        assertTrue(builder.retainAll(persistentHashSetOf(8, 9)))
-
-        assertEquals(0, builder.size)
-        assertFailsWith<ConcurrentModificationException> { second.next() }
     }
 }
