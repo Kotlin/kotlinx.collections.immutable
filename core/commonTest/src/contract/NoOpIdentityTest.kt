@@ -59,7 +59,7 @@ class NoOpIdentityTest {
     fun orderedMap() = runCells { testCalls(maps(persistentMapOf()), persistentMapOf(), ::mapNoOps, ::mapEmptyingCalls) }
 
     @Test
-    fun `an equal number or char written into a list changes nothing and a zero of the other sign or an equal Number object is stored`() = runCells {
+    fun `value writes into a list`() = runCells {
         for ((size, depth) in listDepths) for (index in boundaryIndices(size)) for (write in valueWrites) {
             val stored = write.stored()
             val other = if (index == 0) 1 else index - 1
@@ -78,12 +78,10 @@ class NoOpIdentityTest {
     }
 
     @Test
-    fun `an equal number or char put into a hash map changes nothing and a zero of the other sign or an equal Number object is stored`() =
-        runCells { testValueWrites("a hash map") { persistentHashMapOf(*it.toTypedArray()) } }
+    fun `value writes into a hash map`() = runCells { testValueWrites("a hash map") { persistentHashMapOf(*it.toTypedArray()) } }
 
     @Test
-    fun `an equal number or char put into an ordered map changes nothing and a zero of the other sign or an equal Number object is stored`() =
-        runCells { testValueWrites("an ordered map") { persistentMapOf(*it.toTypedArray()) } }
+    fun `value writes into an ordered map`() = runCells { testValueWrites("an ordered map") { persistentMapOf(*it.toTypedArray()) } }
 }
 
 /** A call by its persistent name, or through mutate by its builder name. */
@@ -226,7 +224,9 @@ private fun maps(empty: PersistentMap<Any?, Any?>): List<Pair<String, Persistent
     "the empty map" to empty,
     "a map with a null key" to empty.puttingAll(mapOf(null to IntWrapper(0, 0), collidingKey1 to IntWrapper(1, 1))),
     "a map with a NaN key" to empty.puttingAll(mapOf(Double.NaN to "v", 1 to "w")),
-) + wrappedShapes.map { (shape, keys) -> "a map of $shape" to empty.puttingAll(keys.withIndex().associate { (index, key) -> key to IntWrapper(index, index) }) }
+) + wrappedShapes.map { (shape, keys) ->
+    "a map of $shape" to empty.puttingAll(keys.withIndex().associate { (index, key) -> key to IntWrapper(index, index) })
+}
 
 /** Only stored entries, as maps and as hash maps, which a hash map merges trie by trie. */
 private fun storedEntriesOf(map: Map<Any?, Any?>): List<Pair<String, Map<Any?, Any?>>> = listOf(
@@ -371,7 +371,8 @@ private fun Cells.testValueWrites(kind: String, newMap: (List<Pair<Any, Any?>>) 
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
         val stored = write.stored()
         val pairs = keys.mapIndexed { index, shapeKey -> shapeKey to if (index == position) stored else IntWrapper(index, index) }
-        fun everyKey(written: Any?) = persistentHashMapOf(*pairs.mapIndexed { index, pair -> if (index == position) key to written else pair }.toTypedArray())
+        fun everyKey(written: Any?) =
+            persistentHashMapOf(*pairs.mapIndexed { index, pair -> if (index == position) key to written else pair }.toTypedArray())
         fun newValuesForTheOthers(written: Any?) = persistentHashMapOf(*keys.map { if (it == key) key to written else it to NEW }.toTypedArray())
         fun aNewKeyBeside(written: Any?) = persistentHashMapOf(key to written, missingBesideAtLevelOne(key) to NEW)
         testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(pairs), { this[key] },
@@ -382,7 +383,9 @@ private fun Cells.testValueWrites(kind: String, newMap: (List<Pair<Any, Any?>>) 
                 "a builder's put" to { written -> mutate { assertSameValue(stored, it.put(key, written)) } },
                 "a builder's putAll of a hash map of the key" to { written -> mutate { it.putAll(persistentHashMapOf(key to written)) } },
                 "a builder's putAll of a hash map of every key" to { written -> mutate { it.putAll(everyKey(written)) } },
-                "an entry's setValue" to { written -> mutate { builder -> assertSameValue(stored, builder.entries.first { it.key == key }.setValue(written)) } },
+                "an entry's setValue" to { written ->
+                    mutate { builder -> assertSameValue(stored, builder.entries.first { it.key == key }.setValue(written)) }
+                },
             ),
             writesWithOthers = listOf(
                 "puttingAll of new values for the other keys" to { puttingAll(newValuesForTheOthers(it)) },
