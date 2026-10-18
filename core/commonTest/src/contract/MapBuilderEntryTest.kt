@@ -129,7 +129,8 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                 assertSame(built, builder.build())
                 assertEquals(value, entry.setValue("z"))
                 assertEquals("z", entry.value)
-                assertEquals(built.map { (k, v) -> k to (if (kept && k == entry.key) "z" else v) }, builder.toList())
+                val expected = built.toMutableMap().apply { if (kept) this[entry.key] = "z" }
+                assertEquals(expected.toList(), builder.toList())
                 if (operation.throwsCME) {
                     assertFailsWith<ConcurrentModificationException> { iterator.next() }
                 } else {
