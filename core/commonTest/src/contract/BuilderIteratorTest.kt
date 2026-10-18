@@ -23,6 +23,14 @@ import kotlin.test.assertFailsWith
 class BuilderIteratorTest {
 
     @Test
+    fun list() = runCells {
+        sweep(listBuilders, listViews, listOperations)
+        for (operation in listOperations) {
+            for (iteratorOp in listIteratorOperations) testIterator(listBuilders, listIteratorViews, operation, iteratorOp)
+        }
+    }
+
+    @Test
     fun hashSet() = runCells { sweep(hashSetBuilders, setViews, hashSetOperations) }
 
     @Test
