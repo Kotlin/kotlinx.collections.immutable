@@ -12,6 +12,7 @@ import kotlinx.collections.immutable.implementations.immutableMap.PersistentHash
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.internal.writeChangesNothing
 import kotlinx.collections.immutable.mutate
 
 internal class LinkedValue<V>(val value: V, val previous: Any?, val next: Any?) {
@@ -78,7 +79,7 @@ internal class PersistentOrderedMap<K, V>(
 
         val links = hashMap[key]
         if (links != null) {
-            if (links.value === value) {
+            if (writeChangesNothing(links.value, value)) {
                 return this
             }
             val newMap = hashMap.putting(key, links.withValue(value))
@@ -104,6 +105,7 @@ internal class PersistentOrderedMap<K, V>(
     )
     override fun remove(key: K): PersistentOrderedMap<K, V> {
         val links = hashMap[key] ?: return this
+        if (size == 1) return emptyOf()
 
         var newMap = hashMap.removing(key)
         if (links.hasPrevious) {

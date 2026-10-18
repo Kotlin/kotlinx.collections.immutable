@@ -33,7 +33,7 @@ internal class PersistentHashSetBuilder<E>(set: PersistentHashSet<E>) :
 
     override fun build(): PersistentHashSet<E> {
         return builtSet ?: run {
-            val newlyBuiltSet = PersistentHashSet(node, size)
+            val newlyBuiltSet = if (size == 0) PersistentHashSet.emptyOf() else PersistentHashSet(node, size)
             ownership = MutabilityOwnership()
             builtSet = newlyBuiltSet
             newlyBuiltSet
