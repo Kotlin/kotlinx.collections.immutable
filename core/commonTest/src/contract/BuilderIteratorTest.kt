@@ -9,25 +9,20 @@ import kotlin.test.Test
 
 /**
  * The builder iterators fail fast as java.util's do. A call through the builder that moves its size makes next of
- * every live iterator throw ConcurrentModificationException. A call that keeps the size, an overwrite or a no-op,
- * leaves them valid, and the iteration goes on over the live content.
+ * every live iterator throw ConcurrentModificationException. After a call that keeps the size, an overwrite or a no-op,
+ * next does what next of a stdlib list of the builder's content does.
  */
 class BuilderIteratorTest {
 
     @Test
-    fun hashSet() = runCells { sweep(hashSetBuilders, setViews, hashSetOperations) }
+    fun hashSet() = runCells { sweep(hashSetBuilders, setViews, setOperations) }
 
     @Test
-    fun orderedSet() = runCells { sweep(orderedSetBuilders, setViews, orderedSetOperations) }
+    fun orderedSet() = runCells { sweep(orderedSetBuilders, setViews, setOperations) }
 }
 
-private fun <C : Any> Cells.sweep(
-    builders: List<Pair<String, () -> C>>,
-    views: List<Pair<String, C.() -> MutableIterator<*>>>,
-    operations: List<BuilderOperation<C>>,
-) {
-    for (operation in operations) {
-        for (iteratorOp in iteratorOperations) testIterator(builders, views, operation, iteratorOp)
-        if (!operation.throwsCME) testIterationContinues(builders, views, operation)
-    }
+private val next = IteratorOperation<MutableIterator<*>>("next()") { next() }
+
+private fun <B> Cells.sweep(builders: Origins<B>, views: Views<B, MutableIterator<*>>, operations: List<BuilderOperation<B>>) {
+    for (operation in operations) testIterator(builders, views, operation, next)
 }

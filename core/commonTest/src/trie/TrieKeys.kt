@@ -16,6 +16,9 @@ const val LAST_LEVEL = MAX_SHIFT / LOG_MAX_BRANCHING_FACTOR
 
 fun IntWrapper.colliding(id: Int): IntWrapper = IntWrapper(id, hashCode)
 
+/** A key no fixture holds, with the given [hash]; the ids of the fixtures are not negative. */
+fun missingKey(hash: Int): IntWrapper = IntWrapper(-1 - hash, hash)
+
 /**
  * A key that follows this key's path down to the node at [level], takes [cell] there, and takes cell 0 below. At the
  * last level only cells 0 and 1 are offered, since the trie reads cells 2 and 3 there as 30 and 31.
@@ -49,3 +52,21 @@ val trieShapes: Map<String, List<Any>> = mapOf(
     "a level-2 node under a level-1 node" to listOf(collidingKey1, levelTwoSibling, levelOneSibling, rootSibling),
     "two collision nodes under a level-1 node" to listOf(collidingKey1, collidingKey2, levelOneSibling, levelOneSibling.colliding(9)),
 )
+
+/**
+ * A key the test changes after it is stored. A new [hash] moves it to another slot while it stays the same key. A new
+ * [id] makes it equal to the key of that id and gives it that key's hash.
+ */
+class MutableKey(id: Int, var hash: Int = id) {
+    var id: Int = id
+        set(value) {
+            field = value
+            hash = value
+        }
+
+    override fun hashCode(): Int = hash
+
+    override fun equals(other: Any?): Boolean = other is MutableKey && other.id == id
+
+    override fun toString(): String = if (hash == id) "MutableKey($id)" else "MutableKey($id, hash $hash)"
+}
