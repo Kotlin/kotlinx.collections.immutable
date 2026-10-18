@@ -84,8 +84,11 @@ private fun counts(size: Int): List<Int> {
     return listOf(1, room, room + 1, LEAF + 1).filter { it > 0 }.distinct()
 }
 
+/** The sizes where a cell costs little: up to 100, and 1100 for a root over level-1 nodes. */
+private fun isCheap(size: Int) = size <= 100 || size == 1100
+
 /** Up to a leaf, addingAll and addings give the same buffers. */
-private fun listsOf(size: Int): List<Pair<String, () -> PersistentList<Int>>> {
+private fun listsOf(size: Int): Origins<PersistentList<Int>> {
     val fromAddingAll = "a list of $size from addingAll" to { persistentListOf<Int>().addingAll(List(size) { it }) }
     val fromAddings = "a list of $size from addings" to { (0..<size).fold(persistentListOf<Int>()) { list, element -> list.adding(element) } }
     return if (size <= LEAF) listOf(fromAddingAll) else listOf(fromAddingAll, fromAddings)
@@ -99,7 +102,7 @@ private fun listsOf(size: Int): List<Pair<String, () -> PersistentList<Int>>> {
 private fun buildersOf(size: Int): List<Pair<String, (PersistentList<Int>) -> PersistentList.Builder<Int>>> = buildList {
     add("from a list of $size" to { list -> list.builder() })
     add("from adds of $size" to { list -> persistentListOf<Int>().builder().apply { addAll(list) } })
-    if (size in LEAF + 1..100 || size == 1100) {
+    if (size > LEAF && isCheap(size)) {
         val middle = size / 2
         add("from a list of $size with the element at $middle overwritten and restored" to { list ->
             list.builder().apply { this[middle] = NEW; this[middle] = middle }
@@ -161,7 +164,7 @@ private fun calls(size: Int): List<Pair<String, MutableList<Int>.() -> Any?>> = 
         call("subList(0, $position)") { subList(0, position) }
     }
 
-    if (size > 100 && size != 1100) return@buildList
+    if (!isCheap(size)) return@buildList
     call("retainAll(nothing)") { retainAll(emptySet()) }
     call("retainAll(every other element)") { retainAll((0..<size step 2).toSet()) }
     call("removeAll { every other element }") { removeAll { it % 2 == 0 } }
@@ -207,7 +210,7 @@ private fun MutableList<Int>.writeEnds(element: Int) {
 }
 
 /** Names the first index that differs, where assertEquals would print two long lists. */
-private fun <T> assertContent(expected: List<T>, actual: List<T>, message: String) {
+private fun assertContent(expected: List<Int>, actual: List<Int>, message: String) {
     assertEquals(expected.size, actual.size, "$message: the size")
     val forward = actual.listIterator()
     for (index in expected.indices) {
