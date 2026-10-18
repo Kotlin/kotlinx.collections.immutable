@@ -5,13 +5,12 @@
 
 package tests.contract
 
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.PersistentSet
-import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.collections.immutable.persistentHashSetOf
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toPersistentMap
+import kotlinx.collections.immutable.toPersistentSet
+import tests.trie.MutableKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -22,11 +21,16 @@ import kotlin.test.assertTrue
  * hasNext of the builder iterators never throws. After a call through the builder it answers from the iterator's own
  * cursor, so that next reports the comodification: true until the iterator has returned as many elements as the
  * builder held when it was opened. The list builder's iterator answers from the live size, as ArrayList's.
+ *
+ * The iterators of an ordered map or set and of its builder follow a chain of keys. A key whose hash changed after it
+ * was stored makes next and remove throw ConcurrentModificationException, and the iteration goes on from that key once
+ * the hash is back. A key made equal to another one makes the chain loop or end early, and the next that notices it
+ * throws ConcurrentModificationException and ends the iteration.
  */
 class BuilderHasNextTest {
 
     @Test
-    fun list() = runCells { for (operation in listOperations) testHasNext(listBuilders, listViews, operation, followsTheSize = true) }
+    fun list() = runCells { for (operation in listOperations) testHasNext(listBuilders, listViews, operation) }
 
     @Test
     fun hashMap() = runCells { for (operation in mapOperations) testHasNext(hashMapBuilders, mapViews, operation) }
@@ -41,15 +45,19 @@ class BuilderHasNextTest {
     fun orderedSet() = runCells { for (operation in setOperations) testHasNext(orderedSetBuilders, setViews, operation) }
 
     @Test
-    fun `add to an empty list builder during iteration turns hasNext true and next throws`() {
-        val builder = persistentListOf<Int>().builder()
-        val iterator = builder.iterator()
-        assertFalse(iterator.hasNext())
-
-        builder.add(1)
-
-        assertTrue(iterator.hasNext())
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    fun `add or put on an empty builder during iteration makes next throw`() = runCells {
+        val emptyMapBuilders = emptyHashMapBuilders + emptyOrderedMapBuilders
+        val emptySetBuilders = emptyHashSetBuilders + emptyOrderedSetBuilders
+        val addToList = BuilderOperation<PersistentList.Builder<Any>>("add()") { add("new") }
+        val put = BuilderOperation<PersistentMap.Builder<Any, String>>("put(new key)") { put("new", "n") }
+        val addToSet = BuilderOperation<PersistentSet.Builder<Any>>("add(a new element)") { add("new") }
+        val next = IteratorOperation<MutableIterator<*>>("next()") { next() }
+        testHasNext(emptyListBuilders, listViews, addToList)
+        testHasNext(emptyMapBuilders, mapViews, put)
+        testHasNext(emptySetBuilders, setViews, addToSet)
+        testIterator(emptyListBuilders, listViews, addToList, next)
+        testIterator(emptyMapBuilders, mapViews, put, next)
+        testIterator(emptySetBuilders, setViews, addToSet, next)
     }
 
     @Test
@@ -64,74 +72,92 @@ class BuilderHasNextTest {
     }
 
     @Test
-    fun `put on an empty map builder during iteration keeps hasNext false and next throws`() = runCells {
-        val builders: Origins<PersistentMap.Builder<Any, String>> = listOf(
-            "an empty hash map builder" to { persistentHashMapOf<Any, String>().builder() },
-            "an empty ordered map builder" to { persistentMapOf<Any, String>().builder() },
-        )
-        val put = BuilderOperation<PersistentMap.Builder<Any, String>>("put(new key)") { put("new", "n") }
-        testHasNext(builders, mapViews, put)
-        for (iteratorOp in iteratorOperations) testIterator(builders, mapViews, put, iteratorOp)
-    }
-
-    @Test
-    fun `add to an empty set builder during iteration keeps hasNext false and next throws`() = runCells {
-        val builders: Origins<PersistentSet.Builder<Any>> = listOf(
-            "an empty hash set builder" to { persistentHashSetOf<Any>().builder() },
-            "an empty ordered set builder" to { persistentSetOf<Any>().builder() },
-        )
-        val add = BuilderOperation<PersistentSet.Builder<Any>>("add(a new element)") { add("new") }
-        testHasNext(builders, setViews, add)
-        for (iteratorOp in iteratorOperations) testIterator(builders, setViews, add, iteratorOp)
-    }
-
-    @Test
-    fun `remove of every element through the iterator of an ordered set builder ends the iteration`() = runCells {
-        for (size in 1..3) testRemoveOfEveryElement(orderedSetBuildersOf(List<Any>(size) { it }), setViews)
-        testRemoveOfEveryElement(orderedSetBuilders, setViews)
-    }
-
-    @Test
-    fun `remove of every entry through the iterators of an ordered map builder ends the iteration`() = runCells {
-        for (size in 1..3) testRemoveOfEveryElement(orderedMapBuildersOf(List<Pair<Any, String>>(size) { it to "v$it" }), mapViews)
-        testRemoveOfEveryElement(orderedMapBuilders, mapViews)
-    }
-}
-
-private fun <B : Any> Cells.testRemoveOfEveryElement(builders: Origins<B>, views: Views<B, MutableIterator<*>>) {
-    for ((origin, newBuilder) in builders) for ((viewName, open) in views) cell("$origin, $viewName, remove of every element") {
-        val builder = newBuilder()
-        val iterator = builder.open()
-        repeat(newBuilder().open().drain().size) {
-            assertTrue(iterator.hasNext())
+    fun `next after the hash of the next key changed throws ConcurrentModificationException and goes on from that key once the hash is back`() = runCells {
+        for ((name, viewOf) in orderedViews) cell(name) {
+            val key = MutableKey(2)
+            val keys = listOf(MutableKey(1), key, MutableKey(3))
+            val iterator = viewOf(keys).iterator()
             val _ = iterator.next()
-            iterator.remove()
-        }
 
-        assertEquals(emptyList(), builder.open().drain())
-        assertFalse(iterator.hasNext())
-        assertFailsWith<NoSuchElementException> { iterator.next() }
+            key.hash = 9
+            assertFailsWith<ConcurrentModificationException> { iterator.next() }
+            key.hash = 2
+
+            assertEquals(viewOf(keys).iterator().drain().drop(1), iterator.drain())
+        }
+    }
+
+    @Test
+    fun `a key made equal to an earlier one makes the last next throw ConcurrentModificationException`() = runCells {
+        for ((name, viewOf) in orderedViews) cell(name) {
+            val key = MutableKey(3)
+            val iterator = viewOf(listOf(MutableKey(1), MutableKey(2), key)).iterator()
+            key.id = 1
+            repeat(2) { val _ = iterator.next() }
+
+            assertFailsWith<ConcurrentModificationException> { iterator.next() }
+            assertFalse(iterator.hasNext())
+        }
+    }
+
+    @Test
+    fun `a key made equal to a later one makes the next that ends the chain early throw ConcurrentModificationException`() = runCells {
+        for ((name, viewOf) in orderedViews) cell(name) {
+            val key = MutableKey(2)
+            val iterator = viewOf(listOf(MutableKey(1), key, MutableKey(3))).iterator()
+            key.id = 3
+            val _ = iterator.next()
+
+            assertFailsWith<ConcurrentModificationException> { iterator.next() }
+            assertFalse(iterator.hasNext())
+        }
+    }
+
+    @Test
+    fun `remove through the iterator of a key whose hash changed after next throws ConcurrentModificationException`() = runCells {
+        for ((name, viewOf) in orderedBuilderViews) cell(name) {
+            val key = MutableKey(2)
+            val view = viewOf(listOf(MutableKey(1), key, MutableKey(3)))
+            val iterator = view.iterator()
+            repeat(2) { val _ = iterator.next() }
+            key.hash = 4
+
+            assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+            assertEquals(3, view.size)
+        }
     }
 }
 
-private fun <B : Any> Cells.testHasNext(
-    builders: Origins<B>,
-    views: Views<B, MutableIterator<*>>,
-    builderOp: BuilderOperation<B>,
-    /** true when hasNext answers from the live size, as the list builder's iterator does. */
-    followsTheSize: Boolean = false,
-) {
-    for ((origin, newBuilder) in builders) for ((viewName, open) in views) cell("$origin, $viewName, hasNext() after ${builderOp.description}") {
-        val size = newBuilder().open().drain().size
-        for (returned in 0..size) {
-            val builder = newBuilder()
-            val iterator = builder.open()
-            repeat(returned) { val _ = iterator.next() }
+private fun <B> Cells.testHasNext(builders: Origins<B>, views: Views<B, MutableIterator<*>>, builderOp: BuilderOperation<B>) {
+    for ((origin, newBuilder) in builders) for ((view, open) in views) {
+        cell("$origin, $view, hasNext() after ${builderOp.description}") {
+            val size = newBuilder().open().drain().size
+            for (returned in 0..size) {
+                val builder = newBuilder()
+                val iterator = builder.open()
+                repeat(returned) { val _ = iterator.next() }
 
-            builderOp.function(builder)
+                builderOp.function(builder)
 
-            val end = if (followsTheSize) builder.open().drain().size else size
-            assertEquals(returned != end, iterator.hasNext(), "after $returned next")
+                val end = if (builder is List<*>) builder.size else size
+                assertEquals(returned != end, iterator.hasNext(), "after $returned next")
+            }
         }
     }
 }
+
+private fun orderedMapOf(keys: List<MutableKey>) = keys.associateWith { "v${it.id}" }.toPersistentMap()
+
+private val orderedBuilderViews: List<Pair<String, (List<MutableKey>) -> MutableCollection<*>>> = listOf(
+    "the ordered map builder's entries" to { keys -> orderedMapOf(keys).builder().entries },
+    "the ordered map builder's keys" to { keys -> orderedMapOf(keys).builder().keys },
+    "the ordered map builder's values" to { keys -> orderedMapOf(keys).builder().values },
+    "the ordered set builder" to { keys -> keys.toPersistentSet().builder() },
+)
+
+private val orderedViews: List<Pair<String, (List<MutableKey>) -> Collection<*>>> = orderedBuilderViews + listOf(
+    "the ordered map's entries" to { keys -> orderedMapOf(keys).entries },
+    "the ordered map's keys" to { keys -> orderedMapOf(keys).keys },
+    "the ordered map's values" to { keys -> orderedMapOf(keys).values },
+    "the ordered set" to { keys -> keys.toPersistentSet() },
+)
