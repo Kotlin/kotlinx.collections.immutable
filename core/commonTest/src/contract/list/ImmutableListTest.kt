@@ -163,7 +163,6 @@ class ImmutableListTest {
         val list = "abcxaxyz12".toImmutableList().toPersistentList()
         val builder = list.builder()
 
-        // the first set copies the tail the builder shares, the second writes in place
         val subList = builder.subList(2, 5)
         builder[4] = 'x'
         assertEquals("cxx", subList.joinToString(""))
