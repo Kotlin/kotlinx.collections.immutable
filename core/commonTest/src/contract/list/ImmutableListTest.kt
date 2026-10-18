@@ -6,10 +6,15 @@
 package tests.contract.list
 
 import kotlinx.collections.immutable.*
+import kotlinx.collections.immutable.implementations.immutableList.PersistentVectorBuilder
 import tests.contract.compare
+import tests.contract.forEachBuilder
 import tests.contract.listBehavior
+import tests.contract.listBuilders
 import tests.*
 import kotlin.test.*
+
+private val PersistentList.Builder<*>.modCount: Int get() = (this as PersistentVectorBuilder<*>).getModCount()
 
 class ImmutableListTest {
 
@@ -171,6 +176,24 @@ class ImmutableListTest {
         subList.removeAt(0)
         assertEquals("xb", subList.joinToString(""))
         assertEquals("abxbxyz12", builder.joinToString(""))
+    }
+
+    /**
+     * The builder's clear drops the root and the tail in one step: one modification, and the builder goes on from the
+     * empty list.
+     */
+    @Test fun clearOfBuilder() = forEachBuilder(listBuilders) { builder ->
+        val size = builder.size
+        val built = builder.build()
+        val modCount = builder.modCount
+
+        builder.clear()
+
+        assertEquals(modCount + 1, builder.modCount)
+        assertSame(persistentListOf(), builder.build())
+        repeat(size) { builder.add(size + it) }
+        assertEquals(List<Any>(size) { size + it }, builder.build())
+        assertEquals(List<Any>(size) { it }, built)
     }
 
     fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
