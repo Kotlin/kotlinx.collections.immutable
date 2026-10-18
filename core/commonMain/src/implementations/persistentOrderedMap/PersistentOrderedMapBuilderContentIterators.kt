@@ -16,10 +16,10 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
     internal var lastIteratedKey: Any? = EndOfChain
     private var nextWasInvoked = false
     private var expectedModCount = builder.hashMapBuilder.sizeModCount
-    internal var index = 0
+    private var remaining = builder.size
 
     override fun hasNext(): Boolean {
-        return index < builder.size
+        return nextKey !== EndOfChain
     }
 
     @IgnorableReturnValue
@@ -28,28 +28,41 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
         checkHasNext()
         lastIteratedKey = nextKey
         nextWasInvoked = true
-        index++
         @Suppress("UNCHECKED_CAST")
         val result = builder.hashMapBuilder.getOrElse(nextKey as K) {
             throw ConcurrentModificationException("Hash code of a key ($nextKey) has changed after it was added to the persistent map.")
         }
         nextKey = result.next
+        remaining--
+        checkChainMatchesSize()
         return result
     }
 
     override fun remove() {
         checkNextWasInvoked()
         checkForComodification()
+        // The value may be null, so only the size tells whether the key was found.
+        val size = builder.size
         builder.remove(lastIteratedKey)
+        if (builder.size == size)
+            throw ConcurrentModificationException("Hash code of a key ($lastIteratedKey) has changed after it was added to the persistent map.")
         lastIteratedKey = null
         nextWasInvoked = false
         expectedModCount = builder.hashMapBuilder.sizeModCount
-        index--
     }
 
     private fun checkHasNext() {
         if (!hasNext())
             throw NoSuchElementException()
+    }
+
+    private fun checkChainMatchesSize() {
+        // A key that became equal to another one makes the chain loop or end early.
+        if ((nextKey === EndOfChain) != (remaining == 0)) {
+            // A caller going on after the exception must not loop.
+            nextKey = EndOfChain
+            throw ConcurrentModificationException("A key has become equal to another key after it was added to the persistent map.")
+        }
     }
 
     private fun checkNextWasInvoked() {
