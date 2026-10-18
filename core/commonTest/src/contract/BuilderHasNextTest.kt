@@ -72,26 +72,26 @@ class BuilderHasNextTest {
     }
 
     @Test
-    fun `next after the hash of the next key changed throws ConcurrentModificationException and goes on from that key once the hash is back`() = runCells {
-        for ((name, viewOf) in orderedViews) cell(name) {
+    fun `next throws until the changed hash of the next key is back`() = runCells {
+        for ((name, collectionOf) in orderedCollections) cell(name) {
             val key = MutableKey(2)
             val keys = listOf(MutableKey(1), key, MutableKey(3))
-            val iterator = viewOf(keys).iterator()
+            val iterator = collectionOf(keys).iterator()
             val _ = iterator.next()
 
             key.hash = 9
             assertFailsWith<ConcurrentModificationException> { iterator.next() }
             key.hash = 2
 
-            assertEquals(viewOf(keys).iterator().drain().drop(1), iterator.drain())
+            assertEquals(collectionOf(keys).iterator().drain().drop(1), iterator.drain())
         }
     }
 
     @Test
     fun `a key made equal to an earlier one makes the last next throw ConcurrentModificationException`() = runCells {
-        for ((name, viewOf) in orderedViews) cell(name) {
+        for ((name, collectionOf) in orderedCollections) cell(name) {
             val key = MutableKey(3)
-            val iterator = viewOf(listOf(MutableKey(1), MutableKey(2), key)).iterator()
+            val iterator = collectionOf(listOf(MutableKey(1), MutableKey(2), key)).iterator()
             key.id = 1
             repeat(2) { val _ = iterator.next() }
 
@@ -102,9 +102,9 @@ class BuilderHasNextTest {
 
     @Test
     fun `a key made equal to a later one makes the next that ends the chain early throw ConcurrentModificationException`() = runCells {
-        for ((name, viewOf) in orderedViews) cell(name) {
+        for ((name, collectionOf) in orderedCollections) cell(name) {
             val key = MutableKey(2)
-            val iterator = viewOf(listOf(MutableKey(1), key, MutableKey(3))).iterator()
+            val iterator = collectionOf(listOf(MutableKey(1), key, MutableKey(3))).iterator()
             key.id = 3
             val _ = iterator.next()
 
@@ -115,15 +115,15 @@ class BuilderHasNextTest {
 
     @Test
     fun `remove through the iterator of a key whose hash changed after next throws ConcurrentModificationException`() = runCells {
-        for ((name, viewOf) in orderedBuilderViews) cell(name) {
+        for ((name, collectionOf) in orderedBuilderCollections) cell(name) {
             val key = MutableKey(2)
-            val view = viewOf(listOf(MutableKey(1), key, MutableKey(3)))
-            val iterator = view.iterator()
+            val collection = collectionOf(listOf(MutableKey(1), key, MutableKey(3)))
+            val iterator = collection.iterator()
             repeat(2) { val _ = iterator.next() }
             key.hash = 4
 
             assertFailsWith<ConcurrentModificationException> { iterator.remove() }
-            assertEquals(3, view.size)
+            assertEquals(3, collection.size)
         }
     }
 }
@@ -148,14 +148,14 @@ private fun <B> Cells.testHasNext(builders: Origins<B>, views: Views<B, MutableI
 
 private fun orderedMapOf(keys: List<MutableKey>) = keys.associateWith { "v${it.id}" }.toPersistentMap()
 
-private val orderedBuilderViews: List<Pair<String, (List<MutableKey>) -> MutableCollection<*>>> = listOf(
+private val orderedBuilderCollections: List<Pair<String, (List<MutableKey>) -> MutableCollection<*>>> = listOf(
     "the ordered map builder's entries" to { keys -> orderedMapOf(keys).builder().entries },
     "the ordered map builder's keys" to { keys -> orderedMapOf(keys).builder().keys },
     "the ordered map builder's values" to { keys -> orderedMapOf(keys).builder().values },
     "the ordered set builder" to { keys -> keys.toPersistentSet().builder() },
 )
 
-private val orderedViews: List<Pair<String, (List<MutableKey>) -> Collection<*>>> = orderedBuilderViews + listOf(
+private val orderedCollections: List<Pair<String, (List<MutableKey>) -> Collection<*>>> = orderedBuilderCollections + listOf(
     "the ordered map's entries" to { keys -> orderedMapOf(keys).entries },
     "the ordered map's keys" to { keys -> orderedMapOf(keys).keys },
     "the ordered map's values" to { keys -> orderedMapOf(keys).values },
