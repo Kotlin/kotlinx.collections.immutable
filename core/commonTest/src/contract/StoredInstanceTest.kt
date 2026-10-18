@@ -47,8 +47,8 @@ class StoredInstanceTest {
     fun `puttingAll and addingAll return the argument's trie`() = runCells {
         for (merge in unionsEqualToTheArgument) {
             cell("${merge.description}, puttingAll") {
-                val receiver = merge.receiver.associateWith { "r${it?.obj}" }.toPersistentHashMap()
-                val argument = merge.argument.associateWith { "a${it?.obj}" }.toPersistentHashMap()
+                val receiver = merge.receiverEntries.toPersistentHashMap()
+                val argument = merge.argumentEntries.toPersistentHashMap()
                 assertSame(argument.trie, receiver.puttingAll(argument).trie)
             }
             cell("${merge.description}, addingAll") {
@@ -67,27 +67,32 @@ class StoredInstanceTest {
     }
 
     @Test
-    fun `addAll of an argument builder shares no storage with it`() = forEachBuilder(hashSetBuildersOf(listOf(collidingKey1, collidingKey2, collidingKey3))) { argument ->
-        val builder = persistentHashSetOf(collidingKey1, collidingKey2).builder()
-        assertTrue(builder.addAll(argument))
-        assertTrue(argument.remove(collidingKey3))
-        assertTrue(builder.remove(collidingKey1))
-        assertEquals(setOf(collidingKey2, collidingKey3), builder)
-        assertEquals(setOf(collidingKey1, collidingKey2), argument)
-    }
+    fun `addAll of an argument builder shares no storage with it`() =
+        forEachBuilder(hashSetBuildersOf(listOf(collidingKey1, collidingKey2, collidingKey3))) { argument ->
+            val builder = persistentHashSetOf(collidingKey1, collidingKey2).builder()
+            assertTrue(builder.addAll(argument))
+            assertTrue(argument.remove(collidingKey3))
+            assertTrue(builder.remove(collidingKey1))
+            assertEquals(setOf(collidingKey2, collidingKey3), builder)
+            assertEquals(setOf(collidingKey1, collidingKey2), argument)
+        }
 
     @Test
-    fun `retainAll of an argument builder shares no storage with it`() = forEachBuilder(hashSetBuildersOf(listOf(collidingKey1, collidingKey2))) { argument ->
-        val builder = persistentHashSetOf(collidingKey1, collidingKey2, collidingKey3).builder()
-        assertTrue(builder.retainAll(argument))
-        assertTrue(argument.add(collidingKey3))
-        assertTrue(builder.remove(collidingKey1))
-        assertEquals(setOf(collidingKey2), builder)
-        assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument)
-    }
+    fun `retainAll of an argument builder shares no storage with it`() =
+        forEachBuilder(hashSetBuildersOf(listOf(collidingKey1, collidingKey2))) { argument ->
+            val builder = persistentHashSetOf(collidingKey1, collidingKey2, collidingKey3).builder()
+            assertTrue(builder.retainAll(argument))
+            assertTrue(argument.add(collidingKey3))
+            assertTrue(builder.remove(collidingKey1))
+            assertEquals(setOf(collidingKey2), builder)
+            assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument)
+        }
 }
 
-private class Merge(val description: String, val receiver: List<IntWrapper?>, val argument: List<IntWrapper?>)
+private class Merge(val description: String, val receiver: List<IntWrapper?>, val argument: List<IntWrapper?>) {
+    val receiverEntries: Map<IntWrapper?, String> get() = receiver.associateWith { "r${it?.obj}" }
+    val argumentEntries: Map<IntWrapper?, String> get() = argument.associateWith { "a${it?.obj}" }
+}
 
 /** Follows collidingKey1's path and parts from it at the last level, into cell 30, where a sign error in a mask shows. */
 private val negativeHashKey = IntWrapper(11, Int.MIN_VALUE)
@@ -126,8 +131,16 @@ private val merges: List<Merge> = tries.flatMap { (receiverShape, receiver) ->
         )
     }
 } + listOf(
-    Merge("a copy, the stored instance and a new element into a collision node", listOf(collidingKey1, collidingKey2), listOf(collidingKey2.copy(), collidingKey1, collidingKey3)),
-    Merge("the stored instance and a copy into a collision node of three", listOf(collidingKey2, collidingKey1, collidingKey3), listOf(collidingKey1, collidingKey2.copy())),
+    Merge(
+        "a copy, the stored instance and a new element into a collision node",
+        receiver = listOf(collidingKey1, collidingKey2),
+        argument = listOf(collidingKey2.copy(), collidingKey1, collidingKey3),
+    ),
+    Merge(
+        "the stored instance and a copy into a collision node of three",
+        receiver = listOf(collidingKey2, collidingKey1, collidingKey3),
+        argument = listOf(collidingKey1, collidingKey2.copy()),
+    ),
 )
 
 /** Arguments holding the receiver's keys and more, so that with the argument's values the union equals the argument. */
@@ -148,8 +161,8 @@ private fun Cells.testPutAll(
     buildersOf: (List<Pair<IntWrapper?, String>>) -> Origins<PersistentMap.Builder<IntWrapper?, String>>,
 ) {
     for (merge in merges) {
-        val receiver = merge.receiver.associateWith { "r${it?.obj}" }
-        val argument = merge.argument.associateWith { "a${it?.obj}" }
+        val receiver = merge.receiverEntries
+        val argument = merge.argumentEntries
         val expected = (receiver.keys + argument.keys).associateWith { argument[it] ?: receiver.getValue(it) }
         cell("${merge.description}, puttingAll") {
             val receiverMap = newMap(receiver)
