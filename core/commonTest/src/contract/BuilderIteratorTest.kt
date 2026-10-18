@@ -5,7 +5,6 @@
 
 package tests.contract
 
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentHashSetOf
@@ -25,11 +24,6 @@ class BuilderIteratorTest {
             for (iteratorOp in iteratorOperations) testIterator(listBuilders, listViews, operation, iteratorOp)
             for (iteratorOp in listIteratorOperations) testIterator(listBuilders, listIteratorViews, operation, iteratorOp)
         }
-    }
-
-    @Test
-    fun `clear on an empty list builder`() = runCells {
-        sweep(emptyListBuilders, listViews, listOf(BuilderOperation<PersistentList.Builder<Any>>("clear()") { clear() }))
     }
 
     @Test

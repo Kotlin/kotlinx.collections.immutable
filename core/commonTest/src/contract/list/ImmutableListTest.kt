@@ -7,10 +7,7 @@ package tests.contract.list
 
 import kotlinx.collections.immutable.*
 import kotlinx.collections.immutable.implementations.immutableList.PersistentVectorBuilder
-import tests.contract.compare
-import tests.contract.forEachBuilder
-import tests.contract.listBehavior
-import tests.contract.listBuilders
+import tests.contract.*
 import tests.*
 import kotlin.test.*
 
@@ -194,6 +191,12 @@ class ImmutableListTest {
         repeat(size) { builder.add(size + it) }
         assertEquals(List<Any>(size) { size + it }, builder.build())
         assertEquals(List<Any>(size) { it }, built)
+    }
+
+    /** The clear of an empty builder counts as a change too: the live iterators fail fast after it. */
+    @Test fun clearOfEmptyBuilder() = runCells {
+        val clear = BuilderOperation<PersistentList.Builder<Any>>("clear()") { clear() }
+        for (iteratorOp in iteratorOperations) testIterator(emptyListBuilders, listViews, clear, iteratorOp)
     }
 
     fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
