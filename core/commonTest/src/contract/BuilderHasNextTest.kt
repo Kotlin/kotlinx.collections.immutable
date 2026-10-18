@@ -29,16 +29,16 @@ class BuilderHasNextTest {
     fun list() = runCells { for (operation in listOperations) testHasNext(listBuilders, listViews, operation, followsTheSize = true) }
 
     @Test
-    fun hashMap() = runCells { for (operation in hashMapOperations) testHasNext(hashMapBuilders, mapViews, operation) }
+    fun hashMap() = runCells { for (operation in mapOperations) testHasNext(hashMapBuilders, mapViews, operation) }
 
     @Test
-    fun hashSet() = runCells { for (operation in hashSetOperations) testHasNext(hashSetBuilders, setViews, operation) }
+    fun hashSet() = runCells { for (operation in setOperations) testHasNext(hashSetBuilders, setViews, operation) }
 
     @Test
-    fun orderedMap() = runCells { for (operation in orderedMapOperations) testHasNext(orderedMapBuilders, mapViews, operation) }
+    fun orderedMap() = runCells { for (operation in mapOperations) testHasNext(orderedMapBuilders, mapViews, operation) }
 
     @Test
-    fun orderedSet() = runCells { for (operation in orderedSetOperations) testHasNext(orderedSetBuilders, setViews, operation) }
+    fun orderedSet() = runCells { for (operation in setOperations) testHasNext(orderedSetBuilders, setViews, operation) }
 
     @Test
     fun `add to an empty list builder during iteration turns hasNext true and next throws`() {
@@ -53,19 +53,19 @@ class BuilderHasNextTest {
     }
 
     @Test
-    fun `hasPrevious after a clear stays true and previous throws`() = forEachBuilder(listBuildersOf(TAIL_ONLY)) { message, builder ->
+    fun `hasPrevious after a clear stays true and previous throws`() = forEachBuilder(listBuildersOf(TAIL_ONLY)) { builder ->
         val iterator = builder.listIterator()
         repeat(2) { val _ = iterator.next() }
 
         builder.clear()
 
-        assertTrue(iterator.hasPrevious(), message)
-        assertFailsWith<ConcurrentModificationException>(message) { iterator.previous() }
+        assertTrue(iterator.hasPrevious())
+        assertFailsWith<ConcurrentModificationException> { iterator.previous() }
     }
 
     @Test
     fun `put on an empty map builder during iteration keeps hasNext false and next throws`() = runCells {
-        val builders: List<Pair<String, () -> PersistentMap.Builder<Any, String>>> = listOf(
+        val builders: Origins<PersistentMap.Builder<Any, String>> = listOf(
             "an empty hash map builder" to { persistentHashMapOf<Any, String>().builder() },
             "an empty ordered map builder" to { persistentMapOf<Any, String>().builder() },
         )
@@ -76,7 +76,7 @@ class BuilderHasNextTest {
 
     @Test
     fun `add to an empty set builder during iteration keeps hasNext false and next throws`() = runCells {
-        val builders: List<Pair<String, () -> PersistentSet.Builder<Any>>> = listOf(
+        val builders: Origins<PersistentSet.Builder<Any>> = listOf(
             "an empty hash set builder" to { persistentHashSetOf<Any>().builder() },
             "an empty ordered set builder" to { persistentSetOf<Any>().builder() },
         )
@@ -98,43 +98,40 @@ class BuilderHasNextTest {
     }
 }
 
-private fun <C : Any> Cells.testRemoveOfEveryElement(builders: List<Pair<String, () -> C>>, views: List<Pair<String, C.() -> MutableIterator<*>>>) {
-    for ((origin, newBuilder) in builders) for ((viewName, open) in views) {
-        val size = sizeOf("$origin, $viewName", newBuilder, open) ?: continue
-        cell("$origin of $size, $viewName, remove of every element") {
-            val builder = newBuilder()
-            val iterator = builder.open()
-            repeat(size) {
-                assertTrue(iterator.hasNext())
-                val _ = iterator.next()
-                iterator.remove()
-            }
-
-            assertEquals(emptyList(), builder.open().drain())
-            assertFalse(iterator.hasNext())
-            assertFailsWith<NoSuchElementException> { iterator.next() }
+private fun <B : Any> Cells.testRemoveOfEveryElement(builders: Origins<B>, views: Views<B, MutableIterator<*>>) {
+    for ((origin, newBuilder) in builders) for ((viewName, open) in views) cell("$origin, $viewName, remove of every element") {
+        val builder = newBuilder()
+        val iterator = builder.open()
+        repeat(newBuilder().open().drain().size) {
+            assertTrue(iterator.hasNext())
+            val _ = iterator.next()
+            iterator.remove()
         }
+
+        assertEquals(emptyList(), builder.open().drain())
+        assertFalse(iterator.hasNext())
+        assertFailsWith<NoSuchElementException> { iterator.next() }
     }
 }
 
-private fun <C : Any> Cells.testHasNext(
-    builders: List<Pair<String, () -> C>>,
-    views: List<Pair<String, C.() -> MutableIterator<*>>>,
-    builderOp: BuilderOperation<C>,
+private fun <B : Any> Cells.testHasNext(
+    builders: Origins<B>,
+    views: Views<B, MutableIterator<*>>,
+    builderOp: BuilderOperation<B>,
     /** true when hasNext answers from the live size, as the list builder's iterator does. */
     followsTheSize: Boolean = false,
 ) {
-    for ((origin, newBuilder) in builders) for ((viewName, open) in views) {
-        val size = sizeOf("$origin, $viewName", newBuilder, open) ?: continue
-        for (returned in 0..size) cell("$origin, $viewName, hasNext() after $returned next, ${builderOp.description}") {
+    for ((origin, newBuilder) in builders) for ((viewName, open) in views) cell("$origin, $viewName, hasNext() after ${builderOp.description}") {
+        val size = newBuilder().open().drain().size
+        for (returned in 0..size) {
             val builder = newBuilder()
             val iterator = builder.open()
             repeat(returned) { val _ = iterator.next() }
 
-            builderOp.function.invoke(builder)
+            builderOp.function(builder)
 
             val end = if (followsTheSize) builder.open().drain().size else size
-            assertEquals(returned != end, iterator.hasNext())
+            assertEquals(returned != end, iterator.hasNext(), "after $returned next")
         }
     }
 }

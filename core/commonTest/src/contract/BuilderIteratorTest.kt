@@ -5,128 +5,78 @@
 
 package tests.contract
 
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.collections.immutable.persistentHashSetOf
-import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.PersistentSet
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 /**
- * The builder iterators fail fast as java.util's do. A call through the builder that moves its size makes next and
- * remove of every live iterator throw ConcurrentModificationException, with IllegalStateException first when next
- * returned nothing, and clear() counts as such a call even on an empty builder. A call that keeps the size, an
- * overwrite or a no-op, leaves them valid, and the iteration goes on over the live content.
+ * The builder iterators fail fast as java.util's do. A call through the builder that moves its size makes every call
+ * on a live iterator throw ConcurrentModificationException, with IllegalStateException first for a remove or a set
+ * when next returned nothing, and clear() counts as such a call even on an empty builder. After a call that keeps the
+ * size, an overwrite or a no-op, a live iterator does what the iterator of a stdlib list of the builder's content does.
  */
 class BuilderIteratorTest {
 
     @Test
     fun list() = runCells {
-        sweep(listBuilders, listViews, listOperations)
         for (operation in listOperations) {
+            for (iteratorOp in iteratorOperations) testIterator(listBuilders, listViews, operation, iteratorOp)
             for (iteratorOp in listIteratorOperations) testIterator(listBuilders, listIteratorViews, operation, iteratorOp)
         }
     }
 
     @Test
-    fun hashSet() = runCells { sweep(hashSetBuilders, setViews, hashSetOperations) }
+    fun hashSet() = runCells { sweep(hashSetBuilders, setViews, setOperations) }
 
     @Test
-    fun orderedSet() = runCells { sweep(orderedSetBuilders, setViews, orderedSetOperations) }
+    fun orderedSet() = runCells { sweep(orderedSetBuilders, setViews, setOperations) }
 
     @Test
-    fun hashMap() = runCells { sweep(hashMapBuilders, mapViews, hashMapOperations) }
+    fun hashMap() = runCells { sweep(hashMapBuilders, mapViews, mapOperations) }
 
     @Test
-    fun orderedMap() = runCells { sweep(orderedMapBuilders, mapViews, orderedMapOperations) }
+    fun orderedMap() = runCells { sweep(orderedMapBuilders, mapViews, mapOperations) }
+
+    @Test
+    fun `clear on an empty builder invalidates its live iterators`() = runCells {
+        val clearList = BuilderOperation<PersistentList.Builder<Any>>("clear()") { clear() }
+        val clearMap = BuilderOperation<PersistentMap.Builder<Any, String>>("clear()") { clear() }
+        val clearSet = BuilderOperation<PersistentSet.Builder<Any>>("clear()") { clear() }
+        for (iteratorOp in iteratorOperations) {
+            testIterator(emptyListBuilders, listViews, clearList, iteratorOp)
+            testIterator(emptyHashMapBuilders + emptyOrderedMapBuilders, mapViews, clearMap, iteratorOp)
+            testIterator(emptyHashSetBuilders + emptyOrderedSetBuilders, setViews, clearSet, iteratorOp)
+        }
+    }
 
     @Test
     fun `hash map iterator after its own remove and a call that keeps the size`() = runCells {
-        for (operation in hashMapOperations.filter { !it.throwsCME }) testRemoveThenCall(hashMapBuilders, operation)
-    }
+        for (operation in mapOperations.filter { !it.throwsCME }) for ((origin, newBuilder) in hashMapBuilders) for ((view, open) in mapViews) {
+            cell("$origin, $view, remove() then ${operation.description}") {
+                for (returned in 1..newBuilder().size) {
+                    val builder = newBuilder()
+                    val order = builder.keys.toList()
+                    val iterator = builder.open()
+                    repeat(returned) { val _ = iterator.next() }
+                    iterator.remove()
 
-    @Test
-    fun `setValue of a map builder entry after a call that moved the size`() = runCells {
-        for (operation in hashMapOperations.filter { it.throwsCME }) testSetValueAfter(hashMapBuilders, operation)
-        for (operation in orderedMapOperations.filter { it.throwsCME }) testSetValueAfter(orderedMapBuilders, operation)
-    }
+                    operation.function(builder)
 
-    @Test
-    fun `clear on an empty builder invalidates its live iterators`() {
-        val maps = listOf("hash map" to persistentHashMapOf<Int, Int>().builder(), "ordered map" to persistentMapOf<Int, Int>().builder())
-        for ((name, builder) in maps) {
-            val iterators = listOf(builder.keys.iterator(), builder.values.iterator(), builder.entries.iterator())
-            builder.clear()
-            for (iterator in iterators) assertFailsWith<ConcurrentModificationException>(name) { iterator.next() }
-        }
-        val sets = listOf("hash set" to persistentHashSetOf<Int>().builder(), "ordered set" to persistentSetOf<Int>().builder())
-        for ((name, builder) in sets) {
-            val iterator = builder.iterator()
-            builder.clear()
-            assertFailsWith<ConcurrentModificationException>(name) { iterator.next() }
-        }
-    }
-}
-
-private fun <C : Any> Cells.sweep(
-    builders: List<Pair<String, () -> C>>,
-    views: List<Pair<String, C.() -> MutableIterator<*>>>,
-    operations: List<BuilderOperation<C>>,
-) {
-    for (operation in operations) {
-        for (iteratorOp in iteratorOperations) testIterator(builders, views, operation, iteratorOp)
-        if (!operation.throwsCME) testIterationContinues(builders, views, operation)
-    }
-}
-
-/** An entry's setValue after the structural [operation] writes if its key is there; the iterator stays failed. */
-private fun Cells.testSetValueAfter(
-    builders: List<Pair<String, () -> PersistentMap.Builder<Any, String>>>,
-    operation: BuilderOperation<PersistentMap.Builder<Any, String>>,
-) {
-    for ((origin, newBuilder) in builders) {
-        for (position in 0..<newBuilder().size) cell("$origin, setValue of entry $position after ${operation.description}") {
-            val builder = newBuilder()
-            val iterator = builder.entries.iterator()
-            repeat(position) { val _ = iterator.next() }
-            val entry = iterator.next()
-            val read = entry.value
-
-            operation.function(builder)
-            val kept = entry.key in builder
-
-            assertEquals(read, entry.setValue("z"))
-            assertEquals(if (kept) "z" else null, builder[entry.key])
-            assertEquals(kept, entry.key in builder)
-            assertFailsWith<ConcurrentModificationException> { iterator.next() }
-        }
-    }
-}
-
-/** After the iterator's own remove, a size-keeping [operation] leaves the rest of the iteration live and in order. */
-private fun Cells.testRemoveThenCall(
-    builders: List<Pair<String, () -> PersistentMap.Builder<Any, String>>>,
-    operation: BuilderOperation<PersistentMap.Builder<Any, String>>,
-) {
-    for ((origin, newBuilder) in builders) for ((view, open) in mapViews) {
-        for (returned in 1..newBuilder().size) cell("$origin, $view, remove() after $returned next and ${operation.description}") {
-            val builder = newBuilder()
-            val order = builder.keys.toList()
-            val iterator = builder.open()
-            repeat(returned) { val _ = iterator.next() }
-            iterator.remove()
-
-            operation.function(builder)
-
-            val rest = order.drop(returned)
-            val expected = when (view) {
-                "entries" -> rest.map { it to builder[it] }
-                "keys" -> rest
-                else -> rest.map { builder[it] }
+                    val rest = order.drop(returned)
+                    val expected = when (view) {
+                        "entries" -> rest.map { it to builder[it] }
+                        "keys" -> rest
+                        else -> rest.map { builder[it] }
+                    }
+                    assertEquals(expected, iterator.drain(), "after $returned next")
+                }
             }
-            assertEquals(expected, iterator.drain())
         }
     }
+}
+
+private fun <B : Any> Cells.sweep(builders: Origins<B>, views: Views<B, MutableIterator<*>>, operations: List<BuilderOperation<B>>) {
+    for (operation in operations) for (iteratorOp in iteratorOperations) testIterator(builders, views, operation, iteratorOp)
 }

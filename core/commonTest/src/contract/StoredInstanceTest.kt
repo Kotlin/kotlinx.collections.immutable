@@ -300,7 +300,7 @@ private class SetOperation(
     val result: (receiver: List<IntWrapper?>, argument: List<IntWrapper?>) -> List<IntWrapper?>,
 )
 
-private val setOperations: List<SetOperation> = listOf(
+private val bulkSetOperations: List<SetOperation> = listOf(
     SetOperation("addingAll", "addAll", { addingAll(it) }, { addAll(it) }) { receiver, argument -> receiver + argument.filter { it !in receiver } },
     SetOperation("retainingAll", "retainAll", { retainingAll(it) }, { retainAll(it) }) { receiver, argument -> receiver.filter { it in argument } },
     SetOperation("removingAll", "removeAll", { removingAll(it) }, { removeAll(it) }) { receiver, argument -> receiver.filter { it !in argument } },
@@ -310,7 +310,7 @@ private fun Cells.testSetOperations(
     newSet: (List<IntWrapper?>) -> PersistentSet<IntWrapper?>,
     buildersOf: (List<IntWrapper?>) -> List<Pair<String, () -> PersistentSet.Builder<IntWrapper?>>>,
 ) {
-    for (merge in merges) for (operation in setOperations) {
+    for (merge in merges) for (operation in bulkSetOperations) {
         val expected = operation.result(merge.receiver, merge.argument)
         cell("${merge.description}, ${operation.persistentName}") {
             val receiver = newSet(merge.receiver)

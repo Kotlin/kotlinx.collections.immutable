@@ -49,3 +49,27 @@ val trieShapes: Map<String, List<Any>> = mapOf(
     "a level-2 node under a level-1 node" to listOf(collidingKey1, levelTwoSibling, levelOneSibling, rootSibling),
     "two collision nodes under a level-1 node" to listOf(collidingKey1, collidingKey2, levelOneSibling, levelOneSibling.colliding(9)),
 )
+
+/**
+ * A key the test changes after it is stored. A new [hash] moves it to another slot while it stays the same key. A new
+ * [id] makes it equal to the key of that id and gives it that key's hash.
+ */
+class MutableKey(id: Int) {
+    var id: Int = id
+        set(value) {
+            field = value
+            hash = value
+        }
+
+    var hash: Int = id
+
+    constructor(id: Int, hash: Int) : this(id) {
+        this.hash = hash
+    }
+
+    override fun hashCode(): Int = hash
+
+    override fun equals(other: Any?): Boolean = other is MutableKey && other.id == id
+
+    override fun toString(): String = if (hash == id) "MutableKey($id)" else "MutableKey($id, hash $hash)"
+}

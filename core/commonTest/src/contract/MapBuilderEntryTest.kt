@@ -33,50 +33,50 @@ class MapBuilderEntryTest {
 
     @Test
     fun `entry value follows an overwrite of its key to null and of a null value to a string`() =
-        forEachBuilder(mapBuildersOf<Int, String?>(1 to "a", 2 to null)) { message, builder ->
+        forEachBuilder(mapBuildersOf<Int, String?>(1 to "a", 2 to null)) { builder ->
             val iterator = builder.entries.iterator()
             val entryOfString = iterator.next()
             val entryOfNull = iterator.next()
-            assertEquals(1, entryOfString.key, message)
+            assertEquals(1, entryOfString.key)
 
             builder[1] = null
             builder[2] = "b"
 
-            assertNull(entryOfString.value, message)
-            assertEquals("b", entryOfNull.value, message)
-            assertNull(entryOfString.setValue("x"), message)
-            assertEquals("b", entryOfNull.setValue(null), message)
-            assertEquals("x", builder[1], message)
-            assertNull(builder[2], message)
-            assertTrue(builder.containsKey(2), message)
+            assertNull(entryOfString.value)
+            assertEquals("b", entryOfNull.value)
+            assertNull(entryOfString.setValue("x"))
+            assertEquals("b", entryOfNull.setValue(null))
+            assertEquals("x", builder[1])
+            assertNull(builder[2])
+            assertTrue(builder.containsKey(2))
         }
 
     @Test
     fun `setValue of an equal value that is not the stored instance writes it`() {
         val stored = IntWrapper(1, 1)
         val equal = stored.copy()
-        forEachBuilder(mapBuildersOf(1 to stored)) { message, builder ->
+        forEachBuilder(mapBuildersOf(1 to stored)) { builder ->
             val entry = builder.entries.iterator().next()
 
-            assertSame(stored, entry.setValue(equal), message)
+            assertSame(stored, entry.setValue(equal))
 
-            assertSame(equal, builder[1], message)
-            assertSame(equal, entry.value, message)
+            assertSame(equal, builder[1])
+            assertSame(equal, entry.value)
         }
     }
 
     @Test
     fun `setValue after a remove and a re-put of its key as null writes the re-put slot`() =
-        forEachBuilder(mapBuildersOf<Int, String?>(1 to "a", 2 to "b", 3 to "c")) { message, builder ->
+        forEachBuilder(mapBuildersOf<Int, String?>(1 to "a", 2 to "b", 3 to "c")) { builder ->
             val entry = builder.entries.iterator().next()
-            assertEquals("a", builder.remove(1), message)
-            assertNull(builder.put(1, null), message)
+            assertEquals("a", builder.remove(1))
+            assertNull(builder.put(1, null))
             val content = builder.toList()
 
-            assertNull(entry.setValue("z"), message)
+            assertNull(entry.setValue("z"))
 
-            assertEquals("z", entry.value, message)
-            assertEquals(content.map { (key, value) -> key to (if (key == 1) "z" else value) }, builder.build().toList(), message)
+            assertEquals("z", entry.value)
+            assertEquals(content.map { (key, value) -> key to (if (key == 1) "z" else value) }, builder.build().toList())
         }
 
     @Test

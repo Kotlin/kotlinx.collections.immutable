@@ -222,20 +222,20 @@ class PersistentHashSetBuilderTest {
     }
 
     @Test
-    fun `removeAll of a stored element and retainAll that empties the builder invalidate the iterator`() = forEachBuilder(hashSetBuildersOf(listOf(1, 2, 3))) { message, builder ->
+    fun `removeAll of a stored element and retainAll that empties the builder invalidate the iterator`() = forEachBuilder(hashSetBuildersOf(listOf(1, 2, 3))) { builder ->
         val iterator = builder.iterator()
         repeat(3) { val _ = iterator.next() }
 
-        assertTrue(builder.removeAll(persistentHashSetOf(1)), message)
+        assertTrue(builder.removeAll(persistentHashSetOf(1)))
 
-        assertEquals(2, builder.size, message)
-        assertFailsWith<ConcurrentModificationException>(message) { iterator.next() }
+        assertEquals(2, builder.size)
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
 
         val second = builder.iterator()
 
-        assertTrue(builder.retainAll(persistentHashSetOf(8, 9)), message)
+        assertTrue(builder.retainAll(persistentHashSetOf(8, 9)))
 
-        assertEquals(0, builder.size, message)
-        assertFailsWith<ConcurrentModificationException>(message) { second.next() }
+        assertEquals(0, builder.size)
+        assertFailsWith<ConcurrentModificationException> { second.next() }
     }
 }

@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
 import tests.contract.drain
 import tests.contract.runCells
+import tests.trie.MutableKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -19,7 +20,7 @@ private const val ELEMENT_MADE_EQUAL = "An element has become equal to another e
 
 class PersistentOrderedSetTest {
 
-    private val iterators: List<Pair<String, PersistentSet<Element>.() -> Iterator<Element>>> = listOf(
+    private val iterators: List<Pair<String, PersistentSet<MutableKey>.() -> Iterator<MutableKey>>> = listOf(
         "the set's iterator" to { iterator() },
         "the builder's iterator" to { builder().iterator() },
     )
@@ -46,23 +47,23 @@ class PersistentOrderedSetTest {
     @Test
     fun `next after the hash of the next element changed throws ConcurrentModificationException and goes on from that element once the hash is back`() = runCells {
         for ((name, open) in iterators) cell(name) {
-            val element = Element(2)
-            val iterator = persistentSetOf(Element(1), element, Element(3)).open()
+            val element = MutableKey(2)
+            val iterator = persistentSetOf(MutableKey(1), element, MutableKey(3)).open()
             val _ = iterator.next()
 
             element.id = 9
             assertFailsWith<ConcurrentModificationException> { iterator.next() }
             element.id = 2
 
-            assertEquals(listOf(element, Element(3)), iterator.drain())
+            assertEquals(listOf(element, MutableKey(3)), iterator.drain())
         }
     }
 
     @Test
     fun `an element made equal to an earlier one makes the last next throw ConcurrentModificationException`() = runCells {
         for ((name, open) in iterators) cell(name) {
-            val element = Element(3)
-            val set = persistentSetOf(Element(1), Element(2), element)
+            val element = MutableKey(3)
+            val set = persistentSetOf(MutableKey(1), MutableKey(2), element)
             element.id = 1
             val iterator = set.open()
             repeat(set.size - 1) { val _ = iterator.next() }
@@ -76,8 +77,8 @@ class PersistentOrderedSetTest {
     @Test
     fun `an element made equal to a later one makes the next that ends the chain early throw ConcurrentModificationException`() = runCells {
         for ((name, open) in iterators) cell(name) {
-            val element = Element(2)
-            val set = persistentSetOf(Element(1), element, Element(3))
+            val element = MutableKey(2)
+            val set = persistentSetOf(MutableKey(1), element, MutableKey(3))
             element.id = 3
             val iterator = set.open()
             val _ = iterator.next()
@@ -90,19 +91,13 @@ class PersistentOrderedSetTest {
 
     @Test
     fun `remove through the iterator of an element whose hashCode changed after next throws ConcurrentModificationException`() {
-        val element = Element(2)
-        val builder = persistentSetOf(Element(1), element, Element(3)).builder()
+        val element = MutableKey(2)
+        val builder = persistentSetOf(MutableKey(1), element, MutableKey(3)).builder()
         val iterator = builder.iterator()
         repeat(2) { val _ = iterator.next() }
         element.id = 4
 
         assertFailsWith<ConcurrentModificationException> { iterator.remove() }
         assertEquals(3, builder.size)
-    }
-
-    private class Element(var id: Int) {
-        override fun hashCode(): Int = id
-        override fun equals(other: Any?): Boolean = other is Element && other.id == id
-        override fun toString(): String = "Element($id)"
     }
 }

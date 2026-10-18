@@ -23,12 +23,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
-private class MutableHashKey(private val id: Int, var hash: Int) {
-    override fun hashCode(): Int = hash
-
-    override fun toString(): String = "MutableHashKey($id)"
-}
-
 class PersistentHashMapBuilderTest {
 
     private val a1 = IntWrapper(1, 0)
@@ -348,14 +342,14 @@ class PersistentHashMapBuilderTest {
         val removed = IntWrapper(1, 0)
         val promoted = removed.siblingAt(level = 1, id = 2)
         val rootEntry = removed.siblingAt(level = 0, id = 3)
-        forEachBuilder(hashMapBuildersOf(listOf(rootEntry, removed, promoted).map { it to "old" })) { message, builder ->
+        forEachBuilder(hashMapBuildersOf(listOf(rootEntry, removed, promoted).map { it to "old" })) { builder ->
             val iterator = builder.entries.iterator()
-            assertEquals(listOf(rootEntry, removed), List(2) { iterator.next().key }, message)
+            assertEquals(listOf(rootEntry, removed), List(2) { iterator.next().key })
             iterator.remove()
 
             builder[promoted] = "new"
 
-            assertEquals(listOf(promoted to "new"), iterator.drain(), message)
+            assertEquals(listOf(promoted to "new"), iterator.drain())
         }
     }
 
@@ -364,16 +358,16 @@ class PersistentHashMapBuilderTest {
         val removed = IntWrapper(1, 0)
         val promoted = removed.siblingAt(level = 1, id = 2)
         val rootEntry = removed.siblingAt(level = 0, id = 3)
-        forEachBuilder(hashMapBuildersOf(listOf(rootEntry, removed, promoted).map { it to "old" })) { message, builder ->
+        forEachBuilder(hashMapBuildersOf(listOf(rootEntry, removed, promoted).map { it to "old" })) { builder ->
             val iterator = builder.entries.iterator()
-            assertEquals(listOf(rootEntry, removed), List(2) { iterator.next().key }, message)
+            assertEquals(listOf(rootEntry, removed), List(2) { iterator.next().key })
             iterator.remove()
             val built = builder.build()
 
             builder[promoted] = "new"
 
-            assertEquals(listOf(promoted to "new"), iterator.drain(), message)
-            assertEquals("old", built[promoted], message)
+            assertEquals(listOf(promoted to "new"), iterator.drain())
+            assertEquals("old", built[promoted])
         }
     }
 
@@ -478,20 +472,20 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `next after setValue of the returned entry reads a value written later`() =
-        forEachBuilder(hashMapBuildersOf(listOf(1, 2, 3).map { it to "old" })) { message, builder ->
+        forEachBuilder(hashMapBuildersOf(listOf(1, 2, 3).map { it to "old" })) { builder ->
             val order = builder.keys.toList()
             val iterator = builder.entries.iterator()
-            assertEquals("old", iterator.next().setValue("x"), message)
+            assertEquals("old", iterator.next().setValue("x"))
 
             builder[order[1]] = "new"
 
-            assertEquals(listOf(order[1] to "new", order[2] to "old"), iterator.drain(), message)
+            assertEquals(listOf(order[1] to "new", order[2] to "old"), iterator.drain())
         }
 
     @Test
     fun `next after the hash of the next key changed and an overwrite copied its path throws ConcurrentModificationException until the hash is back`() {
         fun check(case: String, hashes: List<Int>, returned: Int, newHash: Int) {
-            val keys = hashes.mapIndexed { id, hash -> MutableHashKey(id, hash) }
+            val keys = hashes.mapIndexed { id, hash -> MutableKey(id, hash) }
             val builder = persistentHashMapOf(*keys.map { it to "old" }.toTypedArray()).builder()
             val order = builder.keys.toList()
             val iterator = builder.entries.iterator()
@@ -514,7 +508,7 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `remove after the hash of the next key changed takes out the key returned last`() {
-        val keys = List(3) { MutableHashKey(it, it) }
+        val keys = List(3) { MutableKey(it) }
         val builder = persistentHashMapOf(*keys.map { it to "old" }.toTypedArray()).builder()
         val iterator = builder.keys.iterator()
         assertEquals(keys[0], iterator.next())
