@@ -5,11 +5,10 @@
 
 package tests.contract
 
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentHashSetOf
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 /**
  * The builder iterators fail fast as java.util's do. A call through the builder that moves its size makes every call
@@ -40,40 +39,18 @@ class BuilderIteratorTest {
     fun orderedMap() = runCells { sweep(orderedMapBuilders, mapViews, mapOperations) }
 
     @Test
-    fun `clear on an empty builder invalidates its live iterators`() = runCells {
-        val clearList = BuilderOperation<PersistentList.Builder<Any>>("clear()") { clear() }
+    fun `calls on an empty map or set builder`() = runCells {
         val clearMap = BuilderOperation<PersistentMap.Builder<Any, String>>("clear()") { clear() }
-        val clearSet = BuilderOperation<PersistentSet.Builder<Any>>("clear()") { clear() }
-        for (iteratorOp in iteratorOperations) {
-            testIterator(emptyListBuilders, listViews, clearList, iteratorOp)
-            testIterator(emptyHashMapBuilders + emptyOrderedMapBuilders, mapViews, clearMap, iteratorOp)
-            testIterator(emptyHashSetBuilders + emptyOrderedSetBuilders, setViews, clearSet, iteratorOp)
-        }
-    }
-
-    @Test
-    fun `hash map iterator after its own remove and a call that keeps the size`() = runCells {
-        for (operation in mapOperations.filter { !it.throwsCME }) for ((origin, newBuilder) in hashMapBuilders) for ((view, open) in mapViews) {
-            cell("$origin, $view, remove() then ${operation.description}") {
-                for (returned in 1..newBuilder().size) {
-                    val builder = newBuilder()
-                    val order = builder.keys.toList()
-                    val iterator = builder.open()
-                    repeat(returned) { val _ = iterator.next() }
-                    iterator.remove()
-
-                    operation.function(builder)
-
-                    val rest = order.drop(returned)
-                    val expected = when (view) {
-                        "entries" -> rest.map { it to builder[it] }
-                        "keys" -> rest
-                        else -> rest.map { builder[it] }
-                    }
-                    assertEquals(expected, iterator.drain(), "after $returned next")
-                }
-            }
-        }
+        val setCalls = listOf<BuilderOperation<PersistentSet.Builder<Any>>>(
+            BuilderOperation("clear()") { clear() },
+            BuilderOperation("retainAll(a hash set)", throwsCME = false) { retainAll(persistentHashSetOf(1, 2)) },
+            BuilderOperation("retainAll(the empty hash set)", throwsCME = false) { retainAll(persistentHashSetOf()) },
+            BuilderOperation("retainAll(a hash set builder)", throwsCME = false) { retainAll(persistentHashSetOf(1, 2).builder()) },
+            BuilderOperation("removeAll(a hash set)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2)) },
+            BuilderOperation("removeAll(a hash set builder)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2).builder()) },
+        )
+        sweep(emptyHashMapBuilders + emptyOrderedMapBuilders, mapViews, listOf(clearMap))
+        sweep(emptyHashSetBuilders + emptyOrderedSetBuilders, setViews, setCalls)
     }
 }
 

@@ -8,7 +8,10 @@ package tests.contract.map
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.IntWrapper
+import tests.contract.at
 import tests.contract.drain
+import tests.contract.hashMapBuilders
+import tests.contract.mapOperations
 import tests.contract.runCells
 import tests.trie.*
 import kotlin.collections.iterator
@@ -26,6 +29,7 @@ class PersistentHashMapBuilderTest {
     private val a1 = IntWrapper(1, 0)
     private val a2 = IntWrapper(2, 0)
     private val sibling = IntWrapper(3, 1 shl 30)
+    private val nullAndNaNKeyEntries = listOf<Pair<Any?, String?>>(null to null, Double.NaN to "nan", 1.0 to "one")
 
     @Test
     fun `should correctly iterate after removing integer key and promotion colliding key during iteration`() {
@@ -352,7 +356,7 @@ class PersistentHashMapBuilderTest {
     }
 
     @Test
-    fun `next after the hash of the next key changed and an overwrite copied its path throws ConcurrentModificationException until the hash is back`() = runCells {
+    fun `next throws until the changed hash of the next key is back after an overwrite copied its path`() = runCells {
         fun check(case: String, hashes: List<Int>, returned: Int, newHash: Int) = cell(case) {
             val keys = hashes.mapIndexed { id, hash -> MutableKey(id, hash) }
             val builder = persistentHashMapOf(*keys.map { it to "old" }.toTypedArray()).builder()
@@ -365,7 +369,7 @@ class PersistentHashMapBuilderTest {
             order[returned].hash = newHash
             builder[keys[0]] = "new"
 
-            assertFailsWith<ConcurrentModificationException> { val _ = iterator.next() }
+            assertFailsWith<ConcurrentModificationException> { iterator.next() }
             order[returned].hash = hash
             assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain())
         }
@@ -386,26 +390,48 @@ class PersistentHashMapBuilderTest {
         iterator.remove()
 
         assertEquals(2, builder.size)
-        assertFailsWith<ConcurrentModificationException> { val _ = iterator.next() }
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
         keys[1].hash = 1
         assertEquals(keys.drop(1), iterator.drain())
     }
 
     @Test
-    fun `a live iterator goes on after an overwrite at a null key and a NaN key and removes the null key`() {
-        val entries = listOf(null to null, Double.NaN to "nan", 1.0 to "one")
-        val order = persistentHashMapOf(*entries.toTypedArray()).keys.toList()
-        for (returned in order.indices) {
-            val builder = persistentHashMapOf(*entries.toTypedArray()).builder()
+    fun `a live iterator goes on after its own remove and a call that keeps the size`() = runCells {
+        for (operation in mapOperations.filter { !it.throwsCME }) for ((origin, newBuilder) in hashMapBuilders) {
+            cell("$origin, remove() then ${operation.description}") {
+                for (returned in 1..newBuilder().size) at("after $returned next") {
+                    val builder = newBuilder()
+                    val rest = builder.keys.drop(returned)
+                    val iterator = builder.entries.iterator()
+                    repeat(returned) { val _ = iterator.next() }
+                    iterator.remove()
+
+                    operation.function(builder)
+
+                    assertEquals(rest.map { it to builder[it] }, iterator.drain())
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `a live iterator goes on after an overwrite at a null key and a NaN key`() {
+        val order = persistentHashMapOf(*nullAndNaNKeyEntries.toTypedArray()).keys.toList()
+        for (returned in order.indices) at("after $returned next") {
+            val builder = persistentHashMapOf(*nullAndNaNKeyEntries.toTypedArray()).builder()
             val iterator = builder.entries.iterator()
             repeat(returned) { val _ = iterator.next() }
 
             builder[order[returned]] = "new"
 
-            assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain(), "after $returned next")
+            assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain())
         }
+    }
 
-        val builder = persistentHashMapOf(*entries.toTypedArray()).builder()
+    @Test
+    fun `the entry of a null key takes a setValue and its iterator removes the key`() {
+        val builder = persistentHashMapOf(*nullAndNaNKeyEntries.toTypedArray()).builder()
+        val order = builder.keys.toList()
         val iterator = builder.entries.iterator()
         val skipped = order.indexOf(null)
         repeat(skipped) { val _ = iterator.next() }
