@@ -54,18 +54,12 @@ val trieShapes: Map<String, List<Any>> = mapOf(
  * A key the test changes after it is stored. A new [hash] moves it to another slot while it stays the same key. A new
  * [id] makes it equal to the key of that id and gives it that key's hash.
  */
-class MutableKey(id: Int) {
+class MutableKey(id: Int, var hash: Int = id) {
     var id: Int = id
         set(value) {
             field = value
             hash = value
         }
-
-    var hash: Int = id
-
-    constructor(id: Int, hash: Int) : this(id) {
-        this.hash = hash
-    }
 
     override fun hashCode(): Int = hash
 

@@ -49,10 +49,7 @@ fun runCells(table: Cells.() -> Unit): Unit = Cells().run {
     report()
 }
 
-/**
- * Covers a new bug: runs [test], which holds the bug's assertions, on a fresh builder of every origin of its kind, one
- * cell per origin; a new bug of a call through the builder is a new row of the table of its kind instead.
- */
+/** Runs [test], the assertions of one bug, on a fresh builder of every origin, one cell per origin. */
 fun <B> forEachBuilder(builders: Origins<B>, test: (B) -> Unit): Unit = runCells {
     for ((origin, newBuilder) in builders) cell(origin) { test(newBuilder()) }
 }
@@ -102,9 +99,9 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
  * [iteratorOp] throws ConcurrentModificationException, IllegalStateException first when it needs an element and next
  * returned none, so does every next after it, and the builder keeps what it held. After a non-structural call, the
  * iterator does what the iterator of a stdlib list of what the builder holds does, and the builder ends up holding
- * what that list holds.
+ * what that list holds, in that order when it is a list.
  */
-fun <B : Any, I : MutableIterator<*>> Cells.testIterator(
+fun <B, I : MutableIterator<*>> Cells.testIterator(
     builders: Origins<B>,
     views: Views<B, I>,
     builderOp: BuilderOperation<B>,
@@ -132,7 +129,8 @@ fun <B : Any, I : MutableIterator<*>> Cells.testIterator(
                     repeat(returned) { val _ = modelIterator.next() }
                     assertEquals(outcomeOf { iteratorOp.function(modelIterator) }, outcomeOf { iteratorOp.function(iterator) }, message)
                     assertEquals(modelIterator.drain(), iterator.drain(), message)
-                    assertEquals(model.unordered(), builder.open().drain().unordered(), message)
+                    if (builder is List<*>) assertEquals(model, builder.open().drain(), message)
+                    else assertEquals(model.unordered(), builder.open().drain().unordered(), message)
                 }
             }
         }

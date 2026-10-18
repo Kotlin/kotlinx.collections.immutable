@@ -77,6 +77,6 @@ class BuilderIteratorTest {
     }
 }
 
-private fun <B : Any> Cells.sweep(builders: Origins<B>, views: Views<B, MutableIterator<*>>, operations: List<BuilderOperation<B>>) {
+private fun <B> Cells.sweep(builders: Origins<B>, views: Views<B, MutableIterator<*>>, operations: List<BuilderOperation<B>>) {
     for (operation in operations) for (iteratorOp in iteratorOperations) testIterator(builders, views, operation, iteratorOp)
 }

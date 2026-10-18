@@ -509,7 +509,6 @@ private val lists: List<Pair<String, () -> PersistentList<Any>>> = listOf("the e
     )
 }
 
-/** The four origins of [listBuilders], at every depth. */
 private val listBuildersOfEveryDepth: List<Pair<String, () -> PersistentList.Builder<Any>>> = listDepths.flatMap { (size, shape) ->
     val elements = wrappersOf(size)
     listOf(
