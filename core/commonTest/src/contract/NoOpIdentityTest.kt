@@ -69,19 +69,20 @@ class NoOpIdentityTest {
     fun `value writes into a list`() = runCells {
         for ((size, shape) in listShapes) for (index in boundaryIndices(size)) for (write in valueWrites) {
             val stored = write.stored()
+            val written = write.written()
             val neighbour = if (index == 0) 1 else index - 1
             val list = wrappersOf(size).toPersistentList<Any?>().replacingAt(index, stored)
-            testWrites("$shape, ${write.description} at $index", write, list, read = { this[index] },
-                writes = listOf(
-                    "replacingAt" to { written -> replacingAt(index, written) },
-                    "a builder's set, which returns the stored element" to { written ->
+            testWrites("$shape, ${write.description} at $index", write, list, written, read = { this[index] },
+                writes = buildList {
+                    call("replacingAt") { replacingAt(index, written) }
+                    call("a builder's set, which returns the stored element") {
                         mutate { assertSameValue(stored, it.set(index, written), "what set returns") }
-                    },
-                    "the list iterator's set" to { written -> mutate { it.listIterator(index).run { val _ = next(); set(written) } } },
-                ),
-                writesElsewhereToo = listOf(
-                    "a builder's set after a set at $neighbour" to { written -> mutate { it[neighbour] = NEW; it[index] = written } },
-                ),
+                    }
+                    call("the list iterator's set") { mutate { it.listIterator(index).run { val _ = next(); set(written) } } }
+                },
+                writesElsewhereToo = buildList {
+                    call("a builder's set after a set at $neighbour") { mutate { it[neighbour] = NEW; it[index] = written } }
+                },
             )
         }
     }
@@ -365,79 +366,66 @@ private fun assertSameValue(expected: Any?, actual: Any?, message: String) {
 }
 
 /**
- * A call of [writes] returns the receiver when [write] changes nothing, and a new instance holding the written value
- * otherwise. A call of [writesElsewhereToo] writes other elements or keys as well, so only what it leaves where [read]
- * reads tells.
+ * Every call leaves [written] where [read] reads when [write] changes something, and the stored value otherwise. A call
+ * of [writes] returns the receiver exactly when the write changes nothing; a call of [writesElsewhereToo] writes other
+ * elements or keys as well, so only the value read back tells.
  */
+@Suppress("UNCHECKED_CAST")
 private fun <C : Any> Cells.testWrites(
     name: String,
     write: ValueWrite,
     receiver: C,
+    written: Any?,
     read: C.() -> Any?,
-    writes: List<Pair<String, C.(written: Any?) -> C>>,
-    writesElsewhereToo: List<Pair<String, C.(written: Any?) -> C>>,
+    writes: List<Call<C>>,
+    writesElsewhereToo: List<Call<C>>,
 ) {
+    val readBack = if (write.changes) written else receiver.read()
     for ((description, call) in writes) cell("$name by $description") {
-        val written = write.written()
-        val result = receiver.call(written)
-        if (write.changes) {
-            assertNotSame(receiver, result, "the result")
-            assertSameValue(written, result.read(), "the value read back")
-        } else {
-            assertSame(receiver, result, "the result")
-        }
+        val result = receiver.call() as C
+        if (write.changes) assertNotSame(receiver, result, "the result") else assertSame(receiver, result, "the result")
+        assertSameValue(readBack, result.read(), "the value read back")
     }
     for ((description, call) in writesElsewhereToo) cell("$name by $description") {
-        val written = write.written()
-        assertSameValue(if (write.changes) written else receiver.read(), receiver.call(written).read(), "the value read back")
+        assertSameValue(readBack, (receiver.call() as C).read(), "the value read back")
     }
 }
 
 /**
- * Writes under every key of every trie shape by a put, by a putAll of a hash map, which a hash map merges trie by
- * trie, and by an entry's setValue. A putAll that writes other keys too, brings the key in a subtree beside a new key,
- * or holds every key and a new one with the key's hash, keeps the stored value when the write changes nothing.
+ * Writes under every key of every trie shape by a put, by an entry's setValue and by putAlls. A putAll that writes
+ * other keys too, brings the key in a subtree beside a new key, or holds every key and a new one with the key's hash,
+ * keeps the stored value when the write changes nothing.
  */
 private fun Cells.testValueWrites(kind: String, newMap: (Map<Any?, Any?>) -> PersistentMap<Any?, Any?>) {
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
         val stored = write.stored()
+        val written = write.written()
         val content = keys.withIndex().associate { (index, shapeKey) -> shapeKey to IntWrapper(index, index) } + (key to stored)
-        val newKeyBesideIt = missingBesideAtLevelOne(key) to NEW
-        val newKeyWithItsHash = missingKey(key.hashCode()) to NEW
-        testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(content), read = { this[key] },
-            writes = listOf(
-                "putting" to { written -> putting(key, written) },
-                "puttingAll of a hash map of the key" to { written -> puttingAll(persistentHashMapOf(key to written)) },
-                "puttingAll of a hash map of every key" to { written -> puttingAll((content + (key to written)).toPersistentHashMap()) },
-                "a builder's put, which returns the stored value" to { written ->
+        val everyKey = content + (key to written)
+        testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(content), written, read = { this[key] },
+            writes = buildList {
+                call("putting") { putting(key, written) }
+                call("a builder's put, which returns the stored value") {
                     mutate { assertSameValue(stored, it.put(key, written), "what put returns") }
-                },
-                "a builder's putAll of a hash map of the key" to { written -> mutate { it.putAll(persistentHashMapOf(key to written)) } },
-                "a builder's putAll of a hash map of every key" to { written ->
-                    mutate { it.putAll((content + (key to written)).toPersistentHashMap()) }
-                },
-                "an entry's setValue, which returns the stored value" to { written ->
+                }
+                call("an entry's setValue, which returns the stored value") {
                     mutate { builder -> assertSameValue(stored, builder.entries.first { it.key == key }.setValue(written), "what setValue returns") }
-                },
-            ),
-            writesElsewhereToo = listOf(
-                "puttingAll of new values for the other keys" to { written ->
-                    puttingAll((content.mapValues { NEW } + (key to written)).toPersistentHashMap())
-                },
-                "a builder's putAll of new values for the other keys" to { written ->
-                    mutate { it.putAll((content.mapValues { NEW } + (key to written)).toPersistentHashMap()) }
-                },
-                "puttingAll of a new key beside it at level 1" to { written -> puttingAll(persistentHashMapOf(key to written, newKeyBesideIt)) },
-                "a builder's putAll of a new key beside it at level 1" to { written ->
-                    mutate { it.putAll(persistentHashMapOf(key to written, newKeyBesideIt)) }
-                },
-                "puttingAll of every key and a new key with its hash" to { written ->
-                    puttingAll((content + (key to written) + newKeyWithItsHash).toPersistentHashMap())
-                },
-                "a builder's putAll of every key and a new key with its hash" to { written ->
-                    mutate { it.putAll((content + (key to written) + newKeyWithItsHash).toPersistentHashMap()) }
-                },
+                }
+                addAll(putAllCalls("a hash map of the key" to mapOf(key to written), "a hash map of every key" to everyKey))
+            },
+            writesElsewhereToo = putAllCalls(
+                "new values for the other keys" to content.mapValues { NEW } + (key to written),
+                "a new key beside it at level 1" to mapOf(key to written, missingBesideAtLevelOne(key) to NEW),
+                "every key and a new key with its hash" to everyKey + (missingKey(key.hashCode()) to NEW),
             ),
         )
+    }
+}
+
+/** A puttingAll and a builder's putAll of each argument as a hash map, which a hash map merges trie by trie. */
+private fun putAllCalls(vararg arguments: Pair<String, Map<Any?, Any?>>): List<Call<PersistentMap<Any?, Any?>>> = buildList {
+    for ((argument, entries) in arguments) {
+        call("puttingAll of $argument") { puttingAll(entries.toPersistentHashMap()) }
+        call("a builder's putAll of $argument") { mutate { it.putAll(entries.toPersistentHashMap()) } }
     }
 }
