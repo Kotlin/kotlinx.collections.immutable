@@ -119,10 +119,13 @@ fun <K, V> mapBuildersOf(vararg entries: Pair<K, V>): Origins<PersistentMap.Buil
     hashMapBuildersOf(entries.toList()) + orderedMapBuildersOf(entries.toList())
 
 /**
- * Lists of the tail alone and of a leaf and a tail, and the last origin of a list over several leaves, which owns its
- * root but not its first leaf, so that a set there copies a shared leaf under an owned root.
+ * Lists of the tail alone and of a leaf and a tail; the last origin of a list over several leaves, which owns its root
+ * but not its first leaf, so that a set there copies a shared leaf under an owned root; and the lists where a write
+ * changes the shape of the trie, each from a persistent list: a remove from a tail of one pulls a leaf back into the
+ * tail and drops or demotes the root, an add to a full tail pushes it into the trie and promotes the root.
  */
-val listBuilders: Origins<PersistentList.Builder<Any>> = listBuildersOf(TAIL_ONLY) + listBuildersOf(ONE_LEAF) + listBuildersOf(LEAVES).last()
+val listBuilders: Origins<PersistentList.Builder<Any>> = listBuildersOf(TAIL_ONLY) + listBuildersOf(ONE_LEAF) + listBuildersOf(LEAVES).last() +
+    listOf(FULL_TAIL + 1, 2 * FULL_TAIL, 2 * FULL_TAIL + 1).map { listBuildersOf(it).first() }
 
 private fun <B> ofEveryShape(buildersOf: (keys: List<Any?>) -> Origins<B>): Origins<B> =
     trieShapes.flatMap { (shape, keys) -> buildersOf(keys).map { (origin, newBuilder) -> "$origin, $shape" to newBuilder } }

@@ -30,20 +30,6 @@ class BuilderIteratorTest {
         testIterator(listBuilders, listIteratorViews, listOperations, listIteratorCalls)
     }
 
-    /**
-     * The iterator's own writes where they change the shape of the trie: a remove from a tail of one pulls a leaf back
-     * into the tail and drops or demotes the root, an add to a full tail pushes it into the trie and promotes the root.
-     */
-    @Test
-    fun `list iterator writes at the sizes where the trie changes shape`() = runCells {
-        val aLeafAndATailOfOne = listBuildersOf(FULL_TAIL + 1)
-        val aLeafAndAFullTail = listBuildersOf(2 * FULL_TAIL)
-        val twoLeavesAndATailOfOne = listBuildersOf(2 * FULL_TAIL + 1)
-        val builders = aLeafAndATailOfOne + aLeafAndAFullTail + twoLeavesAndATailOfOne
-        testIterator(builders, listViews, listOf(noCall), iteratorCalls)
-        testIterator(builders, listIteratorViews, listOf(noCall), listIteratorCalls)
-    }
-
     @Test
     fun hashSet() = runCells { testIterator(hashSetBuilders, setViews, setOperations, iteratorCalls) }
 
