@@ -94,7 +94,7 @@ private fun listsOf(size: Int): Origins<PersistentList<Int>> {
 
 /**
  * The builder makes retainAll, the calls with a predicate and the clears through subList one element at a time, so
- * their rows come last and skip three levels, where they would take longer than the rest of the table together.
+ * their rows come last and skip [THREE_LEVELS], where they would take longer than the rest of the table together.
  */
 private fun calls(size: Int): List<Call<MutableList<Int>>> = buildList {
     val positions = boundaryIndices(size) + size
@@ -128,19 +128,20 @@ private fun calls(size: Int): List<Call<MutableList<Int>>> = buildList {
         call("subList(0, $position).add(x)") { subList(0, position).apply { add(NEW) } }
     }
 
-    if (size == THREE_LEVELS) return@buildList
-    call("retainAll(nothing)") { retainAll(emptySet()) }
-    call("retainAll(every other element)") { retainAll((0..<size step 2).toSet()) }
-    call("removeAll { every other element }") { removeAll { it % 2 == 0 } }
-    for (index in boundaryIndices(size)) {
-        call("retainAll(the suffix from $index)") { retainAll((index..<size).toSet()) }
-        call("retainAll(the prefix before $index)") { retainAll((0..<index).toSet()) }
-        call("removeAll { the suffix from $index }") { removeAll { it >= index } }
-        if (index % LEAF == 0 && index < trieSize(size)) call("retainAll(the leaf at $index)") { retainAll((index..<index + LEAF).toSet()) }
-    }
-    for (position in positions) {
-        call("subList($position, size).clear()") { subList(position, size).apply { clear() } }
-        call("subList(0, $position).clear()") { subList(0, position).apply { clear() } }
+    if (size != THREE_LEVELS) {
+        call("retainAll(nothing)") { retainAll(emptySet()) }
+        call("retainAll(every other element)") { retainAll((0..<size step 2).toSet()) }
+        call("removeAll { every other element }") { removeAll { it % 2 == 0 } }
+        for (index in boundaryIndices(size)) {
+            call("retainAll(the suffix from $index)") { retainAll((index..<size).toSet()) }
+            call("retainAll(the prefix before $index)") { retainAll((0..<index).toSet()) }
+            call("removeAll { the suffix from $index }") { removeAll { it >= index } }
+            if (index % LEAF == 0 && index < trieSize(size)) call("retainAll(the leaf at $index)") { retainAll((index..<index + LEAF).toSet()) }
+        }
+        for (position in positions) {
+            call("subList($position, size).clear()") { subList(position, size).apply { clear() } }
+            call("subList(0, $position).clear()") { subList(0, position).apply { clear() } }
+        }
     }
 }
 
@@ -194,8 +195,8 @@ private fun assertShape(builder: PersistentList.Builder<Int>, message: String) {
     var shift = 0
     while (trieSize > LEAF shl shift) shift += LOG_MAX_BUFFER_SIZE
     assertEquals(shift, vector.rootShift, "$message: the height of the root")
-    assertEquals(trieSize, vector.root?.let { elementsUnder(it, shift) } ?: 0, "$message: the elements in the trie")
-    assertEquals(vector.size - trieSize, vector.tail.slots().count { it != null }, "$message: the elements in the tail")
+    assertEquals(trieSize, vector.root?.let { elementsUnder(it, shift) } ?: 0, "$message: the trie's slots that hold an element")
+    assertEquals(vector.size - trieSize, vector.tail.slots().count { it != null }, "$message: the tail's slots that hold an element")
 }
 
 private fun elementsUnder(node: Array<*>, shift: Int): Int =
