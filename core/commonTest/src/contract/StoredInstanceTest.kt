@@ -203,7 +203,7 @@ private fun Cells.testPutAll(
 /**
  * The expected set and the Boolean come from the same call on a stdlib set, which keeps the receiver's instances. The
  * result also equals a set of the same elements, which equals compares trie by trie: an element left alone in a node
- * below the root fails it.
+ * below the root fails it. containsAll answers as on stdlib lists.
  */
 private fun Cells.testBulkCalls(
     newSet: (List<IntWrapper?>) -> PersistentSet<IntWrapper?>,
@@ -242,6 +242,12 @@ private fun Cells.testBulkCalls(
     testCall("addingAll", "addAll", { addingAll(it) }) { addAll(it) }
     testCall("retainingAll", "retainAll", { retainingAll(it) }) { retainAll(it) }
     testCall("removingAll", "removeAll", { removingAll(it) }) { removeAll(it) }
+    for (merge in merges) cell("${merge.description}, containsAll") {
+        val expected = merge.receiver.containsAll(merge.argument)
+        val argument = merge.argument.toPersistentHashSet()
+        assertEquals(expected, newSet(merge.receiver).containsAll(argument), "the persistent set's answer")
+        for ((origin, newBuilder) in buildersOf(merge.receiver)) assertEquals(expected, newBuilder().containsAll(argument), "the answer of $origin")
+    }
 }
 
 /** The entries of [expected], with the very instances of its keys. */
