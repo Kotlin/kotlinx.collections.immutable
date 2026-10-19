@@ -163,7 +163,7 @@ private fun Cells.testPutAll(
     for (merge in merges) {
         val receiver = merge.receiverEntries
         val argument = merge.argumentEntries
-        val expected = (receiver.keys + argument.keys).associateWith { argument[it] ?: receiver.getValue(it) }
+        val expected = receiver + argument
         cell("${merge.description}, puttingAll") {
             val receiverMap = newMap(receiver)
             val argumentMap = argument.toPersistentHashMap()
@@ -181,41 +181,39 @@ private fun Cells.testPutAll(
     }
 }
 
-private class BulkCall(
-    val persistentName: String,
-    val builderName: String,
-    val persistent: PersistentSet<IntWrapper?>.(PersistentSet<IntWrapper?>) -> PersistentSet<IntWrapper?>,
-    val builder: PersistentSet.Builder<IntWrapper?>.(PersistentSet<IntWrapper?>) -> Boolean,
-    val result: (receiver: List<IntWrapper?>, argument: List<IntWrapper?>) -> List<IntWrapper?>,
-)
-
-private val bulkCalls: List<BulkCall> = listOf(
-    BulkCall("addingAll", "addAll", { addingAll(it) }, { addAll(it) }) { receiver, argument -> receiver + argument.filter { it !in receiver } },
-    BulkCall("retainingAll", "retainAll", { retainingAll(it) }, { retainAll(it) }) { receiver, argument -> receiver.filter { it in argument } },
-    BulkCall("removingAll", "removeAll", { removingAll(it) }, { removeAll(it) }) { receiver, argument -> receiver.filter { it !in argument } },
-)
-
 private fun Cells.testBulkCalls(
     newSet: (List<IntWrapper?>) -> PersistentSet<IntWrapper?>,
     buildersOf: (List<IntWrapper?>) -> Origins<PersistentSet.Builder<IntWrapper?>>,
 ) {
-    for (merge in merges) for (call in bulkCalls) {
-        val expected = call.result(merge.receiver, merge.argument)
-        cell("${merge.description}, ${call.persistentName}") {
-            val receiver = newSet(merge.receiver)
-            val argument = merge.argument.toPersistentHashSet()
-            assertHolds(expected, call.persistent(receiver, argument))
-            assertHolds(merge.receiver, receiver)
-            assertHolds(merge.argument, argument)
-        }
-        for ((origin, newBuilder) in buildersOf(merge.receiver)) cell("${merge.description}, ${call.builderName} on $origin") {
-            val builder = newBuilder()
-            val argument = merge.argument.toPersistentHashSet()
-            assertEquals(expected.size != merge.receiver.size, call.builder(builder, argument), "the result")
-            assertHolds(expected, builder)
-            assertHolds(merge.argument, argument)
+    fun testCall(
+        persistentName: String,
+        builderName: String,
+        persistent: PersistentSet<IntWrapper?>.(PersistentSet<IntWrapper?>) -> PersistentSet<IntWrapper?>,
+        mutable: MutableSet<IntWrapper?>.(Collection<IntWrapper?>) -> Boolean,
+    ) {
+        for (merge in merges) {
+            val expected = merge.receiver.toMutableSet()
+            val changed = expected.mutable(merge.argument)
+            cell("${merge.description}, $persistentName") {
+                val receiver = newSet(merge.receiver)
+                val argument = merge.argument.toPersistentHashSet()
+                assertHolds(expected, receiver.persistent(argument))
+                assertHolds(merge.receiver, receiver)
+                assertHolds(merge.argument, argument)
+            }
+            for ((origin, newBuilder) in buildersOf(merge.receiver)) cell("${merge.description}, $builderName on $origin") {
+                val builder = newBuilder()
+                val argument = merge.argument.toPersistentHashSet()
+                assertEquals(changed, builder.mutable(argument), "the result")
+                assertHolds(expected, builder)
+                assertHolds(merge.argument, argument)
+            }
         }
     }
+
+    testCall("addingAll", "addAll", { addingAll(it) }) { addAll(it) }
+    testCall("retainingAll", "retainAll", { retainingAll(it) }) { retainAll(it) }
+    testCall("removingAll", "removeAll", { removingAll(it) }) { removeAll(it) }
 }
 
 /** The entries of [expected], with the very instances of its keys. */
