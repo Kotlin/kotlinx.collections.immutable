@@ -70,7 +70,7 @@ class NoOpIdentityTest {
             val stored = write.stored()
             val neighbour = if (index == 0) 1 else index - 1
             val list = wrappersOf(size).toPersistentList<Any?>().replacingAt(index, stored)
-            testWrites("$depth, ${write.description} at $index", write, list, { this[index] },
+            testWrites("$depth, ${write.description} at $index", write, list, read = { this[index] },
                 writes = listOf(
                     "replacingAt" to { written -> replacingAt(index, written) },
                     "a builder's set, which returns the stored element" to { written ->
@@ -399,7 +399,7 @@ private fun Cells.testValueWrites(kind: String, newMap: (Map<Any, Any?>) -> Pers
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
         val stored = write.stored()
         val content = keys.withIndex().associate { (index, shapeKey) -> shapeKey to IntWrapper(index, index) } + (key to stored)
-        testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(content), { this[key] },
+        testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(content), read = { this[key] },
             writes = listOf(
                 "putting" to { written -> putting(key, written) },
                 "puttingAll of a hash map of the key" to { written -> puttingAll(persistentHashMapOf(key to written)) },
