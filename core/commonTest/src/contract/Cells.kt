@@ -29,9 +29,7 @@ class Cells {
     internal fun report() {
         if (count == 0) fail("The table ran no cell")
         if (failures.isEmpty()) return
-        val shown = failures.take(100)
-        val more = if (failures.size > shown.size) "\n... and ${failures.size - shown.size} more" else ""
-        fail("${failures.size} of $count cells failed:\n" + shown.joinToString("\n") + more, firstFailure)
+        fail("${failures.size} of $count cells failed:\n" + failures.joinToString("\n", limit = 100), firstFailure)
     }
 }
 
