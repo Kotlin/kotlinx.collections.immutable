@@ -68,13 +68,13 @@ class StoredInstanceTest {
 
     @Test
     fun `addAll of an argument builder shares no storage with it`() =
-        forEachBuilder(hashSetBuildersOf(listOf(collidingKey1, collidingKey2, collidingKey3))) { argument ->
-            val builder = persistentHashSetOf(collidingKey1, collidingKey2).builder()
+        forEachBuilder(hashSetBuildersOf(listOf(collidingKey1, collidingKey2))) { argument ->
+            val builder = persistentHashSetOf(collidingKey1).builder()
             assertTrue(builder.addAll(argument))
-            assertTrue(argument.remove(collidingKey3))
+            assertTrue(argument.add(collidingKey3))
             assertTrue(builder.remove(collidingKey1))
-            assertEquals(setOf(collidingKey2, collidingKey3), builder)
-            assertEquals(setOf(collidingKey1, collidingKey2), argument)
+            assertEquals(setOf(collidingKey2), builder)
+            assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument)
         }
 
     @Test
