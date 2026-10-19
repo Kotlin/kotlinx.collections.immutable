@@ -7,6 +7,7 @@ package tests.contract
 
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlin.test.Test
 
@@ -56,7 +57,12 @@ class BuilderIteratorTest {
 
     @Test
     fun `clear of an empty map or set builder freezes its iterators and calls that change nothing do not`() = runCells {
-        val clearMap = BuilderOperation<PersistentMap.Builder<Any, String>>("clear()") { clear() }
+        val mapCalls = listOf<BuilderOperation<PersistentMap.Builder<Any, String>>>(
+            BuilderOperation("clear()") { clear() },
+            BuilderOperation("putAll(an empty hash map)", throwsCME = false) { putAll(persistentHashMapOf()) },
+            BuilderOperation("keys.retainAll(a hash set)", throwsCME = false) { keys.retainAll(persistentHashSetOf(1, 2)) },
+            BuilderOperation("keys.removeAll(a hash set)", throwsCME = false) { keys.removeAll(persistentHashSetOf(1, 2)) },
+        )
         val setCalls = listOf<BuilderOperation<PersistentSet.Builder<Any>>>(
             BuilderOperation("clear()") { clear() },
             BuilderOperation("retainAll(a hash set)", throwsCME = false) { retainAll(persistentHashSetOf(1, 2)) },
@@ -65,7 +71,7 @@ class BuilderIteratorTest {
             BuilderOperation("removeAll(a hash set)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2)) },
             BuilderOperation("removeAll(a hash set builder)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2).builder()) },
         )
-        testIterator(emptyMapBuilders, mapViews, listOf(clearMap), iteratorCalls)
+        testIterator(emptyMapBuilders, mapViews, mapCalls, iteratorCalls)
         testIterator(emptySetBuilders, setViews, setCalls, iteratorCalls)
     }
 }
