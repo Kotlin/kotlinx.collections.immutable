@@ -51,10 +51,10 @@ class ListBoundaryTest {
                 assertContent(model, builder, "the builder")
                 assertShape(builder, "the builder")
 
-                builder.writeEnds(BEFORE_BUILD)
-                model.writeEnds(BEFORE_BUILD)
+                builder.writeEnds(element = BEFORE_BUILD)
+                model.writeEnds(element = BEFORE_BUILD)
                 val built = builder.build()
-                builder.writeEnds(AFTER_BUILD)
+                builder.writeEnds(element = AFTER_BUILD)
                 assertContent(model, built, "the list built after the call")
                 assertContent(List(size) { it }, list, "the list the builder was made from")
             }
@@ -196,9 +196,12 @@ private fun assertShape(builder: PersistentList.Builder<Int>, message: String) {
     while (trieSize > LEAF shl shift) shift += LOG_MAX_BUFFER_SIZE
     assertEquals(shift, vector.rootShift, "$message: the height of the root")
     assertEquals(trieSize, vector.root?.let { elementsUnder(it, shift) } ?: 0, "$message: the elements in the trie")
-    assertEquals(vector.size - trieSize, vector.tail.take(LEAF).count { it != null }, "$message: the elements in the tail")
+    assertEquals(vector.size - trieSize, vector.tail.slots().count { it != null }, "$message: the elements in the tail")
 }
 
 private fun elementsUnder(node: Array<*>, shift: Int): Int =
-    if (shift == 0) node.take(LEAF).count { it != null }
-    else node.take(LEAF).sumOf { if (it == null) 0 else elementsUnder(it as Array<*>, shift - LOG_MAX_BUFFER_SIZE) }
+    if (shift == 0) node.slots().count { it != null }
+    else node.slots().sumOf { if (it == null) 0 else elementsUnder(it as Array<*>, shift - LOG_MAX_BUFFER_SIZE) }
+
+/** The slots of a buffer that hold elements or nodes; a builder's buffer has one more, holding the ownership marker. */
+private fun Array<*>.slots(): List<Any?> = take(LEAF)
