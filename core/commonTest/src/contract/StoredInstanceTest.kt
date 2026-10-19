@@ -31,7 +31,7 @@ import kotlin.test.assertTrue
  * retainingAll shares the argument's bottom node. A builder merged with another builder shares no storage with it.
  *
  * A new trie is a row of [tries], which [merges] crosses with every other one; a merge of two fixed tries is a [Merge]
- * of its own in [merges].
+ * of its own in [merges]. Sets are compared by the expected set's equals, which assertEquals calls on the JVM only.
  */
 class StoredInstanceTest {
 
@@ -79,8 +79,8 @@ class StoredInstanceTest {
             assertTrue(builder.addAll(argument), "what addAll returns")
             assertTrue(argument.add(collidingKey3), "what the argument's add returns")
             assertTrue(builder.remove(collidingKey1), "what remove returns")
-            assertEquals(setOf(collidingKey2), builder, "the builder after the argument's add")
-            assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument, "the argument after the builder's remove")
+            assertTrue(setOf(collidingKey2) == builder, "the builder after the argument's add")
+            assertTrue(setOf(collidingKey1, collidingKey2, collidingKey3) == argument, "the argument after the builder's remove")
         }
 
     @Test
@@ -90,8 +90,8 @@ class StoredInstanceTest {
             assertTrue(builder.retainAll(argument), "what retainAll returns")
             assertTrue(argument.add(collidingKey3), "what the argument's add returns")
             assertTrue(builder.remove(collidingKey1), "what remove returns")
-            assertEquals(setOf(collidingKey2), builder, "the builder after the argument's add")
-            assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument, "the argument after the builder's remove")
+            assertTrue(setOf(collidingKey2) == builder, "the builder after the argument's add")
+            assertTrue(setOf(collidingKey1, collidingKey2, collidingKey3) == argument, "the argument after the builder's remove")
         }
 
     @Test
@@ -202,8 +202,8 @@ private fun Cells.testPutAll(
 
 /**
  * The expected set and the Boolean come from the same call on a stdlib set, which keeps the receiver's instances. The
- * result also equals a set of the same elements, which equals compares trie by trie: an element left alone in a node
- * below the root fails it. containsAll answers as on stdlib lists.
+ * result also equals a set built from the same elements, whose equals compares trie by trie: an element left alone in a
+ * node below the root fails it. containsAll answers as on stdlib lists.
  */
 private fun Cells.testBulkCalls(
     newSet: (List<IntWrapper?>) -> PersistentSet<IntWrapper?>,
@@ -224,7 +224,7 @@ private fun Cells.testBulkCalls(
                 val argument = merge.argument.toPersistentHashSet()
                 val result = receiver.persistent(argument)
                 assertHolds(model, result, "the result")
-                assertEquals(canonical, result, "the result as a trie")
+                assertTrue(canonical == result, "the result as a trie")
                 assertHolds(merge.receiver, receiver, "the receiver after the call")
                 assertHolds(merge.argument, argument, "the argument after the call")
             }
@@ -233,7 +233,7 @@ private fun Cells.testBulkCalls(
                 val argument = merge.argument.toPersistentHashSet()
                 assertEquals(changed, builder.mutable(argument), "the Boolean the call returns")
                 assertHolds(model, builder, "the builder after the call")
-                assertEquals(canonical, builder.build(), "the built set as a trie")
+                assertTrue(canonical == builder, "the builder as a trie")
                 assertHolds(merge.argument, argument, "the argument after the call")
             }
         }
