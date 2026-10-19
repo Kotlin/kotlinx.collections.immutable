@@ -84,6 +84,7 @@ class NoOpIdentityTest {
     fun `value writes into an ordered map`() = runCells { testValueWrites("an ordered map") { persistentMapOf(*it.toTypedArray()) } }
 }
 
+/** Every call of [noOps] returns its receiver, and every call of [emptyingCalls] returns [empty], the empty instance. */
 private fun <C : Any> Cells.testCalls(
     receivers: List<Pair<String, C>>,
     empty: C,
@@ -91,8 +92,8 @@ private fun <C : Any> Cells.testCalls(
     emptyingCalls: (C) -> List<Call<C>>,
 ) {
     for ((origin, receiver) in receivers) {
-        for ((call, function) in noOps(receiver)) cell("$origin, $call") { assertSame(receiver, receiver.function()) }
-        for ((call, function) in emptyingCalls(receiver)) cell("$origin, $call") { assertSame(empty, receiver.function()) }
+        for ((call, function) in noOps(receiver)) cell("$origin, $call") { assertSame(receiver, receiver.function(), "the receiver") }
+        for ((call, function) in emptyingCalls(receiver)) cell("$origin, $call") { assertSame(empty, receiver.function(), "the empty instance") }
     }
 }
 
