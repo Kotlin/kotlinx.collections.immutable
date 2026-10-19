@@ -19,7 +19,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -339,22 +338,6 @@ class PersistentHashMapBuilderTest {
         assertEquals(if (entry.key == 1) 2 else 1, iterator.next().key)
         assertFalse(iterator.hasNext())
         assertFalse(builder.build().containsKey(entry.key))
-    }
-
-    @Test
-    fun `putAll of new values in another collision order keeps the receiver's order`() {
-        val builder = persistentHashMapOf(collidingKey1 to "a", collidingKey2 to "b", collidingKey3 to "c", collidingKey1.colliding(11) to "d").builder()
-        val storedKeys = builder.keys.toList()
-        val (first, second, third, last) = storedKeys
-        val argument = persistentHashMapOf(third to "z", last to "w", first to "x", second to "y")
-        assertNotEquals(storedKeys, argument.keys.toList())
-        val iterator = builder.entries.iterator()
-        assertEquals(first, iterator.next().key)
-
-        builder.putAll(argument)
-
-        assertEquals(listOf(second to "y", third to "z", last to "w"), iterator.drain())
-        assertEquals(storedKeys, builder.keys.toList())
     }
 
     @Test

@@ -230,6 +230,7 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> =
     BuilderOperation("putAll(a new value for the last key)", throwsCME = false) { putAll(persistentHashMapOf(keys.last() to "changed")) },
     BuilderOperation("putAll(new values)", throwsCME = false) { putAll(newValuesFor(keys.toList())) },
     BuilderOperation("putAll(new values in the reverse key order)", throwsCME = false) { putAll(newValuesFor(keys.reversed())) },
+    BuilderOperation("putAll(new values with the last two keys swapped)", throwsCME = false) { putAll(newValuesFor(keys.toList().let { it.dropLast(2) + it.takeLast(2).reversed() })) },
     BuilderOperation("putAll(new values as a map)", throwsCME = false) { putAll(mapValues { it.value + "!" }) },
     BuilderOperation("putAll(the stored values)", throwsCME = false) { putAll(persistentHashMapOf(*toList().toTypedArray())) },
     BuilderOperation("putAll(the stored values as a map)", throwsCME = false) { putAll(toMap()) },
