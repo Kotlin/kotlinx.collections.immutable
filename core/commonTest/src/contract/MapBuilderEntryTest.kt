@@ -79,7 +79,6 @@ class MapBuilderEntryTest {
 }
 
 private typealias MapBuilder = PersistentMap.Builder<Any?, String>
-private typealias Entry = MutableMap.MutableEntry<Any?, String>
 
 /** The calls beyond [mapOperations] that move a key's slot, take it away or bring it back. */
 private val slotMoves: List<BuilderOperation<MapBuilder>> = listOf(
@@ -92,7 +91,7 @@ private val slotMoves: List<BuilderOperation<MapBuilder>> = listOf(
 )
 
 /** The first call on an entry after a call through the builder, with nothing read from the entry in between. */
-private val firstReads: List<Pair<String, Entry.(expected: String) -> Unit>> = listOf(
+private val firstReads: List<Pair<String, MutableMap.MutableEntry<Any?, String>.(expected: String) -> Unit>> = listOf(
     "value" to { expected -> assertEquals(expected, value) },
     "toString" to { expected -> assertEquals("$key=$expected", toString()) },
     "hashCode" to { expected -> assertEquals(key.hashCode() xor expected.hashCode(), hashCode()) },
