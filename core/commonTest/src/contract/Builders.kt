@@ -116,8 +116,8 @@ fun <K, V> mapBuildersOf(vararg entries: Pair<K, V>): Origins<PersistentMap.Buil
     hashMapBuildersOf(entries.toList()) + orderedMapBuildersOf(entries.toList())
 
 /**
- * Lists of the tail alone and of a leaf and a tail, and one over several leaves that owns its root but not its first
- * leaf, so that a set there copies a shared leaf under an owned root.
+ * Lists of the tail alone and of a leaf and a tail, and the last origin of a list over several leaves, which owns its
+ * root but not its first leaf, so that a set there copies a shared leaf under an owned root.
  */
 val listBuilders: Origins<PersistentList.Builder<Any>> = listBuildersOf(TAIL_ONLY) + listBuildersOf(ONE_LEAF) + listBuildersOf(LEAVES).last()
 

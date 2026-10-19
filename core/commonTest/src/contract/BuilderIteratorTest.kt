@@ -11,10 +11,14 @@ import kotlinx.collections.immutable.persistentHashSetOf
 import kotlin.test.Test
 
 /**
- * The builder iterators fail fast as java.util's do. A call through the builder that moves its size makes every call
- * on a live iterator throw ConcurrentModificationException, with IllegalStateException first for a remove or a set
- * when next returned nothing, and clear() counts as such a call even on an empty builder. After a call that keeps the
- * size, an overwrite or a no-op, a live iterator does what the iterator of a stdlib list of the builder's content does.
+ * The builder iterators fail fast as java.util's do. A call through the builder that moves its size, or a clear() even
+ * of an empty builder, freezes a live iterator where the call found it: every call on it throws
+ * ConcurrentModificationException, except a remove or a set when next returned nothing, which throws
+ * IllegalStateException. After a call that keeps the size, an overwrite or a no-op, a live iterator does what the
+ * iterator of a stdlib list of the builder's content does.
+ *
+ * A new call through a builder is a row of [listOperations], [mapOperations] or [setOperations]; a new call on a live
+ * iterator is a row of [iteratorCalls] or [listIteratorCalls].
  */
 class BuilderIteratorTest {
 

@@ -12,35 +12,37 @@ import kotlin.test.assertTrue
 
 /**
  * A table runs every cell even after one fails, then fails once naming the failed cells; a table that ran no cell
- * fails too.
+ * fails too. Four tests are of [testIterator]: it fails the cells of a builder that throws, of a call through the
+ * builder that moves the size but is marked as keeping it or the other way round, and of an iterator call whose own
+ * assertion fails.
  */
 class CellsTest {
     private val setOfTwo: Origins<MutableSet<Int>> = listOf("a set of 2" to { mutableSetOf(1, 2) })
     private val iterator: Views<MutableSet<Int>, MutableIterator<Int>> = listOf("iterator" to { iterator() })
 
     @Test
-    fun `a builder that throws fails its own cell and the table goes on`() {
+    fun `a builder that throws fails its own cells and the table goes on`() {
         val throwing: Origins<MutableSet<Int>> = listOf("a builder that throws" to { error("no builder") })
         val failure = assertFailsWith<AssertionError> { runCells { testIterator(throwing + setOfTwo, iterator, listOf(noCall), listOf(next)) } }
-        assertTrue(failure.message!!.startsWith("2 of 4 cells failed:\na builder that throws, iterator, next() after no call: "), failure.message)
+        assertTrue(failure.message!!.startsWith("2 of 4 cells failed:\na builder that throws, iterator, next() after no call"), failure.message)
         assertEquals("no builder", failure.cause?.message)
     }
 
     @Test
-    fun `a call that moves the size but is marked as keeping it fails its cell`() {
+    fun `a call that moves the size but is marked as keeping it fails its cells`() {
         val add = BuilderOperation<MutableSet<Int>>("add(3)", throwsCME = false) { add(3) }
         val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, listOf(add), listOf(next)) } }
         assertTrue(failure.message!!.startsWith("2 of 2 cells failed:"), failure.message)
     }
 
     @Test
-    fun `a call that keeps the size but is marked as moving it fails its cell`() {
+    fun `a call that keeps the size but is marked as moving it fails its cells`() {
         val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, listOf(BuilderOperation("no call") { }), listOf(next)) } }
         assertTrue(failure.message!!.startsWith("2 of 2 cells failed:"), failure.message)
     }
 
     @Test
-    fun `an iterator call whose own assertion fails fails its cell`() {
+    fun `an iterator call whose own assertion fails fails its cells`() {
         val failing: Call<MutableIterator<Int>> = "an assertion that fails" to { assertTrue(false) }
         val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, listOf(noCall), listOf(failing)) } }
         assertTrue(failure.message!!.startsWith("2 of 2 cells failed:"), failure.message)
@@ -54,7 +56,7 @@ class CellsTest {
                 error("between the cells")
             }
         }
-        assertTrue(failure.message!!.startsWith("2 of 2 cells failed:\na failing cell: "), failure.message)
+        assertTrue(failure.message!!.startsWith("2 of 2 cells failed:\na failing cell"), failure.message)
         assertEquals("in the cell", failure.cause?.message)
     }
 

@@ -43,6 +43,10 @@ val levelOneSibling = collidingKey1.siblingAt(level = 1, id = 5)
 val levelTwoSibling = collidingKey1.siblingAt(level = 2, id = 6)
 val otherLevelOneSibling = collidingKey1.siblingAt(level = 1, id = 7, cell = 2)
 
+/**
+ * Tries with a node below the root, where a remove under a live iterator promotes the last key of that node toward
+ * the root, and with collision nodes, where a putAll of the same keys in another order must keep the receiver's order.
+ */
 val trieShapes: Map<String, List<Any>> = mapOf(
     "int keys" to listOf(1, 2, 3),
     "colliding keys" to listOf(collidingKey1, collidingKey2, collidingKey3),

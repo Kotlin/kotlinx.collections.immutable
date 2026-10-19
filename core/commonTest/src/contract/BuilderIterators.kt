@@ -17,7 +17,7 @@ import kotlin.test.assertFailsWith
 
 class BuilderOperation<in B>(
     val description: String,
-    /** true when the call moves the size at least once, which invalidates every live iterator. */
+    /** true when the call moves the size at least once or is a clear(), which invalidates every live iterator. */
     val throwsCME: Boolean = true,
     val function: B.() -> Unit,
 )
