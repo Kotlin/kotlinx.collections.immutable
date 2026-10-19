@@ -30,6 +30,7 @@ import tests.trie.missingKey
 import tests.trie.trieShapes
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 
@@ -86,6 +87,13 @@ class NoOpIdentityTest {
 
     @Test
     fun `value writes into an ordered map`() = runCells { testValueWrites("an ordered map") { it.toPersistentMap() } }
+
+    @Test
+    fun `an index out of range throws even with nothing to add or one element to remove`() = runCells {
+        for ((origin, list) in lists()) for ((call, function) in outOfRangeCalls) cell("$origin, $call") {
+            assertFailsWith<IndexOutOfBoundsException> { list.function() }
+        }
+    }
 }
 
 /** Every call of [noOps] returns its receiver, and every call of [emptyingCalls] returns [empty], the empty instance. */
@@ -200,6 +208,14 @@ private fun listEmptyingCalls(list: PersistentList<Any?>): List<Call<PersistentL
     call("removeAt(0) of every element") { mutate { while (it.isNotEmpty()) it.removeAt(0) } }
     call("removingAt(lastIndex) of every element") { list.fold(this) { rest, _ -> rest.removingAt(rest.lastIndex) } }
     call("removeAt(lastIndex) of every element") { mutate { while (it.isNotEmpty()) it.removeAt(it.lastIndex) } }
+}
+
+/** The shortcuts for nothing to add and for removing the only element come after the index check. */
+private val outOfRangeCalls: List<Call<PersistentList<Any?>>> = buildList {
+    call("removingAt(size)") { removingAt(size) }
+    call("removeAt(size)") { mutate { it.removeAt(it.size) } }
+    call("addingAllAt(size + 1, nothing)") { addingAllAt(size + 1, emptyList()) }
+    call("addAll(size + 1, nothing)") { mutate { it.addAll(it.size + 1, emptyList()) } }
 }
 
 private fun sets(empty: PersistentSet<Any?>): List<Pair<String, PersistentSet<Any?>>> = listOf(
