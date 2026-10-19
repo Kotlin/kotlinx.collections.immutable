@@ -357,26 +357,25 @@ class PersistentHashMapBuilderTest {
 
     @Test
     fun `next throws until the changed hash of the next key is back after an overwrite copied its path`() = runCells {
-        fun check(case: String, hashes: List<Int>, returned: Int, newHash: Int) = cell(case) {
+        fun check(case: String, hashes: List<Int>, changed: Int, newHash: Int) = cell(case) {
             val keys = hashes.mapIndexed { id, hash -> MutableKey(id, hash) }
             val builder = persistentHashMapOf(*keys.map { it to "old" }.toTypedArray()).builder()
             val order = builder.keys.toList()
+            val returned = order.indexOf(keys[changed])
             val iterator = builder.entries.iterator()
             repeat(returned) { val _ = iterator.next() }
-            val hash = order[returned].hash
-            assertNotEquals(newHash, hash)
 
-            order[returned].hash = newHash
+            keys[changed].hash = newHash
             builder[keys[0]] = "new"
 
             assertFailsWith<ConcurrentModificationException> { iterator.next() }
-            order[returned].hash = hash
+            keys[changed].hash = hashes[changed]
             assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain())
         }
-        check("onto another entry", hashes = listOf(0, 1, 2), returned = 1, newHash = 2)
-        check("onto an empty cell", hashes = listOf(0, 1, 2), returned = 1, newHash = 5)
-        check("onto another collision node", hashes = listOf(0, 0, 32, 32), returned = 0, newHash = 0)
-        check("onto an empty cell of a subnode", hashes = listOf(0, 2, 1, 33), returned = 1, newHash = 65)
+        check("onto another entry", hashes = listOf(0, 1, 2), changed = 1, newHash = 2)
+        check("onto an empty cell", hashes = listOf(0, 1, 2), changed = 1, newHash = 5)
+        check("onto another collision node", hashes = listOf(0, 0, 32, 32), changed = 2, newHash = 0)
+        check("onto an empty cell of a subnode", hashes = listOf(0, 2, 1, 1 + 32), changed = 1, newHash = 1 + 2 * 32)
     }
 
     @Test
