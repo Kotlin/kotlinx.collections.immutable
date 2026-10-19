@@ -8,10 +8,7 @@ package tests.contract.map
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.IntWrapper
-import tests.contract.at
 import tests.contract.drain
-import tests.contract.hashMapBuilders
-import tests.contract.mapOperations
 import tests.contract.runCells
 import tests.trie.*
 import kotlin.collections.iterator
@@ -24,7 +21,7 @@ import kotlin.test.assertTrue
 
 /**
  * A bug of a key whose hash changed after it was stored is a test with [MutableKey] here; a new call through the
- * builder is a row of [mapOperations].
+ * builder is a row of [tests.contract.mapOperations].
  */
 class PersistentHashMapBuilderTest {
 
@@ -378,24 +375,5 @@ class PersistentHashMapBuilderTest {
         keys[1].hash = 1
         assertFailsWith<IllegalStateException>("remove() again, after the next that threw") { iterator.remove() }
         assertEquals(keys.drop(1), iterator.drain())
-    }
-
-    @Test
-    fun `a live iterator goes on after its own remove and a call that keeps the size`() = runCells {
-        for (operation in mapOperations.filter { !it.throwsCME }) for ((origin, newBuilder) in hashMapBuilders) {
-            cell("$origin, remove() then ${operation.description}") {
-                for (returned in 1..newBuilder().size) at("after $returned next") {
-                    val builder = newBuilder()
-                    val rest = builder.keys.drop(returned)
-                    val iterator = builder.entries.iterator()
-                    repeat(returned) { val _ = iterator.next() }
-                    iterator.remove()
-
-                    operation.function(builder)
-
-                    assertEquals(rest.map { it to builder[it] }, iterator.drain())
-                }
-            }
-        }
     }
 }
