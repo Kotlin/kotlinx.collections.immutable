@@ -43,6 +43,9 @@ import kotlin.test.assertSame
  * or a Boolean, an equal one: NaN over NaN, a number boxed again. An equal instance of a Number subclass is written,
  * as any object. 0.0 and -0.0 are not equal, so one written over the other is stored, also on Kotlin/JS, where
  * 0.0 === -0.0.
+ *
+ * A new call is a row of its kind's noOps or emptyingCalls, by its participle or through mutate; a new receiver, an
+ * entry of [lists], [sets] or [maps]; a new kind of value, a row of [valueWrites].
  */
 class NoOpIdentityTest {
 
