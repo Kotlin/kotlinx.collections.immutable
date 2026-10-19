@@ -19,8 +19,8 @@ import kotlin.test.assertFalse
 /**
  * hasNext of the builder iterators never throws. After a call through the builder it answers from the iterator's own
  * cursor, so that next reports the comodification: true until the iterator has returned as many elements as the
- * builder held when it was opened. The list builder's iterator answers hasNext from the live size and hasPrevious from
- * the cursor alone, as ArrayList's.
+ * builder held when it was opened. The list builder's iterator answers hasNext from the live size, and hasPrevious,
+ * nextIndex and previousIndex from the cursor alone, as ArrayList's.
  *
  * The iterators of an ordered map or set and of its builder follow a chain of keys. A key whose hash changed after it
  * was stored makes next and remove throw ConcurrentModificationException, and the iteration goes on from that key once
@@ -52,10 +52,10 @@ class BuilderHasNextTest {
         val addToList = listOf(BuilderOperation<PersistentList.Builder<Any>>("add()") { add("new") })
         val put = listOf(BuilderOperation<PersistentMap.Builder<Any, String>>("put(new key)") { put("new", "n") })
         val addToSet = listOf(BuilderOperation<PersistentSet.Builder<Any>>("add(a new element)") { add("new") })
-        testHasNext(emptyListBuilders, listViews, addToList)
+        testHasNext(emptyListBuilders, listIteratorViews, addToList)
         testHasNext(emptyMapBuilders, mapViews, put)
         testHasNext(emptySetBuilders, setViews, addToSet)
-        testIterator(emptyListBuilders, listViews, addToList, listOf(next))
+        testIterator(emptyListBuilders, listIteratorViews, addToList, listOf(next))
         testIterator(emptyMapBuilders, mapViews, put, listOf(next))
         testIterator(emptySetBuilders, setViews, addToSet, listOf(next))
     }
@@ -77,7 +77,7 @@ class BuilderHasNextTest {
     }
 
     @Test
-    fun `a key made equal to an earlier one makes the last next throw ConcurrentModificationException`() = runCells {
+    fun `a key made equal to an earlier one makes the last next throw`() = runCells {
         for ((name, collectionOf) in orderedCollections) cell(name) {
             val key = MutableKey(3)
             val iterator = collectionOf(listOf(MutableKey(1), MutableKey(2), key)).iterator()
@@ -90,7 +90,7 @@ class BuilderHasNextTest {
     }
 
     @Test
-    fun `a key made equal to a later one makes the next that ends the chain early throw ConcurrentModificationException`() = runCells {
+    fun `a key made equal to a later one makes the next that ends the chain early throw`() = runCells {
         for ((name, collectionOf) in orderedCollections) cell(name) {
             val key = MutableKey(2)
             val iterator = collectionOf(listOf(MutableKey(1), key, MutableKey(3))).iterator()
@@ -103,7 +103,7 @@ class BuilderHasNextTest {
     }
 
     @Test
-    fun `remove through the iterator of a key whose hash changed after next throws ConcurrentModificationException`() = runCells {
+    fun `remove of a key whose hash changed after next returned it throws and takes nothing out`() = runCells {
         for ((name, collectionOf) in orderedBuilderCollections) cell(name) {
             val key = MutableKey(2)
             val collection = collectionOf(listOf(MutableKey(1), key, MutableKey(3)))
@@ -120,21 +120,25 @@ class BuilderHasNextTest {
 private fun <B> Cells.testHasNext(
     builders: Origins<B>,
     views: Views<B, MutableIterator<*>>,
-    builderOps: List<BuilderOperation<B>>,
+    operations: List<BuilderOperation<B>>,
 ) {
-    for (builderOp in builderOps) for ((origin, newBuilder) in builders) for ((view, open) in views) {
-        cell("$origin, $view, hasNext() after ${builderOp.description}") {
+    for ((origin, newBuilder) in builders) for ((view, open) in views) for (operation in operations) {
+        cell("$origin, $view after ${operation.description}") {
             val opened = newBuilder().open().drain()
             for (returned in 0..opened.size) at("after $returned next") {
                 val builder = newBuilder()
                 val iterator = builder.open()
                 repeat(returned) { val _ = iterator.next() }
 
-                builderOp.function(builder)
+                operation.function(builder)
 
                 val end = if (builder is List<*>) builder.size else opened.size
                 at("hasNext()") { assertEquals(returned != end, iterator.hasNext()) }
-                if (iterator is ListIterator<*>) at("hasPrevious()") { assertEquals(returned > 0, iterator.hasPrevious()) }
+                if (iterator is ListIterator<*>) {
+                    at("hasPrevious()") { assertEquals(returned > 0, iterator.hasPrevious()) }
+                    at("nextIndex()") { assertEquals(returned, iterator.nextIndex()) }
+                    at("previousIndex()") { assertEquals(returned - 1, iterator.previousIndex()) }
+                }
             }
         }
     }
