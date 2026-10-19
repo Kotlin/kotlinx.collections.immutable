@@ -55,8 +55,9 @@ class StoredInstanceTest {
                 assertSame(argument.trie, receiver.puttingAll(argument).trie)
             }
             cell("${merge.description}, addingAll") {
+                val receiver = merge.receiver.toPersistentHashSet()
                 val argument = merge.argument.toPersistentHashSet()
-                assertSame(argument.trie, merge.receiver.toPersistentHashSet().addingAll(argument).trie)
+                assertSame(argument.trie, receiver.addingAll(argument).trie)
             }
         }
     }
@@ -64,8 +65,9 @@ class StoredInstanceTest {
     @Test
     fun `retainingAll shares the argument's bottom node`() = runCells {
         for (merge in intersectionsEqualToTheArgument) cell(merge.description) {
+            val receiver = merge.receiver.toPersistentHashSet()
             val argument = merge.argument.toPersistentHashSet()
-            assertSame(argument.trie.bottom(), merge.receiver.toPersistentHashSet().retainingAll(argument).trie.bottom())
+            assertSame(argument.trie.bottom(), receiver.retainingAll(argument).trie.bottom())
         }
     }
 
@@ -73,22 +75,22 @@ class StoredInstanceTest {
     fun `addAll of an argument builder shares no storage with it`() =
         forEachBuilder(hashSetBuildersOf(listOf(collidingKey1, collidingKey2))) { argument ->
             val builder = persistentHashSetOf(collidingKey1).builder()
-            assertTrue(builder.addAll(argument))
-            assertTrue(argument.add(collidingKey3))
-            assertTrue(builder.remove(collidingKey1))
-            assertEquals(setOf(collidingKey2), builder)
-            assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument)
+            assertTrue(builder.addAll(argument), "what addAll returns")
+            assertTrue(argument.add(collidingKey3), "what the argument's add returns")
+            assertTrue(builder.remove(collidingKey1), "what remove returns")
+            assertEquals(setOf(collidingKey2), builder, "the builder after the argument's add")
+            assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument, "the argument after the builder's remove")
         }
 
     @Test
     fun `retainAll of an argument builder shares no storage with it`() =
         forEachBuilder(hashSetBuildersOf(listOf(collidingKey1, collidingKey2))) { argument ->
             val builder = persistentHashSetOf(collidingKey1, collidingKey2, collidingKey3).builder()
-            assertTrue(builder.retainAll(argument))
-            assertTrue(argument.add(collidingKey3))
-            assertTrue(builder.remove(collidingKey1))
-            assertEquals(setOf(collidingKey2), builder)
-            assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument)
+            assertTrue(builder.retainAll(argument), "what retainAll returns")
+            assertTrue(argument.add(collidingKey3), "what the argument's add returns")
+            assertTrue(builder.remove(collidingKey1), "what remove returns")
+            assertEquals(setOf(collidingKey2), builder, "the builder after the argument's add")
+            assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument, "the argument after the builder's remove")
         }
 }
 
@@ -138,12 +140,12 @@ private val merges: List<Merge> = tries.flatMap { (receiverShape, receiver) ->
     Merge(
         "a copy, the stored instance and a new element into a collision node",
         receiver = listOf(collidingKey1, collidingKey2),
-        argument = listOf(collidingKey2.copy(), collidingKey1, collidingKey3),
+        argument = listOf(collidingKey2.equalCopy(), collidingKey1, collidingKey3),
     ),
     Merge(
         "the stored instance and a copy into a collision node of three",
         receiver = listOf(collidingKey2, collidingKey1, collidingKey3),
-        argument = listOf(collidingKey1, collidingKey2.copy()),
+        argument = listOf(collidingKey1, collidingKey2.equalCopy()),
     ),
 )
 
