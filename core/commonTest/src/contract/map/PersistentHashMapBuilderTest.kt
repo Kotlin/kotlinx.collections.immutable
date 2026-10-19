@@ -379,7 +379,7 @@ class PersistentHashMapBuilderTest {
     }
 
     @Test
-    fun `remove after the hash of the next key changed takes out the key returned last`() {
+    fun `remove after the hash of the next key changed takes out the key returned last and nothing after the next that throws`() {
         val keys = List(3) { MutableKey(it) }
         val builder = persistentHashMapOf(*keys.map { it to "old" }.toTypedArray()).builder()
         val iterator = builder.keys.iterator()
@@ -391,6 +391,7 @@ class PersistentHashMapBuilderTest {
         assertEquals(2, builder.size)
         assertFailsWith<ConcurrentModificationException> { iterator.next() }
         keys[1].hash = 1
+        assertFailsWith<IllegalStateException> { iterator.remove() }
         assertEquals(keys.drop(1), iterator.drain())
     }
 
