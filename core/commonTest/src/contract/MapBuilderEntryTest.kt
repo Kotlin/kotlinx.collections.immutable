@@ -56,25 +56,6 @@ class MapBuilderEntryTest {
         }
 
     @Test
-    fun `setValue of a detached entry writes nothing and a re-put of its key brings the entry back`() =
-        forEachBuilder(mapBuildersOf(1 to "a", 2 to "b")) { builder ->
-            val entry = builder.entries.iterator().next()
-            assertEquals("a", builder.remove(1))
-            val built = builder.build()
-
-            assertEquals("a", entry.setValue("z"))
-            assertEquals("z", entry.setValue("y"))
-            assertEquals("y", entry.value)
-            assertFalse(entry in builder.entries)
-            assertSame(built, builder.build())
-
-            assertNull(builder.put(1, "p"))
-            assertEquals("p", entry.value)
-            assertEquals("p", entry.setValue("q"))
-            assertEquals(mapOf(1 to "q", 2 to "b"), builder.toMap())
-        }
-
-    @Test
     fun `setValue of an equal value that is not the stored instance writes it`() {
         val stored = IntWrapper(1, 1)
         val equal = stored.equalCopy()
@@ -148,6 +129,11 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                 at("the iterator after the setValue calls") {
                     if (operation.throwsCME) assertFailsWith<ConcurrentModificationException> { iterator.next() }
                     else assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList())
+                }
+                at("setValue after a put of its key") {
+                    builder[entry.key] = "p"
+                    assertEquals("p", entry.setValue("q"), "what setValue returns")
+                    assertEquals("q", builder[entry.key], "the value in the builder after it")
                 }
             }
         }
