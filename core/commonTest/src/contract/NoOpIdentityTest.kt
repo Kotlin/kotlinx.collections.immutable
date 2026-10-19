@@ -266,9 +266,9 @@ private fun storedEntriesOf(map: Map<Any?, Any?>): List<Pair<String, Map<Any?, A
 
 private fun mapNoOps(map: PersistentMap<Any?, Any?>): List<Call<PersistentMap<Any?, Any?>>> = buildList {
     call("a builder that is only built") { mutate { } }
-    for ((argument, entries) in storedEntriesOf(map)) {
-        call("puttingAll($argument)") { puttingAll(entries) }
-        call("putAll($argument)") { mutate { it.putAll(entries) } }
+    for ((argument, argumentEntries) in storedEntriesOf(map)) {
+        call("puttingAll($argument)") { puttingAll(argumentEntries) }
+        call("putAll($argument)") { mutate { it.putAll(argumentEntries) } }
     }
     call("puttingAll(itself)") { puttingAll(this) }
     call("putAll(the map it was made from)") { mutate { it.putAll(this) } }
