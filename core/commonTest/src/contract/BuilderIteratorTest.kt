@@ -41,7 +41,7 @@ class BuilderIteratorTest {
     fun orderedMap() = runCells { testIterator(orderedMapBuilders, mapViews, mapOperations, iteratorCalls) }
 
     @Test
-    fun `calls on an empty map or set builder`() = runCells {
+    fun `clear of an empty map or set builder freezes its iterators and calls that change nothing do not`() = runCells {
         val clearMap = BuilderOperation<PersistentMap.Builder<Any, String>>("clear()") { clear() }
         val setCalls = listOf<BuilderOperation<PersistentSet.Builder<Any>>>(
             BuilderOperation("clear()") { clear() },
