@@ -417,10 +417,10 @@ private fun Cells.testValueWrites(kind: String, newMap: (Map<Any, Any?>) -> Pers
             ),
             writesElsewhereToo = listOf(
                 "puttingAll of new values for the other keys" to { written ->
-                    puttingAll((keys.associateWith { NEW } + (key to written)).toPersistentHashMap())
+                    puttingAll((content.mapValues { NEW } + (key to written)).toPersistentHashMap())
                 },
                 "a builder's putAll of new values for the other keys" to { written ->
-                    mutate { it.putAll((keys.associateWith { NEW } + (key to written)).toPersistentHashMap()) }
+                    mutate { it.putAll((content.mapValues { NEW } + (key to written)).toPersistentHashMap()) }
                 },
                 "puttingAll of a new key beside it at level 1" to { written ->
                     puttingAll(persistentHashMapOf(key to written, missingBesideAtLevelOne(key) to NEW))
