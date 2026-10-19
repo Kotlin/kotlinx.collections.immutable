@@ -24,7 +24,7 @@ private val fixtureLevels = listOf(
 )
 
 /** The level each key takes in the trie of all of them, [COLLISION] in a collision node; a key not found there fails. */
-private fun levelsOf(keys: List<Any>): List<Int> {
+private fun levelsOf(keys: List<Any?>): List<Int> {
     val map = persistentHashMapOf(*keys.map { it to "" }.toTypedArray()) as PersistentHashMap<*, *>
     return keys.map { key ->
         var node: TrieNode<*, *> = map.node
@@ -68,9 +68,11 @@ class TrieKeysTest {
             "a level-1 node next to root entries" to listOf(0, 0, 0, 1, 1),
             "a level-2 node under a level-1 node" to listOf(2, 2, 1, 0),
             "two collision nodes under a level-1 node" to listOf(COLLISION, COLLISION, COLLISION, COLLISION),
+            "a null key in a collision node and a NaN key" to listOf(COLLISION, COLLISION, 3),
         )
         assertEquals(levels.keys, trieShapes.keys)
         for ((shape, keys) in trieShapes) assertEquals(levels.getValue(shape), levelsOf(keys), shape)
+        assertTrue(trieShapes.getValue("a null key in a collision node and a NaN key").containsAll(listOf(null, Double.NaN)))
     }
 
     @Test

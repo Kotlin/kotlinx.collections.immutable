@@ -97,8 +97,8 @@ class MapBuilderEntryTest {
         }
 }
 
-private typealias MapBuilder = PersistentMap.Builder<Any, String>
-private typealias Entry = MutableMap.MutableEntry<Any, String>
+private typealias MapBuilder = PersistentMap.Builder<Any?, String>
+private typealias Entry = MutableMap.MutableEntry<Any?, String>
 
 /** The calls beyond [mapOperations] that move a key's slot, take it away or bring it back. */
 private val slotMoves: List<BuilderOperation<MapBuilder>> = listOf(

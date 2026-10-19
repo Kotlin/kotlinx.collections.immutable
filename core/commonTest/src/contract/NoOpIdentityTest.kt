@@ -25,7 +25,6 @@ import kotlinx.collections.immutable.toPersistentSet
 import tests.IntWrapper
 import tests.equalCopy
 import tests.remove
-import tests.trie.collidingKey1
 import tests.trie.missingKey
 import tests.trie.trieShapes
 import kotlin.test.Test
@@ -125,7 +124,7 @@ private const val NEW = "new"
 private fun missingBesideAtLevelOne(stored: Any?): Any = missingKey(stored.hashCode() xor MAX_BRANCHING_FACTOR)
 
 /** Every key wrapped, so that an equal key that is not the stored instance exists. */
-private val wrappedShapes: Map<String, List<Any>> = trieShapes.mapValues { (_, keys) -> keys.map { if (it is Int) IntWrapper(it, it) else it } }
+private val wrappedShapes: Map<String, List<Any?>> = trieShapes.mapValues { (_, keys) -> keys.map { if (it is Int) IntWrapper(it, it) else it } }
 
 private fun wrappersOf(size: Int): List<Any> = List(size) { IntWrapper(it, it) }
 
@@ -254,8 +253,6 @@ private fun setNoOps(set: PersistentSet<Any?>): List<Call<PersistentSet<Any?>>> 
 private fun maps(empty: PersistentMap<Any?, Any?>): List<Pair<String, PersistentMap<Any?, Any?>>> = listOf(
     "the empty map" to empty,
     "a map of one key" to empty.putting(IntWrapper(1, 1), IntWrapper(0, 0)),
-    "a map with a null key" to empty.puttingAll(mapOf(null to IntWrapper(0, 0), collidingKey1 to IntWrapper(1, 1))),
-    "a map with a NaN key" to empty.puttingAll(mapOf(Double.NaN to "v", 1 to "w")),
 ) + wrappedShapes.map { (shape, keys) ->
     "a map of $shape" to empty.puttingAll(keys.withIndex().associate { (index, key) -> key to IntWrapper(index, index) })
 }
@@ -401,7 +398,7 @@ private fun <C : Any> Cells.testWrites(
  * trie, and by an entry's setValue. A putAll that writes other keys too, brings the key in a subtree beside a new key,
  * or holds every key and a new one with the key's hash, keeps the stored value when the write changes nothing.
  */
-private fun Cells.testValueWrites(kind: String, newMap: (Map<Any, Any?>) -> PersistentMap<Any, Any?>) {
+private fun Cells.testValueWrites(kind: String, newMap: (Map<Any?, Any?>) -> PersistentMap<Any?, Any?>) {
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
         val stored = write.stored()
         val content = keys.withIndex().associate { (index, shapeKey) -> shapeKey to IntWrapper(index, index) } + (key to stored)

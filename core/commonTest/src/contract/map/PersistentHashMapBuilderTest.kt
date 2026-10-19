@@ -20,7 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
-import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -33,7 +32,6 @@ class PersistentHashMapBuilderTest {
     private val a1 = IntWrapper(1, 0)
     private val a2 = IntWrapper(2, 0)
     private val sibling = IntWrapper(3, 1 shl 30)
-    private val nullAndNaNKeyEntries = listOf<Pair<Any?, String?>>(null to null, Double.NaN to "nan", 1.0 to "one")
 
     @Test
     fun `should correctly iterate after removing integer key and promotion colliding key during iteration`() {
@@ -416,37 +414,5 @@ class PersistentHashMapBuilderTest {
                 }
             }
         }
-    }
-
-    @Test
-    fun `a live iterator goes on after an overwrite at a null key and a NaN key`() {
-        val order = persistentHashMapOf(*nullAndNaNKeyEntries.toTypedArray()).keys.toList()
-        for (returned in order.indices) at("after $returned next") {
-            val builder = persistentHashMapOf(*nullAndNaNKeyEntries.toTypedArray()).builder()
-            val iterator = builder.entries.iterator()
-            repeat(returned) { val _ = iterator.next() }
-
-            builder[order[returned]] = "new"
-
-            assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain())
-        }
-    }
-
-    @Test
-    fun `the entry of a null key takes a setValue and its iterator removes the key`() {
-        val builder = persistentHashMapOf(*nullAndNaNKeyEntries.toTypedArray()).builder()
-        val order = builder.keys.toList()
-        val iterator = builder.entries.iterator()
-        val skipped = order.indexOf(null)
-        repeat(skipped) { val _ = iterator.next() }
-        val entry = iterator.next()
-        assertNull(entry.key)
-        assertNull(entry.setValue("n"))
-        assertEquals("n", builder[null])
-
-        iterator.remove()
-
-        assertFalse(null in builder)
-        assertEquals(order.drop(skipped + 1).map { it to builder[it] }, iterator.drain())
     }
 }

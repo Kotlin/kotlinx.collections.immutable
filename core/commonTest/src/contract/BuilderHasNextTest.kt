@@ -50,8 +50,8 @@ class BuilderHasNextTest {
     @Test
     fun `hasNext and next after an add or put on an empty builder`() = runCells {
         val addToList = listOf(BuilderOperation<PersistentList.Builder<Any>>("add()") { add("new") })
-        val put = listOf(BuilderOperation<PersistentMap.Builder<Any, String>>("put(new key)") { put("new", "n") })
-        val addToSet = listOf(BuilderOperation<PersistentSet.Builder<Any>>("add(a new element)") { add("new") })
+        val put = listOf(BuilderOperation<PersistentMap.Builder<Any?, String>>("put(new key)") { put("new", "n") })
+        val addToSet = listOf(BuilderOperation<PersistentSet.Builder<Any?>>("add(a new element)") { add("new") })
         testHasNext(emptyListBuilders, listIteratorViews, addToList)
         testHasNext(emptyMapBuilders, mapViews, put)
         testHasNext(emptySetBuilders, setViews, addToSet)
