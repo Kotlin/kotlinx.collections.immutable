@@ -12,9 +12,7 @@ import kotlin.test.assertTrue
 
 /**
  * A table runs every cell even after one fails, then fails once naming the failed cells; a table that ran no cell
- * fails too. Four tests are of [testIterator]: it fails the cells of a builder that throws, of a call through the
- * builder that moves the size but is marked as keeping it or the other way round, and of an iterator call whose own
- * assertion fails.
+ * fails too. The first three tests are of [testIterator].
  */
 class CellsTest {
     private val setOfTwo: Origins<MutableSet<Int>> = listOf("a set of 2" to { mutableSetOf(1, 2) })
@@ -29,16 +27,11 @@ class CellsTest {
     }
 
     @Test
-    fun `a call that moves the size but is marked as keeping it fails its cells`() {
-        val add = BuilderOperation<MutableSet<Int>>("add(3)", throwsCME = false) { add(3) }
-        val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, listOf(add), listOf(next)) } }
-        assertTrue(failure.message!!.startsWith("2 of 2 cells failed:"), failure.message)
-    }
-
-    @Test
-    fun `a call that keeps the size but is marked as moving it fails its cells`() {
-        val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, listOf(BuilderOperation("no call", throwsCME = true) { }), listOf(next)) } }
-        assertTrue(failure.message!!.startsWith("2 of 2 cells failed:"), failure.message)
+    fun `a call that moves the size but is marked as keeping it or the other way round fails its cells`() {
+        val addMarkedAsKeeping = BuilderOperation<MutableSet<Int>>("add(3)", throwsCME = false) { add(3) }
+        val noCallMarkedAsMoving = BuilderOperation<MutableSet<Int>>("no call", throwsCME = true) { }
+        val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, listOf(addMarkedAsKeeping, noCallMarkedAsMoving), listOf(next)) } }
+        assertTrue(failure.message!!.startsWith("4 of 4 cells failed:"), failure.message)
     }
 
     @Test
