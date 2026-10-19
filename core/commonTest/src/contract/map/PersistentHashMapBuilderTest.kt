@@ -24,6 +24,10 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
+/**
+ * A bug of a key whose hash changed after it was stored is a test with [MutableKey] here; a new call through the
+ * builder is a row of [mapOperations].
+ */
 class PersistentHashMapBuilderTest {
 
     private val a1 = IntWrapper(1, 0)
