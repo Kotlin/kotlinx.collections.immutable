@@ -190,13 +190,11 @@ private fun assertShape(builder: PersistentList.Builder<Int>, message: String) {
     var shift = 0
     while (trieSize > LEAF shl shift) shift += LOG_MAX_BUFFER_SIZE
     assertEquals(shift, vector.rootShift, "$message: the height of the root")
-    assertEquals(trieSize, vector.root?.let { elementsUnder(it, shift) } ?: 0, "$message: the trie's slots that hold an element")
+    assertEquals(trieSize, vector.root?.let(::elementsUnder) ?: 0, "$message: the trie's slots that hold an element")
     assertEquals(vector.size - trieSize, vector.tail.slots().count { it != null }, "$message: the tail's slots that hold an element")
 }
 
-private fun elementsUnder(node: Array<*>, shift: Int): Int =
-    if (shift == 0) node.slots().count { it != null }
-    else node.slots().sumOf { if (it == null) 0 else elementsUnder(it as Array<*>, shift - LOG_MAX_BUFFER_SIZE) }
+private fun elementsUnder(node: Array<*>): Int = node.slots().filterNotNull().sumOf { if (it is Array<*>) elementsUnder(it) else 1 }
 
 /** The slots of a buffer that hold elements or nodes; a builder's buffer has one more, holding the ownership marker. */
 private fun Array<*>.slots(): List<Any?> = take(LEAF)
