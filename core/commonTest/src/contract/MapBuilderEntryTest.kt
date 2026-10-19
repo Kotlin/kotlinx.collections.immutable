@@ -21,7 +21,12 @@ import kotlin.test.assertTrue
  * A map builder's entry is a window on the builder's slot for its key: whatever is read from it or set on it first
  * after a write through the builder, in place or on a copied path, sees the slot, and a key put back after a remove
  * brings the entry back to its slot. Once the key is gone, the entry writes nothing and keeps the last value it read or
- * got from its own setValue. setValue of the value it holds changes nothing, so build() returns the same map.
+ * got from its own setValue. setValue of the value it holds changes nothing, so build() returns the same map. The
+ * iterator that returned it goes on after its setValue calls, unless the write through the builder moved the size.
+ *
+ * A new call through the builder is a row of [mapOperations], or of [slotMoves] when it moves the key's slot; a new
+ * first call on an entry is a row of [firstReads]; a scenario with assertions of its own is a [forEachBuilder] test
+ * over [mapBuildersOf].
  */
 class MapBuilderEntryTest {
 
@@ -81,6 +86,14 @@ class MapBuilderEntryTest {
             assertSame(equal, entry.value)
         }
     }
+
+    @Test
+    fun `the keys view removes a key with a null value and says so`() =
+        forEachBuilder(mapBuildersOf<Int, String?>(1 to null, 2 to "b")) { builder ->
+            assertTrue(builder.keys.remove(1))
+            assertFalse(builder.keys.remove(1))
+            assertEquals(mapOf(2 to "b"), builder.toMap())
+        }
 }
 
 private typealias MapBuilder = PersistentMap.Builder<Any, String>
@@ -120,18 +133,20 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                 val value = if (kept) builder.getValue(entry.key) else before
                 val built = builder.build()
 
-                entry.check(value)
-
-                assertSame(value, entry.setValue(value))
-                assertSame(built, builder.build())
-                assertEquals(value, entry.setValue("z"))
-                assertEquals("z", entry.value)
-                val expected = built.toMutableMap().apply { if (kept) this[entry.key] = "z" }
-                assertEquals(expected.toList(), builder.toList())
-                if (operation.throwsCME) {
-                    assertFailsWith<ConcurrentModificationException> { iterator.next() }
-                } else {
-                    assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList())
+                at("the first read") { entry.check(value) }
+                at("setValue of the value it holds") {
+                    assertSame(value, entry.setValue(value))
+                    assertSame(built, builder.build())
+                }
+                at("setValue of a new value") {
+                    assertEquals(value, entry.setValue("z"))
+                    assertEquals("z", entry.value)
+                    val expected = built.toMutableMap().apply { if (kept) this[entry.key] = "z" }
+                    assertEquals(expected.toList(), builder.toList())
+                }
+                at("the iterator after the setValue calls") {
+                    if (operation.throwsCME) assertFailsWith<ConcurrentModificationException> { iterator.next() }
+                    else assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList())
                 }
             }
         }
