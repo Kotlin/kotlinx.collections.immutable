@@ -389,8 +389,8 @@ private fun <C : Any> Cells.testWrites(
 
 /**
  * Writes under every key of every trie shape by a put, by a putAll of a hash map, which a hash map merges trie by
- * trie, and by an entry's setValue. A putAll that writes other keys too, or brings the key in a subtree beside a new
- * key, keeps the stored value when the write changes nothing.
+ * trie, and by an entry's setValue. A putAll that writes other keys too, brings the key in a subtree beside a new key,
+ * or holds every key and a new one with the key's hash, keeps the stored value when the write changes nothing.
  */
 private fun Cells.testValueWrites(kind: String, newMap: (Map<Any, Any?>) -> PersistentMap<Any, Any?>) {
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
@@ -424,6 +424,12 @@ private fun Cells.testValueWrites(kind: String, newMap: (Map<Any, Any?>) -> Pers
                 },
                 "a builder's putAll of a new key beside it at level 1" to { written ->
                     mutate { it.putAll(persistentHashMapOf(key to written, missingBesideAtLevelOne(key) to NEW)) }
+                },
+                "puttingAll of every key and a new key with its hash" to { written ->
+                    puttingAll((content + (key to written) + (missingKey(key.hashCode()) to NEW)).toPersistentHashMap())
+                },
+                "a builder's putAll of every key and a new key with its hash" to { written ->
+                    mutate { it.putAll((content + (key to written) + (missingKey(key.hashCode()) to NEW)).toPersistentHashMap()) }
                 },
             ),
         )
