@@ -114,6 +114,7 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                 val kept = entry.key in builder
                 val value = if (kept) builder.getValue(entry.key) else before
                 val built = builder.build()
+                val laterIterator = builder.entries.iterator()
 
                 at("the first read") { entry.check(value) }
                 at("setValue of the value it holds") {
@@ -126,9 +127,10 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                     val expected = built.toMutableMap().apply { if (kept) this[entry.key] = "z" }
                     assertEquals(expected.toList(), builder.toList(), "the builder after it")
                 }
-                at("the iterator after the setValue calls") {
+                at("the iterators after the setValue calls") {
                     if (operation.throwsCME) assertFailsWith<ConcurrentModificationException> { iterator.next() }
                     else assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList())
+                    assertEquals(builder.toList(), laterIterator.drain(), "one opened after the call")
                 }
                 at("setValue after a put of its key") {
                     builder[entry.key] = "p"
