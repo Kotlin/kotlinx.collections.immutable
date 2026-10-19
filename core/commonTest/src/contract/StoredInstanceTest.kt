@@ -188,7 +188,11 @@ private fun Cells.testPutAll(
     }
 }
 
-/** The expected set and the Boolean come from the same call on a stdlib set, which keeps the receiver's instances. */
+/**
+ * The expected set and the Boolean come from the same call on a stdlib set, which keeps the receiver's instances. The
+ * result also equals a set of the same elements, which equals compares trie by trie: an element left alone in a node
+ * below the root fails it.
+ */
 private fun Cells.testBulkCalls(
     newSet: (List<IntWrapper?>) -> PersistentSet<IntWrapper?>,
     buildersOf: (List<IntWrapper?>) -> Origins<PersistentSet.Builder<IntWrapper?>>,
@@ -202,10 +206,13 @@ private fun Cells.testBulkCalls(
         for (merge in merges) {
             val model = merge.receiver.toMutableSet()
             val changed = model.mutable(merge.argument)
+            val canonical = newSet(model.toList())
             cell("${merge.description}, $persistentName") {
                 val receiver = newSet(merge.receiver)
                 val argument = merge.argument.toPersistentHashSet()
-                assertHolds(model, receiver.persistent(argument), "the result")
+                val result = receiver.persistent(argument)
+                assertHolds(model, result, "the result")
+                assertEquals(canonical, result, "the result as a trie")
                 assertHolds(merge.receiver, receiver, "the receiver after the call")
                 assertHolds(merge.argument, argument, "the argument after the call")
             }
@@ -214,6 +221,7 @@ private fun Cells.testBulkCalls(
                 val argument = merge.argument.toPersistentHashSet()
                 assertEquals(changed, builder.mutable(argument), "the Boolean the call returns")
                 assertHolds(model, builder, "the builder after the call")
+                assertEquals(canonical, builder.build(), "the built set as a trie")
                 assertHolds(merge.argument, argument, "the argument after the call")
             }
         }
