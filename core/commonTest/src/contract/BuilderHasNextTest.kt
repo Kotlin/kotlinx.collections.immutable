@@ -30,33 +30,33 @@ import kotlin.test.assertTrue
 class BuilderHasNextTest {
 
     @Test
-    fun list() = runCells { for (operation in listOperations) testHasNext(listBuilders, listViews, operation) }
+    fun list() = runCells { testHasNext(listBuilders, listViews, listOperations) }
 
     @Test
-    fun hashMap() = runCells { for (operation in mapOperations) testHasNext(hashMapBuilders, mapViews, operation) }
+    fun hashMap() = runCells { testHasNext(hashMapBuilders, mapViews, mapOperations) }
 
     @Test
-    fun hashSet() = runCells { for (operation in setOperations) testHasNext(hashSetBuilders, setViews, operation) }
+    fun hashSet() = runCells { testHasNext(hashSetBuilders, setViews, setOperations) }
 
     @Test
-    fun orderedMap() = runCells { for (operation in mapOperations) testHasNext(orderedMapBuilders, mapViews, operation) }
+    fun orderedMap() = runCells { testHasNext(orderedMapBuilders, mapViews, mapOperations) }
 
     @Test
-    fun orderedSet() = runCells { for (operation in setOperations) testHasNext(orderedSetBuilders, setViews, operation) }
+    fun orderedSet() = runCells { testHasNext(orderedSetBuilders, setViews, setOperations) }
 
     @Test
     fun `add or put on an empty builder during iteration makes next throw`() = runCells {
         val emptyMapBuilders = emptyHashMapBuilders + emptyOrderedMapBuilders
         val emptySetBuilders = emptyHashSetBuilders + emptyOrderedSetBuilders
-        val addToList = BuilderOperation<PersistentList.Builder<Any>>("add()") { add("new") }
-        val put = BuilderOperation<PersistentMap.Builder<Any, String>>("put(new key)") { put("new", "n") }
-        val addToSet = BuilderOperation<PersistentSet.Builder<Any>>("add(a new element)") { add("new") }
+        val addToList = listOf(BuilderOperation<PersistentList.Builder<Any>>("add()") { add("new") })
+        val put = listOf(BuilderOperation<PersistentMap.Builder<Any, String>>("put(new key)") { put("new", "n") })
+        val addToSet = listOf(BuilderOperation<PersistentSet.Builder<Any>>("add(a new element)") { add("new") })
         testHasNext(emptyListBuilders, listViews, addToList)
         testHasNext(emptyMapBuilders, mapViews, put)
         testHasNext(emptySetBuilders, setViews, addToSet)
-        testIterator(emptyListBuilders, listViews, listOf(addToList), listOf(next))
-        testIterator(emptyMapBuilders, mapViews, listOf(put), listOf(next))
-        testIterator(emptySetBuilders, setViews, listOf(addToSet), listOf(next))
+        testIterator(emptyListBuilders, listViews, addToList, listOf(next))
+        testIterator(emptyMapBuilders, mapViews, put, listOf(next))
+        testIterator(emptySetBuilders, setViews, addToSet, listOf(next))
     }
 
     @Test
@@ -127,18 +127,22 @@ class BuilderHasNextTest {
     }
 }
 
-private fun <B> Cells.testHasNext(builders: Origins<B>, views: Views<B, MutableIterator<*>>, builderOp: BuilderOperation<B>) {
-    for ((origin, newBuilder) in builders) for ((view, open) in views) {
+private fun <B> Cells.testHasNext(
+    builders: Origins<B>,
+    views: Views<B, MutableIterator<*>>,
+    builderOps: List<BuilderOperation<B>>,
+) {
+    for (builderOp in builderOps) for ((origin, newBuilder) in builders) for ((view, open) in views) {
         cell("$origin, $view, hasNext() after ${builderOp.description}") {
-            val size = newBuilder().open().drain().size
-            for (returned in 0..size) at("after $returned next") {
+            val opened = newBuilder().open().drain()
+            for (returned in 0..opened.size) at("after $returned next") {
                 val builder = newBuilder()
                 val iterator = builder.open()
                 repeat(returned) { val _ = iterator.next() }
 
                 builderOp.function(builder)
 
-                val end = if (builder is List<*>) builder.size else size
+                val end = if (builder is List<*>) builder.size else opened.size
                 assertEquals(returned != end, iterator.hasNext())
             }
         }
