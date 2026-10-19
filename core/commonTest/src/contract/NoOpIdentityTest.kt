@@ -350,6 +350,7 @@ private val valueWrites = listOf(
     ValueWrite("an equal Long", changes = false, { 1000L }, { 1000L }),
     ValueWrite("an equal Float", changes = false, { 1.5f }, { 1.5f }),
     ValueWrite("an equal Short", changes = false, { 1000.toShort() }, { 1000.toShort() }),
+    ValueWrite("an equal Byte, which only Kotlin/Wasm boxes again", changes = false, { 1.toByte() }, { 1.toByte() }),
     ValueWrite("an equal Char", changes = false, { '€' }, { '€' }),
     ValueWrite("an equal UInt", changes = false, { 1u }, { 1u }),
     ValueWrite("an equal ULong", changes = false, { 1uL }, { 1uL }),
