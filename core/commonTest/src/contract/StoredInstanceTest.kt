@@ -28,6 +28,9 @@ import kotlin.test.assertTrue
  * instance of one only the argument holds and leaves both inputs as they were; putAll takes the argument's value. A
  * persistent puttingAll or addingAll whose result equals the argument returns the argument's trie, and such a
  * retainingAll shares the argument's bottom node. A builder merged with another builder shares no storage with it.
+ *
+ * A new trie is a row of [tries], which [merges] crosses with every other one; a merge of two fixed tries is a [Merge]
+ * of its own in [merges].
  */
 class StoredInstanceTest {
 
@@ -89,6 +92,7 @@ class StoredInstanceTest {
         }
 }
 
+/** The two sides of a merge; as entries, their values `r<id>` and `a<id>` name the side each value came from. */
 private class Merge(val description: String, val receiver: List<IntWrapper?>, val argument: List<IntWrapper?>) {
     val receiverEntries: Map<IntWrapper?, String> get() = receiver.associateWith { "r${it?.obj}" }
     val argumentEntries: Map<IntWrapper?, String> get() = argument.associateWith { "a${it?.obj}" }
@@ -156,6 +160,7 @@ private val intersectionsEqualToTheArgument: List<Merge> = listOf(
     Merge("a collision node of the stored elements", listOf(collidingKey1, collidingKey2, collidingKey3), listOf(collidingKey1, collidingKey2)),
 )
 
+/** The expected entries are stdlib's `receiver + argument`: the receiver's key instances with the argument's values. */
 private fun Cells.testPutAll(
     newMap: (Map<IntWrapper?, String>) -> PersistentMap<IntWrapper?, String>,
     buildersOf: (List<Pair<IntWrapper?, String>>) -> Origins<PersistentMap.Builder<IntWrapper?, String>>,
@@ -167,20 +172,21 @@ private fun Cells.testPutAll(
         cell("${merge.description}, puttingAll") {
             val receiverMap = newMap(receiver)
             val argumentMap = argument.toPersistentHashMap()
-            assertHolds(expected, receiverMap.puttingAll(argumentMap))
-            assertHolds(receiver, receiverMap)
-            assertHolds(argument, argumentMap)
+            assertHolds(expected, receiverMap.puttingAll(argumentMap), "the result")
+            assertHolds(receiver, receiverMap, "the receiver after the call")
+            assertHolds(argument, argumentMap, "the argument after the call")
         }
         for ((origin, newBuilder) in buildersOf(receiver.toList())) cell("${merge.description}, putAll on $origin") {
             val builder = newBuilder()
             val argumentMap = argument.toPersistentHashMap()
             builder.putAll(argumentMap)
-            assertHolds(expected, builder)
-            assertHolds(argument, argumentMap)
+            assertHolds(expected, builder, "the builder after the call")
+            assertHolds(argument, argumentMap, "the argument after the call")
         }
     }
 }
 
+/** The expected set and the Boolean come from the same call on a stdlib set, which keeps the receiver's instances. */
 private fun Cells.testBulkCalls(
     newSet: (List<IntWrapper?>) -> PersistentSet<IntWrapper?>,
     buildersOf: (List<IntWrapper?>) -> Origins<PersistentSet.Builder<IntWrapper?>>,
@@ -192,21 +198,21 @@ private fun Cells.testBulkCalls(
         mutable: MutableSet<IntWrapper?>.(Collection<IntWrapper?>) -> Boolean,
     ) {
         for (merge in merges) {
-            val expected = merge.receiver.toMutableSet()
-            val changed = expected.mutable(merge.argument)
+            val model = merge.receiver.toMutableSet()
+            val changed = model.mutable(merge.argument)
             cell("${merge.description}, $persistentName") {
                 val receiver = newSet(merge.receiver)
                 val argument = merge.argument.toPersistentHashSet()
-                assertHolds(expected, receiver.persistent(argument))
-                assertHolds(merge.receiver, receiver)
-                assertHolds(merge.argument, argument)
+                assertHolds(model, receiver.persistent(argument), "the result")
+                assertHolds(merge.receiver, receiver, "the receiver after the call")
+                assertHolds(merge.argument, argument, "the argument after the call")
             }
             for ((origin, newBuilder) in buildersOf(merge.receiver)) cell("${merge.description}, $builderName on $origin") {
                 val builder = newBuilder()
                 val argument = merge.argument.toPersistentHashSet()
-                assertEquals(changed, builder.mutable(argument), "the result")
-                assertHolds(expected, builder)
-                assertHolds(merge.argument, argument)
+                assertEquals(changed, builder.mutable(argument), "the Boolean the call returns")
+                assertHolds(model, builder, "the builder after the call")
+                assertHolds(merge.argument, argument, "the argument after the call")
             }
         }
     }
@@ -217,15 +223,15 @@ private fun Cells.testBulkCalls(
 }
 
 /** The entries of [expected], with the very instances of its keys. */
-private fun assertHolds(expected: Map<IntWrapper?, String>, map: Map<IntWrapper?, String>) {
-    assertEquals(expected, map)
-    assertHolds(expected.keys, map.keys)
+private fun assertHolds(expected: Map<IntWrapper?, String>, map: Map<IntWrapper?, String>, message: String) {
+    assertEquals(expected, map, message)
+    assertHolds(expected.keys, map.keys, message)
 }
 
 /** The very instances of [expected], and no other elements. */
-private fun assertHolds(expected: Collection<IntWrapper?>, actual: Collection<IntWrapper?>) {
-    assertEquals(expected.size, actual.size, "the size")
-    for (element in expected) assertSame(element, actual.single { it == element }, "the instance of ${element?.obj}")
+private fun assertHolds(expected: Collection<IntWrapper?>, actual: Collection<IntWrapper?>, message: String) {
+    assertEquals(expected.size, actual.size, "$message: the size")
+    for (element in expected) assertSame(element, actual.single { it == element }, "$message: the instance of ${element?.obj}")
 }
 
 private val Map<*, *>.trie: Any
