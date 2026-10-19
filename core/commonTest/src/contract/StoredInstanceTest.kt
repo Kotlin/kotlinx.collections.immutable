@@ -10,6 +10,7 @@ import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
 import kotlinx.collections.immutable.implementations.immutableSet.TrieNode
+import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.collections.immutable.toPersistentHashMap
 import kotlinx.collections.immutable.toPersistentHashSet
@@ -91,6 +92,17 @@ class StoredInstanceTest {
             assertTrue(builder.remove(collidingKey1), "what remove returns")
             assertEquals(setOf(collidingKey2), builder, "the builder after the argument's add")
             assertEquals(setOf(collidingKey1, collidingKey2, collidingKey3), argument, "the argument after the builder's remove")
+        }
+
+    @Test
+    fun `putAll of an argument builder shares no storage with it`() =
+        forEachBuilder(hashMapBuildersOf(listOf(collidingKey1 to "a1", collidingKey2 to "a2"))) { argument ->
+            val builder = persistentHashMapOf(collidingKey1 to "r1").builder()
+            builder.putAll(argument)
+            argument[collidingKey3] = "a3"
+            assertEquals("a1", builder.remove(collidingKey1), "what remove returns")
+            assertEquals(listOf(collidingKey2 to "a2"), builder.toList(), "the builder after the argument's put")
+            assertEquals(mapOf(collidingKey1 to "a1", collidingKey2 to "a2", collidingKey3 to "a3"), argument, "the argument after the builder's remove")
         }
 }
 
