@@ -17,7 +17,6 @@ import kotlin.test.assertTrue
 class CellsTest {
     private val setOfTwo: Origins<MutableSet<Int>> = listOf("a set of 2" to { mutableSetOf(1, 2) })
     private val iterator: Views<MutableSet<Int>, MutableIterator<Int>> = listOf("iterator" to { iterator() })
-    private val noCall = BuilderOperation<MutableSet<Int>>("no call", throwsCME = false) { }
 
     @Test
     fun `a builder that throws fails its own cell and the table goes on`() {

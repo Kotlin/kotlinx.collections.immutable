@@ -86,9 +86,6 @@ class MapBuilderEntryTest {
 private typealias MapBuilder = PersistentMap.Builder<Any, String>
 private typealias Entry = MutableMap.MutableEntry<Any, String>
 
-private fun <K, V> mapBuildersOf(vararg entries: Pair<K, V>): Origins<PersistentMap.Builder<K, V>> =
-    hashMapBuildersOf(entries.toList()) + orderedMapBuildersOf(entries.toList())
-
 /** The calls beyond [mapOperations] that move a key's slot, take it away or bring it back. */
 private val slotMoves: List<BuilderOperation<MapBuilder>> = listOf(
     BuilderOperation("put(a key with the hash of the first key)") { put(missingKey(keys.first().hashCode()), "c") },
