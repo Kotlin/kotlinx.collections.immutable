@@ -41,21 +41,23 @@ class ListBoundaryTest {
 
     @Test
     fun builder() = runCells {
-        for (size in sizes) for ((origin, builderOf) in buildersOf(size)) for ((description, call) in calls(size)) cell("$origin, $description") {
+        for (size in sizes) {
             val list = persistentListOf<Int>().addingAll(List(size) { it })
-            val builder = builderOf(list)
-            val model = MutableList(size) { it }
+            for ((origin, newBuilder) in listBuildersOf(list, NEW)) for ((description, call) in calls(size)) cell("$origin, $description") {
+                val builder = newBuilder()
+                val model = MutableList(size) { it }
 
-            assertEquals(model.call(), builder.call(), "the result")
-            assertContent(model, builder, "the builder")
-            assertShape(builder, "the builder")
+                assertEquals(model.call(), builder.call(), "the result")
+                assertContent(model, builder, "the builder")
+                assertShape(builder, "the builder")
 
-            builder.writeEnds(BEFORE_BUILD)
-            model.writeEnds(BEFORE_BUILD)
-            val built = builder.build()
-            builder.writeEnds(AFTER_BUILD)
-            assertContent(model, built, "the list built after the call")
-            assertContent(List(size) { it }, list, "the list the builder was made from")
+                builder.writeEnds(BEFORE_BUILD)
+                model.writeEnds(BEFORE_BUILD)
+                val built = builder.build()
+                builder.writeEnds(AFTER_BUILD)
+                assertContent(model, built, "the list built after the call")
+                assertContent(List(size) { it }, list, "the list the builder was made from")
+            }
         }
     }
 }
@@ -92,22 +94,6 @@ private fun listsOf(size: Int): Origins<PersistentList<Int>> {
     val fromAddingAll = "a list of $size from addingAll" to { persistentListOf<Int>().addingAll(List(size) { it }) }
     val fromAddings = "a list of $size from addings" to { (0..<size).fold(persistentListOf<Int>()) { list, element -> list.adding(element) } }
     return if (size <= LEAF) listOf(fromAddingAll) else listOf(fromAddingAll, fromAddings)
-}
-
-/**
- * From a list the builder shares every node, from adds it owns every node, and with an element overwritten and restored
- * it owns that element's path and shares the rest; that one runs from 33 to 100, where a cell is cheap, and at 1100 for
- * a root over level-1 nodes.
- */
-private fun buildersOf(size: Int): List<Pair<String, (PersistentList<Int>) -> PersistentList.Builder<Int>>> = buildList {
-    add("from a list of $size" to { list -> list.builder() })
-    add("from adds of $size" to { list -> persistentListOf<Int>().builder().apply { addAll(list) } })
-    if (size > LEAF && isCheap(size)) {
-        val middle = size / 2
-        add("from a list of $size with the element at $middle overwritten and restored" to { list ->
-            list.builder().apply { this[middle] = NEW; this[middle] = middle }
-        })
-    }
 }
 
 /**
