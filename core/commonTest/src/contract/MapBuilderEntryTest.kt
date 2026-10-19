@@ -125,6 +125,7 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                     assertEquals("z", entry.value, "the value after it")
                     val expected = built.toMutableMap().apply { if (kept) this[entry.key] = "z" }
                     assertEquals(expected.toList(), builder.toList(), "the builder after it")
+                    if (kept) assertEquals(value, built[entry.key], "the map built before the setValue calls")
                 }
                 at("the iterators after the setValue calls") {
                     if (operation.throwsCME) assertFailsWith<ConcurrentModificationException> { iterator.next() }
