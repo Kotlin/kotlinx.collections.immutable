@@ -8,6 +8,7 @@ package tests.contract
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.IntWrapper
+import tests.equalCopy
 import tests.trie.missingKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -76,7 +77,7 @@ class MapBuilderEntryTest {
     @Test
     fun `setValue of an equal value that is not the stored instance writes it`() {
         val stored = IntWrapper(1, 1)
-        val equal = stored.copy()
+        val equal = stored.equalCopy()
         forEachBuilder(mapBuildersOf(1 to stored)) { builder ->
             val entry = builder.entries.iterator().next()
 
@@ -90,8 +91,8 @@ class MapBuilderEntryTest {
     @Test
     fun `the keys view removes a key with a null value and says so`() =
         forEachBuilder(mapBuildersOf<Int, String?>(1 to null, 2 to "b")) { builder ->
-            assertTrue(builder.keys.remove(1))
-            assertFalse(builder.keys.remove(1))
+            assertTrue(builder.keys.remove(1), "keys.remove(1), whose value is null")
+            assertFalse(builder.keys.remove(1), "keys.remove(1) again")
             assertEquals(mapOf(2 to "b"), builder.toMap())
         }
 }
@@ -135,14 +136,14 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
 
                 at("the first read") { entry.check(value) }
                 at("setValue of the value it holds") {
-                    assertSame(value, entry.setValue(value))
-                    assertSame(built, builder.build())
+                    assertSame(value, entry.setValue(value), "what setValue returns")
+                    assertSame(built, builder.build(), "build() after it")
                 }
                 at("setValue of a new value") {
-                    assertEquals(value, entry.setValue("z"))
-                    assertEquals("z", entry.value)
+                    assertEquals(value, entry.setValue("z"), "what setValue returns")
+                    assertEquals("z", entry.value, "the value after it")
                     val expected = built.toMutableMap().apply { if (kept) this[entry.key] = "z" }
-                    assertEquals(expected.toList(), builder.toList())
+                    assertEquals(expected.toList(), builder.toList(), "the builder after it")
                 }
                 at("the iterator after the setValue calls") {
                     if (operation.throwsCME) assertFailsWith<ConcurrentModificationException> { iterator.next() }
