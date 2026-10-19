@@ -186,7 +186,7 @@ class ImmutableListTest {
 
         builder.clear()
 
-        assertEquals(modCount + 1, builder.modCount, "modifications")
+        assertEquals(1, builder.modCount - modCount, "modifications counted by clear()")
         assertSame(persistentListOf(), builder.build(), "built after the clear")
         val newElements = List<Any>(elements.size) { "new $it" }
         for (element in newElements) builder.add(element)
@@ -196,7 +196,9 @@ class ImmutableListTest {
 
     /** The clear of an empty builder counts as a change too: the live iterators fail fast after it. */
     @Test fun clearOfEmptyBuilder() = runCells {
-        testIterator(emptyListBuilders, listViews, listOf(BuilderOperation("clear()") { clear() }), iteratorCalls)
+        val clears = listOf(BuilderOperation<PersistentList.Builder<Any>>("clear()") { clear() })
+        testIterator(emptyListBuilders, listViews, clears, iteratorCalls)
+        testIterator(emptyListBuilders, listIteratorViews, clears, listIteratorCalls)
     }
 
     fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
