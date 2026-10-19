@@ -70,8 +70,8 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                 if (builderOp.throwsCME) {
                     for ((name, call) in calls) {
                         val fresh = modelIteratorOf<I>(opened.toMutableList(), returned)
-                        val expected = if (outcomeOf { fresh.call() } == IllegalStateException::class) IllegalStateException::class
-                                       else ConcurrentModificationException::class
+                        val noElement = outcomeOf { fresh.call() } == "throws IllegalStateException"
+                        val expected = if (noElement) "throws IllegalStateException" else "throws ConcurrentModificationException"
                         assertEquals(expected, outcomeOf { iterator.call() }, name)
                     }
                     assertFailsWith<ConcurrentModificationException>("next() after them") { iterator.next() }
@@ -89,7 +89,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
     }
 }
 
-/** The iterator of a stdlib list of [elements], advanced by [returned] calls of next, in place of the one under test. */
+/** A stdlib list iterator over [elements], advanced by [returned] calls of next, in place of the one under test. */
 @Suppress("UNCHECKED_CAST")
 private fun <I : MutableIterator<*>> modelIteratorOf(elements: MutableList<Any?>, returned: Int): I =
     (elements.listIterator() as I).also { model -> repeat(returned) { val _ = model.next() } }
@@ -97,12 +97,12 @@ private fun <I : MutableIterator<*>> modelIteratorOf(elements: MutableList<Any?>
 /** The elements as a multiset, since a remove from a hash map may promote an entry ahead of the visited ones. */
 private fun List<Any?>.unordered(): List<Any?> = sortedBy { it.toString() }
 
-/** What [call] returns, read as [drain] reads it, or the class of what it throws. A failed assertion fails the cell. */
+/** What [call] returns, read as [drain] reads it, or "throws X" when it throws X. A failed assertion fails the cell. */
 private fun outcomeOf(call: () -> Any?): Any? =
     try {
         read(call())
     } catch (e: AssertionError) {
         throw e
     } catch (e: Throwable) {
-        e::class
+        "throws ${e::class.simpleName}"
     }

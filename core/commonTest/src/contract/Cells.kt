@@ -21,7 +21,7 @@ class Cells {
         try {
             body()
         } catch (e: Throwable) {
-            failures += "$name: ${e.toString().take(500)}"
+            failures += "$name: ${e.describe().take(500)}"
             if (firstFailure == null) firstFailure = e
         }
     }
@@ -49,9 +49,13 @@ inline fun at(position: String, body: () -> Unit) {
     try {
         body()
     } catch (e: Throwable) {
-        throw AssertionError("$position: $e", e)
+        throw AssertionError("$position: ${e.describe()}", e)
     }
 }
+
+/** The message of a failed assertion, and any other exception with its class. */
+@PublishedApi
+internal fun Throwable.describe(): String = (this as? AssertionError)?.message ?: toString()
 
 /** A row of a table of calls: a call on a receiver, under the name its cell takes. */
 typealias Call<R> = Pair<String, R.() -> Any?>
