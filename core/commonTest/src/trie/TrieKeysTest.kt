@@ -11,55 +11,51 @@ import kotlinx.collections.immutable.implementations.immutableMap.PersistentHash
 import kotlinx.collections.immutable.implementations.immutableMap.TrieNode
 import kotlinx.collections.immutable.implementations.immutableMap.indexSegment
 import kotlinx.collections.immutable.persistentHashMapOf
-import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 private const val COLLISION = LAST_LEVEL + 1
 
-/** The level each fixture takes when they are all stored together. */
-private val fixtureLevels: Map<IntWrapper, Int> = mapOf(
-    collidingKey1 to COLLISION, collidingKey2 to COLLISION, collidingKey3 to COLLISION,
-    lastLevelSibling to LAST_LEVEL, levelTwoSibling to 2,
-    levelOneSibling to 1, otherLevelOneSibling to 1,
-    rootSibling to 0,
+/** Each fixture and the level it takes when they are all stored together. */
+private val fixtureLevels = listOf(
+    collidingKey1 to COLLISION, collidingKey2 to COLLISION, collidingKey3 to COLLISION, lastLevelSibling to LAST_LEVEL,
+    levelTwoSibling to 2, levelOneSibling to 1, otherLevelOneSibling to 1, rootSibling to 0,
 )
 
-private fun levelOf(map: PersistentHashMap<*, *>, key: Any): Int {
-    var node: TrieNode<*, *> = map.node
-    var shift = 0
-    while (shift <= MAX_SHIFT) {
-        val positionMask = 1 shl indexSegment(key.hashCode(), shift)
-        if (node.hasEntryAt(positionMask)) {
-            assertEquals(key, node.keyAtIndex(node.entryKeyIndex(positionMask)))
-            return shift / LOG_MAX_BRANCHING_FACTOR
+/** The level each key takes in the trie of all of them, [COLLISION] in a collision node; a key not found there fails. */
+private fun levelsOf(keys: List<Any>): List<Int> {
+    val map = persistentHashMapOf(*keys.map { it to "" }.toTypedArray()) as PersistentHashMap<*, *>
+    return keys.map { key ->
+        var node: TrieNode<*, *> = map.node
+        var shift = 0
+        while (shift <= MAX_SHIFT) {
+            val positionMask = 1 shl indexSegment(key.hashCode(), shift)
+            if (node.hasEntryAt(positionMask)) {
+                assertEquals(key, node.keyAtIndex(node.entryKeyIndex(positionMask)))
+                return@map shift / LOG_MAX_BRANCHING_FACTOR
+            }
+            assertTrue(node.hasNodeAt(positionMask), "$key is not in the trie")
+            node = node.nodeAtIndex(node.nodeIndex(positionMask))
+            shift += LOG_MAX_BRANCHING_FACTOR
         }
-        assertTrue(node.hasNodeAt(positionMask), "$key is not in the trie")
-        node = node.nodeAtIndex(node.nodeIndex(positionMask))
-        shift += LOG_MAX_BRANCHING_FACTOR
+        assertTrue(node.buffer.any { it == key }, "$key is not in the collision node")
+        COLLISION
     }
-    assertTrue(node.buffer.any { it == key }, "$key is not in the collision node")
-    return COLLISION
 }
-
-@Suppress("UNCHECKED_CAST")
-private fun trieOf(keys: List<Any>): PersistentHashMap<Any, String> =
-    persistentHashMapOf(*keys.map { it to "" }.toTypedArray()) as PersistentHashMap<Any, String>
 
 /** The fixtures sit at the levels their names give, and each shape forms the trie it is named after. */
 class TrieKeysTest {
 
     @Test
     fun `the fixtures stored together sit at the levels of their names`() {
-        val map = trieOf(fixtureLevels.keys.toList())
-        assertEquals(fixtureLevels, fixtureLevels.keys.associateWith { levelOf(map, it) })
+        val (fixtures, levels) = fixtureLevels.unzip()
+        assertEquals(levels, levelsOf(fixtures))
     }
 
     @Test
     fun `a sibling keeps the path of its key above its level`() {
-        val keys = listOf(levelOneSibling, levelOneSibling.siblingAt(level = 2, id = 10))
-        assertEquals(listOf(2, 2), keys.map { levelOf(trieOf(keys), it) })
+        assertEquals(listOf(2, 2), levelsOf(listOf(levelOneSibling, levelOneSibling.siblingAt(level = 2, id = 10))))
     }
 
     @Test
@@ -74,16 +70,11 @@ class TrieKeysTest {
             "two collision nodes under a level-1 node" to listOf(COLLISION, COLLISION, COLLISION, COLLISION),
         )
         assertEquals(levels.keys, trieShapes.keys)
-
-        for ((shape, keys) in trieShapes) {
-            assertEquals(levels.getValue(shape), keys.map { levelOf(trieOf(keys), it) }, shape)
-        }
+        for ((shape, keys) in trieShapes) assertEquals(levels.getValue(shape), levelsOf(keys), shape)
     }
 
     @Test
     fun `no two keys of the fixtures or of a shape are equal`() {
-        for (keys in trieShapes.values + listOf(fixtureLevels.keys.toList())) {
-            assertEquals(keys, keys.distinct(), "$keys")
-        }
+        for (keys in trieShapes.values + listOf(fixtureLevels.map { it.first })) assertEquals(keys, keys.distinct(), "$keys")
     }
 }
