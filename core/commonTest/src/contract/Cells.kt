@@ -52,3 +52,11 @@ inline fun at(position: String, body: () -> Unit) {
         throw AssertionError("$position: $e", e)
     }
 }
+
+/** A row of a table of calls: a call on a receiver, under the name its cell takes. */
+typealias Call<R> = Pair<String, R.() -> Any?>
+
+/** Adds a row to a table of calls built with buildList. */
+fun <R> MutableList<Call<R>>.call(description: String, body: R.() -> Any?) {
+    add(description to body)
+}

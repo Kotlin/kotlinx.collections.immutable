@@ -51,13 +51,12 @@ class BuilderHasNextTest {
         val addToList = BuilderOperation<PersistentList.Builder<Any>>("add()") { add("new") }
         val put = BuilderOperation<PersistentMap.Builder<Any, String>>("put(new key)") { put("new", "n") }
         val addToSet = BuilderOperation<PersistentSet.Builder<Any>>("add(a new element)") { add("new") }
-        val next = IteratorOperation<MutableIterator<*>>("next()") { next() }
         testHasNext(emptyListBuilders, listViews, addToList)
         testHasNext(emptyMapBuilders, mapViews, put)
         testHasNext(emptySetBuilders, setViews, addToSet)
-        testIterator(emptyListBuilders, listViews, addToList, next)
-        testIterator(emptyMapBuilders, mapViews, put, next)
-        testIterator(emptySetBuilders, setViews, addToSet, next)
+        testIterator(emptyListBuilders, listViews, listOf(addToList), listOf(next))
+        testIterator(emptyMapBuilders, mapViews, listOf(put), listOf(next))
+        testIterator(emptySetBuilders, setViews, listOf(addToSet), listOf(next))
     }
 
     @Test

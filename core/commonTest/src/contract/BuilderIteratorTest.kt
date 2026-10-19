@@ -20,23 +20,21 @@ class BuilderIteratorTest {
 
     @Test
     fun list() = runCells {
-        for (operation in listOperations) {
-            for (iteratorOp in iteratorOperations) testIterator(listBuilders, listViews, operation, iteratorOp)
-            for (iteratorOp in listIteratorOperations) testIterator(listBuilders, listIteratorViews, operation, iteratorOp)
-        }
+        testIterator(listBuilders, listViews, listOperations, iteratorCalls)
+        testIterator(listBuilders, listIteratorViews, listOperations, listIteratorCalls)
     }
 
     @Test
-    fun hashSet() = runCells { sweep(hashSetBuilders, setViews, setOperations) }
+    fun hashSet() = runCells { testIterator(hashSetBuilders, setViews, setOperations, iteratorCalls) }
 
     @Test
-    fun orderedSet() = runCells { sweep(orderedSetBuilders, setViews, setOperations) }
+    fun orderedSet() = runCells { testIterator(orderedSetBuilders, setViews, setOperations, iteratorCalls) }
 
     @Test
-    fun hashMap() = runCells { sweep(hashMapBuilders, mapViews, mapOperations) }
+    fun hashMap() = runCells { testIterator(hashMapBuilders, mapViews, mapOperations, iteratorCalls) }
 
     @Test
-    fun orderedMap() = runCells { sweep(orderedMapBuilders, mapViews, mapOperations) }
+    fun orderedMap() = runCells { testIterator(orderedMapBuilders, mapViews, mapOperations, iteratorCalls) }
 
     @Test
     fun `calls on an empty map or set builder`() = runCells {
@@ -49,11 +47,7 @@ class BuilderIteratorTest {
             BuilderOperation("removeAll(a hash set)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2)) },
             BuilderOperation("removeAll(a hash set builder)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2).builder()) },
         )
-        sweep(emptyHashMapBuilders + emptyOrderedMapBuilders, mapViews, listOf(clearMap))
-        sweep(emptyHashSetBuilders + emptyOrderedSetBuilders, setViews, setCalls)
+        testIterator(emptyHashMapBuilders + emptyOrderedMapBuilders, mapViews, listOf(clearMap), iteratorCalls)
+        testIterator(emptyHashSetBuilders + emptyOrderedSetBuilders, setViews, setCalls, iteratorCalls)
     }
-}
-
-private fun <B> Cells.sweep(builders: Origins<B>, views: Views<B, MutableIterator<*>>, operations: List<BuilderOperation<B>>) {
-    for (operation in operations) for (iteratorOp in iteratorOperations) testIterator(builders, views, operation, iteratorOp)
 }

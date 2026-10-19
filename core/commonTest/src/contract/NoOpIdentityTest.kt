@@ -84,9 +84,6 @@ class NoOpIdentityTest {
     fun `value writes into an ordered map`() = runCells { testValueWrites("an ordered map") { persistentMapOf(*it.toTypedArray()) } }
 }
 
-/** A call by its persistent name, or through mutate by its builder name. */
-private typealias Call<C> = Pair<String, C.() -> Any>
-
 private fun <C : Any> Cells.testCalls(
     receivers: List<Pair<String, C>>,
     empty: C,
