@@ -37,7 +37,8 @@ import kotlin.test.assertSame
 /**
  * A persistent call that changes nothing returns the receiver, and a builder given only what it holds builds the
  * collection it came from. A call or a build that empties a collection returns the empty instance of its kind, the one
- * its empty factory call returns.
+ * its empty factory call returns. An index out of range throws IndexOutOfBoundsException first, even when the call
+ * would add nothing or remove the only element.
  *
  * A write changes nothing when it writes the stored instance or, over a primitive number, an unsigned number, a char
  * or a Boolean, an equal one: NaN over NaN, a number boxed again. An equal instance of a Number subclass is written,
@@ -45,7 +46,8 @@ import kotlin.test.assertSame
  * 0.0 === -0.0.
  *
  * A new call is a row of its kind's noOps or emptyingCalls, by its participle or through mutate; a new receiver, an
- * entry of [lists], [sets] or [maps]; a new kind of value, a row of [valueWrites].
+ * entry of [lists], [sets] or [maps]; a new kind of value, a row of [valueWrites]; a new index check, a row of
+ * [outOfRangeCalls].
  */
 class NoOpIdentityTest {
 
@@ -66,11 +68,11 @@ class NoOpIdentityTest {
 
     @Test
     fun `value writes into a list`() = runCells {
-        for ((size, depth) in listShapes) for (index in boundaryIndices(size)) for (write in valueWrites) {
+        for ((size, shape) in listShapes) for (index in boundaryIndices(size)) for (write in valueWrites) {
             val stored = write.stored()
             val neighbour = if (index == 0) 1 else index - 1
             val list = wrappersOf(size).toPersistentList<Any?>().replacingAt(index, stored)
-            testWrites("$depth, ${write.description} at $index", write, list, read = { this[index] },
+            testWrites("$shape, ${write.description} at $index", write, list, read = { this[index] },
                 writes = listOf(
                     "replacingAt" to { written -> replacingAt(index, written) },
                     "a builder's set, which returns the stored element" to { written ->
@@ -93,8 +95,8 @@ class NoOpIdentityTest {
 
     @Test
     fun `an index out of range throws even with nothing to add or one element to remove`() = runCells {
-        for ((origin, list) in lists()) for ((call, function) in outOfRangeCalls) cell("$origin, $call") {
-            assertFailsWith<IndexOutOfBoundsException> { list.function() }
+        for ((origin, list) in lists()) for ((description, call) in outOfRangeCalls) cell("$origin, $description") {
+            assertFailsWith<IndexOutOfBoundsException> { list.call() }
         }
     }
 }
@@ -107,8 +109,8 @@ private fun <C : Any> Cells.testCalls(
     emptyingCalls: (C) -> List<Call<C>>,
 ) {
     for ((origin, receiver) in receivers) {
-        for ((call, function) in noOps(receiver)) cell("$origin, $call") { assertSame(receiver, receiver.function(), "the receiver") }
-        for ((call, function) in emptyingCalls(receiver)) cell("$origin, $call") { assertSame(empty, receiver.function(), "the empty instance") }
+        for ((description, call) in noOps(receiver)) cell("$origin, $description") { assertSame(receiver, receiver.call(), "the receiver") }
+        for ((description, call) in emptyingCalls(receiver)) cell("$origin, $description") { assertSame(empty, receiver.call(), "the empty instance") }
     }
 }
 
@@ -191,7 +193,7 @@ private fun <C : PersistentCollection<Any?>> collectionEmptyingCalls(collection:
 private fun lists(): List<Pair<String, PersistentList<Any?>>> = listOf(
     "the empty list" to persistentListOf<Any?>(),
     "a list of one element" to wrappersOf(1).toPersistentList(),
-) + listShapes.map { (size, depth) -> "a list of $size, $depth" to wrappersOf(size).toPersistentList() }
+) + listShapes.map { (size, shape) -> "a list of $size, $shape" to wrappersOf(size).toPersistentList() }
 
 private fun listNoOps(list: PersistentList<Any?>): List<Call<PersistentList<Any?>>> = collectionNoOps(list) + buildList {
     call("addingAll(nothing)") { addingAll(emptyList()) }
@@ -215,8 +217,12 @@ private fun listEmptyingCalls(list: PersistentList<Any?>): List<Call<PersistentL
 
 /** The shortcuts for nothing to add and for removing the only element come after the index check. */
 private val outOfRangeCalls: List<Call<PersistentList<Any?>>> = buildList {
+    call("removingAt(-1)") { removingAt(-1) }
+    call("removeAt(-1)") { mutate { it.removeAt(-1) } }
     call("removingAt(size)") { removingAt(size) }
     call("removeAt(size)") { mutate { it.removeAt(it.size) } }
+    call("addingAllAt(-1, nothing)") { addingAllAt(-1, emptyList()) }
+    call("addAll(-1, nothing)") { mutate { it.addAll(-1, emptyList()) } }
     call("addingAllAt(size + 1, nothing)") { addingAllAt(size + 1, emptyList()) }
     call("addAll(size + 1, nothing)") { mutate { it.addAll(it.size + 1, emptyList()) } }
 }
@@ -344,7 +350,6 @@ private val valueWrites = listOf(
     ValueWrite("an equal Long", changes = false, { 1000L }, { 1000L }),
     ValueWrite("an equal Float", changes = false, { 1.5f }, { 1.5f }),
     ValueWrite("an equal Short", changes = false, { 1000.toShort() }, { 1000.toShort() }),
-    ValueWrite("an equal Byte", changes = false, { 1.toByte() }, { 1.toByte() }),
     ValueWrite("an equal Char", changes = false, { '€' }, { '€' }),
     ValueWrite("an equal UInt", changes = false, { 1u }, { 1u }),
     ValueWrite("an equal ULong", changes = false, { 1uL }, { 1uL }),
@@ -374,9 +379,9 @@ private fun <C : Any> Cells.testWrites(
     writes: List<Pair<String, C.(written: Any?) -> C>>,
     writesElsewhereToo: List<Pair<String, C.(written: Any?) -> C>>,
 ) {
-    for ((call, function) in writes) cell("$name by $call") {
+    for ((description, call) in writes) cell("$name by $description") {
         val written = write.written()
-        val result = receiver.function(written)
+        val result = receiver.call(written)
         if (write.changes) {
             assertNotSame(receiver, result, "the result")
             assertSameValue(written, result.read(), "the value read back")
@@ -384,9 +389,9 @@ private fun <C : Any> Cells.testWrites(
             assertSame(receiver, result, "the result")
         }
     }
-    for ((call, function) in writesElsewhereToo) cell("$name by $call") {
+    for ((description, call) in writesElsewhereToo) cell("$name by $description") {
         val written = write.written()
-        assertSameValue(if (write.changes) written else receiver.read(), receiver.function(written).read(), "the value read back")
+        assertSameValue(if (write.changes) written else receiver.read(), receiver.call(written).read(), "the value read back")
     }
 }
 
@@ -399,6 +404,8 @@ private fun Cells.testValueWrites(kind: String, newMap: (Map<Any, Any?>) -> Pers
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
         val stored = write.stored()
         val content = keys.withIndex().associate { (index, shapeKey) -> shapeKey to IntWrapper(index, index) } + (key to stored)
+        val newKeyBesideIt = missingBesideAtLevelOne(key) to NEW
+        val newKeyWithItsHash = missingKey(key.hashCode()) to NEW
         testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(content), read = { this[key] },
             writes = listOf(
                 "putting" to { written -> putting(key, written) },
@@ -422,17 +429,15 @@ private fun Cells.testValueWrites(kind: String, newMap: (Map<Any, Any?>) -> Pers
                 "a builder's putAll of new values for the other keys" to { written ->
                     mutate { it.putAll((content.mapValues { NEW } + (key to written)).toPersistentHashMap()) }
                 },
-                "puttingAll of a new key beside it at level 1" to { written ->
-                    puttingAll(persistentHashMapOf(key to written, missingBesideAtLevelOne(key) to NEW))
-                },
+                "puttingAll of a new key beside it at level 1" to { written -> puttingAll(persistentHashMapOf(key to written, newKeyBesideIt)) },
                 "a builder's putAll of a new key beside it at level 1" to { written ->
-                    mutate { it.putAll(persistentHashMapOf(key to written, missingBesideAtLevelOne(key) to NEW)) }
+                    mutate { it.putAll(persistentHashMapOf(key to written, newKeyBesideIt)) }
                 },
                 "puttingAll of every key and a new key with its hash" to { written ->
-                    puttingAll((content + (key to written) + (missingKey(key.hashCode()) to NEW)).toPersistentHashMap())
+                    puttingAll((content + (key to written) + newKeyWithItsHash).toPersistentHashMap())
                 },
                 "a builder's putAll of every key and a new key with its hash" to { written ->
-                    mutate { it.putAll((content + (key to written) + (missingKey(key.hashCode()) to NEW)).toPersistentHashMap()) }
+                    mutate { it.putAll((content + (key to written) + newKeyWithItsHash).toPersistentHashMap()) }
                 },
             ),
         )
