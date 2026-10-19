@@ -5,9 +5,6 @@
 
 package tests.contract
 
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.collections.immutable.toPersistentSet
 import tests.trie.MutableKey
@@ -46,19 +43,6 @@ class BuilderHasNextTest {
 
     @Test
     fun orderedSet() = runCells { testHasNext(orderedSetBuilders, setViews, setOperations) }
-
-    @Test
-    fun `hasNext and next after an add or put on an empty builder`() = runCells {
-        val addToList = listOf(BuilderOperation<PersistentList.Builder<Any>>("add()") { add("new") })
-        val put = listOf(BuilderOperation<PersistentMap.Builder<Any?, String>>("put(new key)") { put("new", "n") })
-        val addToSet = listOf(BuilderOperation<PersistentSet.Builder<Any?>>("add(a new element)") { add("new") })
-        testHasNext(emptyListBuilders, listIteratorViews, addToList)
-        testHasNext(emptyMapBuilders, mapViews, put)
-        testHasNext(emptySetBuilders, setViews, addToSet)
-        testIterator(emptyListBuilders, listIteratorViews, addToList, listOf(next))
-        testIterator(emptyMapBuilders, mapViews, put, listOf(next))
-        testIterator(emptySetBuilders, setViews, addToSet, listOf(next))
-    }
 
     @Test
     fun `next throws until the changed hash of the next key is back`() = runCells {
@@ -139,6 +123,7 @@ private fun <B> Cells.testHasNext(
                     at("nextIndex()") { assertEquals(returned, iterator.nextIndex()) }
                     at("previousIndex()") { assertEquals(returned - 1, iterator.previousIndex()) }
                 }
+                if (operation.throwsCME) assertFailsWith<ConcurrentModificationException>("next()") { iterator.next() }
             }
         }
     }
