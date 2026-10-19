@@ -52,7 +52,7 @@ class MapBuilderEntryTest {
             assertNull(entryOfRePut.setValue("z"))
             assertNull(entryOfString.setValue("x"))
             assertEquals("b", entryOfNull.setValue(null))
-            assertEquals(mapOf(1 to "x", 2 to null, 3 to "z"), builder.toMap())
+            assertEquals(listOf(1 to "x", 2 to null, 3 to "z"), builder.toList())
         }
 
     @Test
