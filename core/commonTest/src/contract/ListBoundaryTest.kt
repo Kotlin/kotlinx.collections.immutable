@@ -86,9 +86,6 @@ private fun counts(size: Int): List<Int> {
     return listOf(1, room, room + 1, LEAF + 1).filter { it > 0 }.distinct()
 }
 
-/** The sizes where a cell costs little: up to 100, and 1100 for a root over level-1 nodes. */
-private fun isCheap(size: Int) = size <= 100 || size == 1100
-
 /** Up to a leaf, addingAll and addings give the same buffers. */
 private fun listsOf(size: Int): Origins<PersistentList<Int>> {
     val fromAddingAll = "a list of $size from addingAll" to { persistentListOf<Int>().addingAll(List(size) { it }) }
@@ -97,29 +94,10 @@ private fun listsOf(size: Int): Origins<PersistentList<Int>> {
 }
 
 /**
- * Three levels run only the calls that move leaves across them, since every cell copies the whole list a few times.
- * The builder makes retainAll, the calls with a predicate and the writes through subList one element at a time, so
- * they run only up to 100 and at 1100.
+ * The builder makes retainAll, the calls with a predicate and the clears through subList one element at a time, so
+ * their rows come last and skip three levels, where they would take longer than the rest of the table together.
  */
-private fun calls(size: Int): List<Pair<String, MutableList<Int>.() -> Any?>> = buildList {
-    fun call(description: String, body: MutableList<Int>.() -> Any?) {
-        add(description to body)
-    }
-
-    if (size == THREE_LEVELS) {
-        val lastLeaf = LEVEL * LEAF - LEAF
-        call("add(x)") { add(NEW) }
-        call("addAll(${LEAF + 1} elements)") { addAll(newElements(LEAF + 1)) }
-        call("add(0, x)") { add(0, NEW) }
-        call("set(${LEVEL * LEAF - 1}, x)") { set(LEVEL * LEAF - 1, NEW) }
-        call("removeAt(0)") { removeAt(0) }
-        call("removeAt(${size - 1})") { removeAt(size - 1) }
-        for (index in listOf(LEAF, lastLeaf, size - 1)) call("removeAll(the suffix from $index)") { removeAll((index..<size).toSet()) }
-        call("removeAll(the leaf at $lastLeaf)") { removeAll((lastLeaf..<lastLeaf + LEAF).toSet()) }
-        call("removeAll { the suffix from $lastLeaf }") { removeAll { it >= lastLeaf } }
-        return@buildList
-    }
-
+private fun calls(size: Int): List<Call<MutableList<Int>>> = buildList {
     val positions = boundaryIndices(size) + size
     call("add(x)") { add(NEW) }
     for (count in listOf(0, LEVEL + LEAF) + counts(size)) call("addAll($count elements)") { addAll(newElements(count)) }
@@ -148,9 +126,10 @@ private fun calls(size: Int): List<Pair<String, MutableList<Int>.() -> Any?>> = 
     for (position in positions) {
         call("subList($position, size)") { subList(position, size) }
         call("subList(0, $position)") { subList(0, position) }
+        call("subList(0, $position).add(x)") { subList(0, position).apply { add(NEW) } }
     }
 
-    if (!isCheap(size)) return@buildList
+    if (size == THREE_LEVELS) return@buildList
     call("retainAll(nothing)") { retainAll(emptySet()) }
     call("retainAll(every other element)") { retainAll((0..<size step 2).toSet()) }
     call("removeAll { every other element }") { removeAll { it % 2 == 0 } }
@@ -163,7 +142,6 @@ private fun calls(size: Int): List<Pair<String, MutableList<Int>.() -> Any?>> = 
     for (position in positions) {
         call("subList($position, size).clear()") { subList(position, size).apply { clear() } }
         call("subList(0, $position).clear()") { subList(0, position).apply { clear() } }
-        call("subList(0, $position).add(x)") { subList(0, position).apply { add(NEW) } }
     }
 }
 
