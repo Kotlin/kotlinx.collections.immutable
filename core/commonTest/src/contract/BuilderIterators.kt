@@ -36,8 +36,8 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
 
 /**
  * Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to size times, makes
- * a call of [builderOps] and then one call of [iteratorCalls] or two in a row; one cell holds every position of an
- * origin, a view and these calls.
+ * a call of [builderOps] and then one call of [iteratorCalls] or two in a row: one cell per origin, view, builder call
+ * and call sequence, with every position inside it.
  *
  * After a call that keeps the size, the iterator of a stdlib list of what the builder holds, advanced as far, takes the
  * same calls and judges them: each returns what the list's iterator returns or throws the exception it throws, the
@@ -45,9 +45,9 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
  *
  * After a call that moves the size, the iterator is frozen where the call found it: each call throws
  * ConcurrentModificationException, except a remove or a set with no element to act on, which throws
- * IllegalStateException, as a fresh iterator of a stdlib list of what the builder held when the iterator was opened,
- * advanced as far, tells. A next afterwards throws ConcurrentModificationException, and the builder still holds what
- * the call left in it.
+ * IllegalStateException; a fresh stdlib list iterator at the same position, over what the builder held when the
+ * iterator was opened, tells the two apart. A next afterwards throws ConcurrentModificationException, and the builder
+ * still holds what the call left in it.
  */
 fun <B, I : MutableIterator<*>> Cells.testIterator(
     builders: Origins<B>,
@@ -89,7 +89,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
     }
 }
 
-/** A stdlib list iterator over [elements], advanced by [returned] calls of next, in place of the one under test. */
+/** A stdlib list iterator over [elements], advanced by [returned] calls of next, which judges the one under test. */
 @Suppress("UNCHECKED_CAST")
 private fun <I : MutableIterator<*>> modelIteratorOf(elements: MutableList<Any?>, returned: Int): I =
     (elements.listIterator() as I).also { model -> repeat(returned) { val _ = model.next() } }

@@ -171,7 +171,7 @@ val mapViews: Views<PersistentMap.Builder<Any, String>, MutableIterator<*>> = li
     "values" to { values.iterator() },
 )
 
-/** The first row of every table: it leaves the builder alone, so that the calls after it are tested on their own. */
+/** The first row of every table: it leaves the builder alone, so that the iterator calls run on an untouched builder too. */
 val noCall: BuilderOperation<Any?> = BuilderOperation("no call", throwsCME = false) { }
 
 val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = listOf(
