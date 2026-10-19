@@ -8,8 +8,8 @@ package tests.contract
 import kotlin.test.fail
 
 /**
- * The cells of one table. Each cell runs on its own, and [runCells] then fails once, listing the failed ones, each cut
- * to 500 characters, with the first failure as the cause.
+ * The cells of one table. Each cell runs on its own, and [runCells] then fails once, listing the first hundred failed
+ * ones, each cut to 500 characters, with the first failure as the cause.
  */
 class Cells {
     private var count = 0
@@ -21,7 +21,7 @@ class Cells {
         try {
             body()
         } catch (e: Throwable) {
-            failures += "$name: ${e.toString().take(500)}"
+            failures += "$name: ${e.describe().take(500)}"
             if (firstFailure == null) firstFailure = e
         }
     }
@@ -45,10 +45,21 @@ fun runCells(table: Cells.() -> Unit): Unit = Cells().run {
 }
 
 /** Runs [body] with [position] in front of whatever it throws, so that the assertions inside need no message. */
-inline fun at(position: String, body: () -> Unit) {
+fun at(position: String, body: () -> Unit) {
     try {
         body()
     } catch (e: Throwable) {
-        throw AssertionError("$position: $e", e)
+        throw AssertionError("$position: ${e.describe()}", e)
     }
+}
+
+/** The message of a failed assertion, and any other exception with its class. */
+private fun Throwable.describe(): String = (this as? AssertionError)?.message ?: toString()
+
+/** A row of a table of calls: a call on a receiver, under the name its cell takes. */
+typealias Call<R> = Pair<String, R.() -> Any?>
+
+/** Adds a row to a table of calls built with buildList. */
+fun <R> MutableList<Call<R>>.call(description: String, body: R.() -> Any?) {
+    add(description to body)
 }

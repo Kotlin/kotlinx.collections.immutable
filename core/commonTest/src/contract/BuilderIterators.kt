@@ -6,47 +6,28 @@
 package tests.contract
 
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 /*
  * The fail-fast contract of the builder iterators, tested as stdlib's ConcurrentModificationTest tests it. A table of
- * calls through the builder, each saying whether it invalidates live iterators, is crossed with a table of calls on
- * a live iterator.
+ * calls through the builder, each saying whether it invalidates live iterators, is crossed with the calls on a live
+ * iterator, alone and in pairs, as guava-testlib's IteratorTester sends sequences of calls to the iterator under test
+ * and to a reference iterator.
  */
 
 class BuilderOperation<in B>(
     val description: String,
-    /** true when the call moves the size at least once, which invalidates every live iterator. */
+    /** true when the call moves the size at least once or is a clear(), which invalidates every live iterator. */
     val throwsCME: Boolean = true,
     val function: B.() -> Unit,
 )
 
-class IteratorOperation<in I>(
-    val description: String,
-    /**
-     * true when the call needs an element returned by next, as remove and set do. Without one it throws
-     * IllegalStateException first, even after a structural call, as in java.util.
-     */
-    val needsAnElement: Boolean = false,
-    val function: I.() -> Any?,
-)
+val next: Call<MutableIterator<*>> = "next()" to { next() }
 
-val iteratorOperations: List<IteratorOperation<MutableIterator<*>>> = listOf(
-    IteratorOperation("next()") { next() },
-    IteratorOperation("remove()", needsAnElement = true) { remove() },
-    IteratorOperation("remove() twice", needsAnElement = true) { remove(); val _ = assertFailsWith<IllegalStateException> { remove() } },
-)
+/** The calls on a live iterator, which [testIterator] makes alone and in pairs. */
+val iteratorCalls: List<Call<MutableIterator<*>>> = listOf(next, "remove()" to { remove() })
 
-val listIteratorOperations: List<IteratorOperation<MutableListIterator<Any>>> = listOf(
-    IteratorOperation("previous()") { previous() },
-    IteratorOperation("add()") { add("new") },
-    IteratorOperation("add() then set()") { add("new"); val _ = assertFailsWith<IllegalStateException> { set("new") } },
-    IteratorOperation("add() then remove()") { add("new"); val _ = assertFailsWith<IllegalStateException> { remove() } },
-    IteratorOperation("set()", needsAnElement = true) { set("new") },
-    IteratorOperation("set() twice", needsAnElement = true) { set("new"); set("newer") },
-    IteratorOperation("set() then previous()", needsAnElement = true) { set("new"); previous() },
-    IteratorOperation("remove() then set()", needsAnElement = true) { remove(); val _ = assertFailsWith<IllegalStateException> { set("new") } },
-)
+val listIteratorCalls: List<Call<MutableListIterator<Any>>> =
+    iteratorCalls + listOf("previous()" to { previous() }, "add()" to { add("new") }, "set()" to { set("new") })
 
 /** The elements an iterator still has. A live map entry is read as its key and value the moment it is drained. */
 fun Iterator<*>.drain(): List<Any?> = asSequence().map(::read).toList()
@@ -55,57 +36,81 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
 
 /**
  * Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to size times, makes
- * [builderOp] and then [iteratorOp]; one cell holds every position of an origin and a view. After a structural call,
- * [iteratorOp] throws ConcurrentModificationException, IllegalStateException first when it needs an element and next
- * returned none, so does every next after it, and the builder keeps what it held. After a non-structural call, the
- * iterator does what the iterator of a stdlib list of what the builder holds does, and the builder ends up holding
- * what that list holds, in that order when it is a list.
+ * a call of [operations] and then one call of [iteratorCalls] or two in a row: one cell per origin, view, builder call
+ * and call sequence, with every position inside it.
+ *
+ * After a call that keeps the size, the iterator of a stdlib list of what the builder holds, advanced as far, takes the
+ * same calls and judges them: each returns what the list's iterator returns or throws the exception it throws, the
+ * two then have the same rest, and the builder ends up holding what the list holds, in that order when it is a list.
+ *
+ * After a call that moves the size, the iterator is frozen where the call found it: each call throws
+ * ConcurrentModificationException, except a remove or a set with no element to act on, which throws
+ * IllegalStateException; a fresh stdlib list iterator at the same position, over what the builder held when the
+ * iterator was opened, tells the two apart. A next afterwards throws ConcurrentModificationException, and the builder
+ * still holds what the call left in it.
  */
 fun <B, I : MutableIterator<*>> Cells.testIterator(
     builders: Origins<B>,
     views: Views<B, I>,
-    builderOp: BuilderOperation<B>,
-    iteratorOp: IteratorOperation<I>,
+    operations: List<BuilderOperation<B>>,
+    iteratorCalls: List<Call<I>>,
 ) {
-    for ((origin, newBuilder) in builders) for ((view, open) in views) {
-        cell("$origin, $view, ${iteratorOp.description} after ${builderOp.description}") {
-            for (returned in 0..newBuilder().open().drain().size) at("after $returned next") {
+    val alone = iteratorCalls.map { call -> call.first to listOf(call) }
+    val pairs = iteratorCalls.flatMap { (first, firstCall) ->
+        iteratorCalls.map { (second, secondCall) ->
+            "$first then $second" to listOf("the first $first" to firstCall, "the second $second" to secondCall)
+        }
+    }
+    for ((origin, newBuilder) in builders) for ((view, open) in views) for (operation in operations) for ((calls, steps) in alone + pairs) {
+        cell("$origin, $view, $calls after ${operation.description}") {
+            val opened = newBuilder().open().drain()
+            for (returned in 0..opened.size) at("after $returned next") {
                 val builder = newBuilder()
                 val iterator = builder.open()
                 repeat(returned) { val _ = iterator.next() }
-                builderOp.function(builder)
+                operation.function(builder)
                 val content = builder.open().drain()
 
-                if (builderOp.throwsCME) {
-                    val failure = if (iteratorOp.needsAnElement && returned == 0) IllegalStateException::class
-                                  else ConcurrentModificationException::class
-                    assertFailsWith(failure) { iteratorOp.function(iterator) }
-                    assertFailsWith<ConcurrentModificationException> { iterator.next() }
-                    assertEquals(content, builder.open().drain())
+                if (operation.throwsCME) {
+                    for ((description, call) in steps) {
+                        val fresh = outcomeOf { modelIteratorOf<I>(opened.toMutableList(), returned).call() }
+                        val expected = if (fresh == "throws IllegalStateException") fresh else "throws ConcurrentModificationException"
+                        assertEquals(expected, outcomeOf { iterator.call() }, description)
+                    }
+                    assertEquals("throws ConcurrentModificationException", outcomeOf { iterator.next() }, "next() afterwards")
+                    assertEquals(content, builder.open().drain(), "the builder")
                 } else {
+                    assertEquals(opened.size, content.size, "the size after ${operation.description}, which its row says it keeps")
                     val model = content.toMutableList()
-                    @Suppress("UNCHECKED_CAST")
-                    val modelIterator = model.listIterator() as I
-                    repeat(returned) { val _ = modelIterator.next() }
-                    assertEquals(outcomeOf { iteratorOp.function(modelIterator) }, outcomeOf { iteratorOp.function(iterator) })
-                    assertEquals(modelIterator.drain(), iterator.drain())
-                    if (builder is List<*>) assertEquals(model, builder.open().drain())
-                    else assertEquals(model.unordered(), builder.open().drain().unordered())
+                    val modelIterator = modelIteratorOf<I>(model, returned)
+                    for ((description, call) in steps) assertEquals(outcomeOf { modelIterator.call() }, outcomeOf { iterator.call() }, description)
+                    assertEquals(modelIterator.drain(), outcomeOf { iterator.drain() }, "the rest")
+                    if (builder is List<*>) assertEquals(model, builder.open().drain(), "the builder")
+                    else assertEquals(model.unordered(), builder.open().drain().unordered(), "the builder")
                 }
             }
         }
     }
 }
 
+/** A stdlib list iterator over [elements], advanced by [returned] calls of next, which judges the one under test. */
+@Suppress("UNCHECKED_CAST")
+private fun <I : MutableIterator<*>> modelIteratorOf(elements: MutableList<Any?>, returned: Int): I =
+    (elements.listIterator() as I).also { model -> repeat(returned) { val _ = model.next() } }
+
 /** The elements as a multiset, since a remove from a hash map may promote an entry ahead of the visited ones. */
 private fun List<Any?>.unordered(): List<Any?> = sortedBy { it.toString() }
 
-/** What [call] returns, read as [drain] reads it, or the class of what it throws. A failed assertion fails the cell. */
+/**
+ * What [call] returns, read as [drain] reads it, "returns" when that is Unit, or "throws X" when it throws X. A failed
+ * assertion fails the cell.
+ */
 private fun outcomeOf(call: () -> Any?): Any? =
     try {
-        read(call())
+        val result = call()
+        if (result is Unit) "returns" else read(result)
     } catch (e: AssertionError) {
         throw e
     } catch (e: Throwable) {
-        e::class
+        "throws ${e::class.simpleName}"
     }

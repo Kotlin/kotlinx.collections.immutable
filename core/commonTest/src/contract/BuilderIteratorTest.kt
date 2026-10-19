@@ -11,18 +11,14 @@ import kotlin.test.Test
  * The builder iterators fail fast as java.util's do. A call through the builder that moves its size makes next of
  * every live iterator throw ConcurrentModificationException. After a call that keeps the size, an overwrite or a no-op,
  * next does what next of a stdlib list of the builder's content does.
+ *
+ * A new call through a builder is a row of [setOperations].
  */
 class BuilderIteratorTest {
 
     @Test
-    fun hashSet() = runCells { sweep(hashSetBuilders, setViews, setOperations) }
+    fun hashSet() = runCells { testIterator(hashSetBuilders, setViews, setOperations, listOf(next)) }
 
     @Test
-    fun orderedSet() = runCells { sweep(orderedSetBuilders, setViews, setOperations) }
-}
-
-private val next = IteratorOperation<MutableIterator<*>>("next()") { next() }
-
-private fun <B> Cells.sweep(builders: Origins<B>, views: Views<B, MutableIterator<*>>, operations: List<BuilderOperation<B>>) {
-    for (operation in operations) testIterator(builders, views, operation, next)
+    fun orderedSet() = runCells { testIterator(orderedSetBuilders, setViews, setOperations, listOf(next)) }
 }
