@@ -137,28 +137,27 @@ val orderedMapBuilders = ofEveryShape { keys -> orderedMapBuildersOf(valuesFor(k
 val hashSetBuilders = ofEveryShape(::hashSetBuildersOf)
 val orderedSetBuilders = ofEveryShape(::orderedSetBuildersOf)
 
-/*
- * Builders holding nothing: one never filled, and ones whose elements went by removes, by a removeAll and by a clear,
- * through the builder itself or, for a map builder, through its keys. They held a leaf and a tail, so that a list's
- * removeAll empties a trie too.
- */
-
 private val removedElements = List<Any>(ONE_LEAF) { it }
 
-private fun <B> emptyBuildersOf(kind: String, builderOf: (List<Any>) -> B, elements: B.() -> MutableCollection<in Any>): Origins<B> = listOf(
+/**
+ * Builders of [kind] holding nothing: one never filled, and ones emptied by removes, by a removeAll and by a clear
+ * through [elements], the collection the elements leave by: the builder itself, or the keys of a map builder. They held
+ * a leaf and a tail, so that a list's removeAll empties a trie too.
+ */
+private fun <B> emptyBuildersOf(kind: String, elements: B.() -> MutableCollection<in Any>, builderOf: (List<Any>) -> B): Origins<B> = listOf(
     "$kind never filled" to { builderOf(emptyList()) },
     "$kind emptied by remove" to { builderOf(removedElements).apply { for (element in removedElements) elements().remove(element) } },
     "$kind emptied by removeAll" to { builderOf(removedElements).apply { elements().removeAll(removedElements) } },
     "$kind emptied by clear" to { builderOf(removedElements).apply { elements().clear() } },
 )
 
-private fun <B : MutableCollection<in Any>> emptyBuildersOf(kind: String, builderOf: (List<Any>) -> B): Origins<B> = emptyBuildersOf(kind, builderOf) { this }
+private fun <B : MutableCollection<in Any>> emptyBuildersOf(kind: String, builderOf: (List<Any>) -> B): Origins<B> = emptyBuildersOf(kind, { this }, builderOf)
 
 val emptyListBuilders = emptyBuildersOf("a list builder") { it.toPersistentList().builder() }
 val emptySetBuilders = emptyBuildersOf("a hash set builder") { it.toPersistentHashSet<Any?>().builder() } +
     emptyBuildersOf("an ordered set builder") { it.toPersistentSet<Any?>().builder() }
-val emptyMapBuilders = emptyBuildersOf("a hash map builder", { persistentHashMapOf(*valuesFor(it).toTypedArray()).builder() }) { keys } +
-    emptyBuildersOf("an ordered map builder", { persistentMapOf(*valuesFor(it).toTypedArray()).builder() }) { keys }
+val emptyMapBuilders = emptyBuildersOf("a hash map builder", elements = { keys }) { persistentHashMapOf(*valuesFor(it).toTypedArray()).builder() } +
+    emptyBuildersOf("an ordered map builder", elements = { keys }) { persistentMapOf(*valuesFor(it).toTypedArray()).builder() }
 
 val listViews: Views<PersistentList.Builder<Any>, MutableIterator<*>> = listOf("iterator" to { iterator() })
 val listIteratorViews: Views<PersistentList.Builder<Any>, MutableListIterator<Any>> = listOf("listIterator" to { listIterator() })
