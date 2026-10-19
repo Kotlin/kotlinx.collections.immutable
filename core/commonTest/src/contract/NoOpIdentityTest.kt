@@ -177,8 +177,10 @@ private fun <C : PersistentCollection<Any?>> collectionEmptyingCalls(collection:
     call("minus an iterable that is not a collection of every element") { this - Iterable { collection.iterator() } }
 }
 
-private fun lists(): List<Pair<String, PersistentList<Any?>>> = listOf("the empty list" to persistentListOf<Any?>()) +
-        listDepths.map { (size, depth) -> "a list of $size, $depth" to wrappersOf(size).toPersistentList() }
+private fun lists(): List<Pair<String, PersistentList<Any?>>> = listOf(
+    "the empty list" to persistentListOf<Any?>(),
+    "a list of one element" to wrappersOf(1).toPersistentList(),
+) + listDepths.map { (size, depth) -> "a list of $size, $depth" to wrappersOf(size).toPersistentList() }
 
 private fun listNoOps(list: PersistentList<Any?>): List<Call<PersistentList<Any?>>> = collectionNoOps(list) + buildList {
     call("addingAll(nothing)") { addingAll(emptyList()) }
@@ -200,8 +202,10 @@ private fun listEmptyingCalls(list: PersistentList<Any?>): List<Call<PersistentL
     call("removeAt(lastIndex) of every element") { mutate { while (it.isNotEmpty()) it.removeAt(it.lastIndex) } }
 }
 
-private fun sets(empty: PersistentSet<Any?>): List<Pair<String, PersistentSet<Any?>>> = listOf("the empty set" to empty) +
-        wrappedShapes.map { (shape, elements) -> "a set of $shape" to empty.addingAll(elements) }
+private fun sets(empty: PersistentSet<Any?>): List<Pair<String, PersistentSet<Any?>>> = listOf(
+    "the empty set" to empty,
+    "a set of one element" to empty.adding(IntWrapper(1, 1)),
+) + wrappedShapes.map { (shape, elements) -> "a set of $shape" to empty.addingAll(elements) }
 
 private fun setNoOps(set: PersistentSet<Any?>): List<Call<PersistentSet<Any?>>> = collectionNoOps(set) + buildList {
     for ((argument, elements) in everyElementOf(set) + nothing) {
@@ -224,6 +228,7 @@ private fun setNoOps(set: PersistentSet<Any?>): List<Call<PersistentSet<Any?>>> 
 
 private fun maps(empty: PersistentMap<Any?, Any?>): List<Pair<String, PersistentMap<Any?, Any?>>> = listOf(
     "the empty map" to empty,
+    "a map of one key" to empty.putting(IntWrapper(1, 1), IntWrapper(0, 0)),
     "a map with a null key" to empty.puttingAll(mapOf(null to IntWrapper(0, 0), collidingKey1 to IntWrapper(1, 1))),
     "a map with a NaN key" to empty.puttingAll(mapOf(Double.NaN to "v", 1 to "w")),
 ) + wrappedShapes.map { (shape, keys) ->
