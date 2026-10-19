@@ -11,9 +11,9 @@ import kotlinx.collections.immutable.implementations.immutableList.MAX_BUFFER_SI
 import kotlinx.collections.immutable.implementations.immutableList.PersistentVectorBuilder
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.fail
 
 /**
  * Every call leaves a persistent list and its builder with the content an ArrayList gets from it, read by index and by
@@ -43,7 +43,7 @@ class ListBoundaryTest {
     @Test
     fun builder() = runCells {
         for (size in sizes) {
-            val list = persistentListOf<Int>().addingAll(List(size) { it })
+            val list = List(size) { it }.toPersistentList()
             for ((origin, newBuilder) in listBuildersOf(list, NEW)) for ((description, call) in calls(size)) cell("$origin, $description") {
                 val builder = newBuilder()
                 val model = MutableList(size) { it }
@@ -85,12 +85,10 @@ private fun counts(size: Int): List<Int> {
     return listOf(1, room, room + 1, LEAF + 1).filter { it > 0 }.distinct()
 }
 
-/** Up to a leaf, addingAll and addings give the same buffers. */
-private fun listsOf(size: Int): Origins<PersistentList<Int>> {
-    val fromAddingAll = "a list of $size from addingAll" to { persistentListOf<Int>().addingAll(List(size) { it }) }
-    val fromAddings = "a list of $size from addings" to { (0..<size).fold(persistentListOf<Int>()) { list, element -> list.adding(element) } }
-    return if (size <= LEAF) listOf(fromAddingAll) else listOf(fromAddingAll, fromAddings)
-}
+private fun listsOf(size: Int): Origins<PersistentList<Int>> = listOf(
+    "a list of $size from addingAll" to { List(size) { it }.toPersistentList() },
+    "a list of $size from addings" to { (0..<size).fold(persistentListOf<Int>()) { list, element -> list.adding(element) } },
+)
 
 /**
  * The builder makes retainAll, the calls with a predicate and the clears through subList one element at a time, so
@@ -178,14 +176,11 @@ private fun assertContent(expected: List<Int>, actual: List<Int>, message: Strin
     assertEquals(expected.size, actual.size, "$message: the size")
     val forward = actual.listIterator()
     for (index in expected.indices) {
-        val element = expected[index]
-        if (actual[index] != element) fail("$message: the element at $index is ${actual[index]}, not $element")
-        if (forward.next() != element) fail("$message: next() at $index is not $element")
+        assertEquals(expected[index], actual[index], "$message: the element at $index")
+        assertEquals(expected[index], forward.next(), "$message: next() at $index")
     }
     val backward = actual.listIterator(actual.size)
-    for (index in expected.indices.reversed()) {
-        if (backward.previous() != expected[index]) fail("$message: previous() at $index is not ${expected[index]}")
-    }
+    for (index in expected.indices.reversed()) assertEquals(expected[index], backward.previous(), "$message: previous() at $index")
 }
 
 /** Content checks cannot see an element left behind the size or a root taller than its leaves need. */
