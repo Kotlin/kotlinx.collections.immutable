@@ -21,6 +21,8 @@ import kotlin.test.fail
  * list iterators from both ends, at the sizes where the trie changes shape and at the indices around its boundaries,
  * and with a trie that keeps nothing behind the size under a root no taller than its leaves need. The list a call
  * starts from never changes, nor does a list the builder built, while the builder goes on writing at both ends.
+ *
+ * A new call is a row of [calls]; a new size, an element of [sizes].
  */
 class ListBoundaryTest {
 
