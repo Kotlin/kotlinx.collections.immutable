@@ -6,7 +6,6 @@
 package tests.contract
 
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 /*
  * The fail-fast contract of the builder iterators, tested as stdlib's ConcurrentModificationTest tests it. A table of
@@ -47,7 +46,7 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
  * After a call that moves the size, the iterator is frozen where the call found it: each call throws
  * ConcurrentModificationException, except a remove or a set with no element to act on, which throws
  * IllegalStateException, as a fresh iterator of a stdlib list of what the builder held when the iterator was opened,
- * advanced as far, tells. A next after them throws ConcurrentModificationException, and the builder still holds what
+ * advanced as far, tells. A next afterwards throws ConcurrentModificationException, and the builder still holds what
  * the call left in it.
  */
 fun <B, I : MutableIterator<*>> Cells.testIterator(
@@ -74,7 +73,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                         val expected = if (noElement) "throws IllegalStateException" else "throws ConcurrentModificationException"
                         assertEquals(expected, outcomeOf { iterator.call() }, name)
                     }
-                    assertFailsWith<ConcurrentModificationException>("next() after them") { iterator.next() }
+                    assertEquals("throws ConcurrentModificationException", outcomeOf { iterator.next() }, "next() afterwards")
                     assertEquals(content, builder.open().drain(), "the builder")
                 } else {
                     val model = content.toMutableList()
