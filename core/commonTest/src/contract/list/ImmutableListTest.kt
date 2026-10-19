@@ -11,8 +11,6 @@ import tests.contract.*
 import tests.*
 import kotlin.test.*
 
-private val PersistentList.Builder<*>.modCount: Int get() = (this as PersistentVectorBuilder<*>).getModCount()
-
 class ImmutableListTest {
 
     private fun <T> compareLists(expected: List<T>, actual: List<T>) = compare(expected, actual) { listBehavior() }
@@ -175,28 +173,30 @@ class ImmutableListTest {
         assertEquals("abxbxyz12", builder.joinToString(""))
     }
 
+    private val PersistentList.Builder<*>.modCount: Int get() = (this as PersistentVectorBuilder<*>).getModCount()
+
     /**
      * The builder's clear drops the root and the tail in one step: one modification, and the builder goes on from the
      * empty list.
      */
     @Test fun clearOfBuilder() = forEachBuilder(listBuilders) { builder ->
-        val size = builder.size
+        val elements = builder.toList()
         val built = builder.build()
         val modCount = builder.modCount
 
         builder.clear()
 
-        assertEquals(modCount + 1, builder.modCount)
-        assertSame(persistentListOf(), builder.build())
-        repeat(size) { builder.add(size + it) }
-        assertEquals(List<Any>(size) { size + it }, builder.build())
-        assertEquals(List<Any>(size) { it }, built)
+        assertEquals(modCount + 1, builder.modCount, "modifications")
+        assertSame(persistentListOf(), builder.build(), "built after the clear")
+        val newElements = List<Any>(elements.size) { "new $it" }
+        for (element in newElements) builder.add(element)
+        assertEquals(newElements, builder.build(), "built after as many adds")
+        assertEquals(elements, built, "built before the clear")
     }
 
     /** The clear of an empty builder counts as a change too: the live iterators fail fast after it. */
     @Test fun clearOfEmptyBuilder() = runCells {
-        val clear = BuilderOperation<PersistentList.Builder<Any>>("clear()") { clear() }
-        testIterator(emptyListBuilders, listViews, listOf(clear), iteratorCalls)
+        testIterator(emptyListBuilders, listViews, listOf(BuilderOperation("clear()") { clear() }), iteratorCalls)
     }
 
     fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
