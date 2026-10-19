@@ -9,7 +9,6 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.implementations.immutableList.LOG_MAX_BUFFER_SIZE
 import kotlinx.collections.immutable.implementations.immutableList.MAX_BUFFER_SIZE
 import kotlinx.collections.immutable.implementations.immutableList.PersistentVectorBuilder
-import kotlinx.collections.immutable.implementations.immutableList.rootSize
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
@@ -79,8 +78,6 @@ private const val BEFORE_BUILD = -3
 private const val AFTER_BUILD = -4
 
 private fun newElements(count: Int): List<Int> = List(count) { -10 - it }
-
-private fun trieSize(size: Int): Int = if (size <= LEAF) 0 else rootSize(size)
 
 /** One, as many as fill the tail, one more, and a leaf and one. */
 private fun counts(size: Int): List<Int> {

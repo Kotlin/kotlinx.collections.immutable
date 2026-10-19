@@ -66,7 +66,7 @@ class NoOpIdentityTest {
 
     @Test
     fun `value writes into a list`() = runCells {
-        for ((size, depth) in listDepths) for (index in boundaryIndices(size)) for (write in valueWrites) {
+        for ((size, depth) in listShapes) for (index in boundaryIndices(size)) for (write in valueWrites) {
             val stored = write.stored()
             val neighbour = if (index == 0) 1 else index - 1
             val list = wrappersOf(size).toPersistentList<Any?>().replacingAt(index, stored)
@@ -191,7 +191,7 @@ private fun <C : PersistentCollection<Any?>> collectionEmptyingCalls(collection:
 private fun lists(): List<Pair<String, PersistentList<Any?>>> = listOf(
     "the empty list" to persistentListOf<Any?>(),
     "a list of one element" to wrappersOf(1).toPersistentList(),
-) + listDepths.map { (size, depth) -> "a list of $size, $depth" to wrappersOf(size).toPersistentList() }
+) + listShapes.map { (size, depth) -> "a list of $size, $depth" to wrappersOf(size).toPersistentList() }
 
 private fun listNoOps(list: PersistentList<Any?>): List<Call<PersistentList<Any?>>> = collectionNoOps(list) + buildList {
     call("addingAll(nothing)") { addingAll(emptyList()) }

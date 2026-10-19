@@ -44,7 +44,7 @@ const val ONE_LEAF = MAX_BUFFER_SIZE + 8
 const val LEAVES = 3 * MAX_BUFFER_SIZE + 4
 const val NODES = MAX_BUFFER_SIZE * MAX_BUFFER_SIZE + 76
 
-val listDepths: Map<Int, String> = mapOf(
+val listShapes: Map<Int, String> = mapOf(
     TAIL_ONLY to "the tail only",
     FULL_TAIL to "a full tail",
     ONE_LEAF to "a root that is one leaf",
@@ -52,9 +52,12 @@ val listDepths: Map<Int, String> = mapOf(
     NODES to "a root over level-1 nodes",
 )
 
+/** How many elements of a list of [size] its trie holds; up to a full tail, the tail holds them all. */
+fun trieSize(size: Int): Int = if (size <= MAX_BUFFER_SIZE) 0 else rootSize(size)
+
 /** The ends of the first leaf, the first level-1 node and the last leaf, the index past each, and the last index. */
 fun boundaryIndices(size: Int): List<Int> {
-    val trieSize = if (size <= MAX_BUFFER_SIZE) 0 else rootSize(size)
+    val trieSize = trieSize(size)
     return listOf(
         0, MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE - 1, MAX_BUFFER_SIZE * MAX_BUFFER_SIZE,
         trieSize - MAX_BUFFER_SIZE, trieSize - 1, trieSize, size - 1,
@@ -64,7 +67,7 @@ fun boundaryIndices(size: Int): List<Int> {
 /** The origins of [list], whose undone write puts [other] at the middle index and then the element that was there. */
 fun <E> listBuildersOf(list: PersistentList<E>, other: E): Origins<PersistentList.Builder<E>> {
     val size = list.size
-    val shape = listDepths[size]?.let { ", $it" }.orEmpty()
+    val shape = listShapes[size]?.let { ", $it" }.orEmpty()
     val middle = size / 2
     return listOf(
         "from a list of $size$shape" to { list.builder() },
@@ -157,10 +160,10 @@ private fun emptyMapBuildersOf(
 }
 
 val emptyListBuilders = emptyBuildersOf("a list builder") { it.toPersistentList().builder() }
-val emptyHashSetBuilders = emptyBuildersOf("a hash set builder") { it.toPersistentHashSet().builder() }
-val emptyOrderedSetBuilders = emptyBuildersOf("an ordered set builder") { it.toPersistentSet().builder() }
-val emptyHashMapBuilders = emptyMapBuildersOf("a hash map builder") { persistentHashMapOf(*it.toTypedArray()) }
-val emptyOrderedMapBuilders = emptyMapBuildersOf("an ordered map builder") { persistentMapOf(*it.toTypedArray()) }
+val emptySetBuilders = emptyBuildersOf("a hash set builder") { it.toPersistentHashSet().builder() } +
+    emptyBuildersOf("an ordered set builder") { it.toPersistentSet().builder() }
+val emptyMapBuilders = emptyMapBuildersOf("a hash map builder") { persistentHashMapOf(*it.toTypedArray()) } +
+    emptyMapBuildersOf("an ordered map builder") { persistentMapOf(*it.toTypedArray()) }
 
 val listViews: Views<PersistentList.Builder<Any>, MutableIterator<*>> = listOf("iterator" to { iterator() })
 val listIteratorViews: Views<PersistentList.Builder<Any>, MutableListIterator<Any>> = listOf("listIterator" to { listIterator() })
@@ -174,6 +177,7 @@ val mapViews: Views<PersistentMap.Builder<Any, String>, MutableIterator<*>> = li
 /** The first row of every table: it leaves the builder alone, so that the iterator calls run on an untouched builder too. */
 val noCall: BuilderOperation<Any?> = BuilderOperation("no call", throwsCME = false) { }
 
+/** For builders of two elements or more, which set(1) and the second removeAt(lastIndex) need. */
 val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = listOf(
     noCall,
 
@@ -242,7 +246,10 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>> = 
     BuilderOperation("build() then put(a new value for the first key)", throwsCME = false) { val _ = build(); put(keys.first(), "changed") },
 )
 
-/** For the hash and the ordered set builders; a hash set argument takes the hash builder's trie-by-trie path. */
+/**
+ * For the hash and the ordered set builders of two elements or more, which the rows that retain only the first element
+ * need; a hash set argument takes the hash builder's trie-by-trie path.
+ */
 val setOperations: List<BuilderOperation<PersistentSet.Builder<Any>>> = listOf(
     noCall,
 

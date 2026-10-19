@@ -37,7 +37,7 @@ class CellsTest {
 
     @Test
     fun `a call that keeps the size but is marked as moving it fails its cells`() {
-        val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, listOf(BuilderOperation("no call") { }), listOf(next)) } }
+        val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, listOf(BuilderOperation("no call", throwsCME = true) { }), listOf(next)) } }
         assertTrue(failure.message!!.startsWith("2 of 2 cells failed:"), failure.message)
     }
 

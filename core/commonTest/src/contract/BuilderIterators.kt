@@ -36,7 +36,7 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
 
 /**
  * Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to size times, makes
- * a call of [builderOps] and then one call of [iteratorCalls] or two in a row: one cell per origin, view, builder call
+ * a call of [operations] and then one call of [iteratorCalls] or two in a row: one cell per origin, view, builder call
  * and call sequence, with every position inside it.
  *
  * After a call that keeps the size, the iterator of a stdlib list of what the builder holds, advanced as far, takes the
@@ -52,35 +52,39 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
 fun <B, I : MutableIterator<*>> Cells.testIterator(
     builders: Origins<B>,
     views: Views<B, I>,
-    builderOps: List<BuilderOperation<B>>,
+    operations: List<BuilderOperation<B>>,
     iteratorCalls: List<Call<I>>,
 ) {
-    val alone = iteratorCalls.map { listOf(it) }
-    val pairs = iteratorCalls.flatMap { first -> iteratorCalls.map { second -> listOf(first, second) } }
-    for (builderOp in builderOps) for (calls in alone + pairs) for ((origin, newBuilder) in builders) for ((view, open) in views) {
-        cell("$origin, $view, ${calls.joinToString(" then ") { it.first }} after ${builderOp.description}") {
+    val alone = iteratorCalls.map { call -> call.first to listOf(call) }
+    val pairs = iteratorCalls.flatMap { (first, firstCall) ->
+        iteratorCalls.map { (second, secondCall) ->
+            "$first then $second" to listOf("the first $first" to firstCall, "the second $second" to secondCall)
+        }
+    }
+    for ((origin, newBuilder) in builders) for ((view, open) in views) for (operation in operations) for ((calls, steps) in alone + pairs) {
+        cell("$origin, $view, $calls after ${operation.description}") {
             val opened = newBuilder().open().drain()
             for (returned in 0..opened.size) at("after $returned next") {
                 val builder = newBuilder()
                 val iterator = builder.open()
                 repeat(returned) { val _ = iterator.next() }
-                builderOp.function(builder)
+                operation.function(builder)
                 val content = builder.open().drain()
 
-                if (builderOp.throwsCME) {
-                    for ((name, call) in calls) {
-                        val fresh = modelIteratorOf<I>(opened.toMutableList(), returned)
-                        val noElement = outcomeOf { fresh.call() } == "throws IllegalStateException"
-                        val expected = if (noElement) "throws IllegalStateException" else "throws ConcurrentModificationException"
-                        assertEquals(expected, outcomeOf { iterator.call() }, name)
+                if (operation.throwsCME) {
+                    for ((description, call) in steps) {
+                        val fresh = outcomeOf { modelIteratorOf<I>(opened.toMutableList(), returned).call() }
+                        val expected = if (fresh == "throws IllegalStateException") fresh else "throws ConcurrentModificationException"
+                        assertEquals(expected, outcomeOf { iterator.call() }, description)
                     }
                     assertEquals("throws ConcurrentModificationException", outcomeOf { iterator.next() }, "next() afterwards")
                     assertEquals(content, builder.open().drain(), "the builder")
                 } else {
+                    assertEquals(opened.size, content.size, "the size after ${operation.description}, which its row says it keeps")
                     val model = content.toMutableList()
                     val modelIterator = modelIteratorOf<I>(model, returned)
-                    for ((name, call) in calls) assertEquals(outcomeOf { modelIterator.call() }, outcomeOf { iterator.call() }, name)
-                    assertEquals(modelIterator.drain(), iterator.drain(), "the rest")
+                    for ((description, call) in steps) assertEquals(outcomeOf { modelIterator.call() }, outcomeOf { iterator.call() }, description)
+                    assertEquals(modelIterator.drain(), outcomeOf { iterator.drain() }, "the rest")
                     if (builder is List<*>) assertEquals(model, builder.open().drain(), "the builder")
                     else assertEquals(model.unordered(), builder.open().drain().unordered(), "the builder")
                 }
@@ -97,10 +101,14 @@ private fun <I : MutableIterator<*>> modelIteratorOf(elements: MutableList<Any?>
 /** The elements as a multiset, since a remove from a hash map may promote an entry ahead of the visited ones. */
 private fun List<Any?>.unordered(): List<Any?> = sortedBy { it.toString() }
 
-/** What [call] returns, read as [drain] reads it, or "throws X" when it throws X. A failed assertion fails the cell. */
+/**
+ * What [call] returns, read as [drain] reads it, "returns" when that is Unit, or "throws X" when it throws X. A failed
+ * assertion fails the cell.
+ */
 private fun outcomeOf(call: () -> Any?): Any? =
     try {
-        read(call())
+        val result = call()
+        if (result is Unit) "returns" else read(result)
     } catch (e: AssertionError) {
         throw e
     } catch (e: Throwable) {

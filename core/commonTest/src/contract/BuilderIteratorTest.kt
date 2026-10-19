@@ -65,7 +65,7 @@ class BuilderIteratorTest {
             BuilderOperation("removeAll(a hash set)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2)) },
             BuilderOperation("removeAll(a hash set builder)", throwsCME = false) { removeAll(persistentHashSetOf(1, 2).builder()) },
         )
-        testIterator(emptyHashMapBuilders + emptyOrderedMapBuilders, mapViews, listOf(clearMap), iteratorCalls)
-        testIterator(emptyHashSetBuilders + emptyOrderedSetBuilders, setViews, setCalls, iteratorCalls)
+        testIterator(emptyMapBuilders, mapViews, listOf(clearMap), iteratorCalls)
+        testIterator(emptySetBuilders, setViews, setCalls, iteratorCalls)
     }
 }
