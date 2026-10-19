@@ -35,14 +35,7 @@ class Cells {
     }
 }
 
-fun runCells(table: Cells.() -> Unit): Unit = Cells().run {
-    try {
-        table()
-    } catch (e: Throwable) {
-        cell("between the cells") { throw e }
-    }
-    report()
-}
+fun runCells(table: Cells.() -> Unit): Unit = Cells().apply(table).report()
 
 /** Runs [body] with [position] in front of whatever it throws, so that the assertions inside need no message. */
 fun at(position: String, body: () -> Unit) {
