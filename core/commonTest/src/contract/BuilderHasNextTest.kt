@@ -15,12 +15,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 /**
  * hasNext of the builder iterators never throws. After a call through the builder it answers from the iterator's own
  * cursor, so that next reports the comodification: true until the iterator has returned as many elements as the
- * builder held when it was opened. The list builder's iterator answers from the live size, as ArrayList's.
+ * builder held when it was opened. The list builder's iterator answers hasNext from the live size and hasPrevious from
+ * the cursor alone, as ArrayList's.
  *
  * The iterators of an ordered map or set and of its builder follow a chain of keys. A key whose hash changed after it
  * was stored makes next and remove throw ConcurrentModificationException, and the iteration goes on from that key once
@@ -30,7 +30,7 @@ import kotlin.test.assertTrue
 class BuilderHasNextTest {
 
     @Test
-    fun list() = runCells { testHasNext(listBuilders, listViews, listOperations) }
+    fun list() = runCells { testHasNext(listBuilders, listIteratorViews, listOperations) }
 
     @Test
     fun hashMap() = runCells { testHasNext(hashMapBuilders, mapViews, mapOperations) }
@@ -57,17 +57,6 @@ class BuilderHasNextTest {
         testIterator(emptyListBuilders, listViews, addToList, listOf(next))
         testIterator(emptyMapBuilders, mapViews, put, listOf(next))
         testIterator(emptySetBuilders, setViews, addToSet, listOf(next))
-    }
-
-    @Test
-    fun `hasPrevious after a clear stays true and previous throws`() = forEachBuilder(listBuildersOf(TAIL_ONLY)) { builder ->
-        val iterator = builder.listIterator()
-        repeat(2) { val _ = iterator.next() }
-
-        builder.clear()
-
-        assertTrue(iterator.hasPrevious())
-        assertFailsWith<ConcurrentModificationException> { iterator.previous() }
     }
 
     @Test
@@ -143,7 +132,8 @@ private fun <B> Cells.testHasNext(
                 builderOp.function(builder)
 
                 val end = if (builder is List<*>) builder.size else opened.size
-                assertEquals(returned != end, iterator.hasNext())
+                at("hasNext()") { assertEquals(returned != end, iterator.hasNext()) }
+                if (iterator is ListIterator<*>) at("hasPrevious()") { assertEquals(returned > 0, iterator.hasPrevious()) }
             }
         }
     }
