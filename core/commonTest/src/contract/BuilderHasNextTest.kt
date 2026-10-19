@@ -26,6 +26,9 @@ import kotlin.test.assertFalse
  * was stored makes next and remove throw ConcurrentModificationException, and the iteration goes on from that key once
  * the hash is back. A key made equal to another one makes the chain loop or end early, and the next that notices it
  * throws ConcurrentModificationException and ends the iteration.
+ *
+ * A new call through a builder is a row of [listOperations], [mapOperations] or [setOperations]; a new scenario of a
+ * key changed after it was stored is a cell over [orderedCollections] or [orderedBuilderCollections].
  */
 class BuilderHasNextTest {
 
