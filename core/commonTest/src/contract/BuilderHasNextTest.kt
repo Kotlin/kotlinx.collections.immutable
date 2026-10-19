@@ -45,7 +45,7 @@ class BuilderHasNextTest {
     fun orderedSet() = runCells { testHasNext(orderedSetBuilders, setViews, setOperations) }
 
     @Test
-    fun `add or put on an empty builder during iteration makes next throw`() = runCells {
+    fun `hasNext and next after an add or put on an empty builder`() = runCells {
         val emptyMapBuilders = emptyHashMapBuilders + emptyOrderedMapBuilders
         val emptySetBuilders = emptyHashSetBuilders + emptyOrderedSetBuilders
         val addToList = listOf(BuilderOperation<PersistentList.Builder<Any>>("add()") { add("new") })
