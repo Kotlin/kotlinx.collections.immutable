@@ -55,8 +55,9 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
     builderOps: List<BuilderOperation<B>>,
     iteratorCalls: List<Call<I>>,
 ) {
-    val sequences = iteratorCalls.map { listOf(it) } + iteratorCalls.flatMap { first -> iteratorCalls.map { listOf(first, it) } }
-    for (builderOp in builderOps) for (calls in sequences) for ((origin, newBuilder) in builders) for ((view, open) in views) {
+    val alone = iteratorCalls.map { listOf(it) }
+    val pairs = iteratorCalls.flatMap { first -> iteratorCalls.map { second -> listOf(first, second) } }
+    for (builderOp in builderOps) for (calls in alone + pairs) for ((origin, newBuilder) in builders) for ((view, open) in views) {
         cell("$origin, $view, ${calls.joinToString(" then ") { it.first }} after ${builderOp.description}") {
             val opened = newBuilder().open().drain()
             for (returned in 0..opened.size) at("after $returned next") {
