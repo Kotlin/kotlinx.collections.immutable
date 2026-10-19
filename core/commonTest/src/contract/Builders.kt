@@ -202,6 +202,9 @@ val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = listOf
 private fun newValuesFor(keys: List<Any>): PersistentMap<Any, String> =
     persistentHashMapOf(*keys.mapIndexed { index, key -> key to "new $index" }.toTypedArray())
 
+/** An entry of its own with [key] and [value], since entries.remove takes a MutableEntry and not a pair. */
+private fun entryOf(key: Any, value: String): MutableMap.MutableEntry<Any, String> = mutableMapOf(key to value).entries.first()
+
 /** For the hash and the ordered map builders; a hash map argument takes the hash builder's trie-by-trie path. */
 val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>> = listOf(
     noCall,
@@ -216,7 +219,7 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>> = 
     BuilderOperation("remove(every key)") { for (key in keys.toList()) remove(key) },
     BuilderOperation("entries.iterator().remove()") { entries.iterator().apply { val _ = next(); remove() } },
     BuilderOperation("keys.iterator().remove()") { keys.iterator().apply { val _ = next(); remove() } },
-    BuilderOperation("entries.remove(the first entry)") { entries.remove(mutableMapOf(keys.first() to getValue(keys.first())).entries.first()) },
+    BuilderOperation("entries.remove(the first entry)") { entries.remove(entryOf(keys.first(), getValue(keys.first()))) },
     BuilderOperation("keys.remove(the first key)") { keys.remove(keys.first()) },
 
     BuilderOperation("put(a new value for the first key)", throwsCME = false) { put(keys.first(), "changed") },
@@ -235,7 +238,7 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any, String>>> = 
     BuilderOperation("putAll(an empty map)", throwsCME = false) { putAll(emptyMap()) },
     BuilderOperation("putAll(an empty hash map)", throwsCME = false) { putAll(persistentHashMapOf<Any, String>()) },
     BuilderOperation("remove(a missing key)", throwsCME = false) { remove("missing") },
-    BuilderOperation("entries.remove(the first key with another value)", throwsCME = false) { entries.remove(mutableMapOf(keys.first() to "other").entries.first()) },
+    BuilderOperation("entries.remove(the first key with another value)", throwsCME = false) { entries.remove(entryOf(keys.first(), "other")) },
     BuilderOperation("build() then put(a new value for the first key)", throwsCME = false) { val _ = build(); put(keys.first(), "changed") },
 )
 
