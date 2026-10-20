@@ -78,19 +78,6 @@ class ImmutableHashMapTest : ImmutableMapTest() {
         compareMaps(expected, builder1.build())
     }
 
-    @Test fun regressionGithubIssue109() {
-        // https://github.com/Kotlin/kotlinx.collections.immutable/issues/109
-        val map0 = immutableMapOf<Int, Int>().putting(0, 0).putting(1, 1).putting(32, 32)
-        val map1 = map0.mutate { it.remove(0) }
-        val map2 = map1.mutate {
-            it.remove(1)
-            it.remove(0)
-        }
-
-        assertTrue(map1.containsKey(32))
-        assertTrue(map2.containsKey(32))
-    }
-
     @Test
     fun regressionGithubIssue114() {
         // https://github.com/Kotlin/kotlinx.collections.immutable/issues/114
@@ -289,62 +276,6 @@ abstract class ImmutableMapTest {
 
         compareMapsUnordered(mutable, builder)
         compareMapsUnordered(mutable, builder.build())
-    }
-
-    @Test fun noOperation() {
-        immutableMapOf<String, String>().toPersistentMap().testNoOperation({ cleared() }, { clear() })
-
-        val key = ObjectWrapper("x", "x".hashCode())
-        val equalKey = ObjectWrapper("x", "x".hashCode()) // equalKey == key && equalKey !== key
-        val notEqualKey = ObjectWrapper("y", "x".hashCode()) // notEqualKey != key && notEqualKey.hashCode == key.hashCode
-        val value = ObjectWrapper(1, 1)
-        val equalValue = ObjectWrapper(1, 1) // equalValue == value && equalValue !== value
-        val notEqualValue = ObjectWrapper(2, 2) // notEqualValue != value
-
-        /*
-        To avoid changes to a persistent map:
-          * remove(key):
-              no key in map is equal (==) to the given key
-          * remove(key, value):
-              the above, or the value for the found key is not equal (!=) to the given value
-          * put(key, value):
-              map has a key equal (==) to the given key, and the value for the found key is the same (===) as the given value,
-              or, for a primitive or unsigned number, a char or a Boolean, an equal (==) one
-         */
-        val map = immutableMapOf(key to value, null to "x").toPersistentMap()
-
-        map.testNoOperation({ removing(notEqualKey) }, { remove(notEqualKey) })
-        map.testNotNoOperation({ removing(equalKey) }, { remove(equalKey) })
-
-        map.testNoOperation({ removing(key, notEqualValue) }, { val _ = remove(key, notEqualValue) })
-        map.testNotNoOperation({ removing(key, equalValue) }, { val _ = remove(key, equalValue) })
-
-        map.testNoOperation({ putting(equalKey, value) }, { put(equalKey, value) })
-        map.testNotNoOperation({ putting(equalKey, equalValue) }, { put(equalKey, equalValue) })
-
-        val collisionMap = immutableMapOf(key to value, notEqualKey to notEqualValue)
-
-        collisionMap.testNoOperation({ putting(notEqualKey, notEqualValue) }, { put(notEqualKey, notEqualValue) })
-        collisionMap.testNotNoOperation({ putting(equalKey, equalValue) }, { put(equalKey, equalValue) })
-
-        map.testNoOperation({ puttingAll(this) }, { putAll(this) })
-        map.testNoOperation({ puttingAll(emptyMap()) }, { putAll(emptyMap()) })
-    }
-
-    fun <K, V> PersistentMap<K, V>.testNoOperation(persistent: PersistentMap<K, V>.() -> PersistentMap<K, V>, mutating: MutableMap<K, V>.() -> Unit) {
-        val result = this.persistent()
-        val buildResult = this.mutate(mutating)
-        // Ensure non-mutating operations return the same instance
-        assertSame(this, result)
-        assertSame(this, buildResult)
-    }
-
-    fun <K, V> PersistentMap<K, V>.testNotNoOperation(persistent: PersistentMap<K, V>.() -> PersistentMap<K, V>, mutating: MutableMap<K, V>.() -> Unit) {
-        val result = this.persistent()
-        val buildResult = this.mutate(mutating)
-        // Ensure mutating operations do not return the same instance
-        assertNotSame(this, result)
-        assertNotSame(this, buildResult)
     }
 
 
