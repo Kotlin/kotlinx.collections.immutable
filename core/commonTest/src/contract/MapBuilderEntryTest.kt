@@ -39,8 +39,8 @@ class MapBuilderEntryTest {
 
     @Test
     fun `entry value follows an overwrite of its key to null and a re-put of its key as null`() =
-        forEachBuilder(mapBuildersOf<Int, String?>(1 to "a", 2 to null, 3 to "c")) { builder ->
-            val (entryOfString, entryOfNull, entryOfRePut) = builder.entries.toList()
+        forEachBuilder(mapBuildersOf<Int, String?>(3 to "c", 1 to "a", 2 to null)) { builder ->
+            val (entryOfString, entryOfNull, entryOfRePut) = builder.entries.sortedBy { it.key }
 
             builder[1] = null
             builder[2] = "b"
@@ -62,10 +62,10 @@ class MapBuilderEntryTest {
         forEachBuilder(mapBuildersOf(1 to stored)) { builder ->
             val entry = builder.entries.iterator().next()
 
-            assertSame(stored, entry.setValue(equal))
+            assertSame(stored, entry.setValue(equal), "what setValue returns")
 
-            assertSame(equal, builder[1])
-            assertSame(equal, entry.value)
+            assertSame(equal, builder[1], "the value in the builder")
+            assertSame(equal, entry.value, "the entry's value")
         }
     }
 
@@ -124,13 +124,13 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                     assertEquals(value, entry.setValue("z"), "what setValue returns")
                     assertEquals("z", entry.value, "the value after it")
                     val expected = built.toMutableMap().apply { if (kept) this[entry.key] = "z" }
-                    assertEquals(expected.toList(), builder.toList(), "the builder after it")
+                    at("the builder after it") { assertEquals(expected.toList(), builder.toList()) }
                     if (kept) assertEquals(value, built[entry.key], "the map built before the setValue calls")
                 }
                 at("the iterators after the setValue calls") {
-                    if (operation.throwsCME) assertFailsWith<ConcurrentModificationException> { iterator.next() }
-                    else assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList())
-                    assertEquals(builder.toList(), laterIterator.drain(), "one opened after the call")
+                    if (operation.throwsCME) assertFailsWith<ConcurrentModificationException>("next() of the one that returned the entry") { iterator.next() }
+                    else assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList(), "the rest of the one that returned the entry")
+                    at("one opened after the call") { assertEquals(builder.toList(), laterIterator.drain()) }
                 }
                 at("setValue after a put of its key") {
                     builder[entry.key] = "p"
