@@ -10,9 +10,7 @@ import tests.contract.collectionBehavior
 import tests.contract.compare
 import tests.contract.mapBehavior
 import tests.contract.setBehavior
-import tests.remove
 import tests.IntWrapper
-import tests.ObjectWrapper
 import kotlin.test.*
 
 class ImmutableHashMapTest : ImmutableMapTest() {
