@@ -8,7 +8,7 @@ package tests.contract.map
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.contract.drain
 import tests.contract.runCells
-import tests.trie.*
+import tests.trie.MutableKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
