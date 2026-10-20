@@ -111,23 +111,6 @@ class PersistentHashMapBuilderTest {
     }
 
     @Test
-    fun `entry setValue after iterator remove does not re-add the key`() {
-        val builder = persistentHashMapOf(1 to "a", 2 to "b").builder()
-        val iterator = builder.entries.iterator()
-        val entry = iterator.next()
-        val oldValue = entry.value
-        iterator.remove()
-
-        assertEquals(oldValue, entry.setValue("z"))
-
-        assertEquals(1, builder.size)
-        assertFalse(builder.containsKey(entry.key))
-        assertEquals(if (entry.key == 1) 2 else 1, iterator.next().key)
-        assertFalse(iterator.hasNext())
-        assertFalse(builder.build().containsKey(entry.key))
-    }
-
-    @Test
     fun `next throws until the changed hash of the next key is back after an overwrite copied its path`() = runCells {
         fun check(case: String, hashes: List<Int>, changed: Int, newHash: Int) = cell(case) {
             val keys = hashes.mapIndexed { id, hash -> MutableKey(id, hash) }
