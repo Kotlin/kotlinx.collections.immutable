@@ -8,16 +8,15 @@ package tests.contract.map
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.IntWrapper
+import tests.trie.collidingKey1
+import tests.trie.collidingKey2
+import tests.trie.collidingKey3
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PersistentHashMapTest {
-
-    private val a1 = IntWrapper(1, 0)
-    private val a2 = IntWrapper(2, 0)
-    private val a3 = IntWrapper(4, 0)
 
     @Test
     fun `if the collision is of size 2 and one of the keys is removed the remaining key must be promoted`() {
@@ -81,12 +80,12 @@ class PersistentHashMapTest {
 
     @Test
     fun `putAll should keep a null value the argument adds to a collision node`() {
-        val receiver = persistentHashMapOf(a1 to 1, a2 to null)
-        val argument = persistentHashMapOf(a2 to 20, a3 to null)
+        val receiver = persistentHashMapOf(collidingKey1 to 1, collidingKey2 to null)
+        val argument = persistentHashMapOf(collidingKey2 to 20, collidingKey3 to null)
 
         val sum = receiver.puttingAll(argument)
         assertEquals(3, sum.size)
-        assertEquals(persistentHashMapOf(a1 to 1, a2 to 20, a3 to null), sum)
-        assertNull(sum[a3])
+        assertEquals(persistentHashMapOf(collidingKey1 to 1, collidingKey2 to 20, collidingKey3 to null), sum)
+        assertNull(sum[collidingKey3])
     }
 }
