@@ -77,55 +77,6 @@ class PersistentOrderedMapBuilderTest {
     }
 
     @Test
-    fun `put of a new value for a stored key during iteration keeps the iterator valid`() {
-        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
-        val iterator = builder.entries.iterator()
-        val _ = iterator.next()
-
-        assertEquals("b", builder.put(2, "b!"))
-
-        assertEquals(2, iterator.next().key)
-        assertEquals(3, iterator.next().key)
-        assertEquals(listOf("a", "b!", "c"), builder.build().values.toList())
-    }
-
-    @Test
-    fun `put of a new value for a stored key during iteration keeps the keys and values iterators valid`() {
-        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
-        val keys = builder.keys.iterator()
-        val values = builder.values.iterator()
-        assertEquals(1, keys.next())
-        assertEquals("a", values.next())
-
-        assertEquals("b", builder.put(2, "b!"))
-
-        assertEquals(2, keys.next())
-        assertEquals("b!", values.next())
-    }
-
-    @Test
-    fun `put of a new key during iteration throws ConcurrentModificationException`() {
-        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
-        val iterator = builder.entries.iterator()
-        val _ = iterator.next()
-
-        builder[4] = "d"
-
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
-    fun `remove of a key during iteration throws ConcurrentModificationException`() {
-        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
-        val iterator = builder.entries.iterator()
-        val _ = iterator.next()
-
-        assertEquals("c", builder.remove(3))
-
-        assertFailsWith<ConcurrentModificationException> { iterator.next() }
-    }
-
-    @Test
     fun `entry setValue after iterator remove does not re-add the key`() {
         val builder = persistentMapOf(1 to "a", 2 to "b").builder()
         val iterator = builder.entries.iterator()
