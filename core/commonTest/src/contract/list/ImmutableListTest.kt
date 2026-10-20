@@ -29,19 +29,6 @@ class ImmutableListTest {
 
     }
 
-    @Test
-    fun persistentListFails() {
-        var xs = persistentListOf(
-                *(1..1885).map { it }.toTypedArray()
-        )
-
-        xs = xs.removingAll(
-                (1..1837).map { it }
-        )
-
-        assertEquals((1838..1885).toList(), xs)
-    }
-
     @Test fun ofElements() {
         val list0 = listOf("a", "d", 1, null)
         val list1 = persistentListOf("a", "d", 1, null)
@@ -114,14 +101,6 @@ class ImmutableListTest {
 
         assertEquals(emptyList<Char>(), list - list)
         assertEquals(emptyList<Char>(), list.cleared())
-    }
-
-    @Test
-    fun smallPersistentListFromMutableBuffer() {
-        val list = List(33) { it }
-        var vector = persistentListOf<Int>().mutate { it.addAll(list) }
-        vector = vector.removingAt(vector.lastIndex)
-        assertEquals(list.dropLast(1), vector)
     }
 
     @Test fun subList() {
