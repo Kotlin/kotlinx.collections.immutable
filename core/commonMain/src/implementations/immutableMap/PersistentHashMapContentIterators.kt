@@ -36,11 +36,6 @@ internal abstract class TrieNodeBaseIterator<out K, out V, out T> : Iterator<T> 
         return buffer[index] as K
     }
 
-    fun moveToNextKey() {
-        assert { hasNextKey() }
-        index += 2
-    }
-
     fun hasNextNode(): Boolean {
         assert { index >= dataSize }
         return index < buffer.size
@@ -105,6 +100,9 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(
 
     protected var pathLastIndex = 0
 
+    /** The last level of the path is one promoted entry, read out of the buffer of the level above it. */
+    protected var pathEndsWithEntry = false
+
     @JsName("_hasNext")
     private var hasNext = true
 
@@ -133,6 +131,12 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(
     private fun ensureNextEntryIsReady() {
         if (path[pathLastIndex].hasNextKey()) {
             return
+        }
+        if (pathEndsWithEntry) {
+            pathEndsWithEntry = false
+            path[pathLastIndex].reset(TrieNode.EMPTY.buffer, 0)
+            pathLastIndex--
+            path[pathLastIndex].moveToNextNode()
         }
         for (i in pathLastIndex downTo 0) {
             var result = moveToNextNodeWithData(i)

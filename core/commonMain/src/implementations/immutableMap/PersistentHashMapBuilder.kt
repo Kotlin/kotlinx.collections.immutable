@@ -27,7 +27,7 @@ internal class PersistentHashMapBuilder<K, V>(map: PersistentHashMap<K, V>) :
     internal var operationResult: V? = null
     internal var modCount = 0
 
-    // The ordered map builder's chain of links moves only together with the size.
+    // The ordered map builder's chain of links moves only together with the size, and so does the shape of the trie.
     internal var sizeModCount = 0
         private set
 
