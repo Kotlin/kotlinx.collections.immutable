@@ -352,7 +352,7 @@ class PersistentHashMapBuilderTest {
 
             assertFailsWith<ConcurrentModificationException> { iterator.next() }
             keys[changed].hash = hashes[changed]
-            assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain())
+            assertEquals(order.drop(returned).map { it to builder[it] }, iterator.drain(), "the rest once the hash is back")
         }
         check("onto another entry", hashes = listOf(0, 1, 2), changed = 1, newHash = 2)
         check("onto an empty cell", hashes = listOf(0, 1, 2), changed = 1, newHash = 5)
