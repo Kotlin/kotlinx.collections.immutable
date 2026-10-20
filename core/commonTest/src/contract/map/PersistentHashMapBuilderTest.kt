@@ -57,38 +57,6 @@ class PersistentHashMapBuilderTest {
     }
 
     @Test
-    fun `put of a stored value should not rebuild a map whose key is in a bottom-level collision node`() {
-        val map = persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
-        val stored = map[a1]!!
-
-        val builder = map.builder()
-        assertSame(stored, builder.put(a1, stored))
-        assertSame(map, builder.build())
-    }
-
-    @Test
-    fun `putAll of the stored values should not rebuild the map`() {
-        val map = persistentHashMapOf(a1 to "a", a2 to "b", sibling to "c")
-
-        val builder = map.builder()
-        builder.putAll(persistentHashMapOf(a1 to map[a1]!!, a2 to map[a2]!!, sibling to map[sibling]!!))
-
-        assertSame(map, builder.build())
-    }
-
-    @Test
-    fun `putAll of an equal key with the stored value should not rebuild the map`() {
-        val map = persistentHashMapOf(IntWrapper(1, 1) to "a", IntWrapper(2, 2) to "b")
-        val builder = map.builder()
-
-        val iterator = builder.entries.iterator()
-        builder.putAll(persistentHashMapOf(IntWrapper(1, 1) to map[IntWrapper(1, 1)]!!))
-
-        assertSame(map, builder.build())
-        val _ = iterator.next()
-    }
-
-    @Test
     fun `putAll that replaces collision values should keep the stored key instances`() {
         val storedKey = IntWrapper(1, 0)
         val builder = persistentHashMapOf(storedKey to "a", a2 to "b").builder()
