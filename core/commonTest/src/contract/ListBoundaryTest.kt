@@ -13,6 +13,7 @@ import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
 /**
@@ -171,16 +172,13 @@ private fun MutableList<Int>.writeEnds(element: Int) {
     this[lastIndex] = element
 }
 
-/** Names the first index that differs, where assertEquals would print two long lists. */
 private fun assertContent(expected: List<Int>, actual: List<Int>, message: String) {
     assertEquals(expected.size, actual.size, "$message: the size")
+    assertContentEquals(expected, List(actual.size) { actual[it] }, "$message: read by index")
     val forward = actual.listIterator()
-    for (index in expected.indices) {
-        assertEquals(expected[index], actual[index], "$message: the element at $index")
-        assertEquals(expected[index], forward.next(), "$message: next() at $index")
-    }
+    assertContentEquals(expected, List(actual.size) { forward.next() }, "$message: read by next()")
     val backward = actual.listIterator(actual.size)
-    for (index in expected.indices.reversed()) assertEquals(expected[index], backward.previous(), "$message: previous() at $index")
+    assertContentEquals(expected, List(actual.size) { backward.previous() }.asReversed(), "$message: read by previous()")
 }
 
 /** Content checks cannot see an element left behind the size or a root taller than its leaves need. */
