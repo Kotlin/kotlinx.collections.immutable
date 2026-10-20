@@ -43,6 +43,11 @@ internal class PersistentVectorMutableIterator<T>(
         setupTrieIterator()
     }
 
+    /** Stays true for a cursor beyond the live size, leaving the comodification for [next] to report. */
+    override fun hasNext(): Boolean {
+        return index != builder.size
+    }
+
     override fun previous(): T {
         checkForComodification()
         checkHasPrevious()
