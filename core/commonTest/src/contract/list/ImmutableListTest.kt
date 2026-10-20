@@ -6,8 +6,8 @@
 package tests.contract.list
 
 import kotlinx.collections.immutable.*
-import tests.contract.compare
-import tests.contract.listBehavior
+import kotlinx.collections.immutable.implementations.immutableList.PersistentVectorBuilder
+import tests.contract.*
 import tests.*
 import kotlin.test.*
 
@@ -163,7 +163,6 @@ class ImmutableListTest {
         val list = "abcxaxyz12".toImmutableList().toPersistentList()
         val builder = list.builder()
 
-        // the first set copies the tail the builder shares, the second writes in place
         val subList = builder.subList(2, 5)
         builder[4] = 'x'
         assertEquals("cxx", subList.joinToString(""))
@@ -172,6 +171,27 @@ class ImmutableListTest {
         subList.removeAt(0)
         assertEquals("xb", subList.joinToString(""))
         assertEquals("abxbxyz12", builder.joinToString(""))
+    }
+
+    private val PersistentList.Builder<*>.modCount: Int get() = (this as PersistentVectorBuilder<*>).getModCount()
+
+    /**
+     * The builder's clear drops the root and the tail in one step: one modification, and the builder goes on from the
+     * empty list.
+     */
+    @Test fun clearOfBuilder() = forEachBuilder(listBuilders) { builder ->
+        val elements = builder.toList()
+        val built = builder.build()
+        val modCount = builder.modCount
+
+        builder.clear()
+
+        assertEquals(1, builder.modCount - modCount, "modifications counted by clear()")
+        assertSame(persistentListOf(), builder.build(), "built after the clear")
+        val newElements = List<Any>(elements.size) { "new $it" }
+        for (element in newElements) builder.add(element)
+        assertEquals(newElements, builder.build(), "built after as many adds")
+        assertEquals(elements, built, "built before the clear")
     }
 
     fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
