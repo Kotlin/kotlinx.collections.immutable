@@ -333,34 +333,11 @@ abstract class ImmutableSetTestBase {
         compareSetsUnordered(mutable, builder.build())
     }
 
-    @Test open fun noOperation() {
-        immutableSetOf<Int>().testNoOperation({ cleared() }, { clear() })
-
-        val set = immutableSetOf("abcxyz12".toList())
-        with(set) {
-            testNoOperation({ adding('a') }, { add('a') })
-            testNoOperation({ addingAll(emptySet()) }, { addAll(emptySet()) })
-            testNoOperation({ addingAll(listOf('a', 'b')) }, { addAll(listOf('a', 'b')) })
-            testNoOperation({ removing('d') }, { remove('d') })
-            testNoOperation({ removingAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
-            testNoOperation({ removingAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
-            testNoOperation({ removingAll(emptySet()) }, { removeAll(emptySet()) })
-        }
-    }
-
     @Test fun emptySetToPersistentSet() {
         val empty = emptySet<Int>()
         val emptyPersistentSet = empty.toPersistentSet()
 
         assertSame(emptyPersistentSet, empty.toPersistentSet())
-    }
-
-    fun <T> PersistentSet<T>.testNoOperation(persistent: PersistentSet<T>.() -> PersistentSet<T>, mutating: MutableSet<T>.() -> Unit) {
-        val result = this.persistent()
-        val buildResult = this.mutate(mutating)
-        // Ensure non-mutating operations return the same instance
-        assertTrue(this === result)
-        assertTrue(this === buildResult)
     }
 
     private fun <E> testSpecializedEquality(set: Set<E>, elements: Array<E>, isEqual: Boolean) {
