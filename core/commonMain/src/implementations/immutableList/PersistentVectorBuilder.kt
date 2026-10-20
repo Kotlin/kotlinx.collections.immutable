@@ -10,6 +10,7 @@ import kotlinx.collections.immutable.internal.ListImplementation.checkElementInd
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.internal.writeChangesNothing
 
 internal class PersistentVectorBuilder<E>(
     vector: PersistentList<E>,
@@ -46,13 +47,16 @@ internal class PersistentVectorBuilder<E>(
     internal var trieModCount = 0
         private set
 
+    // Carries the replaced element out of setInRoot, which returns the root, without an allocation per set.
+    private var replacedElement: Any? = null
+
     override fun build(): PersistentList<E> {
         return builtVector ?: run {
             val root = root
             val tail = tail
             ownership = MutabilityOwnership()
             val newlyBuiltVector: PersistentList<E> = if (root == null) {
-                if (tail.isEmpty()) {
+                if (size == 0) {
                     persistentVectorOf()
                 } else {
                     SmallPersistentVector(tail.copyOf(size))
@@ -981,41 +985,48 @@ internal class PersistentVectorBuilder<E>(
     }
 
     override fun set(index: Int, element: E): E {
-        // TODO: Should list[i] = list[i] make it mutable?
         checkElementIndex(index, size)
         if (rootSize() <= index) {
-            val mutableTail = makeMutable(tail)
             val tailIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
-            val oldElement = mutableTail[tailIndex]
-            mutableTail[tailIndex] = element
-            this.tail = mutableTail
             @Suppress("UNCHECKED_CAST")
-            return oldElement as E
+            val oldElement = tail[tailIndex] as E
+            if (!writeChangesNothing(oldElement, element)) {
+                val mutableTail = makeMutable(tail)
+                mutableTail[tailIndex] = element
+                this.tail = mutableTail
+            }
+            return oldElement
         }
 
-        val oldElementCarry = ObjectRef(null)
-        this.root = setInRoot(root!!, rootShift, index, element, oldElementCarry)
+        this.root = setInRoot(root!!, rootShift, index, element)
         @Suppress("UNCHECKED_CAST")
-        return oldElementCarry.value as E
+        val oldElement = replacedElement as E
+        replacedElement = null
+        return oldElement
     }
 
-    private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: E, oldElementCarry: ObjectRef): Array<Any?> {
+    private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: E): Array<Any?> {
         val bufferIndex = indexSegment(index, shift)
-        val mutableRoot = makeMutable(root)
-
         if (shift == 0) {
+            val oldElement = root[bufferIndex]
+            replacedElement = oldElement
+            if (writeChangesNothing(oldElement, e)) return root
+
+            val mutableRoot = makeMutable(root)
             // An owned leaf has owned ancestors, so the leaf alone tells whether the path was copied.
             if (mutableRoot !== root) {
                 trieModCount++
             }
-
-            oldElementCarry.value = mutableRoot[bufferIndex]
             mutableRoot[bufferIndex] = e
             return mutableRoot
         }
         @Suppress("UNCHECKED_CAST")
-        mutableRoot[bufferIndex] =
-            setInRoot(mutableRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e, oldElementCarry)
+        val buffer = root[bufferIndex] as Array<Any?>
+        val mutableBuffer = setInRoot(buffer, shift - LOG_MAX_BUFFER_SIZE, index, e)
+        if (mutableBuffer === buffer) return root
+
+        val mutableRoot = makeMutable(root)
+        mutableRoot[bufferIndex] = mutableBuffer
         return mutableRoot
     }
 

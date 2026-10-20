@@ -73,6 +73,7 @@ internal class PersistentOrderedSet<E>(
     )
     override fun remove(element: E): PersistentSet<E> {
         val links = hashMap[element] ?: return this
+        if (size == 1) return emptyOf()
 
         var newMap = hashMap.removing(element)
         if (links.hasPrevious) {
@@ -154,6 +155,8 @@ internal class PersistentOrderedSet<E>(
 
     internal companion object {
         private val EMPTY = PersistentOrderedSet<Nothing>(EndOfChain, EndOfChain, PersistentHashMap.emptyOf())
-        internal fun <E> emptyOf(): PersistentSet<E> = EMPTY
+
+        @Suppress("UNCHECKED_CAST")
+        internal fun <E> emptyOf(): PersistentOrderedSet<E> = EMPTY as PersistentOrderedSet<E>
     }
 }

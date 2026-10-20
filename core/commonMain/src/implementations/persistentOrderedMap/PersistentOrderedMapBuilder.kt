@@ -10,6 +10,7 @@ import kotlinx.collections.immutable.implementations.immutableMap.PersistentHash
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMapBuilder
 import kotlinx.collections.immutable.internal.EndOfChain
 import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.internal.writeChangesNothing
 
 internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>) :
     AbstractMutableMap<K, V>(), PersistentMap.Builder<K, V> {
@@ -32,7 +33,11 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
         } ?: run {
             assert { hashMapBuilder.builtMap == null }
             val newHashMap = hashMapBuilder.build()
-            val newOrdered = PersistentOrderedMap(firstKey, lastKey, newHashMap)
+            val newOrdered = if (newHashMap.isEmpty()) {
+                PersistentOrderedMap.emptyOf()
+            } else {
+                PersistentOrderedMap(firstKey, lastKey, newHashMap)
+            }
             builtMap = newOrdered
             newOrdered
         }
@@ -60,13 +65,11 @@ internal class PersistentOrderedMapBuilder<K, V>(map: PersistentOrderedMap<K, V>
     override fun put(key: K, value: @UnsafeVariance V): V? {
         val links = hashMapBuilder[key]
         return if (links != null) {
-            if (links.value === value) {
-                value
-            } else {
+            if (!writeChangesNothing(links.value, value)) {
                 builtMap = null
                 hashMapBuilder[key] = links.withValue(value)
-                links.value
             }
+            links.value
         } else {
             builtMap = null
             if (isEmpty()) {
