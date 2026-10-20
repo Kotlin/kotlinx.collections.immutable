@@ -224,7 +224,7 @@ private fun Cells.testBulkCalls(
                 val argument = merge.argument.toPersistentHashSet()
                 val result = receiver.persistent(argument)
                 assertHolds(model, result, "the result")
-                assertTrue(canonical == result, "the result as a trie")
+                assertTrue(canonical == result, "the result's trie, against a set built from the same elements")
                 assertHolds(merge.receiver, receiver, "the receiver after the call")
                 assertHolds(merge.argument, argument, "the argument after the call")
             }
@@ -233,7 +233,7 @@ private fun Cells.testBulkCalls(
                 val argument = merge.argument.toPersistentHashSet()
                 assertEquals(changed, builder.mutable(argument), "the Boolean the call returns")
                 assertHolds(model, builder, "the builder after the call")
-                assertTrue(canonical == builder, "the builder as a trie")
+                assertTrue(canonical == builder, "the builder's trie, against a set built from the same elements")
                 assertHolds(merge.argument, argument, "the argument after the call")
             }
         }
