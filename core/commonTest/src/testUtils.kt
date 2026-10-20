@@ -8,7 +8,6 @@ package tests
 import kotlin.native.concurrent.ThreadLocal
 
 
-internal fun Char.isUpperCase(): Boolean = this in 'A'..'Z'
 internal fun Char.isDigit(): Boolean = this in '0'..'9'
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
