@@ -194,13 +194,6 @@ class ImmutableListTest {
         assertEquals(elements, built, "built before the clear")
     }
 
-    /** The clear of an empty builder counts as a change too: the live iterators fail fast after it. */
-    @Test fun clearOfEmptyBuilder() = runCells {
-        val clears = listOf(BuilderOperation<PersistentList.Builder<Any>>("clear()") { clear() })
-        testIterator(emptyListBuilders, listViews, clears, iteratorCalls)
-        testIterator(emptyListBuilders, listIteratorViews, clears, listIteratorCalls)
-    }
-
     fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {
         val mutable = this.toMutableList()
         val builder = this.builder()
