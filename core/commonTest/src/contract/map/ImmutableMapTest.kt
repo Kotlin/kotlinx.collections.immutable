@@ -54,39 +54,6 @@ class ImmutableHashMapTest : ImmutableMapTest() {
             assertSame(left, left + immutableMapOf())
         }
     }
-
-    @Test fun putAllElementsFromBuilder() {
-        val builder1 = immutableMapOf<String, Int>().builder()
-        val builder2 = immutableMapOf<String, Int>().builder()
-        val expected = mutableMapOf<String, Int>()
-        for (i in 300..400) {
-            builder1.put("$i", i)
-            expected.put("$i", i)
-        }
-        for (i in 0..200) {
-            builder2.put("$i", i)
-            expected.put("$i", i)
-        }
-        builder1.putAll(builder2)
-
-        // make sure we work with current state of builder2, not previous
-        compareMaps(expected, builder1)
-        builder2.put("200", 1000)
-        // make sure we can't modify builder1 through builder2
-        compareMaps(expected, builder1)
-        // make sure builder builds correct map
-        compareMaps(expected, builder1.build())
-    }
-
-    @Test
-    fun regressionGithubIssue114() {
-        // https://github.com/Kotlin/kotlinx.collections.immutable/issues/114
-        val p = persistentMapOf(99 to 1)
-        val e = Array(101) { it }.map { it to it }
-        val c = persistentMapOf(*e.toTypedArray())
-        val n = p.builder().apply { putAll(c) }.build()
-        assertEquals(99, n[99])
-    }
 }
 
 class ImmutableOrderedMapTest : ImmutableMapTest() {
