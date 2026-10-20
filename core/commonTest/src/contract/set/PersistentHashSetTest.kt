@@ -5,24 +5,14 @@
 
 package tests.contract.set
 
-import kotlinx.collections.immutable.implementations.immutableSet.PersistentHashSet
-import kotlinx.collections.immutable.intersect
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlinx.collections.immutable.minus
-import kotlinx.collections.immutable.plus
 import kotlinx.collections.immutable.toPersistentHashSet
-import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PersistentHashSetTest {
-
-    private val a1 = IntWrapper(1, 0)
-    private val a2 = IntWrapper(2, 0)
-    private val a3 = IntWrapper(4, 0)
-    private val sibling = IntWrapper(3, 1 shl 30)
 
     @Test
     fun `persistentHashSet and their builder should be equal before and after modification`() {

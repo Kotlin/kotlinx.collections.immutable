@@ -5,29 +5,19 @@
 
 package tests.contract.map
 
-import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
-import tests.IntWrapper
 import tests.contract.drain
 import tests.contract.runCells
 import tests.trie.*
-import kotlin.collections.iterator
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertSame
-import kotlin.test.assertTrue
 
 /**
  * A bug of a key whose hash changed after it was stored is a test with [MutableKey] here; a new call through the
  * builder is a row of [tests.contract.mapOperations].
  */
 class PersistentHashMapBuilderTest {
-
-    private val a1 = IntWrapper(1, 0)
-    private val a2 = IntWrapper(2, 0)
-    private val sibling = IntWrapper(3, 1 shl 30)
 
     @Test
     fun `next throws until the changed hash of the next key is back after an overwrite copied its path`() = runCells {

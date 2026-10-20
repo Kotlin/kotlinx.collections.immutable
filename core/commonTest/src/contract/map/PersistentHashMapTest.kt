@@ -7,13 +7,10 @@ package tests.contract.map
 
 import kotlinx.collections.immutable.implementations.immutableMap.PersistentHashMap
 import kotlinx.collections.immutable.persistentHashMapOf
-import kotlinx.collections.immutable.plus
 import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotSame
 import kotlin.test.assertNull
-import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashMapTest {
@@ -21,7 +18,6 @@ class PersistentHashMapTest {
     private val a1 = IntWrapper(1, 0)
     private val a2 = IntWrapper(2, 0)
     private val a3 = IntWrapper(4, 0)
-    private val sibling = IntWrapper(3, 1 shl 30)
 
     @Test
     fun `if the collision is of size 2 and one of the keys is removed the remaining key must be promoted`() {

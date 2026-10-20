@@ -9,7 +9,6 @@ import kotlinx.collections.immutable.*
 import tests.contract.compare
 import tests.contract.setBehavior
 import tests.isDigit
-import tests.isUpperCase
 import tests.IntWrapper
 import kotlin.test.*
 
