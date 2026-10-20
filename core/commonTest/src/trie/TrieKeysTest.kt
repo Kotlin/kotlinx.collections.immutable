@@ -72,7 +72,7 @@ class TrieKeysTest {
         )
         assertEquals(levels.keys, trieShapes.keys)
         for ((shape, keys) in trieShapes) assertEquals(levels.getValue(shape), levelsOf(keys), shape)
-        assertTrue(trieShapes.getValue("a null key in a collision node and a NaN key").containsAll(listOf(null, Double.NaN)))
+        assertTrue(trieShapes.getValue("a null key in a collision node and a NaN key").containsAll(listOf(null, Double.NaN)), "the shape holds null and NaN")
     }
 
     @Test

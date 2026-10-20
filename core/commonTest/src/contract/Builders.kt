@@ -47,7 +47,10 @@ const val NODES = MAX_BUFFER_SIZE * MAX_BUFFER_SIZE + 76
 val listShapes: Map<Int, String> = mapOf(
     TAIL_ONLY to "the tail only",
     FULL_TAIL to "a full tail",
+    FULL_TAIL + 1 to "a root that is one leaf and a tail of one",
     ONE_LEAF to "a root that is one leaf",
+    2 * FULL_TAIL to "a root that is one leaf and a full tail",
+    2 * FULL_TAIL + 1 to "a root over two leaves and a tail of one",
     LEAVES to "a root over leaves",
     NODES to "a root over level-1 nodes",
 )
@@ -122,10 +125,10 @@ fun <K, V> mapBuildersOf(vararg entries: Pair<K, V>): Origins<PersistentMap.Buil
  * Lists of the tail alone and of a leaf and a tail; the last origin of a list over several leaves, which owns its root
  * but not its first leaf, so that a set there copies a shared leaf under an owned root; and the lists where a write
  * changes the shape of the trie, each from a persistent list: a remove from a tail of one pulls a leaf back into the
- * tail and drops or demotes the root, an add to a full tail pushes it into the trie and promotes the root.
+ * tail and drops or demotes the root, an add to a full tail pushes it into the trie and creates or promotes the root.
  */
 val listBuilders: Origins<PersistentList.Builder<Any>> = listBuildersOf(TAIL_ONLY) + listBuildersOf(ONE_LEAF) + listBuildersOf(LEAVES).last() +
-    listOf(FULL_TAIL + 1, 2 * FULL_TAIL, 2 * FULL_TAIL + 1).map { listBuildersOf(it).first() }
+    listOf(FULL_TAIL, FULL_TAIL + 1, 2 * FULL_TAIL, 2 * FULL_TAIL + 1).map { listBuildersOf(it).first() }
 
 private fun <B> ofEveryShape(buildersOf: (keys: List<Any?>) -> Origins<B>): Origins<B> =
     trieShapes.flatMap { (shape, keys) -> buildersOf(keys).map { (origin, newBuilder) -> "$origin, $shape" to newBuilder } }
