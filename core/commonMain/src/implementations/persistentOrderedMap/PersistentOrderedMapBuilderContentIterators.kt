@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.implementations.immutableMap.AbstractMapEnt
 import kotlinx.collections.immutable.implementations.immutableMap.TrieNode
 import kotlinx.collections.immutable.implementations.immutableMap.TrieNodeSlot
 import kotlinx.collections.immutable.internal.EndOfChain
+import kotlinx.collections.immutable.internal.writeChangesNothing
 
 internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
     private var nextKey: Any?,
@@ -122,7 +123,7 @@ private class MutableMapEntry<K, V>(
         val result = lastValue
         if (index != -1) {
             val links = links()
-            if (links.value !== newValue) builder.setLinkedValue(key, links.withValue(newValue))
+            if (!writeChangesNothing(links.value, newValue)) builder.setLinkedValue(key, links.withValue(newValue))
         }
         lastValue = newValue
         return result

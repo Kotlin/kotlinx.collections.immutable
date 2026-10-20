@@ -88,10 +88,10 @@ class NoOpIdentityTest {
     }
 
     @Test
-    fun `value writes into a hash map`() = runCells { testValueWrites("a hash map", noOpSetValue = true) { it.toPersistentHashMap() } }
+    fun `value writes into a hash map`() = runCells { testValueWrites("a hash map") { it.toPersistentHashMap() } }
 
     @Test
-    fun `value writes into an ordered map`() = runCells { testValueWrites("an ordered map", noOpSetValue = false) { it.toPersistentMap() } }
+    fun `value writes into an ordered map`() = runCells { testValueWrites("an ordered map") { it.toPersistentMap() } }
 
     @Test
     fun `an index out of range throws even with nothing to add or one element to remove`() = runCells {
@@ -393,11 +393,10 @@ private fun <C : Any> Cells.testWrites(
 }
 
 /**
- * Writes under every key of every trie shape by a put, by putAlls and by an entry's setValue, of a write that changes
- * nothing only when [noOpSetValue]: the ordered map builder's entry still writes the value it holds (#366). A putAll
- * that writes other keys too keeps the stored value when the write changes nothing.
+ * Writes under every key of every trie shape by a put, by an entry's setValue and by putAlls. A putAll that writes
+ * other keys too keeps the stored value when the write changes nothing.
  */
-private fun Cells.testValueWrites(kind: String, noOpSetValue: Boolean, newMap: (Map<Any?, Any?>) -> PersistentMap<Any?, Any?>) {
+private fun Cells.testValueWrites(kind: String, newMap: (Map<Any?, Any?>) -> PersistentMap<Any?, Any?>) {
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
         val stored = write.stored()
         val written = write.written()
@@ -409,7 +408,7 @@ private fun Cells.testValueWrites(kind: String, noOpSetValue: Boolean, newMap: (
                 call("a builder's put, which returns the stored value") {
                     mutate { assertSameValue(stored, it.put(key, written), "what put returns") }
                 }
-                if (write.changes || noOpSetValue) call("an entry's setValue, which returns the stored value") {
+                call("an entry's setValue, which returns the stored value") {
                     mutate { builder -> assertSameValue(stored, builder.entries.first { it.key == key }.setValue(written), "what setValue returns") }
                 }
                 addAll(putAllCalls("a hash map of the key" to mapOf(key to written), "a hash map of every key" to everyKey))
