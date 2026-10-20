@@ -5,7 +5,6 @@
 
 package tests.contract
 
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentHashMapOf
@@ -29,9 +28,8 @@ class BuilderIteratorTest {
     fun list() = runCells {
         testIterator(listBuilders, listViews, listOperations, iteratorCalls)
         testIterator(listBuilders, listIteratorViews, listOperations, listIteratorCalls)
-        val clears = listOf(BuilderOperation<PersistentList.Builder<Any>>("clear()") { clear() })
-        testIterator(emptyListBuilders, listViews, clears, iteratorCalls)
-        testIterator(emptyListBuilders, listIteratorViews, clears, listIteratorCalls)
+        testIterator(emptyListBuilders, listViews, listOf(BuilderOperation("clear()") { clear() }), iteratorCalls)
+        testIterator(emptyListBuilders, listIteratorViews, listOf(BuilderOperation("clear()") { clear() }), listIteratorCalls)
     }
 
     @Test
