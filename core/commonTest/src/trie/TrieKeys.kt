@@ -46,8 +46,10 @@ val otherLevelOneSibling = collidingKey1.siblingAt(level = 1, id = 7, cell = 2)
 /**
  * Tries with a node below the root, where a remove under a live iterator promotes the last key of that node toward
  * the root, and with collision nodes, where a putAll of the same keys in another order must keep the receiver's order.
+ * The null key hashes to 0 like collidingKey1, so a lookup must tell it from absence; the NaN key is not === itself on
+ * Kotlin/JS, so a lookup must compare keys by equals.
  */
-val trieShapes: Map<String, List<Any>> = mapOf(
+val trieShapes: Map<String, List<Any?>> = mapOf(
     "int keys" to listOf(1, 2, 3),
     "colliding keys" to listOf(collidingKey1, collidingKey2, collidingKey3),
     "a collision node next to a last-level sibling" to listOf(collidingKey1, collidingKey2, lastLevelSibling),
@@ -55,6 +57,7 @@ val trieShapes: Map<String, List<Any>> = mapOf(
     "a level-1 node next to root entries" to listOf(1, 2, 3, 0, MAX_BRANCHING_FACTOR),
     "a level-2 node under a level-1 node" to listOf(collidingKey1, levelTwoSibling, levelOneSibling, rootSibling),
     "two collision nodes under a level-1 node" to listOf(collidingKey1, collidingKey2, levelOneSibling, levelOneSibling.colliding(9)),
+    "a null key in a collision node and a NaN key" to listOf(null, collidingKey1, Double.NaN),
 )
 
 /**

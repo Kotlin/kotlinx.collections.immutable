@@ -29,20 +29,11 @@ class Cells {
     internal fun report() {
         if (count == 0) fail("The table ran no cell")
         if (failures.isEmpty()) return
-        val shown = failures.take(100)
-        val more = if (failures.size > shown.size) "\n... and ${failures.size - shown.size} more" else ""
-        fail("${failures.size} of $count cells failed:\n" + shown.joinToString("\n") + more, firstFailure)
+        fail("${failures.size} of $count cells failed:\n" + failures.joinToString("\n", limit = 100), firstFailure)
     }
 }
 
-fun runCells(table: Cells.() -> Unit): Unit = Cells().run {
-    try {
-        table()
-    } catch (e: Throwable) {
-        cell("between the cells") { throw e }
-    }
-    report()
-}
+fun runCells(table: Cells.() -> Unit): Unit = Cells().apply(table).report()
 
 /** Runs [body] with [position] in front of whatever it throws, so that the assertions inside need no message. */
 fun at(position: String, body: () -> Unit) {

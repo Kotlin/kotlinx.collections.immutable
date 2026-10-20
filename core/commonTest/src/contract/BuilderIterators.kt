@@ -7,13 +7,6 @@ package tests.contract
 
 import kotlin.test.assertEquals
 
-/*
- * The fail-fast contract of the builder iterators, tested as stdlib's ConcurrentModificationTest tests it. A table of
- * calls through the builder, each saying whether it invalidates live iterators, is crossed with the calls on a live
- * iterator, alone and in pairs, as guava-testlib's IteratorTester sends sequences of calls to the iterator under test
- * and to a reference iterator.
- */
-
 class BuilderOperation<in B>(
     val description: String,
     /** true when the call moves the size at least once or is a clear(), which invalidates every live iterator. */
@@ -35,9 +28,10 @@ fun Iterator<*>.drain(): List<Any?> = asSequence().map(::read).toList()
 private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.key to element.value else element
 
 /**
- * Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to size times, makes
- * a call of [operations] and then one call of [iteratorCalls] or two in a row: one cell per origin, view, builder call
- * and call sequence, with every position inside it.
+ * Tests the fail-fast contract of the builder iterators as stdlib's ConcurrentModificationTest and guava-testlib's
+ * IteratorTester do. Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to
+ * size times, makes a call of [operations] and then one call of [iteratorCalls] or two in a row: one cell per origin,
+ * view, builder call and call sequence, with every position inside it.
  *
  * After a call that keeps the size, the iterator of a stdlib list of what the builder holds, advanced as far, takes the
  * same calls and judges them: each returns what the list's iterator returns or throws the exception it throws, the
