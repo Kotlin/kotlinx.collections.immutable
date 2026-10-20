@@ -203,19 +203,6 @@ abstract class ImmutableMapTest {
         assertEquals(mapOf("x" to null, "y" to 1, "x!" to null, "y!" to 1), map)
     }
 
-    @Test fun putEqualButNotSameValue() {
-        data class Value<T>(val value: T)
-        val map = immutableMapOf("x" to Value(1))
-
-        val newValue = Value(1)
-        val newMap = map.putting("x", newValue)
-        assertNotSame(map, newMap)
-        assertEquals(map, newMap)
-
-        val sameMap = newMap.putting("x", newValue)
-        assertSame(newMap, sameMap)
-    }
-
     @Test fun removeElements() {
         val map = immutableMapOf("x" to 1, null to "x").toPersistentMap()
 

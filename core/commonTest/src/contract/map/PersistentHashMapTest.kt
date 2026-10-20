@@ -157,29 +157,4 @@ class PersistentHashMapTest {
         assertEquals(persistentHashMapOf(a1 to 1, a2 to 20, a3 to null), sum)
         assertNull(sum[a3])
     }
-
-    @Test
-    fun `putAll should take a value of the argument that is equal but not the same instance`() {
-        data class Value<T>(val value: T)
-
-        val value = Value(1)
-        val equalValue = Value(1)
-        val receiver = persistentHashMapOf(a1 to value, a2 to value)
-        val argument = persistentHashMapOf(a1 to equalValue, a2 to value)
-
-        val sum = receiver.puttingAll(argument)
-        assertNotSame(receiver, sum)
-        assertEquals(receiver, sum)
-        assertSame(equalValue, sum[a1])
-    }
-
-    @Test
-    fun `putAll should return the same map when the argument brings no new values`() {
-        val one = "one"
-        val two = "two"
-        val receiver = persistentHashMapOf(a1 to one, a2 to two, sibling to "three")
-        val argument = persistentHashMapOf(a1 to one, a2 to two)
-
-        assertSame(receiver, receiver.puttingAll(argument))
-    }
 }

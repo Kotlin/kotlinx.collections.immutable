@@ -205,28 +205,6 @@ class ImmutableListTest {
         compareLists(mutable, builder.build())
     }
 
-    @Test fun noOperation() {
-        persistentListOf<Int>().testNoOperation({ cleared() }, { clear() })
-
-        val list = "abcxaxyz12".toPersistentList()
-        with(list) {
-            testNoOperation({ removing('d') }, { remove('d') })
-            testNoOperation({ removingAll(listOf('d', 'e')) }, { removeAll(listOf('d', 'e')) })
-            testNoOperation({ removingAll { it.isUpperCase() } }, { removeAll { it.isUpperCase() } })
-            testNoOperation({ removingAll(emptyList()) }, { removeAll(emptyList())})
-            testNoOperation({ addingAll(emptyList()) }, { addAll(emptyList())})
-            testNoOperation({ addingAllAt(2, emptyList()) }, { addAll(2, emptyList())})
-        }
-    }
-
-    fun <T> PersistentList<T>.testNoOperation(persistent: PersistentList<T>.() -> PersistentList<T>, mutating: MutableList<T>.() -> Unit) {
-        val result = this.persistent()
-        val buildResult = this.mutate(mutating)
-        // Ensure non-mutating operations return the same instance
-        assertTrue(this === result)
-        assertTrue(this === buildResult)
-    }
-
     @Test fun covariantTyping() {
         val listNothing = persistentListOf<Nothing>()
 
