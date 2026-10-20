@@ -124,7 +124,7 @@ private const val NEW = "new"
 /** A missing key whose path parts from [stored]'s at level 1. */
 private fun missingBesideAtLevelOne(stored: Any?): Any = missingKey(stored.hashCode() xor MAX_BRANCHING_FACTOR)
 
-/** Every key wrapped, so that an equal key that is not the stored instance exists. */
+/** Every Int key wrapped, so that an equal key that is not the stored instance exists. */
 private val wrappedShapes: Map<String, List<Any?>> = trieShapes.mapValues { (_, keys) -> keys.map { if (it is Int) IntWrapper(it, it) else it } }
 
 private fun wrappersOf(size: Int): List<Any> = List(size) { IntWrapper(it, it) }
@@ -383,7 +383,8 @@ private fun <C : Any> Cells.testWrites(
     val readBack = if (write.changes) written else receiver.read()
     for ((description, call) in writes) cell("$name by $description") {
         val result = receiver.call() as C
-        if (write.changes) assertNotSame(receiver, result, "the result") else assertSame(receiver, result, "the result")
+        if (write.changes) assertNotSame(receiver, result, "the result of a write that changes the value")
+        else assertSame(receiver, result, "the result of a write that changes nothing")
         assertSameValue(readBack, result.read(), "the value read back")
     }
     for ((description, call) in writesElsewhereToo) cell("$name by $description") {
