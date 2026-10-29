@@ -68,7 +68,8 @@ class NoOpIdentityTest {
     @Test
     fun `value writes into a list`() = runCells {
         for ((size, shape) in listShapes) for (index in boundaryIndices(size)) for (write in valueWrites) {
-            val (stored, written) = write.values()
+            val stored = write.stored()
+            val written = write.written()
             val neighbour = if (index == 0) 1 else index - 1
             val list = wrappersOf(size).toPersistentList<Any?>().replacingAt(index, stored)
             testWrites("$shape, ${write.description} at $index", write, list, written, read = { this[index] },
@@ -325,11 +326,8 @@ private fun mapEmptyingCalls(map: PersistentMap<Any?, Any?>): List<Call<Persiste
     "minus an iterable that is not a collection of every key" { this - Iterable { map.keys.iterator() } }
 }
 
-/** [values] makes `stored to written` anew on every call, so that an equal number is boxed again. */
-private class ValueWrite(val description: String, val changes: Boolean, val values: () -> Pair<Any?, Any?>)
-
-private fun writes(changes: Boolean, section: Rows<() -> Pair<Any?, Any?>>.() -> Unit): List<ValueWrite> =
-    rows(section).map { (description, values) -> ValueWrite(description, changes, values) }
+/** [stored] and [written] box or make the value anew on every call; [changes] tells whether the write is stored. */
+private class ValueWrite(val description: String, val changes: Boolean, val stored: () -> Any?, val written: () -> Any?)
 
 /** A Number that is no primitive box: equal by [value], and written over an equal instance as any object. */
 private data class ValueNumber(val value: Int) : Number() {
@@ -341,26 +339,25 @@ private data class ValueNumber(val value: Int) : Number() {
     override fun toShort(): Short = value.toShort()
 }
 
-private val valueWrites = writes(changes = true) {
-    "-0.0 over 0.0" { 0.0 to -0.0 }
-    "0.0 over -0.0" { -0.0 to 0.0 }
-    "an equal Number object" { ValueNumber(1) to ValueNumber(1) }
-} + writes(changes = false) {
-    "NaN over NaN" { Double.NaN to Double.NaN }
-    "an equal Double" { 1.5 to 1.5 }
-    "an equal Int" { 1000 to 1000 }
-    "an equal Long" { 1000L to 1000L }
-    "an equal Float" { 1.5f to 1.5f }
-    "an equal Short" { 1000.toShort() to 1000.toShort() }
-    "an equal Byte, which only Kotlin/Wasm boxes again" { 1.toByte() to 1.toByte() }
-    "an equal Char" { '€' to '€' }
-    "an equal UInt" { 1u to 1u }
-    "an equal ULong" { 1uL to 1uL }
-    "an equal UByte" { 1.toUByte() to 1.toUByte() }
-    "an equal UShort" { 1.toUShort() to 1.toUShort() }
-    ValueNumber(1).let { same -> "the stored Number object" { same to same } }
-    "null over the null of arrayOfNulls, which Kotlin/JS holds as undefined" { arrayOfNulls<Any>(1)[0] to null }
-}
+private val valueWrites = listOf(
+    ValueWrite("-0.0 over 0.0", changes = true, { 0.0 }, { -0.0 }),
+    ValueWrite("0.0 over -0.0", changes = true, { -0.0 }, { 0.0 }),
+    ValueWrite("NaN over NaN", changes = false, { Double.NaN }, { Double.NaN }),
+    ValueWrite("an equal Double", changes = false, { 1.5 }, { 1.5 }),
+    ValueWrite("an equal Int", changes = false, { 1000 }, { 1000 }),
+    ValueWrite("an equal Long", changes = false, { 1000L }, { 1000L }),
+    ValueWrite("an equal Float", changes = false, { 1.5f }, { 1.5f }),
+    ValueWrite("an equal Short", changes = false, { 1000.toShort() }, { 1000.toShort() }),
+    ValueWrite("an equal Byte, which only Kotlin/Wasm boxes again", changes = false, { 1.toByte() }, { 1.toByte() }),
+    ValueWrite("an equal Char", changes = false, { '€' }, { '€' }),
+    ValueWrite("an equal UInt", changes = false, { 1u }, { 1u }),
+    ValueWrite("an equal ULong", changes = false, { 1uL }, { 1uL }),
+    ValueWrite("an equal UByte", changes = false, { 1.toUByte() }, { 1.toUByte() }),
+    ValueWrite("an equal UShort", changes = false, { 1.toUShort() }, { 1.toUShort() }),
+    ValueWrite("an equal Number object", changes = true, { ValueNumber(1) }, { ValueNumber(1) }),
+    ValueNumber(1).let { same -> ValueWrite("the stored Number object", changes = false, { same }, { same }) },
+    ValueWrite("null over the null of arrayOfNulls, which Kotlin/JS holds as undefined", changes = false, { arrayOfNulls<Any>(1)[0] }, { null }),
+)
 
 /** A Double by its bits: only they tell -0.0 from 0.0 on every platform, and on Kotlin/JS NaN is not === itself. */
 private fun assertSameValue(expected: Any?, actual: Any?, message: String) {
@@ -402,7 +399,8 @@ private fun <C : Any> Cells.testWrites(
  */
 private fun Cells.testValueWrites(kind: String, newMap: (Map<Any?, Any?>) -> PersistentMap<Any?, Any?>) {
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
-        val (stored, written) = write.values()
+        val stored = write.stored()
+        val written = write.written()
         val content = keys.withIndex().associate { (index, shapeKey) -> shapeKey to IntWrapper(index, index) } + (key to stored)
         val everyKey = content + (key to written)
         testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(content), written, read = { this[key] },
