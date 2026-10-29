@@ -89,10 +89,7 @@ private val slotMoves: List<BuilderOperation<MapBuilder>> = operations(
     },
 )
 
-/**
- * The first call on an entry after a call through the builder, with nothing read from the entry between the call and
- * it.
- */
+/** The first call that reads or sets an entry's value after a call through the builder. */
 private val firstReads: List<Pair<String, MutableMap.MutableEntry<Any?, String>.(expected: String) -> Unit>> = rows {
     "value" { expected -> assertEquals(expected, value) }
     "toString" { expected -> assertEquals("$key=$expected", toString()) }
