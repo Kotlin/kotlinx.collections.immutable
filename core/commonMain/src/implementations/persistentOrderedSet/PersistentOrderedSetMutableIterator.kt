@@ -23,11 +23,11 @@ internal class PersistentOrderedSetMutableIterator<E>(private val builder: Persi
     override fun remove() {
         checkNextWasInvoked()
         checkForComodification()
-        builder.remove(lastIteratedElement)
+        if (!builder.remove(lastIteratedElement))
+            throw ConcurrentModificationException("Hash code of an element ($lastIteratedElement) has changed after it was added to the persistent set.")
         lastIteratedElement = null
         nextWasInvoked = false
         expectedModCount = builder.hashMapBuilder.modCount
-        index--
     }
 
     private fun checkNextWasInvoked() {
