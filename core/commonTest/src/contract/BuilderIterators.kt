@@ -8,18 +8,18 @@ package tests.contract
 import kotlin.test.assertEquals
 
 /**
- * A call through a builder. [throwsCME] is true when the call moves the size at least once or is a clear(), which
+ * A call through a builder. [movesTheSize] is true when the call moves the size at least once or is a clear(), which
  * invalidates every live iterator even of an empty builder; [operations] sets it by the section the call is written in.
  */
-class BuilderOperation<in B>(val description: String, val throwsCME: Boolean, val function: B.() -> Unit)
+class BuilderOperation<in B>(val description: String, val movesTheSize: Boolean, val function: B.() -> Unit)
 
 /** A table of calls through a builder in two sections, the calls that keep the size and the calls that move it. */
 fun <B> operations(
     thatKeepTheSize: Rows<B.() -> Unit>.() -> Unit = {},
     thatMoveTheSize: Rows<B.() -> Unit>.() -> Unit = {},
 ): List<BuilderOperation<B>> =
-    rows(thatKeepTheSize).map { (description, call) -> BuilderOperation(description, throwsCME = false, call) } +
-        rows(thatMoveTheSize).map { (description, call) -> BuilderOperation(description, throwsCME = true, call) }
+    rows(thatKeepTheSize).map { (description, call) -> BuilderOperation(description, movesTheSize = false, call) } +
+        rows(thatMoveTheSize).map { (description, call) -> BuilderOperation(description, movesTheSize = true, call) }
 
 /** The calls on a live iterator, which [testIterator] makes alone and in pairs. */
 val iteratorCalls: List<Call<MutableIterator<*>>> = rows {
@@ -76,7 +76,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                 operation.function(builder)
                 val content = builder.open().drain()
 
-                if (operation.throwsCME) {
+                if (operation.movesTheSize) {
                     for ((description, call) in steps) {
                         val fresh = outcomeOf { modelIteratorOf<I>(opened.toMutableList(), returned).call() }
                         val expected = if (fresh == "throws IllegalStateException") fresh else "throws ConcurrentModificationException"
