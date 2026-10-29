@@ -13,7 +13,10 @@ import kotlin.test.assertEquals
  */
 class BuilderOperation<in B>(val description: String, val movesTheSize: Boolean, val function: B.() -> Unit)
 
-/** A table of calls through a builder in two sections, the calls that keep the size and the calls that move it. */
+/**
+ * A table of calls through a builder in two sections, the calls that keep the size and the calls that move it. The
+ * keep section starts with "no call", so that the iterator calls also run on an untouched builder.
+ */
 fun <B> operations(
     thatKeepTheSize: Rows<B.() -> Unit>.() -> Unit = {},
     thatMoveTheSize: Rows<B.() -> Unit>.() -> Unit = {},
