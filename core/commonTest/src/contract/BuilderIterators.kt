@@ -7,13 +7,13 @@ package tests.contract
 
 import kotlin.test.assertEquals
 
-/** A call through a builder; [throwsCME] tells the section of [operations] it was written in. */
+/**
+ * A call through a builder. [throwsCME] is true when the call moves the size at least once or is a clear(), which
+ * invalidates every live iterator even of an empty builder; [operations] sets it by the section the call is written in.
+ */
 class BuilderOperation<in B>(val description: String, val throwsCME: Boolean, val function: B.() -> Unit)
 
-/**
- * A table of calls through a builder in two sections: the calls that move the size at least once or are a clear(),
- * which invalidates every live iterator even of an empty builder, and the calls that keep the size.
- */
+/** A table of calls through a builder in two sections, the calls that move the size and the calls that keep it. */
 fun <B> operations(table: Operations<B>.() -> Unit): List<BuilderOperation<B>> = Operations<B>().apply(table).added
 
 class Operations<B> {
