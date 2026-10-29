@@ -394,7 +394,8 @@ private fun <C : Any> Cells.testWrites(
 
 /**
  * Writes under every key of every trie shape by a put, by an entry's setValue and by putAlls. A putAll that writes
- * other keys too keeps the stored value when the write changes nothing.
+ * other keys too, brings the key in a subtree beside a new key, or holds every key and a new one with the key's hash,
+ * keeps the stored value when the write changes nothing.
  */
 private fun Cells.testValueWrites(kind: String, newMap: (Map<Any?, Any?>) -> PersistentMap<Any?, Any?>) {
     for ((shape, keys) in trieShapes) for ((position, key) in keys.withIndex()) for (write in valueWrites) {
@@ -415,6 +416,8 @@ private fun Cells.testValueWrites(kind: String, newMap: (Map<Any?, Any?>) -> Per
             writes = oneKeyWrites + putAllCalls("a hash map of the key" to mapOf(key to written), "a hash map of every key" to everyKey),
             writesElsewhereToo = putAllCalls(
                 "new values for the other keys" to content.mapValues { NEW } + (key to written),
+                "a new key beside it at level 1" to mapOf(key to written, missingBesideAtLevelOne(key) to NEW),
+                "every key and a new key with its hash" to everyKey + (missingKey(key.hashCode()) to NEW),
             ),
         )
     }
