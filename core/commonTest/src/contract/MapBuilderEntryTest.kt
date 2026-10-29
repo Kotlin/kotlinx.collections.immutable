@@ -89,7 +89,10 @@ private val slotMoves: List<BuilderOperation<MapBuilder>> = operations(
     },
 )
 
-/** The first call on an entry after a call through the builder, with nothing read from the entry in between. */
+/**
+ * The first call on an entry after a call through the builder, with nothing read from the entry between the call and
+ * it.
+ */
 private val firstReads: List<Pair<String, MutableMap.MutableEntry<Any?, String>.(expected: String) -> Unit>> = rows {
     "value" { expected -> assertEquals(expected, value) }
     "toString" { expected -> assertEquals("$key=$expected", toString()) }
@@ -111,25 +114,25 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                 operation.function(builder)
                 val kept = entry.key in builder
                 val value = if (kept) builder.getValue(entry.key) else before
-                val built = builder.build()
-                val laterIterator = builder.entries.iterator()
+                val builtBeforeTheFirstRead = builder.build()
+                val openedBeforeTheFirstRead = builder.entries.iterator()
 
                 at("the first read") { entry.check(value) }
                 at("setValue of the value it holds") {
                     assertSame(value, entry.setValue(value), "what setValue returns")
-                    assertSame(built, builder.build(), "build() after it")
+                    assertSame(builtBeforeTheFirstRead, builder.build(), "build() after it")
                 }
                 at("setValue of a new value") {
                     assertEquals(value, entry.setValue("z"), "what setValue returns")
                     assertEquals("z", entry.value, "the value after it")
-                    val expected = built.toMutableMap().apply { if (kept) this[entry.key] = "z" }
+                    val expected = builtBeforeTheFirstRead.toMutableMap().apply { if (kept) this[entry.key] = "z" }
                     at("the builder after it") { assertEquals(expected.toList(), builder.toList()) }
-                    if (kept) assertEquals(value, built[entry.key], "the map built before the setValue calls")
+                    if (kept) assertEquals(value, builtBeforeTheFirstRead[entry.key], "the map built before the setValue calls")
                 }
                 at("the iterators after the setValue calls") {
                     if (operation.movesTheSize) assertFailsWith<ConcurrentModificationException>("next() of the one that returned the entry") { iterator.next() }
                     else assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList(), "the rest of the one that returned the entry")
-                    at("one opened after the call") { assertEquals(builder.toList(), laterIterator.drain()) }
+                    at("one opened after the call") { assertEquals(builder.toList(), openedBeforeTheFirstRead.drain()) }
                 }
                 at("setValue after a put of its key") {
                     builder[entry.key] = "p"
