@@ -28,13 +28,17 @@ class Operations<B> {
     }
 }
 
-val next: Call<MutableIterator<*>> = "next()" to { next() }
-
 /** The calls on a live iterator, which [testIterator] makes alone and in pairs. */
-val iteratorCalls: List<Call<MutableIterator<*>>> = listOf(next, "remove()" to { remove() })
+val iteratorCalls: List<Call<MutableIterator<*>>> = rows {
+    "next()" { next() }
+    "remove()" { remove() }
+}
 
-val listIteratorCalls: List<Call<MutableListIterator<Any>>> =
-    iteratorCalls + listOf("previous()" to { previous() }, "add()" to { add("new") }, "set()" to { set("new") })
+val listIteratorCalls: List<Call<MutableListIterator<Any>>> = iteratorCalls + rows {
+    "previous()" { previous() }
+    "add()" { add("new") }
+    "set()" { set("new") }
+}
 
 /** The elements an iterator still has. A live map entry is read as its key and value the moment it is drained. */
 fun Iterator<*>.drain(): List<Any?> = asSequence().map(::read).toList()
