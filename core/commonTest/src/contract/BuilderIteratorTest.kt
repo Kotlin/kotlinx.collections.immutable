@@ -27,11 +27,14 @@ class BuilderIteratorTest {
     /** The list iterator also takes previous, add and set; its own add and remove do not freeze it, as in ArrayList. */
     @Test
     fun list() = runCells {
-        val clearOnly = operations<PersistentList.Builder<Any>>(thatMoveTheSize = { "clear()" { clear() } })
+        val emptyListCalls = operations<PersistentList.Builder<Any>>(
+            thatKeepTheSize = { "no call" { } },
+            thatMoveTheSize = { "clear()" { clear() } },
+        )
         testIterator(listBuilders, listViews, listOperations, iteratorCalls)
         testIterator(listBuilders, listIteratorViews, listOperations, listIteratorCalls)
-        testIterator(emptyListBuilders, listViews, clearOnly, iteratorCalls)
-        testIterator(emptyListBuilders, listIteratorViews, clearOnly, listIteratorCalls)
+        testIterator(emptyListBuilders, listViews, emptyListCalls, iteratorCalls)
+        testIterator(emptyListBuilders, listIteratorViews, emptyListCalls, listIteratorCalls)
     }
 
     @Test
@@ -50,6 +53,7 @@ class BuilderIteratorTest {
     fun `clear of an empty map or set builder freezes its iterators and calls that change nothing do not`() = runCells {
         val mapCalls = operations<PersistentMap.Builder<Any?, String>>(
             thatKeepTheSize = {
+                "no call" { }
                 "putAll(an empty hash map)" { putAll(persistentHashMapOf()) }
                 "keys.retainAll(a hash set)" { keys.retainAll(persistentHashSetOf(1, 2)) }
                 "keys.removeAll(a hash set)" { keys.removeAll(persistentHashSetOf(1, 2)) }
@@ -58,6 +62,7 @@ class BuilderIteratorTest {
         )
         val setCalls = operations<PersistentSet.Builder<Any?>>(
             thatKeepTheSize = {
+                "no call" { }
                 "retainAll(a hash set)" { retainAll(persistentHashSetOf(1, 2)) }
                 "retainAll(the empty hash set)" { retainAll(persistentHashSetOf()) }
                 "retainAll(a hash set builder)" { retainAll(persistentHashSetOf(1, 2).builder()) }
