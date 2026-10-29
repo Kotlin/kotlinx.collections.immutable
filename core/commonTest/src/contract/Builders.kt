@@ -33,6 +33,10 @@ typealias Origins<B> = List<Pair<String, () -> B>>
 /** The iterators a builder opens, each named after its view. */
 typealias Views<B, I> = List<Pair<String, B.() -> I>>
 
+typealias ListBuilder = PersistentList.Builder<Any>
+typealias SetBuilder = PersistentSet.Builder<Any?>
+typealias MapBuilder = PersistentMap.Builder<Any?, String>
+
 /** Runs [test], the assertions of one bug, on a fresh builder of every origin, one cell per origin. */
 fun <B> forEachBuilder(builders: Origins<B>, test: (B) -> Unit): Unit = runCells {
     for ((origin, newBuilder) in builders) cell(origin) { test(newBuilder()) }
@@ -81,7 +85,7 @@ fun <E> listBuildersOf(list: PersistentList<E>, other: E): Origins<PersistentLis
     }
 }
 
-fun listBuildersOf(size: Int): Origins<PersistentList.Builder<Any>> = listBuildersOf(List<Any>(size) { it }.toPersistentList(), "overwritten")
+fun listBuildersOf(size: Int): Origins<ListBuilder> = listBuildersOf(List<Any>(size) { it }.toPersistentList(), "overwritten")
 
 private fun <K, V> mapBuildersOfKind(
     kind: String,
@@ -124,7 +128,7 @@ fun <K, V> mapBuildersOf(vararg entries: Pair<K, V>): Origins<PersistentMap.Buil
  * changes the shape of the trie, each from a persistent list: a remove from a tail of one pulls a leaf back into the
  * tail and drops or demotes the root, an add to a full tail pushes it into the trie and creates or promotes the root.
  */
-val listBuilders: Origins<PersistentList.Builder<Any>> = listBuildersOf(TAIL_ONLY) + listBuildersOf(ONE_LEAF) + listBuildersOf(LEAVES).last() +
+val listBuilders: Origins<ListBuilder> = listBuildersOf(TAIL_ONLY) + listBuildersOf(ONE_LEAF) + listBuildersOf(LEAVES).last() +
     listOf(FULL_TAIL, FULL_TAIL + 1, 2 * FULL_TAIL, 2 * FULL_TAIL + 1).map { listBuildersOf(it).first() }
 
 private fun <B> ofEveryShape(buildersOf: (keys: List<Any?>) -> Origins<B>): Origins<B> =
@@ -159,17 +163,17 @@ val emptySetBuilders = emptyBuildersOf("a hash set builder") { it.toPersistentHa
 val emptyMapBuilders = emptyBuildersOf("a hash map builder", elements = { keys }) { persistentHashMapOf(*valuesFor(it).toTypedArray()).builder() } +
     emptyBuildersOf("an ordered map builder", elements = { keys }) { persistentMapOf(*valuesFor(it).toTypedArray()).builder() }
 
-val listViews: Views<PersistentList.Builder<Any>, MutableIterator<*>> = rows { "iterator" { iterator() } }
-val listIteratorViews: Views<PersistentList.Builder<Any>, MutableListIterator<Any>> = rows { "listIterator" { listIterator() } }
-val setViews: Views<PersistentSet.Builder<Any?>, MutableIterator<*>> = rows { "iterator" { iterator() } }
-val mapViews: Views<PersistentMap.Builder<Any?, String>, MutableIterator<*>> = rows {
+val listViews: Views<ListBuilder, MutableIterator<*>> = rows { "iterator" { iterator() } }
+val listIteratorViews: Views<ListBuilder, MutableListIterator<Any>> = rows { "listIterator" { listIterator() } }
+val setViews: Views<SetBuilder, MutableIterator<*>> = rows { "iterator" { iterator() } }
+val mapViews: Views<MapBuilder, MutableIterator<*>> = rows {
     "entries" { entries.iterator() }
     "keys" { keys.iterator() }
     "values" { values.iterator() }
 }
 
 /** For builders of two elements or more, which set(1) and the second removeAt(lastIndex) need. */
-val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = operations(
+val listOperations: List<BuilderOperation<ListBuilder>> = operations(
     thatKeepTheSize = {
         "no call" { }
         "set(1)" { this[1] = "changed" }
@@ -204,7 +208,7 @@ private fun entryOf(key: Any?, value: String): MutableMap.MutableEntry<Any?, Str
     mutableMapOf(key.equalCopy() to value.toCharArray().concatToString()).entries.first()
 
 /** For the hash and the ordered map builders; a hash map argument takes the hash builder's trie-by-trie path. */
-val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> = operations(
+val mapOperations: List<BuilderOperation<MapBuilder>> = operations(
     thatKeepTheSize = {
         "no call" { }
         "put(a new value for the first key)" { put(keys.first(), "changed") }
@@ -247,7 +251,7 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> =
  * For the hash and the ordered set builders of two elements or more, which the rows that retain only the first element
  * need; a hash set argument takes the hash builder's trie-by-trie path.
  */
-val setOperations: List<BuilderOperation<PersistentSet.Builder<Any?>>> = operations(
+val setOperations: List<BuilderOperation<SetBuilder>> = operations(
     thatKeepTheSize = {
         "no call" { }
         "add(a stored element)" { add(first()) }

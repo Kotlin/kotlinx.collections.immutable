@@ -5,9 +5,6 @@
 
 package tests.contract
 
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.PersistentMap
-import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentHashMapOf
 import kotlinx.collections.immutable.persistentHashSetOf
 import kotlin.test.Test
@@ -27,7 +24,7 @@ class BuilderIteratorTest {
     /** The list iterator also takes previous, add and set; its own add and remove do not freeze it, as in ArrayList. */
     @Test
     fun list() = runCells {
-        val emptyListCalls = operations<PersistentList.Builder<Any>>(
+        val emptyListCalls = operations<ListBuilder>(
             thatKeepTheSize = { "no call" { } },
             thatMoveTheSize = { "clear()" { clear() } },
         )
@@ -51,7 +48,7 @@ class BuilderIteratorTest {
 
     @Test
     fun `clear of an empty map or set builder freezes its iterators and calls that change nothing do not`() = runCells {
-        val mapCalls = operations<PersistentMap.Builder<Any?, String>>(
+        val mapCalls = operations<MapBuilder>(
             thatKeepTheSize = {
                 "no call" { }
                 "putAll(an empty hash map)" { putAll(persistentHashMapOf()) }
@@ -60,7 +57,7 @@ class BuilderIteratorTest {
             },
             thatMoveTheSize = { "clear()" { clear() } },
         )
-        val setCalls = operations<PersistentSet.Builder<Any?>>(
+        val setCalls = operations<SetBuilder>(
             thatKeepTheSize = {
                 "no call" { }
                 "retainAll(a hash set)" { retainAll(persistentHashSetOf(1, 2)) }
