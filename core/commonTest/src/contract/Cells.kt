@@ -54,3 +54,14 @@ typealias Call<R> = Pair<String, R.() -> Any?>
 fun <R> MutableList<Call<R>>.call(description: String, body: R.() -> Any?) {
     add(description to body)
 }
+
+/** A table of rows written as `"name" { ... }`, one per line; a row under an `if` or a `for` is added when reached. */
+fun <T> rows(table: Rows<T>.() -> Unit): List<Pair<String, T>> = Rows<T>().apply(table).added
+
+class Rows<T> {
+    internal val added = mutableListOf<Pair<String, T>>()
+
+    operator fun String.invoke(row: T) {
+        added += this to row
+    }
+}

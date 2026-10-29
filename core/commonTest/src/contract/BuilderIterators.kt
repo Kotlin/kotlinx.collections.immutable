@@ -7,12 +7,26 @@ package tests.contract
 
 import kotlin.test.assertEquals
 
-class BuilderOperation<in B>(
-    val description: String,
-    /** true when the call moves the size at least once or is a clear(), which invalidates every live iterator. */
-    val throwsCME: Boolean = true,
-    val function: B.() -> Unit,
-)
+/** A call through a builder; [throwsCME] tells the section of [operations] it was written in. */
+class BuilderOperation<in B>(val description: String, val throwsCME: Boolean, val function: B.() -> Unit)
+
+/**
+ * A table of calls through a builder in two sections: the calls that move the size at least once or are a clear(),
+ * which invalidates every live iterator even of an empty builder, and the calls that keep the size.
+ */
+fun <B> operations(table: Operations<B>.() -> Unit): List<BuilderOperation<B>> = Operations<B>().apply(table).added
+
+class Operations<B> {
+    internal val added = mutableListOf<BuilderOperation<B>>()
+
+    fun thatMoveTheSize(section: Rows<B.() -> Unit>.() -> Unit) = add(section, throwsCME = true)
+
+    fun thatKeepTheSize(section: Rows<B.() -> Unit>.() -> Unit) = add(section, throwsCME = false)
+
+    private fun add(section: Rows<B.() -> Unit>.() -> Unit, throwsCME: Boolean) {
+        added += rows(section).map { (description, call) -> BuilderOperation(description, throwsCME, call) }
+    }
+}
 
 val next: Call<MutableIterator<*>> = "next()" to { next() }
 
@@ -74,7 +88,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                     assertEquals("throws ConcurrentModificationException", outcomeOf { iterator.next() }, "next() afterwards")
                     assertEquals(content, builder.open().drain(), "the builder")
                 } else {
-                    assertEquals(opened.size, content.size, "the size after ${operation.description}, which its row says it keeps")
+                    assertEquals(opened.size, content.size, "the size after ${operation.description}, which its table says it keeps")
                     val model = content.toMutableList()
                     val modelIterator = modelIteratorOf<I>(model, returned)
                     for ((description, call) in steps) assertEquals(outcomeOf { modelIterator.call() }, outcomeOf { iterator.call() }, description)
