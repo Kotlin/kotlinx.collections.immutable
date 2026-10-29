@@ -13,20 +13,13 @@ import kotlin.test.assertEquals
  */
 class BuilderOperation<in B>(val description: String, val throwsCME: Boolean, val function: B.() -> Unit)
 
-/** A table of calls through a builder in two sections, the calls that move the size and the calls that keep it. */
-fun <B> operations(table: Operations<B>.() -> Unit): List<BuilderOperation<B>> = Operations<B>().apply(table).added
-
-class Operations<B> {
-    internal val added = mutableListOf<BuilderOperation<B>>()
-
-    fun thatMoveTheSize(section: Rows<B.() -> Unit>.() -> Unit) = add(section, throwsCME = true)
-
-    fun thatKeepTheSize(section: Rows<B.() -> Unit>.() -> Unit) = add(section, throwsCME = false)
-
-    private fun add(section: Rows<B.() -> Unit>.() -> Unit, throwsCME: Boolean) {
-        added += rows(section).map { (description, call) -> BuilderOperation(description, throwsCME, call) }
-    }
-}
+/** A table of calls through a builder in two sections, the calls that keep the size and the calls that move it. */
+fun <B> operations(
+    thatKeepTheSize: Rows<B.() -> Unit>.() -> Unit = {},
+    thatMoveTheSize: Rows<B.() -> Unit>.() -> Unit = {},
+): List<BuilderOperation<B>> =
+    rows(thatKeepTheSize).map { (description, call) -> BuilderOperation(description, throwsCME = false, call) } +
+        rows(thatMoveTheSize).map { (description, call) -> BuilderOperation(description, throwsCME = true, call) }
 
 /** The calls on a live iterator, which [testIterator] makes alone and in pairs. */
 val iteratorCalls: List<Call<MutableIterator<*>>> = rows {
@@ -92,7 +85,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                     assertEquals("throws ConcurrentModificationException", outcomeOf { iterator.next() }, "next() afterwards")
                     assertEquals(content, builder.open().drain(), "the builder")
                 } else {
-                    assertEquals(opened.size, content.size, "the size after ${operation.description}, which its table says it keeps")
+                    assertEquals(opened.size, content.size, "the size after ${operation.description}, which its section says it keeps")
                     val model = content.toMutableList()
                     val modelIterator = modelIteratorOf<I>(model, returned)
                     for ((description, call) in steps) assertEquals(outcomeOf { modelIterator.call() }, outcomeOf { iterator.call() }, description)

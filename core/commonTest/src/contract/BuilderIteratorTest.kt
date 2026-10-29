@@ -27,11 +27,11 @@ class BuilderIteratorTest {
     /** The list iterator also takes previous, add and set; its own add and remove do not freeze it, as in ArrayList. */
     @Test
     fun list() = runCells {
-        val clear = operations<PersistentList.Builder<Any>> { thatMoveTheSize { "clear()" { clear() } } }
+        val clearOnly = operations<PersistentList.Builder<Any>>(thatMoveTheSize = { "clear()" { clear() } })
         testIterator(listBuilders, listViews, listOperations, iteratorCalls)
         testIterator(listBuilders, listIteratorViews, listOperations, listIteratorCalls)
-        testIterator(emptyListBuilders, listViews, clear, iteratorCalls)
-        testIterator(emptyListBuilders, listIteratorViews, clear, listIteratorCalls)
+        testIterator(emptyListBuilders, listViews, clearOnly, iteratorCalls)
+        testIterator(emptyListBuilders, listIteratorViews, clearOnly, listIteratorCalls)
     }
 
     @Test
@@ -48,24 +48,24 @@ class BuilderIteratorTest {
 
     @Test
     fun `clear of an empty map or set builder freezes its iterators and calls that change nothing do not`() = runCells {
-        val mapCalls = operations<PersistentMap.Builder<Any?, String>> {
-            thatMoveTheSize { "clear()" { clear() } }
-            thatKeepTheSize {
+        val mapCalls = operations<PersistentMap.Builder<Any?, String>>(
+            thatMoveTheSize = { "clear()" { clear() } },
+            thatKeepTheSize = {
                 "putAll(an empty hash map)" { putAll(persistentHashMapOf()) }
                 "keys.retainAll(a hash set)" { keys.retainAll(persistentHashSetOf(1, 2)) }
                 "keys.removeAll(a hash set)" { keys.removeAll(persistentHashSetOf(1, 2)) }
-            }
-        }
-        val setCalls = operations<PersistentSet.Builder<Any?>> {
-            thatMoveTheSize { "clear()" { clear() } }
-            thatKeepTheSize {
+            },
+        )
+        val setCalls = operations<PersistentSet.Builder<Any?>>(
+            thatMoveTheSize = { "clear()" { clear() } },
+            thatKeepTheSize = {
                 "retainAll(a hash set)" { retainAll(persistentHashSetOf(1, 2)) }
                 "retainAll(the empty hash set)" { retainAll(persistentHashSetOf()) }
                 "retainAll(a hash set builder)" { retainAll(persistentHashSetOf(1, 2).builder()) }
                 "removeAll(a hash set)" { removeAll(persistentHashSetOf(1, 2)) }
                 "removeAll(a hash set builder)" { removeAll(persistentHashSetOf(1, 2).builder()) }
-            }
-        }
+            },
+        )
         testIterator(emptyMapBuilders, mapViews, mapCalls, iteratorCalls)
         testIterator(emptySetBuilders, setViews, setCalls, iteratorCalls)
     }

@@ -81,16 +81,16 @@ class MapBuilderEntryTest {
 private typealias MapBuilder = PersistentMap.Builder<Any?, String>
 
 /** The calls beyond [mapOperations] that move a key's slot, take it away or bring it back. */
-private val slotMoves: List<BuilderOperation<MapBuilder>> = operations {
-    thatMoveTheSize {
+private val slotMoves: List<BuilderOperation<MapBuilder>> = operations(
+    thatMoveTheSize = {
         "put(a key with the hash of the first key)" { put(missingKey(keys.first().hashCode()), "c") }
         "remove(the first key) then put(a key with its hash)" { val key = keys.first(); remove(key); put(missingKey(key.hashCode()), "c") }
         "remove(the first key) then put it back" { val key = keys.first(); remove(key); put(key, "p") }
         "remove(the last key) then put it back" { val key = keys.last(); remove(key); put(key, "p") }
         "clear() then put(the first key) back" { val key = keys.first(); clear(); put(key, "p") }
         "clear() then putAll(a hash map holding the first key)" { val key = keys.first(); clear(); putAll(persistentHashMapOf(key to "p")) }
-    }
-}
+    },
+)
 
 /** The first call on an entry after a call through the builder, with nothing read from the entry in between. */
 private val firstReads: List<Pair<String, MutableMap.MutableEntry<Any?, String>.(expected: String) -> Unit>> = rows {
