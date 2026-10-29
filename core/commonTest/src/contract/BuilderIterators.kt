@@ -76,7 +76,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                 operation.function(builder)
                 val content = builder.open().drain()
 
-                if (operation.movesTheSize) {
+                if (operation.movesTheSize) at("frozen where the call found it") {
                     for ((description, call) in steps) {
                         val fresh = outcomeOf { modelIteratorOf<I>(opened.toMutableList(), returned).call() }
                         val expected = if (fresh == "throws IllegalStateException") fresh else "throws ConcurrentModificationException"
@@ -84,7 +84,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                     }
                     assertEquals("throws ConcurrentModificationException", outcomeOf { iterator.next() }, "next() afterwards")
                     assertEquals(content, builder.open().drain(), "the builder")
-                } else {
+                } else at("as the iterator of a stdlib list of the content") {
                     assertEquals(opened.size, content.size, "the size after ${operation.description}, which its section says it keeps")
                     val model = content.toMutableList()
                     val modelIterator = modelIteratorOf<I>(model, returned)
