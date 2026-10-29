@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.internal.ListImplementation.checkElementIndex
 import kotlinx.collections.immutable.internal.ListImplementation.checkPositionIndex
 import kotlinx.collections.immutable.internal.assert
+import kotlinx.collections.immutable.internal.writeChangesNothing
 
 /**
  * Persistent vector made of a trie of leaf buffers entirely filled with [MAX_BUFFER_SIZE] elements and a tail having
@@ -328,25 +329,29 @@ internal class PersistentVector<E>(
     override fun set(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
         if (rootSize() <= index) {
+            val tailIndex = index and MAX_BUFFER_SIZE_MINUS_ONE
+            if (writeChangesNothing(tail[tailIndex], element)) return this
             val newTail = tail.copyOf(MAX_BUFFER_SIZE)
-            newTail[index and MAX_BUFFER_SIZE_MINUS_ONE] = element
+            newTail[tailIndex] = element
             return PersistentVector(root, newTail, size, rootShift)
         }
 
-        val newRoot = setInRoot(root, rootShift, index, element)
+        val newRoot = setInRoot(root, rootShift, index, element) ?: return this
         return PersistentVector(newRoot, tail, size, rootShift)
     }
 
-    private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: Any?): Array<Any?> {
+    private fun setInRoot(root: Array<Any?>, shift: Int, index: Int, e: Any?): Array<Any?>? {
         val bufferIndex = indexSegment(index, shift)
-        val newRoot = root.copyOf(MAX_BUFFER_SIZE)
         if (shift == 0) {
+            if (writeChangesNothing(root[bufferIndex], e)) return null
+            val newRoot = root.copyOf(MAX_BUFFER_SIZE)
             newRoot[bufferIndex] = e
-        } else {
-            @Suppress("UNCHECKED_CAST")
-            newRoot[bufferIndex] =
-                setInRoot(newRoot[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e)
+            return newRoot
         }
+        @Suppress("UNCHECKED_CAST")
+        val newBuffer = setInRoot(root[bufferIndex] as Array<Any?>, shift - LOG_MAX_BUFFER_SIZE, index, e) ?: return null
+        val newRoot = root.copyOf(MAX_BUFFER_SIZE)
+        newRoot[bufferIndex] = newBuffer
         return newRoot
     }
 }

@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.internal.DeltaCounter
 import kotlinx.collections.immutable.internal.MutabilityOwnership
 import kotlinx.collections.immutable.internal.assert
 import kotlinx.collections.immutable.internal.forEachOneBit
+import kotlinx.collections.immutable.internal.writeChangesNothing
 
 
 internal const val MAX_BRANCHING_FACTOR = 32
@@ -173,7 +174,7 @@ internal class TrieNode<K, V>(
     }
 
     private fun updateValueAtIndex(keyIndex: Int, value: V): TrieNode<K, V> {
-        assert { buffer[keyIndex + 1] !== value }
+        assert { !writeChangesNothing(buffer[keyIndex + 1], value) }
 
         val newBuffer = buffer.copyOf()
         newBuffer[keyIndex + 1] = value
@@ -185,7 +186,7 @@ internal class TrieNode<K, V>(
         value: V,
         mutator: PersistentHashMapBuilder<K, V>
     ): TrieNode<K, V> {
-        assert { buffer[keyIndex + 1] !== value }
+        assert { !writeChangesNothing(buffer[keyIndex + 1], value) }
 
         // If the [mutator] is exclusive owner of this node, update value at specified index in-place.
         if (ownedBy === mutator.ownership) {
@@ -425,7 +426,7 @@ internal class TrieNode<K, V>(
     private fun collisionPut(key: K, value: V): ModificationResult<K, V>? {
         val keyIndex = collisionKeyIndex(key)
         if (keyIndex != -1) {
-            if (value === valueAtKeyIndex(keyIndex)) {
+            if (writeChangesNothing(valueAtKeyIndex(keyIndex), value)) {
                 return null
             }
             val newBuffer = buffer.copyOf()
@@ -441,7 +442,7 @@ internal class TrieNode<K, V>(
         val keyIndex = collisionKeyIndex(key)
         if (keyIndex != -1) { // found entry with the specified key
             mutator.operationResult = valueAtKeyIndex(keyIndex)
-            if (valueAtKeyIndex(keyIndex) === value) {
+            if (writeChangesNothing(valueAtKeyIndex(keyIndex), value)) {
                 return this
             }
 
@@ -510,6 +511,7 @@ internal class TrieNode<K, V>(
         var replaced = false
         var sharedKeys = true
         var sameOrder = true
+        var sharedValues = true
         for (j in otherNode.buffer.indices step ENTRY_SIZE) {
             val keyIndex = this.collisionKeyIndex(otherNode.buffer[j])
             if (keyIndex == -1) {
@@ -520,18 +522,21 @@ internal class TrieNode<K, V>(
                 intersectionCounter.count++
                 if (tempBuffer[keyIndex] !== otherNode.buffer[j]) sharedKeys = false
                 if (keyIndex != j) sameOrder = false
-                if (tempBuffer[keyIndex + 1] !== otherNode.buffer[j + 1]) {
+                if (!writeChangesNothing(tempBuffer[keyIndex + 1], otherNode.buffer[j + 1])) {
                     tempBuffer[keyIndex + 1] = otherNode.buffer[j + 1]
                     replaced = true
+                } else if (tempBuffer[keyIndex + 1] !== otherNode.buffer[j + 1]) {
+                    sharedValues = false
                 }
             }
         }
 
         if (replaced) mutator.modCount++
 
+        // Not the argument's node when a stored value stayed for an equal one.
         return when (val newSize = i) {
             this.buffer.size if !replaced -> this
-            otherNode.buffer.size if sharedKeys && (sameOrder || newSize != this.buffer.size) -> otherNode
+            otherNode.buffer.size if sharedKeys && sharedValues && (sameOrder || newSize != this.buffer.size) -> otherNode
             tempBuffer.size -> TrieNode(0, 0, tempBuffer, mutator.ownership)
             else -> TrieNode(0, 0, tempBuffer.copyOf(newSize), mutator.ownership)
         }
@@ -657,6 +662,14 @@ internal class TrieNode<K, V>(
         if (dataMap != otherNode.dataMap) return false
         for (i in buffer.indices) {
             if (buffer[i] !== otherNode.buffer[i]) return false
+        }
+        return true
+    }
+
+    /** For [otherNode] of the same maps. */
+    private fun nodesIdentityEquals(otherNode: TrieNode<K, V>): Boolean {
+        for (nodeIndex in ENTRY_SIZE * entryCount()..<buffer.size) {
+            if (buffer[nodeIndex] !== otherNode.buffer[nodeIndex]) return false
         }
         return true
     }
@@ -791,6 +804,7 @@ internal class TrieNode<K, V>(
             mutableNode.buffer[newNodeIndex] =
                 mutablePutAllFromOtherNodeCell(otherNode, positionMask, shift, intersectionCounter, mutator)
         }
+        var keptEveryValue = true
         newDataMap.forEachOneBit { positionMask, index ->
             val newKeyIndex = index * ENTRY_SIZE
             when {
@@ -801,27 +815,32 @@ internal class TrieNode<K, V>(
                 }
                 // there is either only one entry in otherNode, or
                 // both entries are here => they are equal, see ** above
-                // so keep this node's key if both are here, and take the argument's value
+                // so keep this node's key if both are here, and the argument's value unless it changes nothing
                 else -> {
                     val otherKeyIndex = otherNode.entryKeyIndex(positionMask)
                     val otherValue = otherNode.valueAtKeyIndex(otherKeyIndex)
                     if (this.hasEntryAt(positionMask)) {
                         val thisKeyIndex = this.entryKeyIndex(positionMask)
                         intersectionCounter.count++
-                        if (mutableNode !== this) {
-                            val thisValue = this.valueAtKeyIndex(thisKeyIndex)
-                            if (thisValue !== otherValue) mutator.modCount++
+                        val thisValue = this.valueAtKeyIndex(thisKeyIndex)
+                        val changesNothing = writeChangesNothing(thisValue, otherValue)
+                        if (!changesNothing) {
+                            keptEveryValue = false
+                            if (mutableNode !== this) mutator.modCount++
                         }
                         mutableNode.buffer[newKeyIndex] = this.keyAtIndex(thisKeyIndex)
+                        mutableNode.buffer[newKeyIndex + 1] = if (changesNothing) thisValue else otherValue
                     } else {
                         mutableNode.buffer[newKeyIndex] = otherNode.keyAtIndex(otherKeyIndex)
+                        mutableNode.buffer[newKeyIndex + 1] = otherValue
                     }
-                    mutableNode.buffer[newKeyIndex + 1] = otherValue
                 }
             }
         }
         return when {
-            this.elementsIdentityEquals(mutableNode) -> this
+            // With this node's maps the result holds this node's keys, so only a value or a child node can differ.
+            mutableNode === this || keptEveryValue && newDataMap == dataMap && newNodeMap == nodeMap && nodesIdentityEquals(mutableNode) -> this
+            // not the argument's node when a stored value stayed for an equal one
             otherNode.elementsIdentityEquals(mutableNode) -> otherNode
             else -> mutableNode
         }
@@ -834,7 +853,7 @@ internal class TrieNode<K, V>(
             val keyIndex = entryKeyIndex(keyPositionMask)
 
             if (key == keyAtIndex(keyIndex)) {
-                if (valueAtKeyIndex(keyIndex) === value) return null
+                if (writeChangesNothing(valueAtKeyIndex(keyIndex), value)) return null
 
                 return updateValueAtIndex(keyIndex, value).asUpdateResult()
             }
@@ -870,7 +889,7 @@ internal class TrieNode<K, V>(
 
             if (key == keyAtIndex(keyIndex)) {
                 mutator.operationResult = valueAtKeyIndex(keyIndex)
-                if (valueAtKeyIndex(keyIndex) === value) {
+                if (writeChangesNothing(valueAtKeyIndex(keyIndex), value)) {
                     return this
                 }
 
