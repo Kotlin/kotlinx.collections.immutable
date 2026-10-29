@@ -86,60 +86,60 @@ private fun counts(size: Int): List<Int> {
     return listOf(1, room, room + 1, LEAF + 1).filter { it > 0 }.distinct()
 }
 
-private fun listsOf(size: Int): Origins<PersistentList<Int>> = listOf(
-    "a list of $size from addingAll" to { List(size) { it }.toPersistentList() },
-    "a list of $size from addings" to { (0..<size).fold(persistentListOf<Int>()) { list, element -> list.adding(element) } },
-)
+private fun listsOf(size: Int): Origins<PersistentList<Int>> = rows {
+    "a list of $size from addingAll" { List(size) { it }.toPersistentList() }
+    "a list of $size from addings" { (0..<size).fold(persistentListOf<Int>()) { list, element -> list.adding(element) } }
+}
 
 /**
  * The builder makes retainAll, the calls with a predicate and the clears through subList one element at a time, so
  * their rows come last and skip [THREE_LEVELS], where they would take longer than the rest of the table together.
  */
-private fun calls(size: Int): List<Call<MutableList<Int>>> = buildList {
+private fun calls(size: Int): List<Call<MutableList<Int>>> = rows {
     val positions = boundaryIndices(size) + size
-    call("add(x)") { add(NEW) }
-    for (count in listOf(0, LEVEL + LEAF) + counts(size)) call("addAll($count elements)") { addAll(newElements(count)) }
+    "add(x)" { add(NEW) }
+    for (count in listOf(0, LEVEL + LEAF) + counts(size)) "addAll($count elements)" { addAll(newElements(count)) }
     for (position in positions) {
-        call("add($position, x)") { add(position, NEW) }
-        for (count in counts(size)) call("addAll($position, $count elements)") { addAll(position, newElements(count)) }
+        "add($position, x)" { add(position, NEW) }
+        for (count in counts(size)) "addAll($position, $count elements)" { addAll(position, newElements(count)) }
     }
     for (index in boundaryIndices(size)) {
-        call("set($index, x)") { set(index, NEW) }
-        call("removeAt($index)") { removeAt(index) }
+        "set($index, x)" { set(index, NEW) }
+        "removeAt($index)" { removeAt(index) }
     }
-    call("clear()") { clear() }
-    call("remove(a missing element)") { remove(MISSING) }
+    "clear()" { clear() }
+    "remove(a missing element)" { remove(MISSING) }
     if (size > 0) {
-        call("remove(the first element)") { remove(first()) }
-        call("remove(the last element)") { remove(last()) }
+        "remove(the first element)" { remove(first()) }
+        "remove(the last element)" { remove(last()) }
     }
-    call("removeAll(nothing)") { removeAll(emptySet()) }
-    call("removeAll(a missing element)") { removeAll(setOf(MISSING)) }
-    call("removeAll(every other element)") { removeAll((0..<size step 2).toSet()) }
+    "removeAll(nothing)" { removeAll(emptySet()) }
+    "removeAll(a missing element)" { removeAll(setOf(MISSING)) }
+    "removeAll(every other element)" { removeAll((0..<size step 2).toSet()) }
     for (index in boundaryIndices(size)) {
-        call("removeAll(the suffix from $index)") { removeAll((index..<size).toSet()) }
-        call("removeAll(the prefix before $index)") { removeAll((0..<index).toSet()) }
-        if (index % LEAF == 0 && index < trieSize(size)) call("removeAll(the leaf at $index)") { removeAll((index..<index + LEAF).toSet()) }
+        "removeAll(the suffix from $index)" { removeAll((index..<size).toSet()) }
+        "removeAll(the prefix before $index)" { removeAll((0..<index).toSet()) }
+        if (index % LEAF == 0 && index < trieSize(size)) "removeAll(the leaf at $index)" { removeAll((index..<index + LEAF).toSet()) }
     }
     for (position in positions) {
-        call("subList($position, size)") { subList(position, size) }
-        call("subList(0, $position)") { subList(0, position) }
-        call("subList(0, $position).add(x)") { subList(0, position).apply { add(NEW) } }
+        "subList($position, size)" { subList(position, size) }
+        "subList(0, $position)" { subList(0, position) }
+        "subList(0, $position).add(x)" { subList(0, position).apply { add(NEW) } }
     }
 
     if (size != THREE_LEVELS) {
-        call("retainAll(nothing)") { retainAll(emptySet()) }
-        call("retainAll(every other element)") { retainAll((0..<size step 2).toSet()) }
-        call("removeAll { every other element }") { removeAll { it % 2 == 0 } }
+        "retainAll(nothing)" { retainAll(emptySet()) }
+        "retainAll(every other element)" { retainAll((0..<size step 2).toSet()) }
+        "removeAll { every other element }" { removeAll { it % 2 == 0 } }
         for (index in boundaryIndices(size)) {
-            call("retainAll(the suffix from $index)") { retainAll((index..<size).toSet()) }
-            call("retainAll(the prefix before $index)") { retainAll((0..<index).toSet()) }
-            call("removeAll { the suffix from $index }") { removeAll { it >= index } }
-            if (index % LEAF == 0 && index < trieSize(size)) call("retainAll(the leaf at $index)") { retainAll((index..<index + LEAF).toSet()) }
+            "retainAll(the suffix from $index)" { retainAll((index..<size).toSet()) }
+            "retainAll(the prefix before $index)" { retainAll((0..<index).toSet()) }
+            "removeAll { the suffix from $index }" { removeAll { it >= index } }
+            if (index % LEAF == 0 && index < trieSize(size)) "retainAll(the leaf at $index)" { retainAll((index..<index + LEAF).toSet()) }
         }
         for (position in positions) {
-            call("subList($position, size).clear()") { subList(position, size).apply { clear() } }
-            call("subList(0, $position).clear()") { subList(0, position).apply { clear() } }
+            "subList($position, size).clear()" { subList(position, size).apply { clear() } }
+            "subList(0, $position).clear()" { subList(0, position).apply { clear() } }
         }
     }
 }
