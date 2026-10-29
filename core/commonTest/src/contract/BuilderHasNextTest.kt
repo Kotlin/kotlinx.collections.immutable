@@ -101,12 +101,8 @@ class BuilderHasNextTest {
     }
 }
 
-private fun <B> Cells.testHasNext(
-    builders: Origins<B>,
-    views: Views<B, MutableIterator<*>>,
-    operations: List<BuilderOperation<B>>,
-) {
-    for ((origin, newBuilder) in builders) for ((view, open) in views) for (operation in operations) {
+private fun <B> Cells.testHasNext(builders: Origins<B>, views: Views<B, *>, operations: List<BuilderOperation<B>>) {
+    for ((origin, newBuilder) in builders) for ((view, open) in views.openers) for (operation in operations) {
         cell("$origin, $view after ${operation.description}") {
             val opened = newBuilder().open().drain()
             for (returned in 0..opened.size) at("after $returned next") {

@@ -44,7 +44,7 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
 /**
  * Tests the fail-fast contract of the builder iterators as stdlib's ConcurrentModificationTest and guava-testlib's
  * IteratorTester do. Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to
- * size times, makes a call of [operations] and then one call of [iteratorCalls] or two in a row: one cell per origin,
+ * size times, makes a call of [operations] and then one of the views' calls or two in a row: one cell per origin,
  * view, builder call and call sequence, with every position inside it.
  *
  * After a call that keeps the size, the iterator of a stdlib list of what the builder holds, advanced as far, takes the
@@ -57,19 +57,14 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
  * iterator was opened, tells the two apart. A next afterwards throws ConcurrentModificationException, and the builder
  * still holds what the call left in it.
  */
-fun <B, I : MutableIterator<*>> Cells.testIterator(
-    builders: Origins<B>,
-    views: Views<B, I>,
-    operations: List<BuilderOperation<B>>,
-    iteratorCalls: List<Call<I>>,
-) {
-    val alone = iteratorCalls.map { call -> call.first to listOf(call) }
-    val pairs = iteratorCalls.flatMap { (first, firstCall) ->
-        iteratorCalls.map { (second, secondCall) ->
+fun <B, I : MutableIterator<*>> Cells.testIterator(builders: Origins<B>, views: Views<B, I>, operations: List<BuilderOperation<B>>) {
+    val alone = views.calls.map { call -> call.first to listOf(call) }
+    val pairs = views.calls.flatMap { (first, firstCall) ->
+        views.calls.map { (second, secondCall) ->
             "$first then $second" to listOf("the first $first" to firstCall, "the second $second" to secondCall)
         }
     }
-    for ((origin, newBuilder) in builders) for ((view, open) in views) for (operation in operations) for ((calls, steps) in alone + pairs) {
+    for ((origin, newBuilder) in builders) for ((view, open) in views.openers) for (operation in operations) for ((calls, steps) in alone + pairs) {
         cell("$origin, $view, $calls after ${operation.description}") {
             val opened = newBuilder().open().drain()
             for (returned in 0..opened.size) at("after $returned next") {

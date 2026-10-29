@@ -28,23 +28,23 @@ class BuilderIteratorTest {
             thatKeepTheSize = { "no call" { } },
             thatMoveTheSize = { "clear()" { clear() } },
         )
-        testIterator(listBuilders, listViews, listOperations, iteratorCalls)
-        testIterator(listBuilders, listIteratorViews, listOperations, listIteratorCalls)
-        testIterator(emptyListBuilders, listViews, emptyListCalls, iteratorCalls)
-        testIterator(emptyListBuilders, listIteratorViews, emptyListCalls, listIteratorCalls)
+        testIterator(listBuilders, listViews, listOperations)
+        testIterator(listBuilders, listIteratorViews, listOperations)
+        testIterator(emptyListBuilders, listViews, emptyListCalls)
+        testIterator(emptyListBuilders, listIteratorViews, emptyListCalls)
     }
 
     @Test
-    fun hashSet() = runCells { testIterator(hashSetBuilders, setViews, setOperations, iteratorCalls) }
+    fun hashSet() = runCells { testIterator(hashSetBuilders, setViews, setOperations) }
 
     @Test
-    fun orderedSet() = runCells { testIterator(orderedSetBuilders, setViews, setOperations, iteratorCalls) }
+    fun orderedSet() = runCells { testIterator(orderedSetBuilders, setViews, setOperations) }
 
     @Test
-    fun hashMap() = runCells { testIterator(hashMapBuilders, mapViews, mapOperations, iteratorCalls) }
+    fun hashMap() = runCells { testIterator(hashMapBuilders, mapViews, mapOperations) }
 
     @Test
-    fun orderedMap() = runCells { testIterator(orderedMapBuilders, mapViews, mapOperations, iteratorCalls) }
+    fun orderedMap() = runCells { testIterator(orderedMapBuilders, mapViews, mapOperations) }
 
     @Test
     fun `clear of an empty map or set builder freezes its iterators and calls that change nothing do not`() = runCells {
@@ -68,7 +68,7 @@ class BuilderIteratorTest {
             },
             thatMoveTheSize = { "clear()" { clear() } },
         )
-        testIterator(emptyMapBuilders, mapViews, mapCalls, iteratorCalls)
-        testIterator(emptySetBuilders, setViews, setCalls, iteratorCalls)
+        testIterator(emptyMapBuilders, mapViews, mapCalls)
+        testIterator(emptySetBuilders, setViews, setCalls)
     }
 }

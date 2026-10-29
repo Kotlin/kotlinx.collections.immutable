@@ -30,8 +30,10 @@ import tests.trie.trieShapes
  */
 typealias Origins<B> = List<Pair<String, () -> B>>
 
-/** The iterators a builder opens, each named after its view. */
-typealias Views<B, I> = List<Pair<String, B.() -> I>>
+/** The iterators a builder opens, each named after its view, with the calls [testIterator] makes on them. */
+class Views<B, I : MutableIterator<*>>(val calls: List<Call<I>>, val openers: List<Pair<String, B.() -> I>>)
+
+fun <B, I : MutableIterator<*>> views(calls: List<Call<I>>, openers: Rows<B.() -> I>.() -> Unit): Views<B, I> = Views(calls, rows(openers))
 
 typealias ListBuilder = PersistentList.Builder<Any>
 typealias SetBuilder = PersistentSet.Builder<Any?>
@@ -163,10 +165,10 @@ val emptySetBuilders = emptyBuildersOf("a hash set builder") { it.toPersistentHa
 val emptyMapBuilders = emptyBuildersOf("a hash map builder", elements = { keys }) { persistentHashMapOf(*valuesFor(it).toTypedArray()).builder() } +
     emptyBuildersOf("an ordered map builder", elements = { keys }) { persistentMapOf(*valuesFor(it).toTypedArray()).builder() }
 
-val listViews: Views<ListBuilder, MutableIterator<*>> = rows { "iterator" { iterator() } }
-val listIteratorViews: Views<ListBuilder, MutableListIterator<Any>> = rows { "listIterator" { listIterator() } }
-val setViews: Views<SetBuilder, MutableIterator<*>> = rows { "iterator" { iterator() } }
-val mapViews: Views<MapBuilder, MutableIterator<*>> = rows {
+val listViews: Views<ListBuilder, MutableIterator<*>> = views(iteratorCalls) { "iterator" { iterator() } }
+val listIteratorViews: Views<ListBuilder, MutableListIterator<Any>> = views(listIteratorCalls) { "listIterator" { listIterator() } }
+val setViews: Views<SetBuilder, MutableIterator<*>> = views(iteratorCalls) { "iterator" { iterator() } }
+val mapViews: Views<MapBuilder, MutableIterator<*>> = views(iteratorCalls) {
     "entries" { entries.iterator() }
     "keys" { keys.iterator() }
     "values" { values.iterator() }
