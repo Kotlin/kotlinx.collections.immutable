@@ -30,19 +30,19 @@ import kotlin.test.assertFalse
 class BuilderHasNextTest {
 
     @Test
-    fun list() = runCells { testHasNext(listBuilders, listIteratorViews, listOperations) }
+    fun list() = runCells { testHasNext(listBuilders, listIteratorViews.openers, listOperations) }
 
     @Test
-    fun hashMap() = runCells { testHasNext(hashMapBuilders, mapViews, mapOperations) }
+    fun hashMap() = runCells { testHasNext(hashMapBuilders, mapViews.openers, mapOperations) }
 
     @Test
-    fun hashSet() = runCells { testHasNext(hashSetBuilders, setViews, setOperations) }
+    fun hashSet() = runCells { testHasNext(hashSetBuilders, setViews.openers, setOperations) }
 
     @Test
-    fun orderedMap() = runCells { testHasNext(orderedMapBuilders, mapViews, mapOperations) }
+    fun orderedMap() = runCells { testHasNext(orderedMapBuilders, mapViews.openers, mapOperations) }
 
     @Test
-    fun orderedSet() = runCells { testHasNext(orderedSetBuilders, setViews, setOperations) }
+    fun orderedSet() = runCells { testHasNext(orderedSetBuilders, setViews.openers, setOperations) }
 
     @Test
     fun `next throws until the changed hash of the next key is back`() = runCells {
@@ -101,8 +101,12 @@ class BuilderHasNextTest {
     }
 }
 
-private fun <B> Cells.testHasNext(builders: Origins<B>, views: Views<B, *>, operations: List<BuilderOperation<B>>) {
-    for ((origin, newBuilder) in builders) for ((view, open) in views.openers) for (operation in operations) {
+private fun <B> Cells.testHasNext(
+    builders: Origins<B>,
+    openers: List<Pair<String, B.() -> MutableIterator<*>>>,
+    operations: List<BuilderOperation<B>>,
+) {
+    for ((origin, newBuilder) in builders) for ((view, open) in openers) for (operation in operations) {
         cell("$origin, $view after ${operation.description}") {
             val opened = newBuilder().open().drain()
             for (returned in 0..opened.size) at("after $returned next") {
