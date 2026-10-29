@@ -129,7 +129,7 @@ private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<Bu
                 at("the iterators after the setValue calls") {
                     if (operation.movesTheSize) assertFailsWith<ConcurrentModificationException>("next() of the one that returned the entry") { iterator.next() }
                     else assertEquals(keys.drop(position + 1), iterator.asSequence().map { it.key }.toList(), "the rest of the one that returned the entry")
-                    at("one opened after the call") { assertEquals(builder.toList(), openedBeforeTheFirstRead.drain()) }
+                    at("one opened before the first read") { assertEquals(builder.toList(), openedBeforeTheFirstRead.drain()) }
                 }
                 at("setValue after a put of its key") {
                     builder[entry.key] = "p"
