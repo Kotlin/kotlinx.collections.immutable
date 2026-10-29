@@ -27,6 +27,7 @@ import tests.trie.trieShapes
  * persistent collection with a write undone, which owns the path of that write and shares the rest; all of them hold
  * the content in the same order. A new bug is covered on every origin of its kind, through [forEachBuilder] or, for a
  * call through the builder or one of its views, as a new row of [listOperations], [mapOperations] or [setOperations].
+ * Every table here is written with [rows], one row a line: `"name" { ... }`.
  */
 typealias Origins<B> = List<Pair<String, () -> B>>
 
