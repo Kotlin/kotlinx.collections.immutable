@@ -17,8 +17,10 @@ import kotlin.test.Test
 class BuilderIteratorTest {
 
     @Test
-    fun hashSet() = runCells { testIterator(hashSetBuilders, setViews, setOperations, listOf(next)) }
+    fun hashSet() = runCells { testIterator(hashSetBuilders, nextOnly, setOperations) }
 
     @Test
-    fun orderedSet() = runCells { testIterator(orderedSetBuilders, setViews, setOperations, listOf(next)) }
+    fun orderedSet() = runCells { testIterator(orderedSetBuilders, nextOnly, setOperations) }
 }
+
+private val nextOnly: Views<SetBuilder, MutableIterator<*>> = views(rows { "next()" { next() } }) { "iterator" { iterator() } }

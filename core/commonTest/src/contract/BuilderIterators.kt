@@ -7,20 +7,34 @@ package tests.contract
 
 import kotlin.test.assertEquals
 
-class BuilderOperation<in B>(
-    val description: String,
-    /** true when the call moves the size at least once or is a clear(), which invalidates every live iterator. */
-    val throwsCME: Boolean = true,
-    val function: B.() -> Unit,
-)
+/**
+ * A call through a builder. [movesTheSize] is true when the call moves the size at least once or is a clear(), which
+ * invalidates every live iterator even of an empty builder; [operations] sets it by the section the call is written in.
+ */
+class BuilderOperation<in B>(val description: String, val movesTheSize: Boolean, val function: B.() -> Unit)
 
-val next: Call<MutableIterator<*>> = "next()" to { next() }
+/**
+ * A table of calls through a builder in two sections, the calls that keep the size and the calls that move it. The
+ * keep section starts with "no call", so that the iterator calls also run on an untouched builder.
+ */
+fun <B> operations(
+    thatKeepTheSize: Rows<B.() -> Unit>.() -> Unit = {},
+    thatMoveTheSize: Rows<B.() -> Unit>.() -> Unit = {},
+): List<BuilderOperation<B>> =
+    rows(thatKeepTheSize).map { (description, call) -> BuilderOperation(description, movesTheSize = false, call) } +
+        rows(thatMoveTheSize).map { (description, call) -> BuilderOperation(description, movesTheSize = true, call) }
 
 /** The calls on a live iterator, which [testIterator] makes alone and in pairs. */
-val iteratorCalls: List<Call<MutableIterator<*>>> = listOf(next, "remove()" to { remove() })
+val iteratorCalls: List<Call<MutableIterator<*>>> = rows {
+    "next()" { next() }
+    "remove()" { remove() }
+}
 
-val listIteratorCalls: List<Call<MutableListIterator<Any>>> =
-    iteratorCalls + listOf("previous()" to { previous() }, "add()" to { add("new") }, "set()" to { set("new") })
+val listIteratorCalls: List<Call<MutableListIterator<Any>>> = iteratorCalls + rows {
+    "previous()" { previous() }
+    "add()" { add("new") }
+    "set()" { set("new") }
+}
 
 /** The elements an iterator still has. A live map entry is read as its key and value the moment it is drained. */
 fun Iterator<*>.drain(): List<Any?> = asSequence().map(::read).toList()
@@ -30,7 +44,7 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
 /**
  * Tests the fail-fast contract of the builder iterators as stdlib's ConcurrentModificationTest and guava-testlib's
  * IteratorTester do. Opens every iterator of [views] on a fresh builder of every origin in [builders], calls next 0 to
- * size times, makes a call of [operations] and then one call of [iteratorCalls] or two in a row: one cell per origin,
+ * size times, makes a call of [operations] and then one of the views' calls or two in a row: one cell per origin,
  * view, builder call and call sequence, with every position inside it.
  *
  * After a call that keeps the size, the iterator of a stdlib list of what the builder holds, advanced as far, takes the
@@ -43,19 +57,14 @@ private fun read(element: Any?): Any? = if (element is Map.Entry<*, *>) element.
  * iterator was opened, tells the two apart. A next afterwards throws ConcurrentModificationException, and the builder
  * still holds what the call left in it.
  */
-fun <B, I : MutableIterator<*>> Cells.testIterator(
-    builders: Origins<B>,
-    views: Views<B, I>,
-    operations: List<BuilderOperation<B>>,
-    iteratorCalls: List<Call<I>>,
-) {
-    val alone = iteratorCalls.map { call -> call.first to listOf(call) }
-    val pairs = iteratorCalls.flatMap { (first, firstCall) ->
-        iteratorCalls.map { (second, secondCall) ->
+fun <B, I : MutableIterator<*>> Cells.testIterator(builders: Origins<B>, views: Views<B, I>, operations: List<BuilderOperation<B>>) {
+    val alone = views.calls.map { call -> call.first to listOf(call) }
+    val pairs = views.calls.flatMap { (first, firstCall) ->
+        views.calls.map { (second, secondCall) ->
             "$first then $second" to listOf("the first $first" to firstCall, "the second $second" to secondCall)
         }
     }
-    for ((origin, newBuilder) in builders) for ((view, open) in views) for (operation in operations) for ((calls, steps) in alone + pairs) {
+    for ((origin, newBuilder) in builders) for ((view, open) in views.openers) for (operation in operations) for ((calls, steps) in alone + pairs) {
         cell("$origin, $view, $calls after ${operation.description}") {
             val opened = newBuilder().open().drain()
             for (returned in 0..opened.size) at("after $returned next") {
@@ -65,7 +74,7 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                 operation.function(builder)
                 val content = builder.open().drain()
 
-                if (operation.throwsCME) {
+                if (operation.movesTheSize) at("frozen where the call found it") {
                     for ((description, call) in steps) {
                         val fresh = outcomeOf { modelIteratorOf<I>(opened.toMutableList(), returned).call() }
                         val expected = if (fresh == "throws IllegalStateException") fresh else "throws ConcurrentModificationException"
@@ -73,8 +82,8 @@ fun <B, I : MutableIterator<*>> Cells.testIterator(
                     }
                     assertEquals("throws ConcurrentModificationException", outcomeOf { iterator.next() }, "next() afterwards")
                     assertEquals(content, builder.open().drain(), "the builder")
-                } else {
-                    assertEquals(opened.size, content.size, "the size after ${operation.description}, which its row says it keeps")
+                } else at("as the iterator of a stdlib list of the content") {
+                    assertEquals(opened.size, content.size, "the size after ${operation.description}, which its section says it keeps")
                     val model = content.toMutableList()
                     val modelIterator = modelIteratorOf<I>(model, returned)
                     for ((description, call) in steps) assertEquals(outcomeOf { modelIterator.call() }, outcomeOf { iterator.call() }, description)
