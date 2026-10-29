@@ -171,34 +171,33 @@ val mapViews: Views<PersistentMap.Builder<Any?, String>, MutableIterator<*>> = l
     "values" to { values.iterator() },
 )
 
-/** The first row of every table: it leaves the builder alone, so that the iterator calls run on an untouched builder too. */
-val noCall: BuilderOperation<Any?> = BuilderOperation("no call", throwsCME = false) { }
-
 /** For builders of two elements or more, which set(1) and the second removeAt(lastIndex) need. */
-val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = listOf(
-    noCall,
-
-    BuilderOperation("add()") { add("new") },
-    BuilderOperation("add(0)") { add(0, "new") },
-    BuilderOperation("removeAt(0)") { removeAt(0) },
-    BuilderOperation("removeAt(lastIndex)") { removeAt(lastIndex) },
-    BuilderOperation("removeAt(lastIndex) twice") { removeAt(lastIndex); removeAt(lastIndex) },
-    BuilderOperation("clear()") { clear() },
-    BuilderOperation("addAll()") { addAll(listOf("new", "newer")) },
-    BuilderOperation("removeAll(the first element)") { removeAll(listOf(first())) },
-    BuilderOperation("retainAll(the first element)") { retainAll(listOf(first())) },
-    BuilderOperation("add() then removeAt(lastIndex)") { add("new"); removeAt(lastIndex) },
-    BuilderOperation("iterator().remove()") { iterator().apply { val _ = next(); remove() } },
-
-    BuilderOperation("set(1)", throwsCME = false) { this[1] = "changed" },
-    BuilderOperation("set(lastIndex)", throwsCME = false) { this[lastIndex] = "changed" },
-    BuilderOperation("set(the stored element)", throwsCME = false) { this[1] = this[1] },
-    BuilderOperation("addAll(an empty list)", throwsCME = false) { addAll(emptyList()) },
-    BuilderOperation("removeAll(missing elements)", throwsCME = false) { removeAll(listOf("missing")) },
-    BuilderOperation("retainAll(a superset)", throwsCME = false) { retainAll(toList() + "missing") },
-    BuilderOperation("build()", throwsCME = false) { val _ = build() },
-    BuilderOperation("build() then set(1)", throwsCME = false) { val _ = build(); this[1] = "changed" },
-)
+val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = operations {
+    thatKeepTheSize {
+        "no call" { }
+        "set(1)" { this[1] = "changed" }
+        "set(lastIndex)" { this[lastIndex] = "changed" }
+        "set(the stored element)" { this[1] = this[1] }
+        "addAll(an empty list)" { addAll(emptyList()) }
+        "removeAll(missing elements)" { removeAll(listOf("missing")) }
+        "retainAll(a superset)" { retainAll(toList() + "missing") }
+        "build()" { val _ = build() }
+        "build() then set(1)" { val _ = build(); this[1] = "changed" }
+    }
+    thatMoveTheSize {
+        "add()" { add("new") }
+        "add(0)" { add(0, "new") }
+        "removeAt(0)" { removeAt(0) }
+        "removeAt(lastIndex)" { removeAt(lastIndex) }
+        "removeAt(lastIndex) twice" { removeAt(lastIndex); removeAt(lastIndex) }
+        "clear()" { clear() }
+        "addAll()" { addAll(listOf("new", "newer")) }
+        "removeAll(the first element)" { removeAll(listOf(first())) }
+        "retainAll(the first element)" { retainAll(listOf(first())) }
+        "add() then removeAt(lastIndex)" { add("new"); removeAt(lastIndex) }
+        "iterator().remove()" { iterator().apply { val _ = next(); remove() } }
+    }
+}
 
 private fun newValuesFor(keys: List<Any?>): PersistentMap<Any?, String> =
     persistentHashMapOf(*keys.mapIndexed { index, key -> key to "new $index" }.toTypedArray())
@@ -208,74 +207,78 @@ private fun entryOf(key: Any?, value: String): MutableMap.MutableEntry<Any?, Str
     mutableMapOf(key.equalCopy() to value.toCharArray().concatToString()).entries.first()
 
 /** For the hash and the ordered map builders; a hash map argument takes the hash builder's trie-by-trie path. */
-val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> = listOf(
-    noCall,
-
-    BuilderOperation("put(new key)") { put("new", "n") },
-    BuilderOperation("remove(the first key)") { remove(keys.first()) },
-    BuilderOperation("remove(the last key)") { remove(keys.last()) },
-    BuilderOperation("clear()") { clear() },
-    BuilderOperation("putAll(a map with a new key)") { putAll(mapOf("new" to "n")) },
-    BuilderOperation("putAll(a hash map with a new key)") { putAll(persistentHashMapOf("new" to "n")) },
-    BuilderOperation("put(new key) then remove(it)") { put("new", "n"); remove("new") },
-    BuilderOperation("remove(every key)") { for (key in keys.toList()) remove(key) },
-    BuilderOperation("entries.iterator().remove()") { entries.iterator().apply { val _ = next(); remove() } },
-    BuilderOperation("keys.iterator().remove()") { keys.iterator().apply { val _ = next(); remove() } },
-    BuilderOperation("entries.remove(an equal copy of the first entry)") { entries.remove(entryOf(keys.first(), getValue(keys.first()))) },
-    BuilderOperation("keys.remove(the first key)") { keys.remove(keys.first()) },
-
-    BuilderOperation("put(a new value for the first key)", throwsCME = false) { put(keys.first(), "changed") },
-    BuilderOperation("put(a new value for the last key)", throwsCME = false) { put(keys.last(), "changed") },
-    BuilderOperation("put(the stored value of the first key)", throwsCME = false) { put(keys.first(), getValue(keys.first())) },
-    BuilderOperation("put(the stored value of the last key)", throwsCME = false) { put(keys.last(), getValue(keys.last())) },
-    BuilderOperation("putAll(a new value for the first key)", throwsCME = false) { putAll(persistentHashMapOf(keys.first() to "changed")) },
-    BuilderOperation("putAll(a new value for the last key)", throwsCME = false) { putAll(persistentHashMapOf(keys.last() to "changed")) },
-    BuilderOperation("putAll(new values)", throwsCME = false) { putAll(newValuesFor(keys.toList())) },
-    BuilderOperation("putAll(new values in the reverse key order)", throwsCME = false) { putAll(newValuesFor(keys.reversed())) },
-    BuilderOperation("putAll(new values with the last two keys swapped)", throwsCME = false) { putAll(newValuesFor(keys.toList().let { it.dropLast(2) + it.takeLast(2).reversed() })) },
-    BuilderOperation("putAll(new values as a map)", throwsCME = false) { putAll(mapValues { it.value + "!" }) },
-    BuilderOperation("putAll(the stored values)", throwsCME = false) { putAll(persistentHashMapOf(*toList().toTypedArray())) },
-    BuilderOperation("putAll(the stored values as a map)", throwsCME = false) { putAll(toMap()) },
-    BuilderOperation("putAll(the built map)", throwsCME = false) { putAll(build()) },
-    BuilderOperation("putAll(the builder itself)", throwsCME = false) { putAll(this) },
-    BuilderOperation("putAll(an empty map)", throwsCME = false) { putAll(emptyMap()) },
-    BuilderOperation("putAll(an empty hash map)", throwsCME = false) { putAll(persistentHashMapOf<Any?, String>()) },
-    BuilderOperation("remove(a missing key)", throwsCME = false) { remove("missing") },
-    BuilderOperation("entries.remove(the first key with another value)", throwsCME = false) { entries.remove(entryOf(keys.first(), "other")) },
-    BuilderOperation("build() then put(a new value for the first key)", throwsCME = false) { val _ = build(); put(keys.first(), "changed") },
-)
+val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> = operations {
+    thatKeepTheSize {
+        "no call" { }
+        "put(a new value for the first key)" { put(keys.first(), "changed") }
+        "put(a new value for the last key)" { put(keys.last(), "changed") }
+        "put(the stored value of the first key)" { put(keys.first(), getValue(keys.first())) }
+        "put(the stored value of the last key)" { put(keys.last(), getValue(keys.last())) }
+        "putAll(a new value for the first key)" { putAll(persistentHashMapOf(keys.first() to "changed")) }
+        "putAll(a new value for the last key)" { putAll(persistentHashMapOf(keys.last() to "changed")) }
+        "putAll(new values)" { putAll(newValuesFor(keys.toList())) }
+        "putAll(new values in the reverse key order)" { putAll(newValuesFor(keys.reversed())) }
+        "putAll(new values with the last two keys swapped)" { putAll(newValuesFor(keys.toList().let { it.dropLast(2) + it.takeLast(2).reversed() })) }
+        "putAll(new values as a map)" { putAll(mapValues { it.value + "!" }) }
+        "putAll(the stored values)" { putAll(persistentHashMapOf(*toList().toTypedArray())) }
+        "putAll(the stored values as a map)" { putAll(toMap()) }
+        "putAll(the built map)" { putAll(build()) }
+        "putAll(the builder itself)" { putAll(this) }
+        "putAll(an empty map)" { putAll(emptyMap()) }
+        "putAll(an empty hash map)" { putAll(persistentHashMapOf<Any?, String>()) }
+        "remove(a missing key)" { remove("missing") }
+        "entries.remove(the first key with another value)" { entries.remove(entryOf(keys.first(), "other")) }
+        "build() then put(a new value for the first key)" { val _ = build(); put(keys.first(), "changed") }
+    }
+    thatMoveTheSize {
+        "put(new key)" { put("new", "n") }
+        "remove(the first key)" { remove(keys.first()) }
+        "remove(the last key)" { remove(keys.last()) }
+        "clear()" { clear() }
+        "putAll(a map with a new key)" { putAll(mapOf("new" to "n")) }
+        "putAll(a hash map with a new key)" { putAll(persistentHashMapOf("new" to "n")) }
+        "put(new key) then remove(it)" { put("new", "n"); remove("new") }
+        "remove(every key)" { for (key in keys.toList()) remove(key) }
+        "entries.iterator().remove()" { entries.iterator().apply { val _ = next(); remove() } }
+        "keys.iterator().remove()" { keys.iterator().apply { val _ = next(); remove() } }
+        "entries.remove(an equal copy of the first entry)" { entries.remove(entryOf(keys.first(), getValue(keys.first()))) }
+        "keys.remove(the first key)" { keys.remove(keys.first()) }
+    }
+}
 
 /**
  * For the hash and the ordered set builders of two elements or more, which the rows that retain only the first element
  * need; a hash set argument takes the hash builder's trie-by-trie path.
  */
-val setOperations: List<BuilderOperation<PersistentSet.Builder<Any?>>> = listOf(
-    noCall,
-
-    BuilderOperation("add(a new element)") { add("new") },
-    BuilderOperation("remove(the first element)") { remove(first()) },
-    BuilderOperation("remove(the last element)") { remove(last()) },
-    BuilderOperation("clear()") { clear() },
-    BuilderOperation("addAll(a hash set with a new element)") { addAll(persistentHashSetOf("new")) },
-    BuilderOperation("addAll(a list with a stored and a new element)") { addAll(listOf(first(), "new")) },
-    BuilderOperation("removeAll(a hash set holding the first element)") { removeAll(persistentHashSetOf(first())) },
-    BuilderOperation("removeAll(a list holding the first element)") { removeAll(listOf(first())) },
-    BuilderOperation("removeAll(the built set)") { removeAll(build()) },
-    BuilderOperation("retainAll(a hash set holding only the first element)") { retainAll(persistentHashSetOf(first())) },
-    BuilderOperation("retainAll(a list holding only the first element)") { retainAll(listOf(first())) },
-    BuilderOperation("retainAll(a hash set of missing elements)") { retainAll(persistentHashSetOf("missing")) },
-    BuilderOperation("add(a new element) then remove(it)") { add("new"); remove("new") },
-    BuilderOperation("remove(every element)") { for (element in toList()) remove(element) },
-    BuilderOperation("iterator().remove()") { iterator().apply { val _ = next(); remove() } },
-
-    BuilderOperation("add(a stored element)", throwsCME = false) { add(first()) },
-    BuilderOperation("add(an equal copy of a stored element)", throwsCME = false) { add(first().equalCopy()) },
-    BuilderOperation("remove(a missing element)", throwsCME = false) { remove("missing") },
-    BuilderOperation("addAll(the built set)", throwsCME = false) { addAll(build()) },
-    BuilderOperation("addAll(the stored elements as a list)", throwsCME = false) { addAll(toList()) },
-    BuilderOperation("addAll(an equal hash set)", throwsCME = false) { addAll(toList().toPersistentHashSet()) },
-    BuilderOperation("removeAll(a hash set of missing elements)", throwsCME = false) { removeAll(persistentHashSetOf("missing")) },
-    BuilderOperation("removeAll(a list of missing elements)", throwsCME = false) { removeAll(listOf("missing")) },
-    BuilderOperation("retainAll(a superset as a hash set)", throwsCME = false) { retainAll((toList() + "missing").toPersistentHashSet()) },
-    BuilderOperation("retainAll(a superset as a list)", throwsCME = false) { retainAll(toList() + "missing") },
-)
+val setOperations: List<BuilderOperation<PersistentSet.Builder<Any?>>> = operations {
+    thatKeepTheSize {
+        "no call" { }
+        "add(a stored element)" { add(first()) }
+        "add(an equal copy of a stored element)" { add(first().equalCopy()) }
+        "remove(a missing element)" { remove("missing") }
+        "addAll(the built set)" { addAll(build()) }
+        "addAll(the stored elements as a list)" { addAll(toList()) }
+        "addAll(an equal hash set)" { addAll(toList().toPersistentHashSet()) }
+        "removeAll(a hash set of missing elements)" { removeAll(persistentHashSetOf("missing")) }
+        "removeAll(a list of missing elements)" { removeAll(listOf("missing")) }
+        "retainAll(a superset as a hash set)" { retainAll((toList() + "missing").toPersistentHashSet()) }
+        "retainAll(a superset as a list)" { retainAll(toList() + "missing") }
+    }
+    thatMoveTheSize {
+        "add(a new element)" { add("new") }
+        "remove(the first element)" { remove(first()) }
+        "remove(the last element)" { remove(last()) }
+        "clear()" { clear() }
+        "addAll(a hash set with a new element)" { addAll(persistentHashSetOf("new")) }
+        "addAll(a list with a stored and a new element)" { addAll(listOf(first(), "new")) }
+        "removeAll(a hash set holding the first element)" { removeAll(persistentHashSetOf(first())) }
+        "removeAll(a list holding the first element)" { removeAll(listOf(first())) }
+        "removeAll(the built set)" { removeAll(build()) }
+        "retainAll(a hash set holding only the first element)" { retainAll(persistentHashSetOf(first())) }
+        "retainAll(a list holding only the first element)" { retainAll(listOf(first())) }
+        "retainAll(a hash set of missing elements)" { retainAll(persistentHashSetOf("missing")) }
+        "add(a new element) then remove(it)" { add("new"); remove("new") }
+        "remove(every element)" { for (element in toList()) remove(element) }
+        "iterator().remove()" { iterator().apply { val _ = next(); remove() } }
+    }
+}
