@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 class CellsTest {
     private val setOfTwo: Origins<MutableSet<Int>> = rows { "a set of 2" { mutableSetOf(1, 2) } }
     private val iterator: Views<MutableSet<Int>, MutableIterator<Int>> = rows { "iterator" { iterator() } }
-    private val noCall = operations<MutableSet<Int>> { thatKeepTheSize { "no call" { } } }
+    private val noCall = operations<MutableSet<Int>>(thatKeepTheSize = { "no call" { } })
     private val nextOnly: List<Call<MutableIterator<Int>>> = rows { "next()" { next() } }
 
     @Test
@@ -30,10 +30,10 @@ class CellsTest {
 
     @Test
     fun `a call that moves the size but is marked as keeping it or the other way round fails its cells`() {
-        val misplaced = operations<MutableSet<Int>> {
-            thatKeepTheSize { "add(3)" { add(3) } }
-            thatMoveTheSize { "no call" { } }
-        }
+        val misplaced = operations<MutableSet<Int>>(
+            thatKeepTheSize = { "add(3)" { add(3) } },
+            thatMoveTheSize = { "no call" { } },
+        )
         val failure = assertFailsWith<AssertionError> { runCells { testIterator(setOfTwo, iterator, misplaced, nextOnly) } }
         assertTrue(failure.message!!.startsWith("4 of 4 cells failed:"), failure.message)
     }

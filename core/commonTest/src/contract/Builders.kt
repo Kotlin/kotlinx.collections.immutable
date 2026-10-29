@@ -169,8 +169,8 @@ val mapViews: Views<PersistentMap.Builder<Any?, String>, MutableIterator<*>> = r
 }
 
 /** For builders of two elements or more, which set(1) and the second removeAt(lastIndex) need. */
-val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = operations {
-    thatKeepTheSize {
+val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = operations(
+    thatKeepTheSize = {
         "no call" { }
         "set(1)" { this[1] = "changed" }
         "set(lastIndex)" { this[lastIndex] = "changed" }
@@ -180,8 +180,8 @@ val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = operat
         "retainAll(a superset)" { retainAll(toList() + "missing") }
         "build()" { val _ = build() }
         "build() then set(1)" { val _ = build(); this[1] = "changed" }
-    }
-    thatMoveTheSize {
+    },
+    thatMoveTheSize = {
         "add()" { add("new") }
         "add(0)" { add(0, "new") }
         "removeAt(0)" { removeAt(0) }
@@ -193,8 +193,8 @@ val listOperations: List<BuilderOperation<PersistentList.Builder<Any>>> = operat
         "retainAll(the first element)" { retainAll(listOf(first())) }
         "add() then removeAt(lastIndex)" { add("new"); removeAt(lastIndex) }
         "iterator().remove()" { iterator().apply { val _ = next(); remove() } }
-    }
-}
+    },
+)
 
 private fun newValuesFor(keys: List<Any?>): PersistentMap<Any?, String> =
     persistentHashMapOf(*keys.mapIndexed { index, key -> key to "new $index" }.toTypedArray())
@@ -204,8 +204,8 @@ private fun entryOf(key: Any?, value: String): MutableMap.MutableEntry<Any?, Str
     mutableMapOf(key.equalCopy() to value.toCharArray().concatToString()).entries.first()
 
 /** For the hash and the ordered map builders; a hash map argument takes the hash builder's trie-by-trie path. */
-val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> = operations {
-    thatKeepTheSize {
+val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> = operations(
+    thatKeepTheSize = {
         "no call" { }
         "put(a new value for the first key)" { put(keys.first(), "changed") }
         "put(a new value for the last key)" { put(keys.last(), "changed") }
@@ -226,8 +226,8 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> =
         "remove(a missing key)" { remove("missing") }
         "entries.remove(the first key with another value)" { entries.remove(entryOf(keys.first(), "other")) }
         "build() then put(a new value for the first key)" { val _ = build(); put(keys.first(), "changed") }
-    }
-    thatMoveTheSize {
+    },
+    thatMoveTheSize = {
         "put(new key)" { put("new", "n") }
         "remove(the first key)" { remove(keys.first()) }
         "remove(the last key)" { remove(keys.last()) }
@@ -240,15 +240,15 @@ val mapOperations: List<BuilderOperation<PersistentMap.Builder<Any?, String>>> =
         "keys.iterator().remove()" { keys.iterator().apply { val _ = next(); remove() } }
         "entries.remove(an equal copy of the first entry)" { entries.remove(entryOf(keys.first(), getValue(keys.first()))) }
         "keys.remove(the first key)" { keys.remove(keys.first()) }
-    }
-}
+    },
+)
 
 /**
  * For the hash and the ordered set builders of two elements or more, which the rows that retain only the first element
  * need; a hash set argument takes the hash builder's trie-by-trie path.
  */
-val setOperations: List<BuilderOperation<PersistentSet.Builder<Any?>>> = operations {
-    thatKeepTheSize {
+val setOperations: List<BuilderOperation<PersistentSet.Builder<Any?>>> = operations(
+    thatKeepTheSize = {
         "no call" { }
         "add(a stored element)" { add(first()) }
         "add(an equal copy of a stored element)" { add(first().equalCopy()) }
@@ -260,8 +260,8 @@ val setOperations: List<BuilderOperation<PersistentSet.Builder<Any?>>> = operati
         "removeAll(a list of missing elements)" { removeAll(listOf("missing")) }
         "retainAll(a superset as a hash set)" { retainAll((toList() + "missing").toPersistentHashSet()) }
         "retainAll(a superset as a list)" { retainAll(toList() + "missing") }
-    }
-    thatMoveTheSize {
+    },
+    thatMoveTheSize = {
         "add(a new element)" { add("new") }
         "remove(the first element)" { remove(first()) }
         "remove(the last element)" { remove(last()) }
@@ -277,5 +277,5 @@ val setOperations: List<BuilderOperation<PersistentSet.Builder<Any?>>> = operati
         "add(a new element) then remove(it)" { add("new"); remove("new") }
         "remove(every element)" { for (element in toList()) remove(element) }
         "iterator().remove()" { iterator().apply { val _ = next(); remove() } }
-    }
-}
+    },
+)
