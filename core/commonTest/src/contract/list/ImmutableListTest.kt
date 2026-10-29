@@ -6,8 +6,8 @@
 package tests.contract.list
 
 import kotlinx.collections.immutable.*
-import tests.contract.compare
-import tests.contract.listBehavior
+import kotlinx.collections.immutable.implementations.immutableList.PersistentVectorBuilder
+import tests.contract.*
 import tests.*
 import kotlin.test.*
 
@@ -163,23 +163,35 @@ class ImmutableListTest {
         val list = "abcxaxyz12".toImmutableList().toPersistentList()
         val builder = list.builder()
 
-        // builder needs to recreate the inner trie to apply the modification.
-        // So, structural changes in builder causes CME on subList iteration.
-        var subList = builder.subList(2, 5)
+        val subList = builder.subList(2, 5)
         builder[4] = 'x'
-        testOn(TestPlatform.JVM) {
-            assertFailsWith<ConcurrentModificationException> { subList.joinToString("") }
-        }
-
-        // builder is the exclusive owner of the inner trie.
-        // So, `set(index, value)` doesn't lead to structural changes.
-        subList = builder.subList(2, 5)
         assertEquals("cxx", subList.joinToString(""))
         builder[4] = 'b'
         assertEquals("cxb", subList.joinToString(""))
         subList.removeAt(0)
         assertEquals("xb", subList.joinToString(""))
         assertEquals("abxbxyz12", builder.joinToString(""))
+    }
+
+    private val PersistentList.Builder<*>.modCount: Int get() = (this as PersistentVectorBuilder<*>).getModCount()
+
+    /**
+     * The builder's clear drops the root and the tail in one step: one modification, and the builder goes on from the
+     * empty list.
+     */
+    @Test fun clearOfBuilder() = forEachBuilder(listBuilders) { builder ->
+        val elements = builder.toList()
+        val built = builder.build()
+        val modCount = builder.modCount
+
+        builder.clear()
+
+        assertEquals(1, builder.modCount - modCount, "modifications counted by clear()")
+        assertSame(persistentListOf(), builder.build(), "built after the clear")
+        val newElements = List<Any>(elements.size) { "new $it" }
+        for (element in newElements) builder.add(element)
+        assertEquals(newElements, builder.build(), "built after as many adds")
+        assertEquals(elements, built, "built before the clear")
     }
 
     fun <T> PersistentList<T>.testMutation(operation: MutableList<T>.() -> Unit) {

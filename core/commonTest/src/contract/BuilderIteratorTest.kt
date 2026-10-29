@@ -21,6 +21,19 @@ import kotlin.test.Test
  */
 class BuilderIteratorTest {
 
+    /** The list iterator also takes previous, add and set; its own add and remove do not freeze it, as in ArrayList. */
+    @Test
+    fun list() = runCells {
+        val emptyListCalls = operations<ListBuilder>(
+            thatKeepTheSize = { "no call" { } },
+            thatMoveTheSize = { "clear()" { clear() } },
+        )
+        testIterator(listBuilders, listViews, listOperations)
+        testIterator(listBuilders, listIteratorViews, listOperations)
+        testIterator(emptyListBuilders, listViews, emptyListCalls)
+        testIterator(emptyListBuilders, listIteratorViews, emptyListCalls)
+    }
+
     @Test
     fun hashSet() = runCells { testIterator(hashSetBuilders, setViews, setOperations) }
 
