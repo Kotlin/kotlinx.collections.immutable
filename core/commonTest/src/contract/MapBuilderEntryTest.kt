@@ -5,7 +5,6 @@
 
 package tests.contract
 
-import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentHashMapOf
 import tests.IntWrapper
 import tests.equalCopy
@@ -77,8 +76,6 @@ class MapBuilderEntryTest {
             assertEquals(mapOf(2 to "b"), builder.toMap())
         }
 }
-
-private typealias MapBuilder = PersistentMap.Builder<Any?, String>
 
 /** The calls beyond [mapOperations] that move a key's slot, take it away or bring it back. */
 private val slotMoves: List<BuilderOperation<MapBuilder>> = operations(
