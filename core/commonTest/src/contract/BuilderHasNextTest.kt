@@ -123,7 +123,7 @@ private fun <B> Cells.testHasNext(
                     at("nextIndex()") { assertEquals(returned, iterator.nextIndex()) }
                     at("previousIndex()") { assertEquals(returned - 1, iterator.previousIndex()) }
                 }
-                if (operation.throwsCME) assertFailsWith<ConcurrentModificationException>("next()") { iterator.next() }
+                if (operation.movesTheSize) assertFailsWith<ConcurrentModificationException>("next()") { iterator.next() }
             }
         }
     }
