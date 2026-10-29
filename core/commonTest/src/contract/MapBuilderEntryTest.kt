@@ -93,13 +93,13 @@ private val slotMoves: List<BuilderOperation<MapBuilder>> = operations {
 }
 
 /** The first call on an entry after a call through the builder, with nothing read from the entry in between. */
-private val firstReads: List<Pair<String, MutableMap.MutableEntry<Any?, String>.(expected: String) -> Unit>> = listOf(
-    "value" to { expected -> assertEquals(expected, value) },
-    "toString" to { expected -> assertEquals("$key=$expected", toString()) },
-    "hashCode" to { expected -> assertEquals(key.hashCode() xor expected.hashCode(), hashCode()) },
-    "equals" to { expected -> assertTrue(this == mapOf(key to expected).entries.single()) },
-    "setValue of the value it holds" to { expected -> assertSame(expected, setValue(expected)) },
-)
+private val firstReads: List<Pair<String, MutableMap.MutableEntry<Any?, String>.(expected: String) -> Unit>> = rows {
+    "value" { expected -> assertEquals(expected, value) }
+    "toString" { expected -> assertEquals("$key=$expected", toString()) }
+    "hashCode" { expected -> assertEquals(key.hashCode() xor expected.hashCode(), hashCode()) }
+    "equals" { expected -> assertTrue(this == mapOf(key to expected).entries.single()) }
+    "setValue of the value it holds" { expected -> assertSame(expected, setValue(expected)) }
+}
 
 private fun Cells.testEntries(builders: Origins<MapBuilder>, operations: List<BuilderOperation<MapBuilder>>) {
     for (operation in operations) for ((read, check) in firstReads) for ((origin, newBuilder) in builders) {

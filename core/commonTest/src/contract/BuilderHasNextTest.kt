@@ -131,16 +131,16 @@ private fun <B> Cells.testHasNext(
 
 private fun orderedMapOf(keys: List<MutableKey>) = keys.associateWith { "v${it.id}" }.toPersistentMap()
 
-private val orderedBuilderCollections: List<Pair<String, (List<MutableKey>) -> MutableCollection<*>>> = listOf(
-    "the ordered map builder's entries" to { keys -> orderedMapOf(keys).builder().entries },
-    "the ordered map builder's keys" to { keys -> orderedMapOf(keys).builder().keys },
-    "the ordered map builder's values" to { keys -> orderedMapOf(keys).builder().values },
-    "the ordered set builder" to { keys -> keys.toPersistentSet().builder() },
-)
+private val orderedBuilderCollections: List<Pair<String, (List<MutableKey>) -> MutableCollection<*>>> = rows {
+    "the ordered map builder's entries" { keys -> orderedMapOf(keys).builder().entries }
+    "the ordered map builder's keys" { keys -> orderedMapOf(keys).builder().keys }
+    "the ordered map builder's values" { keys -> orderedMapOf(keys).builder().values }
+    "the ordered set builder" { keys -> keys.toPersistentSet().builder() }
+}
 
-private val orderedCollections: List<Pair<String, (List<MutableKey>) -> Collection<*>>> = orderedBuilderCollections + listOf(
-    "the ordered map's entries" to { keys -> orderedMapOf(keys).entries },
-    "the ordered map's keys" to { keys -> orderedMapOf(keys).keys },
-    "the ordered map's values" to { keys -> orderedMapOf(keys).values },
-    "the ordered set" to { keys -> keys.toPersistentSet() },
-)
+private val orderedCollections: List<Pair<String, (List<MutableKey>) -> Collection<*>>> = orderedBuilderCollections + rows {
+    "the ordered map's entries" { keys -> orderedMapOf(keys).entries }
+    "the ordered map's keys" { keys -> orderedMapOf(keys).keys }
+    "the ordered map's values" { keys -> orderedMapOf(keys).values }
+    "the ordered set" { keys -> keys.toPersistentSet() }
+}
