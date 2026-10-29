@@ -73,15 +73,15 @@ class NoOpIdentityTest {
             val neighbour = if (index == 0) 1 else index - 1
             val list = wrappersOf(size).toPersistentList<Any?>().replacingAt(index, stored)
             testWrites("$shape, ${write.description} at $index", write, list, written, read = { this[index] },
-                writes = buildList {
-                    call("replacingAt") { replacingAt(index, written) }
-                    call("a builder's set, which returns the stored element") {
+                writes = rows {
+                    "replacingAt" { replacingAt(index, written) }
+                    "a builder's set, which returns the stored element" {
                         mutate { assertSameValue(stored, it.set(index, written), "what set returns") }
                     }
-                    call("the list iterator's set") { mutate { it.listIterator(index).run { val _ = next(); set(written) } } }
+                    "the list iterator's set" { mutate { it.listIterator(index).run { val _ = next(); set(written) } } }
                 },
-                writesElsewhereToo = buildList {
-                    call("a builder's set after a set at $neighbour") { mutate { it[neighbour] = NEW; it[index] = written } }
+                writesElsewhereToo = rows {
+                    "a builder's set after a set at $neighbour" { mutate { it[neighbour] = NEW; it[index] = written } }
                 },
             )
         }
@@ -150,44 +150,44 @@ private fun noElementOf(elements: Collection<Any?>): List<Pair<String, Collectio
     "a hash set of missing elements with the stored hashes" to elements.map { missingKey(it.hashCode()) }.toPersistentHashSet(),
 )
 
-private fun <C : PersistentCollection<Any?>> collectionNoOps(collection: C): List<Call<C>> = buildList {
-    call("a builder that is only built") { mutate { } }
+private fun <C : PersistentCollection<Any?>> collectionNoOps(collection: C): List<Call<C>> = rows {
+    "a builder that is only built" { mutate { } }
     for ((argument, elements) in noElementOf(collection)) {
-        call("removingAll($argument)") { removingAll(elements) }
-        call("removeAll($argument)") { mutate { it.removeAll(elements) } }
+        "removingAll($argument)" { removingAll(elements) }
+        "removeAll($argument)" { mutate { it.removeAll(elements) } }
     }
     for ((argument, elements) in everyElementOf(collection) + supersetsOf(collection)) {
-        call("retainingAll($argument)") { retainingAll(elements) }
-        call("retainAll($argument)") { mutate { it.retainAll(elements) } }
+        "retainingAll($argument)" { retainingAll(elements) }
+        "retainAll($argument)" { mutate { it.retainAll(elements) } }
     }
-    call("retainingAll(itself)") { retainingAll(this) }
-    call("removing(a missing element)") { removing("missing") }
-    call("remove(a missing element)") { mutate { it.remove("missing") } }
-    call("removingAll { false }") { removingAll { false } }
-    call("removeAll { false }") { mutate { it.removeAll { false } } }
-    call("retainAll { true }") { mutate { it.retainAll { true } } }
+    "retainingAll(itself)" { retainingAll(this) }
+    "removing(a missing element)" { removing("missing") }
+    "remove(a missing element)" { mutate { it.remove("missing") } }
+    "removingAll { false }" { removingAll { false } }
+    "removeAll { false }" { mutate { it.removeAll { false } } }
+    "retainAll { true }" { mutate { it.retainAll { true } } }
 }
 
-private fun <C : PersistentCollection<Any?>> collectionEmptyingCalls(collection: C): List<Call<C>> = buildList {
+private fun <C : PersistentCollection<Any?>> collectionEmptyingCalls(collection: C): List<Call<C>> = rows {
     for ((argument, elements) in everyElementOf(collection) + supersetsOf(collection)) {
-        call("removingAll($argument)") { removingAll(elements) }
-        call("removeAll($argument)") { mutate { it.removeAll(elements) } }
+        "removingAll($argument)" { removingAll(elements) }
+        "removeAll($argument)" { mutate { it.removeAll(elements) } }
     }
     for ((argument, elements) in noElementOf(collection)) {
-        call("retainingAll($argument)") { retainingAll(elements) }
-        call("retainAll($argument)") { mutate { it.retainAll(elements) } }
+        "retainingAll($argument)" { retainingAll(elements) }
+        "retainAll($argument)" { mutate { it.retainAll(elements) } }
     }
-    call("cleared()") { cleared() }
-    call("clear()") { mutate { it.clear() } }
-    call("removingAll { true }") { removingAll { true } }
-    call("removeAll { true }") { mutate { it.removeAll { true } } }
-    call("retainAll { false }") { mutate { it.retainAll { false } } }
-    call("removing every element") { collection.fold<Any?, PersistentCollection<Any?>>(this) { rest, element -> rest.removing(element) } }
-    call("remove of every element") { mutate { builder -> collection.forEach { builder.remove(it) } } }
-    call("the iterator's remove of every element") { mutate { it.iterator().run { while (hasNext()) { val _ = next(); remove() } } } }
-    call("minus an array of every element") { this - collection.toTypedArray() }
-    call("minus a sequence of every element") { this - collection.asSequence() }
-    call("minus an iterable that is not a collection of every element") { this - Iterable { collection.iterator() } }
+    "cleared()" { cleared() }
+    "clear()" { mutate { it.clear() } }
+    "removingAll { true }" { removingAll { true } }
+    "removeAll { true }" { mutate { it.removeAll { true } } }
+    "retainAll { false }" { mutate { it.retainAll { false } } }
+    "removing every element" { collection.fold<Any?, PersistentCollection<Any?>>(this) { rest, element -> rest.removing(element) } }
+    "remove of every element" { mutate { builder -> collection.forEach { builder.remove(it) } } }
+    "the iterator's remove of every element" { mutate { it.iterator().run { while (hasNext()) { val _ = next(); remove() } } } }
+    "minus an array of every element" { this - collection.toTypedArray() }
+    "minus a sequence of every element" { this - collection.asSequence() }
+    "minus an iterable that is not a collection of every element" { this - Iterable { collection.iterator() } }
 }
 
 private fun lists(): List<Pair<String, PersistentList<Any?>>> = listOf(
@@ -195,36 +195,36 @@ private fun lists(): List<Pair<String, PersistentList<Any?>>> = listOf(
     "a list of one element" to wrappersOf(1).toPersistentList(),
 ) + listShapes.map { (size, shape) -> "a list of $size, $shape" to wrappersOf(size).toPersistentList() }
 
-private fun listNoOps(list: PersistentList<Any?>): List<Call<PersistentList<Any?>>> = collectionNoOps(list) + buildList {
-    call("addingAll(nothing)") { addingAll(emptyList()) }
-    call("addAll(nothing)") { mutate { it.addAll(emptyList()) } }
-    call("addingAllAt(0, nothing)") { addingAllAt(0, emptyList()) }
-    call("addAll(0, nothing)") { mutate { it.addAll(0, emptyList()) } }
+private fun listNoOps(list: PersistentList<Any?>): List<Call<PersistentList<Any?>>> = collectionNoOps(list) + rows {
+    "addingAll(nothing)" { addingAll(emptyList()) }
+    "addAll(nothing)" { mutate { it.addAll(emptyList()) } }
+    "addingAllAt(0, nothing)" { addingAllAt(0, emptyList()) }
+    "addAll(0, nothing)" { mutate { it.addAll(0, emptyList()) } }
     for (index in boundaryIndices(list.size)) {
-        call("replacingAt($index, the stored element)") { replacingAt(index, list[index]) }
-        call("set($index, the stored element)") { mutate { it[index] = list[index] } }
-        call("listIterator($index).set(next())") { mutate { it.listIterator(index).run { set(next()) } } }
+        "replacingAt($index, the stored element)" { replacingAt(index, list[index]) }
+        "set($index, the stored element)" { mutate { it[index] = list[index] } }
+        "listIterator($index).set(next())" { mutate { it.listIterator(index).run { set(next()) } } }
     }
 }
 
-private fun listEmptyingCalls(list: PersistentList<Any?>): List<Call<PersistentList<Any?>>> = collectionEmptyingCalls(list) + buildList {
-    call("subList(0, size).clear()") { mutate { it.subList(0, it.size).clear() } }
-    call("removingAt(0) of every element") { list.fold(this) { rest, _ -> rest.removingAt(0) } }
-    call("removeAt(0) of every element") { mutate { while (it.isNotEmpty()) it.removeAt(0) } }
-    call("removingAt(lastIndex) of every element") { list.fold(this) { rest, _ -> rest.removingAt(rest.lastIndex) } }
-    call("removeAt(lastIndex) of every element") { mutate { while (it.isNotEmpty()) it.removeAt(it.lastIndex) } }
+private fun listEmptyingCalls(list: PersistentList<Any?>): List<Call<PersistentList<Any?>>> = collectionEmptyingCalls(list) + rows {
+    "subList(0, size).clear()" { mutate { it.subList(0, it.size).clear() } }
+    "removingAt(0) of every element" { list.fold(this) { rest, _ -> rest.removingAt(0) } }
+    "removeAt(0) of every element" { mutate { while (it.isNotEmpty()) it.removeAt(0) } }
+    "removingAt(lastIndex) of every element" { list.fold(this) { rest, _ -> rest.removingAt(rest.lastIndex) } }
+    "removeAt(lastIndex) of every element" { mutate { while (it.isNotEmpty()) it.removeAt(it.lastIndex) } }
 }
 
 /** The shortcuts for nothing to add and for removing the only element come after the index check. */
-private val outOfRangeCalls: List<Call<PersistentList<Any?>>> = buildList {
-    call("removingAt(-1)") { removingAt(-1) }
-    call("removeAt(-1)") { mutate { it.removeAt(-1) } }
-    call("removingAt(size)") { removingAt(size) }
-    call("removeAt(size)") { mutate { it.removeAt(it.size) } }
-    call("addingAllAt(-1, nothing)") { addingAllAt(-1, emptyList()) }
-    call("addAll(-1, nothing)") { mutate { it.addAll(-1, emptyList()) } }
-    call("addingAllAt(size + 1, nothing)") { addingAllAt(size + 1, emptyList()) }
-    call("addAll(size + 1, nothing)") { mutate { it.addAll(it.size + 1, emptyList()) } }
+private val outOfRangeCalls: List<Call<PersistentList<Any?>>> = rows {
+    "removingAt(-1)" { removingAt(-1) }
+    "removeAt(-1)" { mutate { it.removeAt(-1) } }
+    "removingAt(size)" { removingAt(size) }
+    "removeAt(size)" { mutate { it.removeAt(it.size) } }
+    "addingAllAt(-1, nothing)" { addingAllAt(-1, emptyList()) }
+    "addAll(-1, nothing)" { mutate { it.addAll(-1, emptyList()) } }
+    "addingAllAt(size + 1, nothing)" { addingAllAt(size + 1, emptyList()) }
+    "addAll(size + 1, nothing)" { mutate { it.addAll(it.size + 1, emptyList()) } }
 }
 
 private fun sets(empty: PersistentSet<Any?>): List<Pair<String, PersistentSet<Any?>>> = listOf(
@@ -232,22 +232,22 @@ private fun sets(empty: PersistentSet<Any?>): List<Pair<String, PersistentSet<An
     "a set of one element" to empty.adding(IntWrapper(1, 1)),
 ) + wrappedShapes.map { (shape, elements) -> "a set of $shape" to empty.addingAll(elements) }
 
-private fun setNoOps(set: PersistentSet<Any?>): List<Call<PersistentSet<Any?>>> = collectionNoOps(set) + buildList {
+private fun setNoOps(set: PersistentSet<Any?>): List<Call<PersistentSet<Any?>>> = collectionNoOps(set) + rows {
     for ((argument, elements) in everyElementOf(set) + nothing) {
-        call("addingAll($argument)") { addingAll(elements) }
-        call("addAll($argument)") { mutate { it.addAll(elements) } }
+        "addingAll($argument)" { addingAll(elements) }
+        "addAll($argument)" { mutate { it.addAll(elements) } }
     }
-    call("addingAll(itself)") { addingAll(this) }
-    call("addAll(the set it was made from)") { mutate { it.addAll(this) } }
+    "addingAll(itself)" { addingAll(this) }
+    "addAll(the set it was made from)" { mutate { it.addAll(this) } }
     for (element in set) {
-        call("adding($element)") { adding(element) }
-        call("add($element)") { mutate { it.add(element) } }
-        call("adding(a copy of $element)") { adding(element.equalCopy()) }
-        call("add(a copy of $element)") { mutate { it.add(element.equalCopy()) } }
-        call("removing(a missing element with the hash of $element)") { removing(missingKey(element.hashCode())) }
-        call("remove(a missing element with the hash of $element)") { mutate { it.remove(missingKey(element.hashCode())) } }
-        call("removing(a missing element beside $element at level 1)") { removing(missingBesideAtLevelOne(element)) }
-        call("remove(a missing element beside $element at level 1)") { mutate { it.remove(missingBesideAtLevelOne(element)) } }
+        "adding($element)" { adding(element) }
+        "add($element)" { mutate { it.add(element) } }
+        "adding(a copy of $element)" { adding(element.equalCopy()) }
+        "add(a copy of $element)" { mutate { it.add(element.equalCopy()) } }
+        "removing(a missing element with the hash of $element)" { removing(missingKey(element.hashCode())) }
+        "remove(a missing element with the hash of $element)" { mutate { it.remove(missingKey(element.hashCode())) } }
+        "removing(a missing element beside $element at level 1)" { removing(missingBesideAtLevelOne(element)) }
+        "remove(a missing element beside $element at level 1)" { mutate { it.remove(missingBesideAtLevelOne(element)) } }
     }
 }
 
@@ -268,62 +268,62 @@ private fun storedEntriesOf(map: Map<Any?, Any?>): List<Pair<String, Map<Any?, A
     "a hash map of the stored values under equal keys" to persistentHashMapOf(*map.map { (key, value) -> key.equalCopy() to value }.toTypedArray()),
 )
 
-private fun mapNoOps(map: PersistentMap<Any?, Any?>): List<Call<PersistentMap<Any?, Any?>>> = buildList {
-    call("a builder that is only built") { mutate { } }
+private fun mapNoOps(map: PersistentMap<Any?, Any?>): List<Call<PersistentMap<Any?, Any?>>> = rows {
+    "a builder that is only built" { mutate { } }
     for ((argument, argumentEntries) in storedEntriesOf(map)) {
-        call("puttingAll($argument)") { puttingAll(argumentEntries) }
-        call("putAll($argument)") { mutate { it.putAll(argumentEntries) } }
+        "puttingAll($argument)" { puttingAll(argumentEntries) }
+        "putAll($argument)" { mutate { it.putAll(argumentEntries) } }
     }
-    call("puttingAll(itself)") { puttingAll(this) }
-    call("putAll(the map it was made from)") { mutate { it.putAll(this) } }
+    "puttingAll(itself)" { puttingAll(this) }
+    "putAll(the map it was made from)" { mutate { it.putAll(this) } }
     for ((argument, argumentKeys) in noElementOf(map.keys)) {
-        call("minus($argument)") { this - argumentKeys }
-        call("keys.removeAll($argument)") { mutate { it.keys.removeAll(argumentKeys) } }
+        "minus($argument)" { this - argumentKeys }
+        "keys.removeAll($argument)" { mutate { it.keys.removeAll(argumentKeys) } }
     }
     for ((argument, argumentKeys) in everyElementOf(map.keys) + supersetsOf(map.keys)) {
-        call("keys.retainAll($argument)") { mutate { it.keys.retainAll(argumentKeys) } }
+        "keys.retainAll($argument)" { mutate { it.keys.retainAll(argumentKeys) } }
     }
-    call("removing(a missing key)") { removing("missing") }
-    call("remove(a missing key)") { mutate { it.remove("missing") } }
-    call("entries.removeAll { false }") { mutate { it.entries.removeAll { false } } }
-    call("entries.retainAll { true }") { mutate { it.entries.retainAll { true } } }
+    "removing(a missing key)" { removing("missing") }
+    "remove(a missing key)" { mutate { it.remove("missing") } }
+    "entries.removeAll { false }" { mutate { it.entries.removeAll { false } } }
+    "entries.retainAll { true }" { mutate { it.entries.retainAll { true } } }
     for ((key, value) in map) for ((keyName, sameKey) in listOf("$key" to key, "a copy of $key" to key.equalCopy())) {
-        call("putting($keyName, its value)") { putting(sameKey, value) }
-        call("put($keyName, its value)") { mutate { it[sameKey] = value } }
-        call("puttingAll(a hash map of $keyName and its value)") { puttingAll(persistentHashMapOf(sameKey to value)) }
-        call("putAll(a hash map of $keyName and its value)") { mutate { it.putAll(persistentHashMapOf(sameKey to value)) } }
+        "putting($keyName, its value)" { putting(sameKey, value) }
+        "put($keyName, its value)" { mutate { it[sameKey] = value } }
+        "puttingAll(a hash map of $keyName and its value)" { puttingAll(persistentHashMapOf(sameKey to value)) }
+        "putAll(a hash map of $keyName and its value)" { mutate { it.putAll(persistentHashMapOf(sameKey to value)) } }
     }
     for (key in map.keys) {
-        call("removing($key, a new value)") { removing(key, NEW) }
-        call("remove($key, a new value)") { mutate { val _ = it.remove(key, NEW) } }
-        call("removing(a missing key with the hash of $key)") { removing(missingKey(key.hashCode())) }
-        call("remove(a missing key with the hash of $key)") { mutate { it.remove(missingKey(key.hashCode())) } }
-        call("removing(a missing key beside $key at level 1)") { removing(missingBesideAtLevelOne(key)) }
-        call("remove(a missing key beside $key at level 1)") { mutate { it.remove(missingBesideAtLevelOne(key)) } }
+        "removing($key, a new value)" { removing(key, NEW) }
+        "remove($key, a new value)" { mutate { val _ = it.remove(key, NEW) } }
+        "removing(a missing key with the hash of $key)" { removing(missingKey(key.hashCode())) }
+        "remove(a missing key with the hash of $key)" { mutate { it.remove(missingKey(key.hashCode())) } }
+        "removing(a missing key beside $key at level 1)" { removing(missingBesideAtLevelOne(key)) }
+        "remove(a missing key beside $key at level 1)" { mutate { it.remove(missingBesideAtLevelOne(key)) } }
     }
 }
 
-private fun mapEmptyingCalls(map: PersistentMap<Any?, Any?>): List<Call<PersistentMap<Any?, Any?>>> = buildList {
+private fun mapEmptyingCalls(map: PersistentMap<Any?, Any?>): List<Call<PersistentMap<Any?, Any?>>> = rows {
     for ((argument, argumentKeys) in everyElementOf(map.keys) + supersetsOf(map.keys)) {
-        call("minus($argument)") { this - argumentKeys }
-        call("keys.removeAll($argument)") { mutate { it.keys.removeAll(argumentKeys) } }
+        "minus($argument)" { this - argumentKeys }
+        "keys.removeAll($argument)" { mutate { it.keys.removeAll(argumentKeys) } }
     }
     for ((argument, argumentKeys) in noElementOf(map.keys)) {
-        call("keys.retainAll($argument)") { mutate { it.keys.retainAll(argumentKeys) } }
+        "keys.retainAll($argument)" { mutate { it.keys.retainAll(argumentKeys) } }
     }
-    call("cleared()") { cleared() }
-    call("clear()") { mutate { it.clear() } }
-    call("values.clear()") { mutate { it.values.clear() } }
-    call("entries.removeAll { true }") { mutate { it.entries.removeAll { true } } }
-    call("entries.retainAll { false }") { mutate { it.entries.retainAll { false } } }
-    call("the entries' iterator's remove of every entry") { mutate { it.entries.iterator().run { while (hasNext()) { val _ = next(); remove() } } } }
-    call("removing every key") { map.keys.fold(this) { rest, key -> rest.removing(key) } }
-    call("remove of every key") { mutate { builder -> map.keys.forEach { builder.remove(it) } } }
-    call("removing every key with its value") { map.entries.fold(this) { rest, (key, value) -> rest.removing(key, value) } }
-    call("remove of every key with its value") { mutate { builder -> map.forEach { (key, value) -> val _ = builder.remove(key, value) } } }
-    call("minus an array of every key") { this - map.keys.toTypedArray() }
-    call("minus a sequence of every key") { this - map.keys.asSequence() }
-    call("minus an iterable that is not a collection of every key") { this - Iterable { map.keys.iterator() } }
+    "cleared()" { cleared() }
+    "clear()" { mutate { it.clear() } }
+    "values.clear()" { mutate { it.values.clear() } }
+    "entries.removeAll { true }" { mutate { it.entries.removeAll { true } } }
+    "entries.retainAll { false }" { mutate { it.entries.retainAll { false } } }
+    "the entries' iterator's remove of every entry" { mutate { it.entries.iterator().run { while (hasNext()) { val _ = next(); remove() } } } }
+    "removing every key" { map.keys.fold(this) { rest, key -> rest.removing(key) } }
+    "remove of every key" { mutate { builder -> map.keys.forEach { builder.remove(it) } } }
+    "removing every key with its value" { map.entries.fold(this) { rest, (key, value) -> rest.removing(key, value) } }
+    "remove of every key with its value" { mutate { builder -> map.forEach { (key, value) -> val _ = builder.remove(key, value) } } }
+    "minus an array of every key" { this - map.keys.toTypedArray() }
+    "minus a sequence of every key" { this - map.keys.asSequence() }
+    "minus an iterable that is not a collection of every key" { this - Iterable { map.keys.iterator() } }
 }
 
 /** [stored] and [written] box or make the value anew on every call; [changes] tells whether the write is stored. */
@@ -404,29 +404,31 @@ private fun Cells.testValueWrites(kind: String, newMap: (Map<Any?, Any?>) -> Per
         val content = keys.withIndex().associate { (index, shapeKey) -> shapeKey to IntWrapper(index, index) } + (key to stored)
         val everyKey = content + (key to written)
         testWrites("$kind of $shape, ${write.description} under the key at $position", write, newMap(content), written, read = { this[key] },
-            writes = buildList {
-                call("putting") { putting(key, written) }
-                call("a builder's put, which returns the stored value") {
+            writes = rows {
+                "putting" { putting(key, written) }
+                "a builder's put, which returns the stored value" {
                     mutate { assertSameValue(stored, it.put(key, written), "what put returns") }
                 }
-                call("an entry's setValue, which returns the stored value") {
+                "an entry's setValue, which returns the stored value" {
                     mutate { builder -> assertSameValue(stored, builder.entries.first { it.key == key }.setValue(written), "what setValue returns") }
                 }
-                addAll(putAllCalls("a hash map of the key" to mapOf(key to written), "a hash map of every key" to everyKey))
+                putAllCalls("a hash map of the key" to mapOf(key to written), "a hash map of every key" to everyKey)
             },
-            writesElsewhereToo = putAllCalls(
-                "new values for the other keys" to content.mapValues { NEW } + (key to written),
-                "a new key beside it at level 1" to mapOf(key to written, missingBesideAtLevelOne(key) to NEW),
-                "every key and a new key with its hash" to everyKey + (missingKey(key.hashCode()) to NEW),
-            ),
+            writesElsewhereToo = rows {
+                putAllCalls(
+                    "new values for the other keys" to content.mapValues { NEW } + (key to written),
+                    "a new key beside it at level 1" to mapOf(key to written, missingBesideAtLevelOne(key) to NEW),
+                    "every key and a new key with its hash" to everyKey + (missingKey(key.hashCode()) to NEW),
+                )
+            },
         )
     }
 }
 
-/** A puttingAll and a builder's putAll of each argument as a hash map, which a hash map merges trie by trie. */
-private fun putAllCalls(vararg arguments: Pair<String, Map<Any?, Any?>>): List<Call<PersistentMap<Any?, Any?>>> = buildList {
+/** Rows of a puttingAll and a builder's putAll of each argument as a hash map, which a hash map merges trie by trie. */
+private fun Rows<PersistentMap<Any?, Any?>.() -> Any?>.putAllCalls(vararg arguments: Pair<String, Map<Any?, Any?>>) {
     for ((argument, entries) in arguments) {
-        call("puttingAll of $argument") { puttingAll(entries.toPersistentHashMap()) }
-        call("a builder's putAll of $argument") { mutate { it.putAll(entries.toPersistentHashMap()) } }
+        "puttingAll of $argument" { puttingAll(entries.toPersistentHashMap()) }
+        "a builder's putAll of $argument" { mutate { it.putAll(entries.toPersistentHashMap()) } }
     }
 }
