@@ -49,15 +49,14 @@ class BuilderIteratorTest {
     @Test
     fun `clear of an empty map or set builder freezes its iterators and calls that change nothing do not`() = runCells {
         val mapCalls = operations<PersistentMap.Builder<Any?, String>>(
-            thatMoveTheSize = { "clear()" { clear() } },
             thatKeepTheSize = {
                 "putAll(an empty hash map)" { putAll(persistentHashMapOf()) }
                 "keys.retainAll(a hash set)" { keys.retainAll(persistentHashSetOf(1, 2)) }
                 "keys.removeAll(a hash set)" { keys.removeAll(persistentHashSetOf(1, 2)) }
             },
+            thatMoveTheSize = { "clear()" { clear() } },
         )
         val setCalls = operations<PersistentSet.Builder<Any?>>(
-            thatMoveTheSize = { "clear()" { clear() } },
             thatKeepTheSize = {
                 "retainAll(a hash set)" { retainAll(persistentHashSetOf(1, 2)) }
                 "retainAll(the empty hash set)" { retainAll(persistentHashSetOf()) }
@@ -65,6 +64,7 @@ class BuilderIteratorTest {
                 "removeAll(a hash set)" { removeAll(persistentHashSetOf(1, 2)) }
                 "removeAll(a hash set builder)" { removeAll(persistentHashSetOf(1, 2).builder()) }
             },
+            thatMoveTheSize = { "clear()" { clear() } },
         )
         testIterator(emptyMapBuilders, mapViews, mapCalls, iteratorCalls)
         testIterator(emptySetBuilders, setViews, setCalls, iteratorCalls)
