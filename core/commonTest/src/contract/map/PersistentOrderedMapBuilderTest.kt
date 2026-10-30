@@ -5,6 +5,7 @@
 
 package tests.contract.map
 
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -195,6 +196,123 @@ class PersistentOrderedMapBuilderTest {
 
         assertEquals(0, builder.size)
         assertEquals(persistentMapOf(), builder.build())
+    }
+
+    @Test
+    fun `keys iterator removes last returned key after next throws`() {
+        removeAfterFailedNext(IteratorView.KEYS)
+    }
+
+    @Test
+    fun `values iterator removes last returned key after next throws`() {
+        removeAfterFailedNext(IteratorView.VALUES)
+    }
+
+    @Test
+    fun `entries iterator removes last returned key after next throws`() {
+        removeAfterFailedNext(IteratorView.ENTRIES)
+    }
+
+    @Test
+    fun `keys iterator rejects remove when the first next throws`() {
+        removeBeforeSuccessfulNext(IteratorView.KEYS)
+    }
+
+    @Test
+    fun `values iterator rejects remove when the first next throws`() {
+        removeBeforeSuccessfulNext(IteratorView.VALUES)
+    }
+
+    @Test
+    fun `entries iterator rejects remove when the first next throws`() {
+        removeBeforeSuccessfulNext(IteratorView.ENTRIES)
+    }
+
+    @Test
+    fun `keys iterator can retry after repeated next failures`() {
+        retryFailedNext(IteratorView.KEYS)
+    }
+
+    @Test
+    fun `values iterator can retry after repeated next failures`() {
+        retryFailedNext(IteratorView.VALUES)
+    }
+
+    @Test
+    fun `entries iterator can retry after repeated next failures`() {
+        retryFailedNext(IteratorView.ENTRIES)
+    }
+
+    private fun removeAfterFailedNext(view: IteratorView) {
+        val keys = List(3) { ThrowingHashCodeKey(it) }
+        val builder = persistentMapOf(*keys.map { it to it.id }.toTypedArray()).builder()
+        val iterator = view.iterator(builder)
+        val expected = view.elements(keys)
+        assertEquals(expected.first(), iterator.next())
+
+        keys[1].failHashCode = true
+        assertFailsWith<IllegalStateException> { iterator.next() }
+        keys[1].failHashCode = false
+        iterator.remove()
+
+        assertEquals(keys.drop(1), builder.keys.toList())
+        assertEquals(expected.drop(1), iterator.asSequence().toList())
+    }
+
+    private fun removeBeforeSuccessfulNext(view: IteratorView) {
+        val keys = List(3) { ThrowingHashCodeKey(it) }
+        val builder = persistentMapOf(*keys.map { it to it.id }.toTypedArray()).builder()
+        val iterator = view.iterator(builder)
+
+        keys[0].failHashCode = true
+        assertFailsWith<IllegalStateException> { iterator.next() }
+        keys[0].failHashCode = false
+        assertFailsWith<IllegalStateException> { iterator.remove() }
+
+        assertEquals(keys, builder.keys.toList())
+        assertEquals(view.elements(keys), iterator.asSequence().toList())
+    }
+
+    private fun retryFailedNext(view: IteratorView) {
+        val keys = List(3) { ThrowingHashCodeKey(it) }
+        val builder = persistentMapOf(*keys.map { it to it.id }.toTypedArray()).builder()
+        val iterator = view.iterator(builder)
+        val expected = view.elements(keys)
+        assertEquals(expected.first(), iterator.next())
+
+        keys[1].failHashCode = true
+        repeat(2) {
+            assertFailsWith<IllegalStateException> { iterator.next() }
+        }
+        keys[1].failHashCode = false
+
+        assertEquals(expected.drop(1), iterator.asSequence().toList())
+        assertEquals(keys, builder.keys.toList())
+    }
+
+    private enum class IteratorView {
+        KEYS, VALUES, ENTRIES;
+
+        fun iterator(builder: PersistentMap.Builder<ThrowingHashCodeKey, Int>): MutableIterator<*> = when (this) {
+            KEYS -> builder.keys.iterator()
+            VALUES -> builder.values.iterator()
+            ENTRIES -> builder.entries.iterator()
+        }
+
+        fun elements(keys: List<ThrowingHashCodeKey>): List<Any> = when (this) {
+            KEYS -> keys
+            VALUES -> keys.map { it.id }
+            ENTRIES -> keys.map { mapOf(it to it.id).entries.single() }
+        }
+    }
+
+    private class ThrowingHashCodeKey(val id: Int) {
+        var failHashCode = false
+
+        override fun hashCode(): Int {
+            check(!failHashCode)
+            return id
+        }
     }
 
     private class TraceKey(val value: Int, private val hash: Int) {
