@@ -26,13 +26,13 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
     override fun next(): LinkedValue<V> {
         checkForComodification()
         checkHasNext()
-        lastIteratedKey = nextKey
-        nextWasInvoked = true
-        index++
         @Suppress("UNCHECKED_CAST")
         val result = builder.hashMapBuilder.getOrElse(nextKey as K) {
             throw ConcurrentModificationException("Hash code of a key ($nextKey) has changed after it was added to the persistent map.")
         }
+        lastIteratedKey = nextKey
+        nextWasInvoked = true
+        index++
         nextKey = result.next
         return result
     }
