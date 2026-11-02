@@ -114,6 +114,7 @@ internal class PersistentOrderedSet<E>(
         replaceWith = ReplaceWith("retainingAll(elements)")
     )
     override fun retainAll(elements: Collection<E>): PersistentSet<E> {
+        if (isEmpty()) return this
         if (elements.isEmpty()) return PersistentOrderedSet.emptyOf<E>()
         return mutate { it.retainAll(elements) }
     }

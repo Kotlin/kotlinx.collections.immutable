@@ -67,6 +67,7 @@ internal class PersistentHashSet<E>(
         replaceWith = ReplaceWith("retainingAll(elements)")
     )
     override fun retainAll(elements: Collection<E>): PersistentSet<E> {
+        if (isEmpty()) return this
         if (elements.isEmpty()) return emptyOf()
         return mutate { it.retainAll(elements) }
     }
