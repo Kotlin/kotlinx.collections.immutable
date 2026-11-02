@@ -15,9 +15,23 @@ import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentHashSetTest {
+
+    @Test
+    fun `retaining elements in an emptied set preserves its identity`() {
+        val empty = persistentHashSetOf(1).removing(1)
+        assertSame(empty, empty.retainingAll(emptyList()))
+        assertSame(empty, empty.retainingAll(listOf(1)))
+        assertSame(empty, empty.retainingAll(persistentHashSetOf()))
+    }
+
+    @Test
+    fun `retaining no elements empties a non-empty set`() {
+        assertEquals(persistentHashSetOf(), persistentHashSetOf(1, 2).retainingAll(emptyList()))
+    }
 
     private val a1 = IntWrapper(1, 0)
     private val a2 = IntWrapper(2, 0)

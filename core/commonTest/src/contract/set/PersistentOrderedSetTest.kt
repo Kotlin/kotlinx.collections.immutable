@@ -8,9 +8,23 @@ package tests.contract.set
 import kotlinx.collections.immutable.persistentSetOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class PersistentOrderedSetTest {
+
+    @Test
+    fun `retaining elements in an emptied set preserves its identity`() {
+        val empty = persistentSetOf(1).removing(1)
+        assertSame(empty, empty.retainingAll(emptyList()))
+        assertSame(empty, empty.retainingAll(listOf(1)))
+        assertSame(empty, empty.retainingAll(persistentSetOf()))
+    }
+
+    @Test
+    fun `retaining no elements empties a non-empty set`() {
+        assertEquals(persistentSetOf(), persistentSetOf(1, 2).retainingAll(emptyList()))
+    }
 
     /**
      * Test from issue: https://github.com/Kotlin/kotlinx.collections.immutable/issues/204
