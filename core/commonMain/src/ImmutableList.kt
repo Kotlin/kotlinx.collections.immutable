@@ -49,6 +49,14 @@ public interface ImmutableList<out E> : List<E>, ImmutableCollection<E> {
 
         override val size: Int get() = _size
 
+        override fun equals(other: Any?): Boolean {
+            if (other is SubList<*> && source === other.source &&
+                fromIndex == other.fromIndex && toIndex == other.toIndex) {
+                return true
+            }
+            return super.equals(other)
+        }
+
         override fun subList(fromIndex: Int, toIndex: Int): ImmutableList<E> {
             ListImplementation.checkRangeIndexes(fromIndex, toIndex, this._size)
             return SubList(source, this.fromIndex + fromIndex, this.fromIndex + toIndex)
