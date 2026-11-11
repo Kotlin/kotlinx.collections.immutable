@@ -74,6 +74,12 @@ private fun Array<Any?>.removeNodeAtIndex(nodeIndex: Int): Array<Any?> {
 }
 
 
+/** A key's node buffer and index in it, `-1` while the key is absent, live while the builder's `modCount` stands. */
+internal interface TrieNodeSlot {
+    var buffer: Array<Any?>
+    var index: Int
+}
+
 internal class TrieNode<K, V>(
     private var dataMap: Int,
     private var nodeMap: Int,
@@ -403,6 +409,14 @@ internal class TrieNode<K, V>(
         return if (keyIndex != -1) valueAtKeyIndex(keyIndex) else null
     }
 
+    private fun collisionLocate(key: K, slot: TrieNodeSlot): Boolean {
+        val keyIndex = collisionKeyIndex(key)
+        if (keyIndex == -1) return false
+        slot.buffer = buffer
+        slot.index = keyIndex
+        return true
+    }
+
     private fun collisionPut(key: K, value: V): ModificationResult<K, V>? {
         val keyIndex = collisionKeyIndex(key)
         if (keyIndex != -1) {
@@ -664,6 +678,30 @@ internal class TrieNode<K, V>(
 
         // key is absent
         return null
+    }
+
+    /** Points [slot] at the entry with [key]. Returns `false`, leaving [slot] as it was, when the key is absent. */
+    fun locate(keyHash: Int, key: K, shift: Int, slot: TrieNodeSlot): Boolean {
+        val keyPositionMask = 1 shl indexSegment(keyHash, shift)
+
+        if (hasEntryAt(keyPositionMask)) { // key is directly in buffer
+            val keyIndex = entryKeyIndex(keyPositionMask)
+            if (key == keyAtIndex(keyIndex)) {
+                slot.buffer = buffer
+                slot.index = keyIndex
+                return true
+            }
+            return false
+        }
+        if (hasNodeAt(keyPositionMask)) { // key is in node
+            val targetNode = nodeAtIndex(nodeIndex(keyPositionMask))
+            if (shift == MAX_SHIFT) {
+                return targetNode.collisionLocate(key, slot)
+            }
+            return targetNode.locate(keyHash, key, shift + LOG_MAX_BRANCHING_FACTOR, slot)
+        }
+
+        return false
     }
 
     fun mutablePutAll(

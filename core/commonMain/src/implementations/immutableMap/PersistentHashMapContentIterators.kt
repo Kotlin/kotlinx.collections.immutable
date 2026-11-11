@@ -99,13 +99,15 @@ internal class TrieNodeEntriesIterator<out K, out V> : TrieNodeBaseIterator<K, V
     }
 }
 
-internal open class MapEntry<out K, out V>(override val key: K, override val value: V) : Map.Entry<K, V> {
+internal abstract class AbstractMapEntry<out K, out V> : Map.Entry<K, V> {
     override fun hashCode(): Int = key.hashCode() xor value.hashCode()
     override fun equals(other: Any?): Boolean =
         (other as? Map.Entry<*, *>)?.let { it.key == key && it.value == value } ?: false
 
     override fun toString(): String = "$key=$value"
 }
+
+internal class MapEntry<out K, out V>(override val key: K, override val value: V) : AbstractMapEntry<K, V>()
 
 
 internal abstract class PersistentHashMapBaseIterator<K, V, T>(
