@@ -201,6 +201,162 @@ class PersistentListBuilderTest {
     }
 
     @Test
+    fun `iterator remove and set without a preceding next after an external add throw IllegalStateException`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+
+            builder.add(3)
+
+            assertFailsWith<IllegalStateException>(flavour) { iterator.remove() }
+            assertFailsWith<IllegalStateException>(flavour) { iterator.set(-1) }
+            assertEquals(listOf(0, 1, 2, 3), builder.toList(), flavour)
+        }
+    }
+
+    @Test
+    fun `next after a remove and a set that threw IllegalStateException still throws ConcurrentModificationException`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+
+            builder.add(3)
+
+            assertFailsWith<IllegalStateException>(flavour) { iterator.remove() }
+            assertFailsWith<IllegalStateException>(flavour) { iterator.set(-1) }
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.next() }
+        }
+    }
+
+    @Test
+    fun `iterator remove and set on an untouched builder throw IllegalStateException`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+
+            assertFailsWith<IllegalStateException>(flavour) { iterator.remove() }
+            assertFailsWith<IllegalStateException>(flavour) { iterator.set(-1) }
+            assertEquals(listOf(0, 1, 2), builder.toList(), flavour)
+        }
+    }
+
+    @Test
+    fun `iterator remove after a next and an external add throws ConcurrentModificationException`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+            assertEquals(0, iterator.next(), flavour)
+
+            builder.add(3)
+
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.remove() }
+            assertEquals(listOf(0, 1, 2, 3), builder.toList(), flavour)
+        }
+    }
+
+    @Test
+    fun `iterator set twice after a next and an external add throws ConcurrentModificationException`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+            assertEquals(0, iterator.next(), flavour)
+            iterator.set(-1)
+
+            builder.add(3)
+
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.set(-2) }
+            assertEquals(listOf(-1, 1, 2, 3), builder.toList(), flavour)
+        }
+    }
+
+    @Test
+    fun `iterator remove and set after the iterator's own remove and add followed by an external add throw IllegalStateException`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+            assertEquals(0, iterator.next(), flavour)
+            iterator.remove()
+
+            builder.add(3)
+
+            assertFailsWith<IllegalStateException>(flavour) { iterator.remove() }
+            assertEquals(listOf(1, 2, 3), builder.toList(), flavour)
+        }
+
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+            assertEquals(0, iterator.next(), flavour)
+            iterator.add(-1)
+
+            builder.add(3)
+
+            assertFailsWith<IllegalStateException>(flavour) { iterator.set(-2) }
+            assertEquals(listOf(0, -1, 1, 2, 3), builder.toList(), flavour)
+        }
+    }
+
+    @Test
+    fun `iterator add without a preceding next inserts the element and still reports an external add`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+
+            iterator.add(-1)
+
+            assertEquals(listOf(-1, 0, 1, 2), builder.toList(), flavour)
+        }
+
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+
+            builder.add(3)
+
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.add(-1) }
+            assertEquals(listOf(0, 1, 2, 3), builder.toList(), flavour)
+        }
+    }
+
+    @Test
+    fun `iterator set without a preceding previous from a cursor at the end throws IllegalStateException`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator(3)
+
+            builder.add(3)
+
+            assertFailsWith<IllegalStateException>(flavour) { iterator.set(-1) }
+            assertEquals(listOf(0, 1, 2, 3), builder.toList(), flavour)
+        }
+    }
+
+    @Test
+    fun `iterator remove and set after an external remove past the returned index throw ConcurrentModificationException`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator(3)
+            assertEquals(2, iterator.previous(), flavour)
+
+            builder.removeAt(0)
+            builder.removeAt(0)
+
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.remove() }
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.set(-1) }
+            assertEquals(listOf(2), builder.toList(), flavour)
+        }
+    }
+
+    @Test
+    fun `next and previous throw ConcurrentModificationException rather than NoSuchElementException when the iteration cannot continue`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+            repeat(2) { val _ = iterator.next() }
+
+            builder.removeAt(2)
+
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.next() }
+        }
+
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+
+            builder.add(3)
+
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.previous() }
+        }
+    }
+
+    @Test
     fun `removeAll whose contains throws removes the elements matched before the throw and keeps the rest at every depth`() {
         val rows = listOf(
             Triple(3, listOf(0), 1),

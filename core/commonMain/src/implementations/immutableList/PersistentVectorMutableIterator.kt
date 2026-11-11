@@ -125,8 +125,8 @@ internal class PersistentVectorMutableIterator<T>(
     }
 
     override fun remove() {
-        checkForComodification()
         checkHasIterated()
+        checkForComodification()
 
         builder.removeAt(lastIteratedIndex)
         if (lastIteratedIndex < index) index = lastIteratedIndex
@@ -134,8 +134,8 @@ internal class PersistentVectorMutableIterator<T>(
     }
 
     override fun set(element: T) {
-        checkForComodification()
         checkHasIterated()
+        checkForComodification()
 
         builder[lastIteratedIndex] = element
     }
