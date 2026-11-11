@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 JetBrains s.r.o.
+ * Copyright 2016-2026 JetBrains s.r.o.
  * Use of this source code is governed by the Apache 2.0 License that can be found in the LICENSE.txt file.
  */
 
@@ -33,7 +33,7 @@ internal open class PersistentOrderedMapLinksIterator<K, V>(
 
 }
 
-internal class PersistentOrderedMapEntriesIterator<out K, out V>(map: PersistentOrderedMap<K, V>) :
+internal class PersistentOrderedMapEntriesIterator<out K, out V>(map: PersistentOrderedMapImpl<K, V>) :
     Iterator<Map.Entry<K, V>> {
     private val internal = PersistentOrderedMapLinksIterator(map.firstKey, map.hashMap)
 
@@ -49,7 +49,7 @@ internal class PersistentOrderedMapEntriesIterator<out K, out V>(map: Persistent
     }
 }
 
-internal class PersistentOrderedMapKeysIterator<out K, out V>(map: PersistentOrderedMap<K, V>) : Iterator<K> {
+internal class PersistentOrderedMapKeysIterator<out K, out V>(map: PersistentOrderedMapImpl<K, V>) : Iterator<K> {
     private val internal = PersistentOrderedMapLinksIterator(map.firstKey, map.hashMap)
 
     override fun hasNext(): Boolean {
@@ -64,7 +64,7 @@ internal class PersistentOrderedMapKeysIterator<out K, out V>(map: PersistentOrd
     }
 }
 
-internal class PersistentOrderedMapValuesIterator<out K, out V>(map: PersistentOrderedMap<K, V>) : Iterator<V> {
+internal class PersistentOrderedMapValuesIterator<out K, out V>(map: PersistentOrderedMapImpl<K, V>) : Iterator<V> {
     private val internal = PersistentOrderedMapLinksIterator(map.firstKey, map.hashMap)
 
     override fun hasNext(): Boolean {

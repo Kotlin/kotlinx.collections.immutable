@@ -392,8 +392,8 @@ class HashMapTrieNodeTest {
         val collisionMap = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2)
         val entryMap = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 10).putting(wrapper3, 3)
 
-        val sum = collisionMap.puttingAll(entryMap) as PersistentHashMap<IntWrapper, Int>
-        val reversedSum = entryMap.puttingAll(collisionMap) as PersistentHashMap<IntWrapper, Int>
+        val sum = collisionMap.puttingAll(entryMap)
+        val reversedSum = entryMap.puttingAll(collisionMap)
 
         for (map in listOf(sum, reversedSum)) {
             assertEquals(3, map.size)
@@ -447,7 +447,7 @@ class HashMapTrieNodeTest {
         val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2)
         val other = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper2, 4).putting(wrapper3, 6)
 
-        val sum = map.puttingAll(other) as PersistentHashMap<IntWrapper, Int>
+        val sum = map.puttingAll(other)
 
         assertEquals(3, sum.size)
         sum.node.accept { node: TrieNode<IntWrapper, Int>, shift: Int, _: Int, dataMap: Int, nodeMap: Int ->
@@ -488,7 +488,7 @@ class HashMapTrieNodeTest {
         val map = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 1).putting(wrapper2, 2)
         val other = PersistentHashMap.emptyOf<IntWrapper, Int>().putting(wrapper1, 10).putting(wrapper2, 20)
 
-        val sum = map.puttingAll(other) as PersistentHashMap<IntWrapper, Int>
+        val sum = map.puttingAll(other)
 
         assertEquals(2, sum.size)
         assertSame(other.node, sum.node)

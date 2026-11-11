@@ -33,7 +33,10 @@ public interface ImmutableMap<K, out V> : Map<K, V> {
  * A generic persistent collection that holds pairs of objects (keys and values) and supports efficiently retrieving
  * the value corresponding to each key. Map keys are unique; the map holds only one value for each key.
  *
- * Modification operations return new instances of the persistent map with the modification applied.
+ * Modification operations return new instances of the persistent map with the modification applied
+ * and the same iteration order guarantee.
+ * Iteration order depends on the implementation. [PersistentOrderedMap] preserves key insertion order,
+ * while [PersistentUnorderedMap] leaves iteration order unspecified.
  *
  * @param K the type of map keys. The map is invariant on its key type.
  * @param V the type of map values. The persistent map is covariant on its value type.
@@ -58,7 +61,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * Old functions mimicking [MutableMap] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use putting() instead. For more details, read the documentation for this function.",
@@ -82,7 +85,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * Old functions mimicking [MutableMap] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
@@ -106,7 +109,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * Old functions mimicking [MutableMap] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
@@ -136,7 +139,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * Old functions mimicking [MutableMap] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use puttingAll() instead. For more details, read the documentation for this function.",
@@ -158,7 +161,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      * Old functions mimicking [MutableMap] names, like this one,
      * were deprecated and will be removed in future releases. Refer to the
      * [Migration guide](https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/docs/0.5.0-MIGRATION.md)
-     * for more details and guidance with the migration.
+     * for more details and guidance on the migration.
      */
     @Deprecated(
         "Use cleared() instead. For more details, read the documentation for this function.",
