@@ -224,4 +224,12 @@ class ImmutableListTest {
 
         assertEquals<List<*>>(listOf("x", null, 1), listAny)
     }
+
+    @Test fun immutableListOrEmpty() {
+        val emptyList = (null as ImmutableList<String>?).orEmpty()
+        val notEmptyList = persistentListOf("a")
+
+        assertEquals(emptyList, persistentListOf())
+        assertEquals(notEmptyList, notEmptyList.orEmpty())
+    }
 }
