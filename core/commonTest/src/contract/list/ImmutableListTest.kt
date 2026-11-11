@@ -97,6 +97,14 @@ class ImmutableListTest {
         assertEquals("ace{e}gi9;", list.joinToString(""))
         assertFailsWith<IndexOutOfBoundsException> { list.replacingAt(-1, '0') }
         assertFailsWith<IndexOutOfBoundsException> { list.replacingAt(list.size + 1, '0') }
+
+        for (size in listOf(40, 100, 1100)) {
+            val nulls = List<Any?>(size) { null }.toPersistentList()
+            for (index in listOf(-1, size, size + 31)) {
+                assertFailsWith<IndexOutOfBoundsException>("size $size index $index") { nulls.replacingAt(index, null) }
+                assertFailsWith<IndexOutOfBoundsException>("size $size index $index") { nulls.mutate { it[index] = null } }
+            }
+        }
     }
 
     @Test fun removeElements() {
@@ -185,6 +193,8 @@ class ImmutableListTest {
         compareLists(mutable, builder.build())
     }
 
+    private fun indices(size: Int) = listOf(0, 31, 32, 1023, 1024, size - 1).filter { it < size }.distinct()
+
     @Test fun noOperation() {
         persistentListOf<Int>().testNoOperation({ cleared() }, { clear() })
 
@@ -197,14 +207,80 @@ class ImmutableListTest {
             testNoOperation({ addingAll(emptyList()) }, { addAll(emptyList())})
             testNoOperation({ addingAllAt(2, emptyList()) }, { addAll(2, emptyList())})
         }
+
+        for (size in listOf(3, 40, 100, 1100)) {
+            val wrappers = List(size) { IntWrapper(it, it) }.toPersistentList()
+            for (index in indices(size)) {
+                val element = wrappers[index]
+                val equalElement = IntWrapper(index, index)
+                val elementAtNextIndex = wrappers[(index + 1) % size]
+                val message = "size $size index $index"
+
+                wrappers.testNoOperation({ replacingAt(index, element) }, { this[index] = element }, message)
+                wrappers.testNotNoOperation({ replacingAt(index, equalElement) }, { this[index] = equalElement }, message)
+                wrappers.testNotNoOperation({ replacingAt(index, elementAtNextIndex) }, { this[index] = elementAtNextIndex }, message)
+            }
+        }
+
+        val sameSlot = List(40) { IntWrapper(it, it) }.toPersistentList()
+        sameSlot.testNotNoOperation({ replacingAt(39, this[7]) }, { this[39] = this[7] })
+        sameSlot.testNotNoOperation({ replacingAt(7, this[39]) }, { this[7] = this[39] })
     }
 
-    fun <T> PersistentList<T>.testNoOperation(persistent: PersistentList<T>.() -> PersistentList<T>, mutating: MutableList<T>.() -> Unit) {
+    fun <T> PersistentList<T>.testNoOperation(persistent: PersistentList<T>.() -> PersistentList<T>, mutating: MutableList<T>.() -> Unit, message: String? = null) {
         val result = this.persistent()
         val buildResult = this.mutate(mutating)
         // Ensure non-mutating operations return the same instance
-        assertTrue(this === result)
-        assertTrue(this === buildResult)
+        assertSame(this, result, message)
+        assertSame(this, buildResult, message)
+    }
+
+    fun <T> PersistentList<T>.testNotNoOperation(persistent: PersistentList<T>.() -> PersistentList<T>, mutating: MutableList<T>.() -> Unit, message: String? = null) {
+        val result = this.persistent()
+        val buildResult = this.mutate(mutating)
+        // Ensure mutating operations do not return the same instance
+        assertNotSame(this, result, message)
+        assertNotSame(this, buildResult, message)
+    }
+
+    @Test fun replacingAtEqualButNotSameElement() {
+        for (size in listOf(3, 40, 100, 1100)) {
+            val list = List(size) { IntWrapper(it, it) }.toPersistentList()
+            for (index in indices(size)) {
+                val newElement = IntWrapper(index, index)
+                val newList = list.replacingAt(index, newElement)
+                assertNotSame(list, newList, "size $size index $index")
+                assertEquals(list, newList, "size $size index $index")
+                assertSame(newElement, newList[index], "size $size index $index")
+
+                assertSame(newList, newList.replacingAt(index, newElement), "size $size index $index")
+                assertSame(newList, newList.mutate { it[index] = newElement }, "size $size index $index")
+            }
+        }
+    }
+
+    @Test fun replacingAtNullElements() {
+        val element = Any()
+        for (size in listOf(3, 40, 100, 1100)) {
+            val nulls = List<Any?>(size) { null }.toPersistentList()
+            for (index in indices(size)) {
+                val message = "size $size index $index"
+                nulls.testNoOperation({ replacingAt(index, null) }, { this[index] = null }, message)
+
+                val withElement = nulls.replacingAt(index, element)
+                assertNotSame(nulls, withElement, message)
+                assertSame(element, withElement[index], message)
+
+                val builder = withElement.builder()
+                assertSame(element, builder.set(index, null), message)
+                assertNull(builder[index], message)
+                assertNull(builder.set(index, null), message)
+
+                val nullBuilder = nulls.builder()
+                assertNull(nullBuilder.set(index, element), message)
+                assertSame(element, nullBuilder[index], message)
+            }
+        }
     }
 
     @Test fun covariantTyping() {

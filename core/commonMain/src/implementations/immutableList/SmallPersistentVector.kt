@@ -153,6 +153,7 @@ internal class SmallPersistentVector<E>(private val buffer: Array<Any?>) : Abstr
 
     override fun replacingAt(index: Int, element: E): PersistentList<E> {
         checkElementIndex(index, size)
+        if (buffer[index] === element) return this
         val newBuffer = buffer.copyOf()
         newBuffer[index] = element
         return SmallPersistentVector(newBuffer)

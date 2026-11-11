@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.implementations.immutableList.PersistentVectorBuilder
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
+import tests.IntWrapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -24,6 +25,15 @@ class PersistentListBuilderTest {
         val fromAdds = persistentListOf<Int>().builder().apply { addAll(List(size) { it }) }
         return listOf("from a list" to fromList, "from adds" to fromAdds)
     }
+
+    private fun wrapperBuilders(size: Int): List<Pair<String, PersistentVectorBuilder<IntWrapper>>> {
+        val elements = List(size) { IntWrapper(it, it) }
+        val fromList = elements.toPersistentList().builder() as PersistentVectorBuilder<IntWrapper>
+        val fromAdds = persistentListOf<IntWrapper>().builder().apply { addAll(elements) } as PersistentVectorBuilder<IntWrapper>
+        return listOf("from a list" to fromList, "from adds" to fromAdds)
+    }
+
+    private fun indices(size: Int) = listOf(0, 31, 32, 1023, 1024, size - 1).filter { it < size }.distinct()
 
     @Test
     fun `next after a set of the upcoming index returns the new element at every depth whether the builder came from a list or from adds`() {
@@ -45,7 +55,7 @@ class PersistentListBuilderTest {
     @Test
     fun `next after a set that copies a leaf under an owned root returns the new element`() {
         val builder = List(100) { it }.toPersistentList().builder() as PersistentVectorBuilder<Int>
-        builder[40] = 40 // copies the root and the leaf of indices 32 to 63, the leaf of indices 0 to 31 stays unowned
+        builder[40] = -40 // copies the root and the leaf of indices 32 to 63, the leaf of indices 0 to 31 stays unowned
         val root = builder.root
         val iterator = builder.iterator()
 
@@ -413,12 +423,94 @@ class PersistentListBuilderTest {
     fun `removeAll whose contains throws leaves the list built earlier untouched`() {
         val builder = persistentListOf<Int>().builder().apply { addAll(List(100) { it }) }
         val built = builder.build()
-        builder[0] = 0
+        builder[0] = -1
 
-        assertFailsWith<ContainsFailure> { builder.removeAll(ThrowingContains(listOf(0, 33), 50)) }
+        assertFailsWith<ContainsFailure> { builder.removeAll(ThrowingContains(listOf(-1, 33), 50)) }
 
         assertEquals(List(100) { it }, built)
         assertEquals((1..32) + (34..99), builder.toList())
+    }
+
+    @Test
+    fun `set of the element stored at the index keeps the buffers and the built list at every depth whether the builder came from a list or from adds`() {
+        for (size in listOf(3, 40, 100, 1100)) {
+            for ((flavour, builder) in wrapperBuilders(size)) {
+                for (index in indices(size)) {
+                    val root = builder.root
+                    val tail = builder.tail
+                    val trieModCount = builder.trieModCount
+                    val element = builder[index]
+
+                    assertSame(element, builder.set(index, element), "$flavour at size $size index $index before the build")
+
+                    assertSame(root, builder.root, "$flavour at size $size index $index before the build")
+                    assertSame(tail, builder.tail, "$flavour at size $size index $index before the build")
+                    assertEquals(trieModCount, builder.trieModCount, "$flavour at size $size index $index before the build")
+                }
+
+                val built = builder.build()
+                for (index in indices(size)) {
+                    val root = builder.root
+                    val tail = builder.tail
+                    val trieModCount = builder.trieModCount
+                    val element = builder[index]
+
+                    assertSame(element, builder.set(index, element), "$flavour at size $size index $index")
+
+                    assertSame(root, builder.root, "$flavour at size $size index $index")
+                    assertSame(tail, builder.tail, "$flavour at size $size index $index")
+                    assertEquals(trieModCount, builder.trieModCount, "$flavour at size $size index $index")
+                    assertSame(built, builder.build(), "$flavour at size $size index $index")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `set of a different element returns the element that was stored at every depth whether the builder came from a list or from adds`() {
+        for (size in listOf(3, 40, 100, 1100)) {
+            for ((flavour, builder) in wrapperBuilders(size)) {
+                for (index in indices(size)) {
+                    val stored = builder[index]
+                    val element = IntWrapper(-index - 1, -index - 1)
+
+                    assertSame(stored, builder.set(index, element), "$flavour at size $size index $index")
+                    assertSame(element, builder[index], "$flavour at size $size index $index")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `set of the element stored in an unowned leaf under an owned root copies nothing`() {
+        val builder = List(100) { IntWrapper(it, it) }.toPersistentList().builder() as PersistentVectorBuilder<IntWrapper>
+        builder[40] = IntWrapper(-40, -40)
+        val root = builder.root
+        val leaf = root!![0]
+        val trieModCount = builder.trieModCount
+
+        builder[0] = builder[0]
+
+        assertSame(root, builder.root)
+        assertSame(leaf, builder.root!![0])
+        assertEquals(trieModCount, builder.trieModCount)
+    }
+
+    @Test
+    fun `set of the element stored at the index leaves a live iterator and the built list untouched at every depth`() {
+        for (size in listOf(3, 40, 100, 1100)) {
+            val list = List(size) { IntWrapper(it, it) }.toPersistentList()
+            val builder = list.builder()
+            val iterator = builder.iterator()
+            assertSame(list[0], iterator.next(), "size $size")
+
+            for (index in indices(size)) {
+                builder[index] = builder[index]
+            }
+
+            assertSame(list, builder.build(), "size $size")
+            assertSame(list[1], iterator.next(), "size $size")
+        }
     }
 
     private class ContainsFailure : Error()
