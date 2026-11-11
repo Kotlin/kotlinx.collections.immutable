@@ -195,6 +195,17 @@ class ImmutableHashSetTest : ImmutableSetTestBase() {
             compareSets(immutableSetOf<Int>(), left - right)
         }
     }
+
+    @Test fun buildPersistentHashSet() {
+        val expected = mutableSetOf<Int>()
+        val actual = buildPersistentHashSet {
+            for (i in 0..2000) {
+                add(i)
+                expected.add(i)
+            }
+        }
+        compareSetsUnordered(expected, actual)
+    }
 }
 
 class ImmutableOrderedSetTest : ImmutableSetTestBase() {
@@ -220,6 +231,17 @@ class ImmutableOrderedSetTest : ImmutableSetTestBase() {
         assertEquals(1, builder.filter { it === changing }.size)
         changing.add("break iteration")
         assertFailsWith<ConcurrentModificationException> { builder.filter { it === changing } }
+    }
+
+    @Test fun buildPersistentSet() {
+        val expected = mutableSetOf<Int>()
+        val actual = buildPersistentSet {
+            for (i in 0..2000) {
+                add(i)
+                expected.add(i)
+            }
+        }
+        compareSets(expected, actual)
     }
 }
 
