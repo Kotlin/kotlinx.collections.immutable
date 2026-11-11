@@ -39,6 +39,7 @@ internal open class PersistentOrderedMapBuilderLinksIterator<K, V>(
 
     override fun remove() {
         checkNextWasInvoked()
+        checkForComodification()
         builder.remove(lastIteratedKey)
         lastIteratedKey = null
         nextWasInvoked = false

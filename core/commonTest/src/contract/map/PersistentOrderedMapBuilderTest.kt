@@ -11,6 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class PersistentOrderedMapBuilderTest {
 
@@ -195,6 +196,74 @@ class PersistentOrderedMapBuilderTest {
 
         assertEquals(0, builder.size)
         assertEquals(persistentMapOf(), builder.build())
+    }
+
+    @Test
+    fun `iterator remove after a remove of a different key throws ConcurrentModificationException`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+        assertEquals(1, iterator.next().key)
+
+        assertEquals("b", builder.remove(2))
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(listOf(1), builder.build().keys.toList())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `iterator remove after a remove of an already visited key throws ConcurrentModificationException`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val iterator = builder.entries.iterator()
+        assertEquals(1, iterator.next().key)
+        assertEquals(2, iterator.next().key)
+
+        assertEquals("a", builder.remove(1))
+
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        val built = builder.build()
+        assertEquals(listOf(2, 3), built.keys.toList())
+        assertEquals(listOf("b", "c"), built.values.toList())
+    }
+
+    @Test
+    fun `iterator remove after external changes that cancel out in size throws ConcurrentModificationException`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val iterator = builder.entries.iterator()
+        assertEquals(1, iterator.next().key)
+
+        assertEquals("c", builder.remove(3))
+        assertNull(builder.put(4, "d"))
+
+        assertTrue(iterator.hasNext())
+        assertFailsWith<ConcurrentModificationException> { iterator.remove() }
+        assertEquals(listOf(1, 2, 4), builder.build().keys.toList())
+    }
+
+    @Test
+    fun `iterator remove without a preceding next after an external remove throws IllegalStateException`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b").builder()
+        val iterator = builder.entries.iterator()
+
+        assertEquals("b", builder.remove(2))
+
+        assertFailsWith<IllegalStateException> { iterator.remove() }
+        assertEquals(listOf(1), builder.build().keys.toList())
+    }
+
+    @Test
+    fun `keys and values iterator remove after a remove of a different key throws ConcurrentModificationException`() {
+        val builder = persistentMapOf(1 to "a", 2 to "b", 3 to "c").builder()
+        val keys = builder.keys.iterator()
+        val values = builder.values.iterator()
+        assertEquals(1, keys.next())
+        assertEquals("a", values.next())
+
+        assertEquals("c", builder.remove(3))
+
+        assertFailsWith<ConcurrentModificationException> { keys.remove() }
+        assertFailsWith<ConcurrentModificationException> { values.remove() }
+        assertEquals(listOf(1, 2), builder.build().keys.toList())
     }
 
     private class TraceKey(val value: Int, private val hash: Int) {

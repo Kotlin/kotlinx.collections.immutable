@@ -23,6 +23,7 @@ internal class PersistentHashSetMutableIterator<E>(private val builder: Persiste
 
     override fun remove() {
         checkNextWasInvoked()
+        checkForComodification()
         if (hasNext()) {
             val currentElement = currentElement()
 
