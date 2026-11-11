@@ -12,7 +12,9 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class PersistentListBuilderTest {
 
@@ -105,13 +107,94 @@ class PersistentListBuilderTest {
     }
 
     @Test
+    fun `hasNext after an external add to an exhausted iterator turns true and next throws`() {
+        for (size in listOf(3, 32, 40)) {
+            for ((flavour, builder) in builders(size)) {
+                val iterator = builder.iterator()
+                repeat(size) { val _ = iterator.next() }
+                assertFalse(iterator.hasNext(), "$flavour at size $size")
+
+                builder.add(size)
+
+                assertTrue(iterator.hasNext(), "$flavour at size $size")
+                assertFailsWith<ConcurrentModificationException>("$flavour at size $size") { iterator.next() }
+            }
+        }
+    }
+
+    @Test
+    fun `hasNext after an external removeAt that shrinks the builder to the cursor turns false`() {
+        for (size in listOf(3, 40)) {
+            for ((flavour, builder) in builders(size)) {
+                val iterator = builder.iterator()
+                repeat(size - 1) { val _ = iterator.next() }
+
+                builder.removeAt(size - 1)
+
+                assertFalse(iterator.hasNext(), "$flavour at size $size")
+            }
+        }
+    }
+
+    @Test
+    fun `hasNext after external removals that strand the cursor beyond the size stays true and next throws`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.iterator()
+            repeat(3) { val _ = iterator.next() }
+
+            builder.removeAt(2)
+            builder.removeAt(1)
+
+            assertTrue(iterator.hasNext(), flavour)
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.next() }
+        }
+    }
+
+    @Test
+    fun `hasNext on an iterator of an empty builder after an external add turns true and next throws`() {
+        val builder = persistentListOf<Int>().builder()
+        val iterator = builder.iterator()
+        assertFalse(iterator.hasNext())
+
+        builder.add(1)
+
+        assertTrue(iterator.hasNext())
+        assertFailsWith<ConcurrentModificationException> { iterator.next() }
+    }
+
+    @Test
+    fun `hasNext on an exhausted iterator after an external set that copies a leaf stays false`() {
+        val builder = List(40) { it }.toPersistentList().builder()
+        val iterator = builder.iterator()
+        repeat(40) { val _ = iterator.next() }
+
+        builder[0] = -1 // copies the root and the leaf of indices 0 to 31, the size stays the same
+
+        assertFalse(iterator.hasNext())
+        assertFailsWith<NoSuchElementException> { iterator.next() }
+    }
+
+    @Test
+    fun `hasPrevious after an external clear stays true and previous throws`() {
+        for ((flavour, builder) in builders(3)) {
+            val iterator = builder.listIterator()
+            repeat(2) { val _ = iterator.next() }
+
+            builder.clear()
+
+            assertTrue(iterator.hasPrevious(), flavour)
+            assertFailsWith<ConcurrentModificationException>(flavour) { iterator.previous() }
+        }
+    }
+
+    @Test
     fun `an add and a removeAt that cancel out in size still invalidate a live iterator`() {
         for ((flavour, builder) in builders(3)) {
             val iterator = builder.iterator()
             val _ = iterator.next()
 
             builder.add(-3)
-            val _ = builder.removeAt(3)
+            builder.removeAt(3)
 
             assertFailsWith<ConcurrentModificationException>(flavour) { iterator.next() }
         }

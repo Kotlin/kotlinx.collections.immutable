@@ -27,7 +27,6 @@ internal class PersistentOrderedSetMutableIterator<E>(private val builder: Persi
         lastIteratedElement = null
         nextWasInvoked = false
         expectedModCount = builder.hashMapBuilder.modCount
-        index--
     }
 
     private fun checkNextWasInvoked() {
