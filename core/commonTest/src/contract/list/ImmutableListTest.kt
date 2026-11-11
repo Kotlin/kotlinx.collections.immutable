@@ -125,6 +125,21 @@ class ImmutableListTest {
     }
 
     @Test
+    fun `removing an aligned suffix preserves the retained prefix`() {
+        for ((size, retainedSize) in listOf(65 to 32, 100 to 64)) {
+            val elements = List(size) { it }
+            val list = elements.toPersistentList()
+            val expected = elements.take(retainedSize)
+            val message = "size $size retaining $retainedSize"
+
+            assertEquals(expected, list.removingAll(elements.drop(retainedSize)), message)
+            assertEquals(expected, list.removingAll { it >= retainedSize }, message)
+            assertEquals(expected, list.retainingAll(expected), message)
+            assertEquals(elements, list, message)
+        }
+    }
+
+    @Test
     fun smallPersistentListFromMutableBuffer() {
         val list = List(33) { it }
         var vector = persistentListOf<Int>().mutate { it.addAll(list) }
