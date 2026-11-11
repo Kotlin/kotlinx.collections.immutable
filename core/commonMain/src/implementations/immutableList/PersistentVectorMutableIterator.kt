@@ -24,6 +24,12 @@ internal class PersistentVectorMutableIterator<T>(
     private var expectedModCount = builder.getModCount()
 
     /**
+     * The trieModCount the cached path of [trieIterator] was built at.
+     * Used to rebuild the path after a set copied a trie buffer.
+     */
+    private var pathModCount = builder.trieModCount
+
+    /**
      * Iterates over leaves of the builder.root trie.
      * This property is equal to null if builder.root is null.
      */
@@ -43,6 +49,7 @@ internal class PersistentVectorMutableIterator<T>(
     override fun previous(): T {
         checkForComodification()
         checkHasPrevious()
+        ensurePathIsLive()
 
         lastIteratedIndex = index - 1
 
@@ -59,6 +66,7 @@ internal class PersistentVectorMutableIterator<T>(
     override fun next(): T {
         checkForComodification()
         checkHasNext()
+        ensurePathIsLive()
 
         lastIteratedIndex = index
 
@@ -80,7 +88,12 @@ internal class PersistentVectorMutableIterator<T>(
         setupTrieIterator()
     }
 
+    private fun ensurePathIsLive() {
+        if (pathModCount != builder.trieModCount) setupTrieIterator()
+    }
+
     private fun setupTrieIterator() {
+        pathModCount = builder.trieModCount
         val root = builder.root
         if (root == null) {
             trieIterator = null
@@ -119,9 +132,6 @@ internal class PersistentVectorMutableIterator<T>(
         checkHasIterated()
 
         builder[lastIteratedIndex] = element
-
-        expectedModCount = builder.getModCount()
-        setupTrieIterator()
     }
 
     private fun checkForComodification() {

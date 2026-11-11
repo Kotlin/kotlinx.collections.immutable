@@ -163,17 +163,9 @@ class ImmutableListTest {
         val list = "abcxaxyz12".toImmutableList().toPersistentList()
         val builder = list.builder()
 
-        // builder needs to recreate the inner trie to apply the modification.
-        // So, structural changes in builder causes CME on subList iteration.
-        var subList = builder.subList(2, 5)
+        // the first `set` copies the tail the builder does not own, the second one writes in place; neither is a structural change
+        val subList = builder.subList(2, 5)
         builder[4] = 'x'
-        testOn(TestPlatform.JVM) {
-            assertFailsWith<ConcurrentModificationException> { subList.joinToString("") }
-        }
-
-        // builder is the exclusive owner of the inner trie.
-        // So, `set(index, value)` doesn't lead to structural changes.
-        subList = builder.subList(2, 5)
         assertEquals("cxx", subList.joinToString(""))
         builder[4] = 'b'
         assertEquals("cxb", subList.joinToString(""))
