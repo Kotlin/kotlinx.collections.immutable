@@ -29,7 +29,7 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      * Returns a new persistent collection with the specified [element] added,
      * or this instance if this collection does not support duplicates and it already contains the element.
      */
-    public fun adding(element: @UnsafeVariance E): PersistentCollection<E> = @Suppress("DEPRECATION") add(element)
+    public fun adding(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
      * Returns a new persistent collection with the specified [element] added,
@@ -44,16 +44,16 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      */
     @Deprecated(
         "Use adding() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("adding(element)")
+        replaceWith = ReplaceWith("adding(element)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun add(element: @UnsafeVariance E): PersistentCollection<E>
+    public fun add(element: @UnsafeVariance E): PersistentCollection<E> = adding(element)
 
     /**
      * Returns a new persistent collection with elements of the specified [elements] collection added,
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
-        @Suppress("DEPRECATION") addAll(elements)
+    public fun addingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
      * Returns a new persistent collection with elements of the specified [elements] collection added,
@@ -68,15 +68,16 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      */
     @Deprecated(
         "Use addingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("addingAll(elements)")
+        replaceWith = ReplaceWith("addingAll(elements)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun addAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun addAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> = addingAll(elements)
 
     /**
      * Returns a new persistent collection with a single appearance of the specified [element] removed,
      * or this instance if there is no such element in this collection.
      */
-    public fun removing(element: @UnsafeVariance E): PersistentCollection<E> = @Suppress("DEPRECATION") remove(element)
+    public fun removing(element: @UnsafeVariance E): PersistentCollection<E>
 
     /**
      * Returns a new persistent collection with a single appearance of the specified [element] removed,
@@ -91,17 +92,17 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("removing(element)")
+        replaceWith = ReplaceWith("removing(element)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun remove(element: @UnsafeVariance E): PersistentCollection<E>
+    public fun remove(element: @UnsafeVariance E): PersistentCollection<E> = removing(element)
 
     /**
      * Returns a new persistent collection containing all elements of this collection
      * except the elements contained in the specified [elements] collection,
      * or this instance if there are no elements to remove.
      */
-    public fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
-        @Suppress("DEPRECATION") removeAll(elements)
+    public fun removingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
      * Returns a new persistent collection containing all elements of this collection
@@ -117,16 +118,16 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      */
     @Deprecated(
         "Use removingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("removingAll(elements)")
+        replaceWith = ReplaceWith("removingAll(elements)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun removeAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> = removingAll(elements)
 
     /**
      * Returns a new persistent collection with elements matching the specified [predicate] removed,
      * or this instance if no elements match the predicate.
      */
-    public fun removingAll(predicate: (E) -> Boolean): PersistentCollection<E> =
-        @Suppress("DEPRECATION") removeAll(predicate)
+    public fun removingAll(predicate: (E) -> Boolean): PersistentCollection<E>
 
     /**
      * Returns a new persistent collection with elements matching the specified [predicate] removed,
@@ -141,17 +142,17 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      */
     @Deprecated(
         "Use removingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("removingAll(predicate)")
+        replaceWith = ReplaceWith("removingAll(predicate)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun removeAll(predicate: (E) -> Boolean): PersistentCollection<E>
+    public fun removeAll(predicate: (E) -> Boolean): PersistentCollection<E> = removingAll(predicate)
 
     /**
      * Returns a new persistent collection with elements in this collection that are also
      * contained in the specified [elements] collection,
      * or this instance if no modifications were made in the result of this operation.
      */
-    public fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> =
-        @Suppress("DEPRECATION") retainAll(elements)
+    public fun retainingAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
 
     /**
      * Returns a new persistent collection with elements in this collection that are also
@@ -167,14 +168,15 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      */
     @Deprecated(
         "Use retainingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("retainingAll(elements)")
+        replaceWith = ReplaceWith("retainingAll(elements)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E>
+    public fun retainAll(elements: Collection<@UnsafeVariance E>): PersistentCollection<E> = retainingAll(elements)
 
     /**
      * Returns an empty persistent collection.
      */
-    public fun cleared(): PersistentCollection<E> = @Suppress("DEPRECATION") clear()
+    public fun cleared(): PersistentCollection<E>
 
     /**
      * Returns an empty persistent collection.
@@ -188,9 +190,10 @@ public interface PersistentCollection<out E> : ImmutableCollection<E> {
      */
     @Deprecated(
         "Use cleared() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("cleared()")
+        replaceWith = ReplaceWith("cleared()"),
+        level = DeprecationLevel.ERROR
     )
-    public fun clear(): PersistentCollection<E>
+    public fun clear(): PersistentCollection<E> = cleared()
 
     /**
      * A generic builder of the persistent collection. Builder exposes its modification operations through the [MutableCollection] interface.

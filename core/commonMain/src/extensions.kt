@@ -282,7 +282,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(pairs: Sequence<P
  * Returns a new persistent map with keys and values from the specified [map] associated,
  * or this instance if no modifications were made in the result of this operation.
  *
- * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+ * The effect of this call is equivalent to that of calling `putting(k, v)` once for each
  * mapping from key `k` to value `v` in the specified map.
  */
 public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V>): PersistentMap<K, V> =
@@ -293,7 +293,7 @@ public inline operator fun <K, V> PersistentMap<out K, V>.plus(map: Map<out K, V
  * Returns a new persistent map with keys and values from the specified [map] associated,
  * or this instance if no modifications were made in the result of this operation.
  *
- * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+ * The effect of this call is equivalent to that of calling `putting(k, v)` once for each
  * mapping from key `k` to value `v` in the specified map.
  */
 @Suppress("UNCHECKED_CAST")
@@ -304,7 +304,7 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(map: Map<out K, V>): Persis
  * Returns a new persistent map with keys and values from the specified [map] associated,
  * or this instance if no modifications were made in the result of this operation.
  *
- * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+ * The effect of this call is equivalent to that of calling `putting(k, v)` once for each
  * mapping from key `k` to value `v` in the specified map.
  *
  * Use the function [puttingAll] to make it clear that a new map is returned.
@@ -316,7 +316,8 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(map: Map<out K, V>): Persis
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
-    replaceWith = ReplaceWith("puttingAll(map)")
+    replaceWith = ReplaceWith("puttingAll(map)"),
+    level = DeprecationLevel.ERROR
 )
 public fun <K, V> PersistentMap<out K, V>.putAll(map: Map<out K, V>): PersistentMap<K, V> = puttingAll(map)
 
@@ -340,7 +341,8 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Iterable<Pair<K, V>>
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
-    replaceWith = ReplaceWith("puttingAll(pairs)")
+    replaceWith = ReplaceWith("puttingAll(pairs)"),
+    level = DeprecationLevel.ERROR
 )
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Iterable<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
@@ -364,7 +366,8 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Array<out Pair<K, V>
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
-    replaceWith = ReplaceWith("puttingAll(pairs)")
+    replaceWith = ReplaceWith("puttingAll(pairs)"),
+    level = DeprecationLevel.ERROR
 )
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Array<out Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 
@@ -388,7 +391,8 @@ public fun <K, V> PersistentMap<out K, V>.puttingAll(pairs: Sequence<Pair<K, V>>
  */
 @Deprecated(
     "Use puttingAll() instead. For more details, read the documentation for this function.",
-    replaceWith = ReplaceWith("puttingAll(pairs)")
+    replaceWith = ReplaceWith("puttingAll(pairs)"),
+    level = DeprecationLevel.ERROR
 )
 public fun <K, V> PersistentMap<out K, V>.putAll(pairs: Sequence<Pair<K, V>>): PersistentMap<K, V> = puttingAll(pairs)
 

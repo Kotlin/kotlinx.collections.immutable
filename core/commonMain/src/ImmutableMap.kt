@@ -45,7 +45,7 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      *
      * If this map already contains a mapping for the key, the old value is replaced by the specified value.
      */
-    public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = @Suppress("DEPRECATION") put(key, value)
+    public fun putting(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
      * Returns a new persistent map with the specified [value] associated with the specified [key],
@@ -62,15 +62,16 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      */
     @Deprecated(
         "Use putting() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("putting(key, value)")
+        replaceWith = ReplaceWith("putting(key, value)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun put(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = putting(key, value)
 
     /**
      * Returns a new persistent map with the specified [key] and its corresponding value removed,
      * or this instance if it contains no mapping for the key.
      */
-    public fun removing(key: K): PersistentMap<K, V> = @Suppress("DEPRECATION") remove(key)
+    public fun removing(key: K): PersistentMap<K, V>
 
     /**
      * Returns a new persistent map with the specified [key] and its corresponding value removed,
@@ -85,16 +86,16 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("removing(key)")
+        replaceWith = ReplaceWith("removing(key)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun remove(key: K): PersistentMap<K, V>
+    public fun remove(key: K): PersistentMap<K, V> = removing(key)
 
     /**
      * Returns a new persistent map with the entry for the specified [key] and [value] removed,
      * or this instance if it contains no entry with the specified key and value.
      */
-    public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V> =
-        @Suppress("DEPRECATION") remove(key, value)
+    public fun removing(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
 
     /**
      * Returns a new persistent map with the entry for the specified [key] and [value] removed,
@@ -109,24 +110,25 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      */
     @Deprecated(
         "Use removing() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("removing(key, value)")
+        replaceWith = ReplaceWith("removing(key, value)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V>
+    public fun remove(key: K, value: @UnsafeVariance V): PersistentMap<K, V> = removing(key, value)
 
     /**
      * Returns a new persistent map with keys and values from the specified [m] map associated,
      * or this instance if no modifications were made in the result of this operation.
      *
-     * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+     * The effect of this call is equivalent to that of calling `putting(k, v)` once for each
      * mapping from key `k` to value `v` in the specified map.
      */
-    public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = @Suppress("DEPRECATION") putAll(m)
+    public fun puttingAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>
 
     /**
      * Returns a new persistent map with keys and values from the specified [m] map associated,
      * or this instance if no modifications were made in the result of this operation.
      *
-     * The effect of this call is equivalent to that of calling `put(k, v)` once for each
+     * The effect of this call is equivalent to that of calling `putting(k, v)` once for each
      * mapping from key `k` to value `v` in the specified map.
      *
      * Use the function [puttingAll] to make it clear that a new map is returned.
@@ -138,14 +140,15 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      */
     @Deprecated(
         "Use puttingAll() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("puttingAll(m)")
+        replaceWith = ReplaceWith("puttingAll(m)"),
+        level = DeprecationLevel.ERROR
     )
-    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V>
+    public fun putAll(m: Map<out K, @UnsafeVariance V>): PersistentMap<K, V> = puttingAll(m)
 
     /**
      * Returns an empty persistent map.
      */
-    public fun cleared(): PersistentMap<K, V> = @Suppress("DEPRECATION") clear()
+    public fun cleared(): PersistentMap<K, V>
 
     /**
      * Returns an empty persistent map.
@@ -159,9 +162,10 @@ public interface PersistentMap<K, out V> : ImmutableMap<K, V> {
      */
     @Deprecated(
         "Use cleared() instead. For more details, read the documentation for this function.",
-        replaceWith = ReplaceWith("cleared()")
+        replaceWith = ReplaceWith("cleared()"),
+        level = DeprecationLevel.ERROR
     )
-    public fun clear(): PersistentMap<K, V>
+    public fun clear(): PersistentMap<K, V> = cleared()
 
     /**
      * A generic builder of the persistent map. Builder exposes its modification operations through the [MutableMap] interface.
