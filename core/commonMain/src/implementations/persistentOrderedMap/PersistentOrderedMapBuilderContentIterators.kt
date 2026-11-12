@@ -93,6 +93,9 @@ private class MutableMapEntry<K, V>(
 
     override fun setValue(newValue: V): V {
         val result = links.value
+        if (newValue === result && builder.hashMapBuilder[key] === links) {
+            return result
+        }
         links = links.withValue(newValue)
         if (builder.hashMapBuilder.sizeModCount == expectedModCount) {
             builder.setLinkedValue(key, links)

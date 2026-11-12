@@ -15,6 +15,50 @@ import kotlin.test.assertSame
 class PersistentOrderedMapBuilderTest {
 
     @Test
+    fun `entry setValue with the same instance preserves the source map`() {
+        val value = Any()
+        val map = persistentMapOf(1 to value, 2 to null)
+        val builder = map.builder()
+        for (entry in builder.entries) {
+            assertSame(entry.value, entry.setValue(entry.value))
+        }
+        assertSame(map, builder.build())
+    }
+
+    @Test
+    fun `entry setValue with the same instance preserves a built snapshot`() {
+        val builder = persistentMapOf(1 to Any()).builder()
+        builder[2] = Any()
+        val snapshot = builder.build()
+        val entry = builder.entries.first()
+        assertSame(entry.value, entry.setValue(entry.value))
+        assertSame(snapshot, builder.build())
+    }
+
+    @Test
+    fun `entry setValue stores a distinct equal instance`() {
+        val oldValue = listOf(1)
+        val newValue = listOf(1)
+        val map = persistentMapOf(1 to oldValue)
+        val builder = map.builder()
+        val entry = builder.entries.first()
+        assertSame(oldValue, entry.setValue(newValue))
+        assertSame(newValue, entry.value)
+        assertSame(newValue, builder.build()[1])
+        assertSame(oldValue, map[1])
+    }
+
+    @Test
+    fun `entry setValue restores its value after the mapping is overwritten`() {
+        val value = Any()
+        val builder = persistentMapOf(1 to value).builder()
+        val entry = builder.entries.first()
+        builder[1] = Any()
+        entry.setValue(value)
+        assertSame(value, builder.build()[1])
+    }
+
+    @Test
     fun `no-op remove keeps the builder cache valid`() {
         val a = TraceKey(1, hash = 1)
         val b = TraceKey(2, hash = 1 or (1 shl 5))
